@@ -45,6 +45,23 @@ io-uring = { version = "0.6", optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
+criterion = { version = "0.5", features = ["html_reports", "async_tokio"] }
+
+[[bench]]
+name = "json_parsing"
+harness = false
+
+[[bench]]
+name = "buffer_pool"
+harness = false
+
+[[bench]]
+name = "routing"
+harness = false
+
+[[bench]]
+name = "consensus"
+harness = false
 
 [[bin]]
 name = "synthesis_orchestrator"
