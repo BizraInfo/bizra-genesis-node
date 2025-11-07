@@ -1,0 +1,60 @@
+# Rust/Cargo
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+*.profraw
+*.gcda
+*.gcno
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Documentation build
+/doc/
+book/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS specific
+Thumbs.db
+Desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Package manager
+node_modules/
+package-lock.json
+
+# Project specific
+New folder (2)/
