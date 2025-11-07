@@ -22,7 +22,7 @@ mod ai_backend;
 pub mod cli;
 mod consensus;
 mod parser;
-mod performance;
+pub mod performance;
 mod routing;
 mod scoring;
 mod trust;
