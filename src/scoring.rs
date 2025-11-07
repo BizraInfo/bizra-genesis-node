@@ -57,3 +57,76 @@ impl IhsanGate {
         0.96
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{Candidate, CandidateScores};
+    use serde_json::json;
+
+    fn create_test_candidate() -> Candidate {
+        Candidate {
+            model: "test-model".to_string(),
+            json: json!({"result": "test"}),
+            cost_usd: 0.001,
+            latency_ms: 100,
+            scores: CandidateScores::default(),
+        }
+    }
+
+    fn create_test_contract() -> Contract {
+        Contract::example()
+    }
+
+    #[test]
+    fn test_ihsan_gate_creation() {
+        let gate = IhsanGate::new(0.85);
+        assert_eq!(gate.ihsan_floor, 0.85);
+    }
+
+    #[test]
+    fn test_ihsan_scoring() {
+        let gate = IhsanGate::new(0.85);
+        let candidate = create_test_candidate();
+        let contract = create_test_contract();
+        
+        let score = gate.score(&candidate, &contract);
+        // Score should be a valid value between 0 and 1
+        assert!(score > 0.0);
+        assert!(score <= 1.0);
+    }
+
+    #[test]
+    fn test_ihsan_score_consistency() {
+        let gate = IhsanGate::new(0.85);
+        let candidate = create_test_candidate();
+        let contract = create_test_contract();
+        
+        let score1 = gate.score(&candidate, &contract);
+        let score2 = gate.score(&candidate, &contract);
+        
+        // Scores should be consistent for same input
+        assert!((score1 - score2).abs() < 0.01);
+    }
+
+    #[test]
+    fn test_formal_validity_calculation() {
+        let gate = IhsanGate::new(0.85);
+        let candidate = create_test_candidate();
+        let contract = create_test_contract();
+        
+        // This tests the internal calculation
+        // Since calculate_formal_validity is private, we test through score
+        let score = gate.score(&candidate, &contract);
+        assert!(score > 0.0);
+    }
+
+    #[test]
+    fn test_ihsan_floor_threshold() {
+        let mut gate = IhsanGate::new(0.95);
+        assert_eq!(gate.ihsan_floor, 0.95);
+        
+        gate.ihsan_floor = 0.80;
+        assert_eq!(gate.ihsan_floor, 0.80);
+    }
+}

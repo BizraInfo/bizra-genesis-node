@@ -78,3 +78,90 @@ impl ThompsonRouter {
         0.5
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_router_creation() {
+        let router = ThompsonRouter::new();
+        assert_eq!(router.route_stats.len(), 0);
+        assert_eq!(router.exploration_factor, 0.1);
+    }
+
+    #[test]
+    fn test_select_route_single() {
+        let mut router = ThompsonRouter::new();
+        let routes = vec!["route-a".to_string()];
+        let selected = router.select_route(&routes);
+        assert_eq!(selected, "route-a");
+    }
+
+    #[test]
+    fn test_select_route_multiple() {
+        let mut router = ThompsonRouter::new();
+        let routes = vec![
+            "route-a".to_string(),
+            "route-b".to_string(),
+            "route-c".to_string(),
+        ];
+        let selected = router.select_route(&routes);
+        assert!(routes.contains(&selected));
+    }
+
+    #[test]
+    fn test_update_win_rate() {
+        let mut router = ThompsonRouter::new();
+        router.update("route-a", true);
+        router.update("route-a", true);
+        router.update("route-a", false);
+
+        let win_rate = router.get_win_rate("route-a");
+        assert!((0.6..=0.7).contains(&win_rate)); // 2 wins out of 3 samples
+    }
+
+    #[test]
+    fn test_get_win_rate_unknown_route() {
+        let router = ThompsonRouter::new();
+        let win_rate = router.get_win_rate("unknown");
+        assert_eq!(win_rate, 0.5); // Default value
+    }
+
+    #[test]
+    fn test_exploration_for_new_routes() {
+        let mut router = ThompsonRouter::new();
+        let routes = vec!["new-route".to_string()];
+        // Should select new route even with no samples
+        let selected = router.select_route(&routes);
+        assert_eq!(selected, "new-route");
+    }
+
+    #[test]
+    fn test_win_rate_tracking() {
+        let mut router = ThompsonRouter::new();
+        
+        // Update with multiple successes
+        for _ in 0..10 {
+            router.update("route-a", true);
+        }
+        
+        // Update with failures
+        for _ in 0..5 {
+            router.update("route-a", false);
+        }
+        
+        let win_rate = router.get_win_rate("route-a");
+        assert!((0.6..=0.7).contains(&win_rate)); // 10 wins out of 15 samples
+    }
+
+    #[test]
+    #[should_panic(expected = "index out of bounds")]
+    fn test_empty_routes_panics() {
+        let mut router = ThompsonRouter::new();
+        let routes: Vec<String> = vec![];
+        // Current implementation will panic on empty slice access
+        // This documents the current behavior - in production, should handle gracefully
+        router.select_route(&routes);
+    }
+}

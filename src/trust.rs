@@ -135,4 +135,141 @@ impl ImpactTracker {
     pub fn record(&mut self, impact: ProofOfImpact) {
         self.impacts.push(impact);
     }
+
+    pub fn len(&self) -> usize {
+        self.impacts.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.impacts.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn create_test_candidate() -> Candidate {
+        Candidate {
+            model: "test-model".to_string(),
+            json: json!({"result": "test"}),
+            cost_usd: 0.001,
+            latency_ms: 100,
+            scores: crate::CandidateScores {
+                accuracy: 0.9,
+                safety: 0.95,
+                efficiency: 0.85,
+                ihsan: 0.9,
+            },
+        }
+    }
+
+    #[test]
+    fn test_trust_bridge_creation() {
+        let bridge = TrustBridge::new();
+        assert!(bridge.is_ok());
+    }
+
+    #[test]
+    fn test_receipt_creation() {
+        let candidate = create_test_candidate();
+        let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
+        assert_eq!(receipt.run_id, "test-run-id");
+        assert_eq!(receipt.winner_model, "test-model");
+        assert!(!receipt.winner_json_sha256.is_empty());
+        // public_key_der and signature are empty until signed
+        assert!(receipt.public_key_der.is_empty());
+        assert!(receipt.signature.is_empty());
+    }
+
+    #[test]
+    fn test_receipt_signing() {
+        let bridge = TrustBridge::new().unwrap();
+        let candidate = create_test_candidate();
+        let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
+        let signed = bridge.sign_receipt(receipt);
+        
+        assert!(!signed.signature.is_empty());
+        assert!(!signed.public_key_der.is_empty());
+    }
+
+    #[test]
+    fn test_receipt_verification() {
+        let bridge = TrustBridge::new().unwrap();
+        let candidate = create_test_candidate();
+        let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
+        let signed = bridge.sign_receipt(receipt);
+        
+        let verified = bridge.verify_receipt(&signed);
+        assert!(verified);
+    }
+
+    #[test]
+    fn test_receipt_verification_tampered() {
+        let bridge = TrustBridge::new().unwrap();
+        let candidate = create_test_candidate();
+        let mut receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
+        receipt = bridge.sign_receipt(receipt);
+        
+        // Tamper with the receipt
+        receipt.winner_model = "tampered-model".to_string();
+        
+        let verified = bridge.verify_receipt(&receipt);
+        assert!(!verified);
+    }
+
+    #[test]
+    fn test_proof_of_impact_normalized_score() {
+        let poi = ProofOfImpact {
+            quality: 90.0,
+            utility: 80.0,
+            trust: 85.0,
+            fairness: 75.0,
+            diversity: 70.0,
+        };
+        // (90 + 80 + 85 + 75 + 70) / 100 = 400 / 100 = 4.0
+        let normalized = poi.normalized_score();
+        assert!((3.99..=4.01).contains(&normalized));
+    }
+
+    #[test]
+    fn test_impact_tracker() {
+        let mut tracker = ImpactTracker::new();
+        assert!(tracker.is_empty());
+        
+        let poi = ProofOfImpact {
+            quality: 90.0,
+            utility: 80.0,
+            trust: 85.0,
+            fairness: 75.0,
+            diversity: 70.0,
+        };
+        
+        tracker.record(poi);
+        assert_eq!(tracker.len(), 1);
+        assert!(!tracker.is_empty());
+    }
+
+    #[test]
+    fn test_receipt_timestamp() {
+        let candidate = create_test_candidate();
+        let receipt1 = RunReceipt::new("run-1".to_string(), &candidate);
+        std::thread::sleep(std::time::Duration::from_millis(10));
+        let receipt2 = RunReceipt::new("run-2".to_string(), &candidate);
+        
+        assert!(receipt2.timestamp_ms >= receipt1.timestamp_ms);
+    }
+
+    #[test]
+    fn test_hash_json_consistency() {
+        let candidate1 = create_test_candidate();
+        let candidate2 = create_test_candidate();
+        
+        let receipt1 = RunReceipt::new("run-1".to_string(), &candidate1);
+        let receipt2 = RunReceipt::new("run-2".to_string(), &candidate2);
+        
+        // Same JSON should produce same hash
+        assert_eq!(receipt1.winner_json_sha256, receipt2.winner_json_sha256);
+    }
 }

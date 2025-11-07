@@ -291,4 +291,139 @@ mod integration_tests {
         println!("   Route A win rate: {:.2}", win_rate_a);
         println!("   Route B win rate: {:.2}", win_rate_b);
     }
+
+    #[tokio::test]
+    async fn test_orchestrator_with_moe_backend() {
+        // Test orchestrator creation with MOE backend
+        let result = SynthesisOrchestrator::with_moe();
+        // This may fail if Ollama is not available, which is OK
+        if result.is_ok() {
+            let mut orchestrator = result.unwrap();
+            let task = Task::example();
+            let contract = Contract::example();
+            let routes = vec!["test-route".to_string()];
+            
+            let synthesis_result = orchestrator.synthesize(&task, &contract, routes).await;
+            // Should succeed if Ollama is available
+            if synthesis_result.is_ok() {
+                let result = synthesis_result.unwrap();
+                assert!(!result.winner.model.is_empty());
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_orchestrator_error_handling() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["route-1".to_string()];
+        
+        // This should succeed
+        let result = orchestrator.synthesize(&task, &contract, routes).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_multiple_synthesis_runs() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["route-a".to_string(), "route-b".to_string()];
+        
+        // Run multiple syntheses
+        for i in 0..10 {
+            let result = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            assert!(result.is_ok(), "Synthesis {} failed", i);
+            let synthesis_result = result.unwrap();
+            assert!(!synthesis_result.winner.model.is_empty());
+        }
+    }
+
+    #[tokio::test]
+    async fn test_consensus_with_different_scores() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["model-1".to_string(), "model-2".to_string(), "model-3".to_string()];
+        
+        // Run synthesis and verify consensus works
+        let result = orchestrator.synthesize(&task, &contract, routes).await;
+        assert!(result.is_ok());
+        let synthesis_result = result.unwrap();
+        assert!(!synthesis_result.winner.model.is_empty());
+        assert!(synthesis_result.winner.scores.ihsan >= 0.0);
+    }
+
+    #[tokio::test]
+    async fn test_trust_receipt_generation() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["test-model".to_string()];
+        
+        let result = orchestrator.synthesize(&task, &contract, routes).await;
+        assert!(result.is_ok());
+        // Trust receipt should be generated internally
+        // We can't directly access it, but the synthesis should complete
+    }
+
+    #[tokio::test]
+    async fn test_impact_tracking() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["test-route".to_string()];
+        
+        // Run synthesis - impact should be recorded internally
+        let result = orchestrator.synthesize(&task, &contract, routes).await;
+        assert!(result.is_ok());
+        // Impact tracking is internal, but synthesis should complete successfully
+    }
+
+    #[tokio::test]
+    async fn test_router_adaptation_over_time() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["route-a".to_string(), "route-b".to_string()];
+        
+        // Run multiple syntheses - router should adapt internally
+        for _ in 0..20 {
+            let result = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            assert!(result.is_ok());
+        }
+        // Router adaptation is tested in test_thompson_sampling_adaptation
+    }
+
+    #[test]
+    fn test_orchestrator_creation_variants() {
+        // Test default creation
+        let orchestrator1 = SynthesisOrchestrator::new();
+        assert!(orchestrator1.is_ok());
+        
+        // Test MOE creation (may fail if Ollama not available)
+        let _orchestrator2 = SynthesisOrchestrator::with_moe();
+        // This is OK to fail if Ollama is not configured
+        
+        // Test that we can create multiple instances
+        let orchestrator3 = SynthesisOrchestrator::new();
+        assert!(orchestrator3.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_telemetry_collection() {
+        let mut orchestrator = SynthesisOrchestrator::new().unwrap();
+        let task = Task::example();
+        let contract = Contract::example();
+        let routes = vec!["test-route".to_string()];
+        
+        let result = orchestrator.synthesize(&task, &contract, routes).await;
+        assert!(result.is_ok());
+        
+        let synthesis_result = result.unwrap();
+        // Verify telemetry is collected
+        assert!(synthesis_result.telemetry.sli_metrics.json_compliance_rate >= 0.0);
+        assert!(synthesis_result.telemetry.sli_metrics.json_compliance_rate <= 1.0);
+    }
 }
