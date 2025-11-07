@@ -418,8 +418,12 @@ impl AIBackend for HybridBackend {
 mod tests {
     use super::*;
 
+    // =====================================================================
+    // SimulatedBackend Tests
+    // =====================================================================
+
     #[tokio::test]
-    async fn test_simulated_backend() {
+    async fn test_simulated_backend_basic() {
         let backend = SimulatedBackend;
         let task = Task::example();
 
@@ -434,12 +438,456 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_moe_metrics() {
+    async fn test_simulated_backend_single_candidate() {
+        let backend = SimulatedBackend;
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "route-a", 1)
+            .await
+            .unwrap();
+
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].model, "route-a-candidate-0");
+    }
+
+    #[tokio::test]
+    async fn test_simulated_backend_candidate_quality_scaling() {
+        let backend = SimulatedBackend;
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "test", 5)
+            .await
+            .unwrap();
+
+        // Verify quality increases with index
+        for (i, candidate) in candidates.iter().enumerate() {
+            let expected_quality = 0.8 + (i as f32 * 0.05);
+            assert_eq!(candidate.json["quality"], expected_quality);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_simulated_backend_cost_scaling() {
+        let backend = SimulatedBackend;
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "test", 3)
+            .await
+            .unwrap();
+
+        assert_eq!(candidates[0].cost_usd, 0.01);
+        assert_eq!(candidates[1].cost_usd, 0.02);
+        assert_eq!(candidates[2].cost_usd, 0.03);
+    }
+
+    #[tokio::test]
+    async fn test_simulated_backend_latency_scaling() {
+        let backend = SimulatedBackend;
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "test", 3)
+            .await
+            .unwrap();
+
+        assert_eq!(candidates[0].latency_ms, 1000);
+        assert_eq!(candidates[1].latency_ms, 1200);
+        assert_eq!(candidates[2].latency_ms, 1400);
+    }
+
+    #[tokio::test]
+    async fn test_simulated_backend_json_structure() {
+        let backend = SimulatedBackend;
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "test", 1)
+            .await
+            .unwrap();
+
+        assert!(candidates[0].json.get("task").is_some());
+        assert!(candidates[0].json.get("index").is_some());
+        assert!(candidates[0].json.get("quality").is_some());
+    }
+
+    // =====================================================================
+    // MoeMetrics Tests
+    // =====================================================================
+
+    #[test]
+    fn test_moe_metrics_default() {
+        let metrics = MoeMetrics::default();
+        assert_eq!(metrics.total_requests, 0);
+        assert_eq!(metrics.cache_hits, 0);
+        assert_eq!(metrics.cache_misses, 0);
+        assert_eq!(metrics.successful_responses, 0);
+        assert_eq!(metrics.failed_responses, 0);
+    }
+
+    #[test]
+    fn test_moe_metrics_cache_hit_rate_zero_requests() {
+        let metrics = MoeMetrics::default();
+        assert_eq!(metrics.cache_hit_rate(), 0.0);
+    }
+
+    #[test]
+    fn test_moe_metrics_cache_hit_rate() {
+        let metrics = MoeMetrics {
+            total_requests: 10,
+            cache_hits: 7,
+            cache_misses: 3,
+            ..Default::default()
+        };
+        assert_eq!(metrics.cache_hit_rate(), 0.7);
+    }
+
+    #[test]
+    fn test_moe_metrics_success_rate_zero_responses() {
+        let metrics = MoeMetrics::default();
+        assert_eq!(metrics.success_rate(), 0.0);
+    }
+
+    #[test]
+    fn test_moe_metrics_success_rate() {
+        let metrics = MoeMetrics {
+            successful_responses: 8,
+            failed_responses: 2,
+            ..Default::default()
+        };
+        assert_eq!(metrics.success_rate(), 0.8);
+    }
+
+    #[test]
+    fn test_moe_metrics_avg_latency_zero_responses() {
+        let metrics = MoeMetrics::default();
+        assert_eq!(metrics.avg_latency_ms(), 0.0);
+    }
+
+    #[test]
+    fn test_moe_metrics_avg_latency() {
+        let metrics = MoeMetrics {
+            total_latency_ms: 5000,
+            successful_responses: 10,
+            ..Default::default()
+        };
+        assert_eq!(metrics.avg_latency_ms(), 500.0);
+    }
+
+    // =====================================================================
+    // CachedResponse Tests
+    // =====================================================================
+
+    #[test]
+    fn test_cached_response_is_valid_fresh() {
+        let cached = CachedResponse {
+            response: "test".to_string(),
+            confidence: 0.9,
+            timestamp: std::time::Instant::now(),
+            ttl: std::time::Duration::from_secs(300),
+        };
+        assert!(cached.is_valid());
+    }
+
+    #[test]
+    fn test_cached_response_is_valid_expired() {
+        let cached = CachedResponse {
+            response: "test".to_string(),
+            confidence: 0.9,
+            timestamp: std::time::Instant::now() - std::time::Duration::from_secs(400),
+            ttl: std::time::Duration::from_secs(300),
+        };
+        assert!(!cached.is_valid());
+    }
+
+    // =====================================================================
+    // MoeBackend Tests
+    // =====================================================================
+
+    #[tokio::test]
+    async fn test_moe_backend_new() {
+        let backend = MoeBackend::new();
+        assert_eq!(backend.name(), "moe");
+
+        let metrics = backend.get_metrics().await;
+        assert_eq!(metrics.total_requests, 0);
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_with_config() {
+        let config = bizra_moe::OllamaConfig::default();
+        let backend = MoeBackend::with_config(config);
+        assert_eq!(backend.name(), "moe");
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_default() {
+        let backend = MoeBackend::default();
+        assert_eq!(backend.name(), "moe");
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_get_metrics() {
         let backend = MoeBackend::new();
         let metrics = backend.get_metrics().await;
 
         assert_eq!(metrics.total_requests, 0);
-        assert_eq!(metrics.cache_hit_rate(), 0.0);
-        assert_eq!(metrics.success_rate(), 0.0);
+        assert_eq!(metrics.cache_hits, 0);
+        assert_eq!(metrics.cache_misses, 0);
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_clear_cache() {
+        let backend = MoeBackend::new();
+
+        // Cache a response
+        backend
+            .cache_response(
+                "test prompt".to_string(),
+                "test response".to_string(),
+                0.95,
+            )
+            .await;
+
+        // Verify cached
+        assert!(backend.check_cache("test prompt").await.is_some());
+
+        // Clear cache
+        backend.clear_cache().await;
+
+        // Verify cache cleared
+        assert!(backend.check_cache("test prompt").await.is_none());
+    }
+
+    #[test]
+    fn test_moe_backend_task_to_prompt_with_examples() {
+        let task = Task {
+            examples: Some(vec![serde_json::json!({"test": "value"})]),
+        };
+
+        let prompt = MoeBackend::task_to_prompt(&task);
+        assert!(prompt.contains("examples"));
+        assert!(prompt.contains("JSON format"));
+    }
+
+    #[test]
+    fn test_moe_backend_task_to_prompt_without_examples() {
+        let task = Task { examples: None };
+
+        let prompt = MoeBackend::task_to_prompt(&task);
+        assert!(prompt.contains("Complete the given task"));
+        assert!(prompt.contains("JSON format"));
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_check_cache_miss() {
+        let backend = MoeBackend::new();
+        let result = backend.check_cache("nonexistent").await;
+        assert!(result.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_check_cache_hit() {
+        let backend = MoeBackend::new();
+
+        // Cache a response
+        backend
+            .cache_response("prompt1".to_string(), "response1".to_string(), 0.9)
+            .await;
+
+        // Check cache
+        let result = backend.check_cache("prompt1").await;
+        assert!(result.is_some());
+        let cached = result.unwrap();
+        assert_eq!(cached.response, "response1");
+        assert_eq!(cached.confidence, 0.9);
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_cache_expiration() {
+        let backend = MoeBackend::new();
+
+        // Cache with very short TTL (we'll manually create an expired entry)
+        let expired_cache = CachedResponse {
+            response: "old response".to_string(),
+            confidence: 0.8,
+            timestamp: std::time::Instant::now() - std::time::Duration::from_secs(400),
+            ttl: std::time::Duration::from_secs(300),
+        };
+
+        // Manually insert expired entry
+        {
+            let mut cache = backend.cache.write().await;
+            cache.insert("expired_prompt".to_string(), expired_cache);
+        }
+
+        // Should return None for expired entry
+        let result = backend.check_cache("expired_prompt").await;
+        assert!(result.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_cache_size_limit() {
+        let backend = MoeBackend::new();
+
+        // Add many entries to trigger cleanup check
+        for i in 0..1050 {
+            backend
+                .cache_response(format!("prompt-{}", i), format!("response-{}", i), 0.9)
+                .await;
+        }
+
+        // Cache cleanup only removes entries older than 600s when size > 1000
+        // Since all entries are fresh, they won't be removed
+        // This test verifies cleanup logic exists (doesn't panic)
+        let cache_size = backend.cache.read().await.len();
+        assert!(cache_size > 0, "Cache should contain entries");
+
+        // Verify cleanup code path was executed (size was checked)
+        assert!(cache_size >= 1000, "All fresh entries should be retained");
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_metrics_tracking() {
+        let backend = MoeBackend::new();
+
+        // Simulate some metrics updates
+        backend.update_metrics(|m| {
+            m.total_requests = 10;
+            m.cache_hits = 3;
+            m.cache_misses = 7;
+            m.successful_responses = 8;
+            m.failed_responses = 2;
+            m.total_latency_ms = 4000;
+            m.avg_confidence = 0.88;
+        }).await;
+
+        let metrics = backend.get_metrics().await;
+        assert_eq!(metrics.total_requests, 10);
+        assert_eq!(metrics.cache_hit_rate(), 0.3);
+        assert_eq!(metrics.success_rate(), 0.8);
+        assert_eq!(metrics.avg_latency_ms(), 500.0);
+    }
+
+    // =====================================================================
+    // HybridBackend Tests
+    // =====================================================================
+
+    #[tokio::test]
+    async fn test_hybrid_backend_creation() {
+        let config = bizra_moe::OllamaConfig::default();
+        let backend = HybridBackend::new(config);
+        assert_eq!(backend.name(), "hybrid");
+    }
+
+    #[tokio::test]
+    async fn test_hybrid_backend_health_check_simulated_healthy() {
+        let config = bizra_moe::OllamaConfig::default();
+        let backend = HybridBackend::new(config);
+
+        // Simulated is always healthy
+        let is_healthy = backend.health_check().await;
+        assert!(is_healthy, "Hybrid should be healthy if simulated is healthy");
+    }
+
+    // Note: Full MOE integration tests require Ollama running
+    // These are tested in integration tests when Ollama is available
+
+    // =====================================================================
+    // Integration Tests (Simulated-only)
+    // =====================================================================
+
+    #[tokio::test]
+    async fn test_backend_trait_simulated() {
+        let backend: Box<dyn AIBackend> = Box::new(SimulatedBackend);
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "test", 2)
+            .await
+            .unwrap();
+
+        assert_eq!(candidates.len(), 2);
+        assert!(backend.health_check().await);
+    }
+
+    #[tokio::test]
+    async fn test_candidate_model_naming() {
+        let backend = SimulatedBackend;
+        let task = Task::example();
+
+        let candidates = backend
+            .generate_candidates(&task, "my-route", 3)
+            .await
+            .unwrap();
+
+        assert!(candidates[0].model.contains("my-route"));
+        assert!(candidates[1].model.contains("my-route"));
+        assert!(candidates[2].model.contains("my-route"));
+    }
+
+    #[tokio::test]
+    async fn test_moe_backend_clone_metrics() {
+        let backend = MoeBackend::new();
+
+        backend.update_metrics(|m| {
+            m.total_requests = 5;
+            m.cache_hits = 2;
+        }).await;
+
+        let metrics1 = backend.get_metrics().await;
+        let metrics2 = backend.get_metrics().await;
+
+        assert_eq!(metrics1.total_requests, metrics2.total_requests);
+        assert_eq!(metrics1.cache_hits, metrics2.cache_hits);
+    }
+
+    #[test]
+    fn test_moe_metrics_debug() {
+        let metrics = MoeMetrics {
+            total_requests: 10,
+            cache_hits: 5,
+            cache_misses: 5,
+            total_latency_ms: 1000,
+            successful_responses: 8,
+            failed_responses: 2,
+            avg_confidence: 0.92,
+        };
+
+        let debug_str = format!("{:?}", metrics);
+        assert!(debug_str.contains("total_requests"));
+        assert!(debug_str.contains("10"));
+    }
+
+    #[tokio::test]
+    async fn test_concurrent_cache_access() {
+        let backend = std::sync::Arc::new(MoeBackend::new());
+        let mut handles = vec![];
+
+        // Spawn 10 concurrent tasks
+        for i in 0..10 {
+            let backend_clone = std::sync::Arc::clone(&backend);
+            let handle = tokio::spawn(async move {
+                backend_clone
+                    .cache_response(
+                        format!("prompt-{}", i),
+                        format!("response-{}", i),
+                        0.9,
+                    )
+                    .await;
+            });
+            handles.push(handle);
+        }
+
+        // Wait for all tasks
+        for handle in handles {
+            handle.await.unwrap();
+        }
+
+        // Verify some entries exist
+        let cache_size = backend.cache.read().await.len();
+        assert!(cache_size > 0);
     }
 }
