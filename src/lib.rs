@@ -20,12 +20,12 @@
 pub mod agents;
 mod ai_backend;
 pub mod cli;
-mod consensus;
+pub mod consensus;
 mod parser;
 pub mod performance;
-mod routing;
-mod scoring;
-mod trust;
+pub mod routing;
+pub mod scoring;
+pub mod trust;
 mod types;
 
 // Re-export public API

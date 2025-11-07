@@ -3,15 +3,134 @@
 
 use crate::{Candidate, CandidateScores, ConsensusConfig, ConsensusError, ScoredCandidate};
 
+/// Weighted-Score Consensus mechanism for selecting optimal candidates.
+///
+/// Implements a two-phase selection strategy:
+/// 1. **Ihsan Gate**: Filter candidates by minimum Ihsan excellence threshold
+/// 2. **Composite Scoring**: Rank passing candidates by weighted multi-dimensional score
+///
+/// # Scoring Formula
+///
+/// Composite Score = 0.4×Accuracy + 0.3×Safety + 0.2×Efficiency + 0.1×Ihsan
+///
+/// # Graceful Fallback
+///
+/// If no candidates pass the Ihsan floor, falls back to selecting the candidate
+/// with the highest individual Ihsan score to ensure robustness.
+///
+/// # Examples
+///
+/// ```
+/// use synthesis_orchestrator::{
+///     WeightedScoreConsensus, ConsensusConfig, ScoredCandidate,
+///     Candidate, CandidateScores
+/// };
+/// use serde_json::json;
+///
+/// let config = ConsensusConfig { ihsan_floor: 0.85 };
+/// let consensus = WeightedScoreConsensus::new(config);
+///
+/// let candidate = ScoredCandidate {
+///     candidate: Candidate {
+///         model: "gpt-4".to_string(),
+///         json: json!({"result": "success"}),
+///         scores: CandidateScores {
+///             accuracy: 0.95,
+///             safety: 0.98,
+///             efficiency: 0.85,
+///             ihsan: 0.92,
+///         },
+///         cost_usd: 0.03,
+///         latency_ms: 1200,
+///     },
+///     scores: CandidateScores {
+///         accuracy: 0.95,
+///         safety: 0.98,
+///         efficiency: 0.85,
+///         ihsan: 0.92,
+///     },
+/// };
+///
+/// let result = consensus.select_winner(&[candidate]);
+/// assert!(result.is_ok());
+/// ```
 pub struct WeightedScoreConsensus {
     config: ConsensusConfig,
 }
 
 impl WeightedScoreConsensus {
+    /// Creates a new weighted-score consensus mechanism.
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - Consensus configuration including Ihsan floor threshold
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use synthesis_orchestrator::{WeightedScoreConsensus, ConsensusConfig};
+    ///
+    /// let config = ConsensusConfig { ihsan_floor: 0.85 };
+    /// let consensus = WeightedScoreConsensus::new(config);
+    /// ```
     pub fn new(config: ConsensusConfig) -> Self {
         Self { config }
     }
 
+    /// Selects the optimal candidate using weighted-score consensus.
+    ///
+    /// Implements a two-phase selection:
+    /// 1. Filters candidates by Ihsan floor threshold (configurable)
+    /// 2. Selects highest composite score among passing candidates
+    /// 3. Falls back to highest Ihsan if no candidates pass floor
+    ///
+    /// # Arguments
+    ///
+    /// * `candidates` - Slice of scored candidates to evaluate
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(Candidate)` - The winning candidate
+    /// * `Err(ConsensusError::NoCandidates)` - If candidate slice is empty
+    /// * `Err(ConsensusError::NoCandidateAboveThreshold)` - If no valid candidate found (rare)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use synthesis_orchestrator::{
+    ///     WeightedScoreConsensus, ConsensusConfig, ScoredCandidate,
+    ///     Candidate, CandidateScores
+    /// };
+    /// use serde_json::json;
+    ///
+    /// let consensus = WeightedScoreConsensus::new(ConsensusConfig::default());
+    ///
+    /// let candidates = vec![
+    ///     ScoredCandidate {
+    ///         candidate: Candidate {
+    ///             model: "model-a".to_string(),
+    ///             json: json!({"result": "a"}),
+    ///             scores: CandidateScores { accuracy: 0.9, safety: 0.95, efficiency: 0.85, ihsan: 0.9 },
+    ///             cost_usd: 0.01,
+    ///             latency_ms: 800,
+    ///         },
+    ///         scores: CandidateScores { accuracy: 0.9, safety: 0.95, efficiency: 0.85, ihsan: 0.9 },
+    ///     },
+    ///     ScoredCandidate {
+    ///         candidate: Candidate {
+    ///             model: "model-b".to_string(),
+    ///             json: json!({"result": "b"}),
+    ///             scores: CandidateScores { accuracy: 0.95, safety: 0.98, efficiency: 0.88, ihsan: 0.92 },
+    ///             cost_usd: 0.02,
+    ///             latency_ms: 1000,
+    ///         },
+    ///         scores: CandidateScores { accuracy: 0.95, safety: 0.98, efficiency: 0.88, ihsan: 0.92 },
+    ///     },
+    /// ];
+    ///
+    /// let winner = consensus.select_winner(&candidates).unwrap();
+    /// assert_eq!(winner.model, "model-b"); // Higher composite score
+    /// ```
     pub fn select_winner(
         &self,
         candidates: &[ScoredCandidate],
