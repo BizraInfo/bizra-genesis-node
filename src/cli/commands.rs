@@ -3,8 +3,8 @@
 // Professional Elite Command Interface for Agent Orchestration
 
 use crate::agents::AgentRole;
-use crate::types::Task;
 use crate::cli::{AgentCLI, CLIConfig};
+use crate::types::Task;
 use std::error::Error;
 use std::io::{self, Write};
 
@@ -18,13 +18,9 @@ pub enum Command {
         task: Task,
     },
     /// List available agents
-    List {
-        team: Option<TeamType>,
-    },
+    List { team: Option<TeamType> },
     /// Show system health
-    Health {
-        detailed: bool,
-    },
+    Health { detailed: bool },
     /// Display session metrics
     Metrics,
     /// Show configuration
@@ -69,7 +65,11 @@ impl CommandExecutor {
     /// Execute a command
     pub async fn execute(&mut self, command: Command) -> Result<(), Box<dyn Error>> {
         match command {
-            Command::Run { workflow, agents, task } => {
+            Command::Run {
+                workflow,
+                agents,
+                task,
+            } => {
                 self.run_workflow(workflow, agents, task).await?;
             }
             Command::List { team } => {
@@ -145,21 +145,35 @@ impl CommandExecutor {
                 }
 
                 // Determine which team(s) to use
-                let pat_agents: Vec<AgentRole> = agents.iter()
-                    .filter(|a| matches!(a,
-                        AgentRole::Planner | AgentRole::Researcher | AgentRole::Coder |
-                        AgentRole::Evaluator | AgentRole::Ethicist | AgentRole::Publisher |
-                        AgentRole::Integrator
-                    ))
+                let pat_agents: Vec<AgentRole> = agents
+                    .iter()
+                    .filter(|a| {
+                        matches!(
+                            a,
+                            AgentRole::Planner
+                                | AgentRole::Researcher
+                                | AgentRole::Coder
+                                | AgentRole::Evaluator
+                                | AgentRole::Ethicist
+                                | AgentRole::Publisher
+                                | AgentRole::Integrator
+                        )
+                    })
                     .cloned()
                     .collect();
 
-                let sat_agents: Vec<AgentRole> = agents.iter()
-                    .filter(|a| matches!(a,
-                        AgentRole::InfrastructureManager | AgentRole::PerformanceMonitor |
-                        AgentRole::SecurityAuditor | AgentRole::BackupCoordinator |
-                        AgentRole::ResourceAllocator
-                    ))
+                let sat_agents: Vec<AgentRole> = agents
+                    .iter()
+                    .filter(|a| {
+                        matches!(
+                            a,
+                            AgentRole::InfrastructureManager
+                                | AgentRole::PerformanceMonitor
+                                | AgentRole::SecurityAuditor
+                                | AgentRole::BackupCoordinator
+                                | AgentRole::ResourceAllocator
+                        )
+                    })
                     .cloned()
                     .collect();
 
@@ -206,7 +220,16 @@ impl CommandExecutor {
             println!();
         }
 
-        println!("Total Agents: {}", if show_pat && show_sat { 12 } else if show_pat { 7 } else { 5 });
+        println!(
+            "Total Agents: {}",
+            if show_pat && show_sat {
+                12
+            } else if show_pat {
+                7
+            } else {
+                5
+            }
+        );
         println!();
     }
 
@@ -215,7 +238,11 @@ impl CommandExecutor {
         println!("\n🏥 Generating System Health Report...\n");
 
         let task = Task { examples: None };
-        let health = self.cli.sat_manager().generate_health_report(&task).await
+        let health = self
+            .cli
+            .sat_manager()
+            .generate_health_report(&task)
+            .await
             .map_err(|e| format!("{}", e))?;
 
         println!("╔═══════════════════════════════════════════════════════════════╗");
@@ -239,7 +266,8 @@ impl CommandExecutor {
                 } else {
                     "🔴 CRITICAL"
                 };
-                println!("   {} {}: {:.1}% - {}",
+                println!(
+                    "   {} {}: {:.1}% - {}",
                     if *score >= 0.7 { "✅" } else { "⚠️" },
                     agent,
                     score * 100.0,
@@ -284,14 +312,41 @@ impl CommandExecutor {
         println!();
 
         println!("🎨 Display:");
-        println!("   Progress: {}", if config.display.show_progress { "✅" } else { "❌" });
-        println!("   Metrics: {}", if config.display.show_metrics { "✅" } else { "❌" });
-        println!("   Verbose: {}", if config.display.verbose { "✅" } else { "❌" });
-        println!("   Color: {}", if config.display.color { "✅" } else { "❌" });
+        println!(
+            "   Progress: {}",
+            if config.display.show_progress {
+                "✅"
+            } else {
+                "❌"
+            }
+        );
+        println!(
+            "   Metrics: {}",
+            if config.display.show_metrics {
+                "✅"
+            } else {
+                "❌"
+            }
+        );
+        println!(
+            "   Verbose: {}",
+            if config.display.verbose { "✅" } else { "❌" }
+        );
+        println!(
+            "   Color: {}",
+            if config.display.color { "✅" } else { "❌" }
+        );
         println!();
 
         println!("📊 Telemetry:");
-        println!("   Enabled: {}", if config.telemetry.enabled { "✅" } else { "❌" });
+        println!(
+            "   Enabled: {}",
+            if config.telemetry.enabled {
+                "✅"
+            } else {
+                "❌"
+            }
+        );
         println!("   Log Level: {}", config.telemetry.log_level);
         if let Some(metrics_file) = &config.telemetry.metrics_file {
             println!("   Metrics File: {}", metrics_file);

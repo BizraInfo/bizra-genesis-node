@@ -2,7 +2,7 @@
 // BIZRA Professional Display System
 // World-Class Output Formatting and Visualization
 
-use crate::agents::{AgentResponse, AgentMetrics, TeamMetrics};
+use crate::agents::{AgentMetrics, AgentResponse, TeamMetrics};
 use std::time::Duration;
 
 /// Color codes for terminal output
@@ -54,8 +54,20 @@ impl Display {
     pub fn welcome_banner(&self) {
         let line = "╔═══════════════════════════════════════════════════════════════╗";
         println!("\n{}", self.colorize(line, Colors::BRIGHT_CYAN));
-        println!("{}", self.colorize("║           BIZRA GENESIS NODE - AGENT ORCHESTRATOR            ║", Colors::BRIGHT_CYAN));
-        println!("{}", self.colorize("║          Professional Elite Multi-Agent System               ║", Colors::BRIGHT_CYAN));
+        println!(
+            "{}",
+            self.colorize(
+                "║           BIZRA GENESIS NODE - AGENT ORCHESTRATOR            ║",
+                Colors::BRIGHT_CYAN
+            )
+        );
+        println!(
+            "{}",
+            self.colorize(
+                "║          Professional Elite Multi-Agent System               ║",
+                Colors::BRIGHT_CYAN
+            )
+        );
         let line = "╚═══════════════════════════════════════════════════════════════╝";
         println!("{}", self.colorize(line, Colors::BRIGHT_CYAN));
         println!();
@@ -102,11 +114,13 @@ impl Display {
 
         let separator = "─────────────────────────────────────────────────────────────────";
         println!("\n{}", self.colorize(separator, Colors::DIM));
-        println!("🤖 {} {}",
+        println!(
+            "🤖 {} {}",
             self.colorize("Agent:", Colors::BOLD),
             self.colorize(agent_name, Colors::BRIGHT_CYAN)
         );
-        println!("📊 {} {:.1}% | ⏱️  {} {}ms",
+        println!(
+            "📊 {} {:.1}% | ⏱️  {} {}ms",
             self.colorize("Confidence:", Colors::BOLD),
             confidence * 100.0,
             self.colorize("Latency:", Colors::BOLD),
@@ -136,11 +150,13 @@ impl Display {
     pub fn workflow_start(&self, workflow_name: &str, agent_count: usize) {
         let separator = "═════════════════════════════════════════════════════════════════";
         println!("\n{}", self.colorize(separator, Colors::BRIGHT_BLUE));
-        println!("🚀 {} {}",
+        println!(
+            "🚀 {} {}",
             self.colorize("Starting Workflow:", Colors::BOLD),
             self.colorize(workflow_name, Colors::BRIGHT_YELLOW)
         );
-        println!("👥 {} {}",
+        println!(
+            "👥 {} {}",
             self.colorize("Agents:", Colors::BOLD),
             agent_count
         );
@@ -157,12 +173,14 @@ impl Display {
 
         let separator = "═════════════════════════════════════════════════════════════════";
         println!("\n{}", self.colorize(separator, Colors::BRIGHT_BLUE));
-        println!("🏁 {} {} - {}",
+        println!(
+            "🏁 {} {} - {}",
             self.colorize("Workflow Complete:", Colors::BOLD),
             self.colorize(workflow_name, Colors::BRIGHT_YELLOW),
             status
         );
-        println!("⏱️  {} {}ms",
+        println!(
+            "⏱️  {} {}ms",
             self.colorize("Duration:", Colors::BOLD),
             duration.as_millis()
         );
@@ -171,35 +189,45 @@ impl Display {
 
     /// Display team metrics
     pub fn team_metrics(&self, team_name: &str, metrics: &TeamMetrics) {
-        println!("\n{}", self.colorize(&format!("📊 {} Metrics", team_name), Colors::BOLD));
+        println!(
+            "\n{}",
+            self.colorize(&format!("📊 {} Metrics", team_name), Colors::BOLD)
+        );
         let separator = "─────────────────────────────────────────────────────────────────";
         println!("{}", self.colorize(separator, Colors::DIM));
 
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             self.colorize("Tasks Completed:", Colors::CYAN),
             metrics.total_tasks_completed
         );
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             self.colorize("Tasks Failed:", Colors::CYAN),
             metrics.total_tasks_failed
         );
-        println!("  {} {:.1}%",
+        println!(
+            "  {} {:.1}%",
             self.colorize("Success Rate:", Colors::CYAN),
             metrics.success_rate() * 100.0
         );
-        println!("  {} {:.0}ms",
+        println!(
+            "  {} {:.0}ms",
             self.colorize("Avg Latency:", Colors::CYAN),
             metrics.avg_latency_ms
         );
-        println!("  {} {:.1}%",
+        println!(
+            "  {} {:.1}%",
             self.colorize("Avg Confidence:", Colors::CYAN),
             metrics.avg_confidence * 100.0
         );
-        println!("  {} ~{}",
+        println!(
+            "  {} ~{}",
             self.colorize("Tokens Used:", Colors::CYAN),
             metrics.total_tokens_used
         );
-        println!("  {} {:.1}",
+        println!(
+            "  {} {:.1}",
             self.colorize("Tasks/Agent:", Colors::CYAN),
             metrics.avg_tasks_per_agent()
         );
@@ -207,37 +235,46 @@ impl Display {
 
     /// Display agent metrics
     pub fn agent_metrics(&self, agent_name: &str, metrics: &AgentMetrics) {
-        println!("\n{}", self.colorize(&format!("🤖 {} Performance", agent_name), Colors::BOLD));
+        println!(
+            "\n{}",
+            self.colorize(&format!("🤖 {} Performance", agent_name), Colors::BOLD)
+        );
         let separator = "─────────────────────────────────────────────────────────────────";
         println!("{}", self.colorize(separator, Colors::DIM));
 
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             self.colorize("Tasks Completed:", Colors::CYAN),
             metrics.tasks_completed
         );
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             self.colorize("Tasks Failed:", Colors::CYAN),
             metrics.tasks_failed
         );
 
         if metrics.tasks_completed > 0 {
-            let success_rate = metrics.tasks_completed as f32 /
-                (metrics.tasks_completed + metrics.tasks_failed) as f32;
-            println!("  {} {:.1}%",
+            let success_rate = metrics.tasks_completed as f32
+                / (metrics.tasks_completed + metrics.tasks_failed) as f32;
+            println!(
+                "  {} {:.1}%",
                 self.colorize("Success Rate:", Colors::CYAN),
                 success_rate * 100.0
             );
         }
 
-        println!("  {} {:.0}ms",
+        println!(
+            "  {} {:.0}ms",
             self.colorize("Avg Latency:", Colors::CYAN),
             metrics.avg_latency_ms
         );
-        println!("  {} {:.1}%",
+        println!(
+            "  {} {:.1}%",
             self.colorize("Avg Confidence:", Colors::CYAN),
             metrics.avg_confidence * 100.0
         );
-        println!("  {} ~{}",
+        println!(
+            "  {} ~{}",
             self.colorize("Tokens Used:", Colors::CYAN),
             metrics.total_tokens_used
         );
@@ -255,7 +292,8 @@ impl Display {
             ("🔴 CRITICAL", Colors::BRIGHT_RED)
         };
 
-        println!("\n🏥 {} {:.1}% - {}",
+        println!(
+            "\n🏥 {} {:.1}% - {}",
             self.colorize("System Health:", Colors::BOLD),
             health_score * 100.0,
             self.colorize(status, color)
@@ -264,7 +302,8 @@ impl Display {
 
     /// Display error
     pub fn error(&self, error: &str) {
-        println!("\n{} {}",
+        println!(
+            "\n{} {}",
             self.colorize("❌ Error:", Colors::BRIGHT_RED),
             error
         );
@@ -272,7 +311,8 @@ impl Display {
 
     /// Display warning
     pub fn warning(&self, warning: &str) {
-        println!("\n{} {}",
+        println!(
+            "\n{} {}",
             self.colorize("⚠️  Warning:", Colors::BRIGHT_YELLOW),
             warning
         );
@@ -280,7 +320,8 @@ impl Display {
 
     /// Display info
     pub fn info(&self, info: &str) {
-        println!("\n{} {}",
+        println!(
+            "\n{} {}",
             self.colorize("ℹ️  Info:", Colors::BRIGHT_BLUE),
             info
         );
@@ -288,7 +329,8 @@ impl Display {
 
     /// Display success
     pub fn success(&self, message: &str) {
-        println!("\n{} {}",
+        println!(
+            "\n{} {}",
             self.colorize("✅ Success:", Colors::BRIGHT_GREEN),
             message
         );
@@ -304,17 +346,17 @@ impl Display {
 
     /// Display subsection header
     pub fn subsection_header(&self, title: &str) {
-        println!("\n{}", self.colorize(&format!("▸ {}", title), Colors::BRIGHT_CYAN));
+        println!(
+            "\n{}",
+            self.colorize(&format!("▸ {}", title), Colors::BRIGHT_CYAN)
+        );
         let separator = "─────────────────────────────────────────────────────────────────";
         println!("{}", self.colorize(separator, Colors::DIM));
     }
 
     /// Display key-value pair
     pub fn key_value(&self, key: &str, value: &str) {
-        println!("  {}: {}",
-            self.colorize(key, Colors::CYAN),
-            value
-        );
+        println!("  {}: {}", self.colorize(key, Colors::CYAN), value);
     }
 
     /// Display performance dashboard
@@ -335,13 +377,19 @@ impl Display {
         };
 
         println!();
-        println!("  {} {}", self.colorize("Total Tasks:", Colors::BOLD), total_tasks);
-        println!("  {} {} ({})",
+        println!(
+            "  {} {}",
+            self.colorize("Total Tasks:", Colors::BOLD),
+            total_tasks
+        );
+        println!(
+            "  {} {} ({})",
             self.colorize("Successful:", Colors::BOLD),
             self.colorize(&successful.to_string(), Colors::BRIGHT_GREEN),
             self.colorize(&format!("{:.1}%", success_rate), Colors::GREEN)
         );
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             self.colorize("Failed:", Colors::BOLD),
             if failed > 0 {
                 self.colorize(&failed.to_string(), Colors::BRIGHT_RED)
@@ -349,11 +397,13 @@ impl Display {
                 self.colorize(&failed.to_string(), Colors::DIM)
             }
         );
-        println!("  {} {:.0}ms",
+        println!(
+            "  {} {:.0}ms",
             self.colorize("Avg Latency:", Colors::BOLD),
             avg_latency_ms
         );
-        println!("  {} ~{}",
+        println!(
+            "  {} ~{}",
             self.colorize("Tokens Used:", Colors::BOLD),
             tokens_used
         );
@@ -364,7 +414,8 @@ impl Display {
         let filled = ((success_rate / 100.0) * bar_width as f32) as usize;
         let empty = bar_width - filled;
 
-        println!("  {} [{}{}] {:.1}%",
+        println!(
+            "  {} [{}{}] {:.1}%",
             self.colorize("Success:", Colors::BOLD),
             self.colorize(&"█".repeat(filled), Colors::BRIGHT_GREEN),
             self.colorize(&"░".repeat(empty), Colors::DIM),
@@ -374,7 +425,8 @@ impl Display {
 
     /// Display real-time status
     pub fn real_time_status(&self, agent: &str, status: &str) {
-        print!("\r{} {} - {}{}",
+        print!(
+            "\r{} {} - {}{}",
             self.colorize("⚡", Colors::BRIGHT_YELLOW),
             self.colorize(agent, Colors::CYAN),
             status,
@@ -391,7 +443,10 @@ impl Display {
 
     /// Display agent activity matrix
     pub fn agent_activity_matrix(&self, agents: &[(String, bool)]) {
-        println!("\n{}", self.colorize("🤖 Agent Activity Matrix", Colors::BOLD));
+        println!(
+            "\n{}",
+            self.colorize("🤖 Agent Activity Matrix", Colors::BOLD)
+        );
         let separator = "─────────────────────────────────────────────────────────────────";
         println!("{}", self.colorize(separator, Colors::DIM));
 

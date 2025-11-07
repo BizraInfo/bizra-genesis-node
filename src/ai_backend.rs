@@ -207,7 +207,9 @@ impl MoeBackend {
         if cache.len() > 1000 {
             // Remove oldest entries
             let now = std::time::Instant::now();
-            cache.retain(|_, v| now.duration_since(v.timestamp) < std::time::Duration::from_secs(600));
+            cache.retain(|_, v| {
+                now.duration_since(v.timestamp) < std::time::Duration::from_secs(600)
+            });
         }
     }
 
@@ -269,25 +271,30 @@ impl AIBackend for MoeBackend {
                     m.successful_responses += 1;
                     m.total_latency_ms += latency_ms;
                     m.avg_confidence = (m.avg_confidence * (m.successful_responses - 1) as f32
-                        + ensemble_response.ihsan_score) / m.successful_responses as f32;
-                }).await;
+                        + ensemble_response.ihsan_score)
+                        / m.successful_responses as f32;
+                })
+                .await;
 
                 // Cache the response
                 self.cache_response(
                     prompt.clone(),
                     ensemble_response.text.clone(),
                     ensemble_response.ihsan_score,
-                ).await;
+                )
+                .await;
 
                 // Convert MOE response to Candidates
                 let mut candidates = Vec::new();
 
                 // Main ensemble response as primary candidate
-                let json_response = serde_json::from_str(&ensemble_response.text)
-                    .unwrap_or_else(|_| json!({
-                        "solution": ensemble_response.text,
-                        "confidence": ensemble_response.ihsan_score,
-                    }));
+                let json_response =
+                    serde_json::from_str(&ensemble_response.text).unwrap_or_else(|_| {
+                        json!({
+                            "solution": ensemble_response.text,
+                            "confidence": ensemble_response.ihsan_score,
+                        })
+                    });
 
                 candidates.push(Candidate {
                     model: format!("{}-moe-ensemble", route),
@@ -304,12 +311,19 @@ impl AIBackend for MoeBackend {
 
                 // Individual model responses as additional candidates (if requested)
                 if count > 1 {
-                    for (_idx, contributor) in ensemble_response.contributors.iter().enumerate().take(count - 1) {
-                        let json_response = serde_json::from_str(&contributor.text)
-                            .unwrap_or_else(|_| json!({
-                                "solution": contributor.text.clone(),
-                                "confidence": contributor.confidence,
-                            }));
+                    for (_idx, contributor) in ensemble_response
+                        .contributors
+                        .iter()
+                        .enumerate()
+                        .take(count - 1)
+                    {
+                        let json_response =
+                            serde_json::from_str(&contributor.text).unwrap_or_else(|_| {
+                                json!({
+                                    "solution": contributor.text.clone(),
+                                    "confidence": contributor.confidence,
+                                })
+                            });
 
                         candidates.push(Candidate {
                             model: format!("{}-{}", route, contributor.model),
@@ -409,7 +423,8 @@ mod tests {
         let backend = SimulatedBackend;
         let task = Task::example();
 
-        let candidates = backend.generate_candidates(&task, "test-route", 3)
+        let candidates = backend
+            .generate_candidates(&task, "test-route", 3)
             .await
             .expect("Should generate candidates");
 

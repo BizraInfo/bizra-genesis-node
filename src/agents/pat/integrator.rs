@@ -2,12 +2,12 @@
 // System Integrator Agent - Multi-Agent Synthesis
 // Integrates outputs from multiple agents into cohesive solutions
 
-use crate::agents::{Agent, AgentRole, AgentResponse, AgentState, AgentMetrics, BaseAgent};
-use crate::types::Task;
+use crate::agents::{Agent, AgentMetrics, AgentResponse, AgentRole, AgentState, BaseAgent};
 use crate::ai_backend::AIBackend;
+use crate::types::Task;
 use async_trait::async_trait;
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
 
 /// System Integrator Agent
 /// Synthesizes multiple agent outputs into unified, coherent solutions
@@ -37,7 +37,10 @@ impl Agent for IntegratorAgent {
         self.base.metrics.clone()
     }
 
-    async fn process(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    async fn process(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         self.base.process_with_moe(task).await
     }
 

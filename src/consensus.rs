@@ -12,7 +12,10 @@ impl WeightedScoreConsensus {
         Self { config }
     }
 
-    pub fn select_winner(&self, candidates: &[ScoredCandidate]) -> Result<Candidate, ConsensusError> {
+    pub fn select_winner(
+        &self,
+        candidates: &[ScoredCandidate],
+    ) -> Result<Candidate, ConsensusError> {
         if candidates.is_empty() {
             return Err(ConsensusError::NoCandidates);
         }
@@ -27,16 +30,19 @@ impl WeightedScoreConsensus {
                 "No candidates passed Ihsan floor {}. Using fallback.",
                 self.config.ihsan_floor
             );
-            
+
             candidates
                 .iter()
                 .max_by(|a, b| a.scores.ihsan.partial_cmp(&b.scores.ihsan).unwrap())
         } else {
-            passing.iter().max_by(|a, b| {
-                let score_a = self.composite_score(&a.scores);
-                let score_b = self.composite_score(&b.scores);
-                score_a.partial_cmp(&score_b).unwrap()
-            }).map(|v| &**v)
+            passing
+                .iter()
+                .max_by(|a, b| {
+                    let score_a = self.composite_score(&a.scores);
+                    let score_b = self.composite_score(&b.scores);
+                    score_a.partial_cmp(&score_b).unwrap()
+                })
+                .map(|v| &**v)
         };
 
         match best {

@@ -2,12 +2,12 @@
 // Infrastructure Manager Agent - System Architecture & DevOps
 // Manages infrastructure, deployment, scaling, and system architecture
 
-use crate::agents::{Agent, AgentRole, AgentResponse, AgentState, AgentMetrics, BaseAgent};
-use crate::types::Task;
+use crate::agents::{Agent, AgentMetrics, AgentResponse, AgentRole, AgentState, BaseAgent};
 use crate::ai_backend::AIBackend;
+use crate::types::Task;
 use async_trait::async_trait;
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
 
 /// Infrastructure Manager Agent
 /// Specialized in system architecture, deployment, and infrastructure management
@@ -37,7 +37,10 @@ impl Agent for InfrastructureManagerAgent {
         self.base.metrics.clone()
     }
 
-    async fn process(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    async fn process(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         self.base.process_with_moe(task).await
     }
 

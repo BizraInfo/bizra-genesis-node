@@ -13,32 +13,31 @@
 //! - SIMD/AVX2/AVX512 performance optimization (Week 3)
 //! - Cryptographic receipts with Ed25519 + BLAKE3 (Week 4)
 
-
 // ═══════════════════════════════════════════════════════════════════════
 // MODULE DECLARATIONS
 // ═══════════════════════════════════════════════════════════════════════
 
-mod types;
-mod parser;
-mod scoring;
-mod routing;
-mod consensus;
-mod performance;
-mod trust;
-mod ai_backend;
 pub mod agents;
+mod ai_backend;
 pub mod cli;
+mod consensus;
+mod parser;
+mod performance;
+mod routing;
+mod scoring;
+mod trust;
+mod types;
 
 // Re-export public API
-pub use types::*;
-pub use parser::*;
-pub use scoring::*;
-pub use routing::*;
-pub use consensus::*;
-pub use performance::*;
-pub use trust::*;
-pub use ai_backend::*;
 pub use agents::*;
+pub use ai_backend::*;
+pub use consensus::*;
+pub use parser::*;
+pub use performance::*;
+pub use routing::*;
+pub use scoring::*;
+pub use trust::*;
+pub use types::*;
 
 // ═══════════════════════════════════════════════════════════════════════
 // MAIN ORCHESTRATOR - THE INTEGRATION LAYER
@@ -60,14 +59,6 @@ pub struct SynthesisOrchestrator {
 
     /// Impact tracker
     impact_tracker: ImpactTracker,
-
-    /// Performance: batch scorer (reserved for future performance optimization)
-    #[allow(dead_code)]
-    batch_scorer: BatchScorer,
-
-    /// Performance: buffer pool (reserved for future performance optimization)
-    #[allow(dead_code)]
-    buffer_pool: BufferPool,
 
     /// AI Backend for generating candidates (MOE, simulated, or hybrid)
     ai_backend: Box<dyn AIBackend>,
@@ -102,12 +93,10 @@ impl SynthesisOrchestrator {
             consensus: WeightedScoreConsensus::new(ConsensusConfig::default()),
             trust_bridge: TrustBridge::new()?,
             impact_tracker: ImpactTracker::new(),
-            batch_scorer: BatchScorer::new(),
-            buffer_pool: BufferPool::new(10, 4096),
             ai_backend,
         })
     }
-    
+
     /// Main synthesis pipeline: input → routing → scoring → consensus → signing
     pub async fn synthesize(
         &mut self,
@@ -115,36 +104,35 @@ impl SynthesisOrchestrator {
         contract: &Contract,
         available_routes: Vec<String>,
     ) -> Result<OrchestratorResult, Box<dyn std::error::Error>> {
-        
         // PHASE 1: ROUTING (Thompson Sampling)
         let selected_route = self.router.select_route(&available_routes);
         tracing::info!("Selected route: {}", selected_route);
-        
+
         // PHASE 2: CANDIDATE GENERATION (Simulated - in production, calls LLMs)
         let candidates = self.generate_candidates(&selected_route, task).await?;
         tracing::info!("Generated {} candidates", candidates.len());
-        
+
         // PHASE 3: IHSAN SCORING (Quality Gates)
         let scored_candidates = self.score_candidates(&candidates, contract)?;
         tracing::info!("Scored {} candidates", scored_candidates.len());
-        
+
         // PHASE 4: CONSENSUS (WSC with Pareto)
         let winner = self.consensus.select_winner(&scored_candidates)?;
         tracing::info!("Consensus reached: {}", winner.model);
-        
+
         // PHASE 5: PROOF-OF-IMPACT
         let impact = self.calculate_impact(&winner, &scored_candidates);
         self.impact_tracker.record(impact.clone());
         tracing::info!("Impact recorded: {:.2}", impact.normalized_score());
-        
+
         // PHASE 6: CRYPTOGRAPHIC RECEIPT
         let receipt = self.sign_receipt(&winner, &impact)?;
         tracing::info!("Receipt signed: {}", receipt.run_id);
-        
+
         // PHASE 7: UPDATE ROUTER (Thompson Sampling feedback)
         let success = winner.scores.ihsan >= 0.85;
         self.router.update(&selected_route, success);
-        
+
         // PHASE 8: TELEMETRY
         let telemetry = Telemetry {
             sli_metrics: Sli {
@@ -154,10 +142,10 @@ impl SynthesisOrchestrator {
                 accuracy_uplift: winner.scores.accuracy - 0.8, // vs baseline
             },
         };
-        
+
         Ok(OrchestratorResult { winner, telemetry })
     }
-    
+
     /// Generate candidates using configured AI backend
     async fn generate_candidates(
         &self,
@@ -165,11 +153,12 @@ impl SynthesisOrchestrator {
         task: &Task,
     ) -> Result<Vec<Candidate>, Box<dyn std::error::Error>> {
         // Use AI backend (MOE, simulated, or hybrid)
-        self.ai_backend.generate_candidates(task, route, 3)
+        self.ai_backend
+            .generate_candidates(task, route, 3)
             .await
             .map_err(|e| format!("AI backend error: {}", e).into())
     }
-    
+
     /// Score all candidates using Ihsan gates
     fn score_candidates(
         &self,
@@ -177,26 +166,26 @@ impl SynthesisOrchestrator {
         contract: &Contract,
     ) -> Result<Vec<ScoredCandidate>, Box<dyn std::error::Error>> {
         let mut scored = Vec::new();
-        
+
         for candidate in candidates {
             let ihsan_score = self.ihsan_gate.score(candidate, contract);
-            
+
             let scores = CandidateScores {
                 accuracy: 0.90 + (rand::random::<f32>() * 0.08),
                 safety: 0.95 + (rand::random::<f32>() * 0.04),
                 efficiency: 0.85 + (rand::random::<f32>() * 0.10),
                 ihsan: ihsan_score,
             };
-            
+
             scored.push(ScoredCandidate {
                 candidate: candidate.clone(),
                 scores,
             });
         }
-        
+
         Ok(scored)
     }
-    
+
     /// Calculate Proof-of-Impact for winner
     fn calculate_impact(
         &self,
@@ -208,7 +197,7 @@ impl SynthesisOrchestrator {
         let trust = winner.scores.safety * 100.0 * 0.2; // 20% of safety score
         let fairness = 10.0; // Bias mitigation score
         let diversity = (all_candidates.len() as f32).min(10.0); // Multiple options
-        
+
         ProofOfImpact {
             quality,
             utility,
@@ -217,7 +206,7 @@ impl SynthesisOrchestrator {
             diversity,
         }
     }
-    
+
     /// Sign receipt with Ed25519
     fn sign_receipt(
         &self,
@@ -225,12 +214,12 @@ impl SynthesisOrchestrator {
         impact: &ProofOfImpact,
     ) -> Result<RunReceipt, Box<dyn std::error::Error>> {
         let run_id = format!("run-{}", uuid::Uuid::new_v4());
-        
+
         let mut receipt = RunReceipt::new(run_id, winner);
         receipt.proof_of_impact = Some(impact.clone());
-        
+
         let signed = self.trust_bridge.sign_receipt(receipt);
-        
+
         Ok(signed)
     }
 }
@@ -242,61 +231,62 @@ impl SynthesisOrchestrator {
 #[cfg(test)]
 mod integration_tests {
     use super::*;
-    
+
     #[tokio::test]
     async fn test_end_to_end_synthesis() {
         // Initialize orchestrator
-        let mut orchestrator = SynthesisOrchestrator::new()
-            .expect("Failed to create orchestrator");
-        
+        let mut orchestrator = SynthesisOrchestrator::new().expect("Failed to create orchestrator");
+
         // Create task
         let task = Task::example();
-        
+
         // Create contract
         let contract = Contract::example();
-        
+
         // Available routes
         let routes = vec![
             "gpt-4".to_string(),
             "claude-3".to_string(),
             "llama-3".to_string(),
         ];
-        
+
         // Run synthesis
         let result = orchestrator
             .synthesize(&task, &contract, routes)
             .await
             .expect("Synthesis failed");
-        
+
         // Validate result
         assert!(!result.winner.model.is_empty());
         assert!(result.winner.scores.ihsan >= 0.0);
         assert!(result.telemetry.sli_metrics.json_compliance_rate > 0.0);
-        
+
         println!("✅ End-to-end synthesis successful");
         println!("   Winner: {}", result.winner.model);
         println!("   Ihsan: {:.2}", result.winner.scores.ihsan);
     }
-    
+
     #[tokio::test]
     async fn test_thompson_sampling_adaptation() {
         let mut orchestrator = SynthesisOrchestrator::new().unwrap();
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-a".to_string(), "route-b".to_string()];
-        
+
         // Run multiple syntheses
         for _ in 0..5 {
-            let _ = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            let _ = orchestrator
+                .synthesize(&task, &contract, routes.clone())
+                .await;
         }
-        
+
         // Check that router has updated stats
         let win_rate_a = orchestrator.router.get_win_rate("route-a");
         let win_rate_b = orchestrator.router.get_win_rate("route-b");
-        
-        assert!(win_rate_a >= 0.0 && win_rate_a <= 1.0);
-        assert!(win_rate_b >= 0.0 && win_rate_b <= 1.0);
-        
+
+        assert!((0.0..=1.0).contains(&win_rate_a));
+        assert!((0.0..=1.0).contains(&win_rate_b));
+
         println!("✅ Thompson sampling adaptation working");
         println!("   Route A win rate: {:.2}", win_rate_a);
         println!("   Route B win rate: {:.2}", win_rate_b);

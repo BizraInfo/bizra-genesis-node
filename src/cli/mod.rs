@@ -3,16 +3,16 @@
 // Professional Elite Interface for 12-Agent Ecosystem
 
 use crate::agents::{pat::PATManager, sat::SATManager, AgentRole};
-use crate::ai_backend::{AIBackend, SimulatedBackend, MoeBackend};
+use crate::ai_backend::{AIBackend, MoeBackend, SimulatedBackend};
 use crate::types::Task;
-use std::sync::Arc;
-use std::error::Error;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
+use std::sync::Arc;
 
 pub mod commands;
 pub mod display;
 
-pub use commands::{Command, CommandExecutor, WorkflowType, TeamType};
+pub use commands::{Command, CommandExecutor, TeamType, WorkflowType};
 pub use display::Display;
 
 /// CLI Configuration
@@ -148,7 +148,10 @@ impl AgentCLI {
             println!("🎯 Executing PAT workflow with {} agents...", agents.len());
         }
 
-        let result = self.pat_manager.execute_selective_workflow(task, agents).await;
+        let result = self
+            .pat_manager
+            .execute_selective_workflow(task, agents)
+            .await;
 
         let elapsed = start.elapsed().as_millis() as u64;
 
@@ -159,7 +162,9 @@ impl AgentCLI {
                 self.session_metrics.total_latency_ms += elapsed;
 
                 for response in &responses {
-                    self.session_metrics.agents_used.insert(response.agent.name().to_string());
+                    self.session_metrics
+                        .agents_used
+                        .insert(response.agent.name().to_string());
                     self.session_metrics.total_tokens += 1000; // Approximate
                 }
 
@@ -188,7 +193,10 @@ impl AgentCLI {
             println!("🔧 Executing SAT workflow with {} agents...", agents.len());
         }
 
-        let result = self.sat_manager.execute_selective_workflow(task, agents).await;
+        let result = self
+            .sat_manager
+            .execute_selective_workflow(task, agents)
+            .await;
 
         let elapsed = start.elapsed().as_millis() as u64;
 
@@ -199,7 +207,9 @@ impl AgentCLI {
                 self.session_metrics.total_latency_ms += elapsed;
 
                 for response in &responses {
-                    self.session_metrics.agents_used.insert(response.agent.name().to_string());
+                    self.session_metrics
+                        .agents_used
+                        .insert(response.agent.name().to_string());
                     self.session_metrics.total_tokens += 1000; // Approximate
                 }
 
@@ -217,10 +227,7 @@ impl AgentCLI {
     }
 
     /// Execute full ecosystem workflow (PAT + SAT)
-    pub async fn execute_full_ecosystem(
-        &mut self,
-        task: &Task,
-    ) -> Result<(), Box<dyn Error>> {
+    pub async fn execute_full_ecosystem(&mut self, task: &Task) -> Result<(), Box<dyn Error>> {
         println!("🌟 Executing FULL ECOSYSTEM workflow (12 agents)...\n");
 
         // PAT Phase
@@ -247,7 +254,10 @@ impl AgentCLI {
 
         // Health Check
         println!("\n📈 PHASE 3: System Health Check");
-        let health = self.sat_manager.generate_health_report(task).await
+        let health = self
+            .sat_manager
+            .generate_health_report(task)
+            .await
             .map_err(|e| format!("{}", e))?;
 
         println!("   Overall Health: {:.1}%", health.overall_health * 100.0);
@@ -267,11 +277,20 @@ impl AgentCLI {
         println!("   Total Tasks: {}", self.session_metrics.total_tasks);
         println!("   Successful: {}", self.session_metrics.successful_tasks);
         println!("   Failed: {}", self.session_metrics.failed_tasks);
-        println!("   Success Rate: {:.1}%", self.session_metrics.success_rate() * 100.0);
-        println!("   Average Latency: {:.0}ms", self.session_metrics.avg_latency_ms());
+        println!(
+            "   Success Rate: {:.1}%",
+            self.session_metrics.success_rate() * 100.0
+        );
+        println!(
+            "   Average Latency: {:.0}ms",
+            self.session_metrics.avg_latency_ms()
+        );
         println!("   Total Tokens: ~{}", self.session_metrics.total_tokens);
 
-        println!("\n🤖 Agents Used: {}", self.session_metrics.agents_used.len());
+        println!(
+            "\n🤖 Agents Used: {}",
+            self.session_metrics.agents_used.len()
+        );
         for agent in &self.session_metrics.agents_used {
             println!("   • {}", agent);
         }
@@ -280,13 +299,19 @@ impl AgentCLI {
         let pat_metrics = self.pat_manager.get_team_metrics();
         println!("\n👥 PAT Team:");
         println!("   Tasks: {}", pat_metrics.total_tasks_completed);
-        println!("   Success Rate: {:.1}%", pat_metrics.success_rate() * 100.0);
+        println!(
+            "   Success Rate: {:.1}%",
+            pat_metrics.success_rate() * 100.0
+        );
 
         // SAT Metrics
         let sat_metrics = self.sat_manager.get_team_metrics();
         println!("\n🔧 SAT Team:");
         println!("   Tasks: {}", sat_metrics.total_tasks_completed);
-        println!("   Success Rate: {:.1}%", sat_metrics.success_rate() * 100.0);
+        println!(
+            "   Success Rate: {:.1}%",
+            sat_metrics.success_rate() * 100.0
+        );
 
         println!();
     }

@@ -2,13 +2,13 @@
 // Agent-to-Agent (A2A) Coordination Protocol
 // JSON-RPC inspired protocol with Byzantine fault tolerance
 
-use crate::agents::{AgentRole, AgentResponse};
+use crate::agents::{AgentResponse, AgentRole};
 use crate::types::Task;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::error::Error;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use std::error::Error;
 
 /// A2A message types for agent communication
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -217,7 +217,10 @@ impl A2ACoordinator {
     }
 
     /// Handle task response from agent
-    pub async fn handle_response(&self, message: A2AMessage) -> Result<(), Box<dyn Error + Send + Sync>> {
+    pub async fn handle_response(
+        &self,
+        message: A2AMessage,
+    ) -> Result<(), Box<dyn Error + Send + Sync>> {
         let request_id = self.extract_request_id(&message);
 
         let mut pending = self.pending_messages.write().await;
@@ -241,7 +244,11 @@ impl A2ACoordinator {
                     // Would retry here in production
                     false
                 } else {
-                    tracing::error!("Message failed after {} retries: {}", self.max_retries, request_id);
+                    tracing::error!(
+                        "Message failed after {} retries: {}",
+                        self.max_retries,
+                        request_id
+                    );
                     timed_out.push(request_id.clone());
                     false
                 }
@@ -299,12 +306,15 @@ impl WorkflowOrchestrator {
                 agents[i - 1].clone()
             };
 
-            let _request_id = self.coordinator.send_task_request(
-                from,
-                agent.clone(),
-                current_task.clone(),
-                100, // High priority
-            ).await?;
+            let _request_id = self
+                .coordinator
+                .send_task_request(
+                    from,
+                    agent.clone(),
+                    current_task.clone(),
+                    100, // High priority
+                )
+                .await?;
 
             tracing::info!("Sequential step {}: {} processing", i + 1, agent.name());
 
@@ -332,7 +342,9 @@ impl WorkflowOrchestrator {
             })
             .collect();
 
-        self.coordinator.delegate_task(AgentRole::Integrator, subtasks).await
+        self.coordinator
+            .delegate_task(AgentRole::Integrator, subtasks)
+            .await
     }
 
     /// Get coordinator reference

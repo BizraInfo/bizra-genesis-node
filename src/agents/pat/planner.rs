@@ -2,12 +2,12 @@
 // Strategic Planner Agent - General Purpose Planning
 // Handles planning for ANY domain: business, creative, research, software, etc.
 
-use crate::agents::{Agent, AgentRole, AgentResponse, AgentState, AgentMetrics, BaseAgent};
-use crate::types::Task;
+use crate::agents::{Agent, AgentMetrics, AgentResponse, AgentRole, AgentState, BaseAgent};
 use crate::ai_backend::AIBackend;
+use crate::types::Task;
 use async_trait::async_trait;
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
 
 /// Strategic Planner Agent
 /// Creates comprehensive plans with steps, dependencies, and success criteria
@@ -38,7 +38,10 @@ impl Agent for PlannerAgent {
         self.base.metrics.clone()
     }
 
-    async fn process(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    async fn process(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         self.base.process_with_moe(task).await
     }
 
@@ -98,6 +101,7 @@ Output Format (JSON):
   "confidence": 0.95
 }
 
-Be thorough, realistic, and adaptable to the specific domain and context."#.to_string()
+Be thorough, realistic, and adaptable to the specific domain and context."#
+            .to_string()
     }
 }

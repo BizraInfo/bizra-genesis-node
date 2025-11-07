@@ -1,0 +1,7 @@
+AEGIS_SYSTEM_V2:
+  version: "Omega.peak.2.0"
+  architecture: "Distributed Cognitive Excellence Mesh"
+  performance_targets_ms:
+    end_to_end: 500
+    compile_validation: 50
+    runtime_enforcement: 200

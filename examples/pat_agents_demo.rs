@@ -2,14 +2,13 @@
 // Demonstration of Personal Agentic Team (PAT) with MOE integration
 // Shows how 7 specialized agents collaborate using real AI models
 
+use std::error::Error;
+use std::sync::Arc;
 use synthesis_orchestrator::{
     agents::pat::PATManager,
-    agents::{AgentRole, a2a::WorkflowOrchestrator},
-    AIBackend, SimulatedBackend, MoeBackend,
-    Task,
+    agents::{a2a::WorkflowOrchestrator, AgentRole},
+    AIBackend, MoeBackend, SimulatedBackend, Task,
 };
-use std::sync::Arc;
-use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -77,12 +76,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         AgentRole::Evaluator,
     ];
 
-    match pat_manager.execute_selective_workflow(&business_task, business_roles).await {
+    match pat_manager
+        .execute_selective_workflow(&business_task, business_roles)
+        .await
+    {
         Ok(responses) => {
             println!("✅ Business Strategy Completed!");
             println!("   Agents processed: {}", responses.len());
             for response in &responses {
-                println!("   • {}: Confidence {:.1}%, Ihsān {:.1}%",
+                println!(
+                    "   • {}: Confidence {:.1}%, Ihsān {:.1}%",
                     response.agent.name(),
                     response.confidence * 100.0,
                     response.ihsan_score * 100.0
@@ -119,12 +122,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         AgentRole::Publisher,
     ];
 
-    match pat_manager.execute_selective_workflow(&creative_task, creative_roles).await {
+    match pat_manager
+        .execute_selective_workflow(&creative_task, creative_roles)
+        .await
+    {
         Ok(responses) => {
             println!("✅ Creative Content Completed!");
             println!("   Agents processed: {}", responses.len());
             for response in &responses {
-                println!("   • {}: Confidence {:.1}%, Ihsān {:.1}%",
+                println!(
+                    "   • {}: Confidence {:.1}%, Ihsān {:.1}%",
                     response.agent.name(),
                     response.confidence * 100.0,
                     response.ihsan_score * 100.0
@@ -158,7 +165,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     match pat_manager.execute_full_workflow(&software_task).await {
         Ok(final_result) => {
             println!("✅ Full PAT Workflow Completed!");
-            println!("   Final Ihsān Score: {:.1}%", final_result.ihsan_score * 100.0);
+            println!(
+                "   Final Ihsān Score: {:.1}%",
+                final_result.ihsan_score * 100.0
+            );
             println!("   Confidence: {:.1}%", final_result.confidence * 100.0);
             println!("   Latency: {}ms", final_result.latency_ms);
             println!("   Integrated by: {}", final_result.agent.name());
@@ -192,8 +202,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("✅ Parallel Workflow Completed!");
             println!("   Total outputs: {}", responses.len());
 
-            let avg_ihsan = responses.iter().map(|r| r.ihsan_score).sum::<f32>() / responses.len() as f32;
-            let avg_confidence = responses.iter().map(|r| r.confidence).sum::<f32>() / responses.len() as f32;
+            let avg_ihsan =
+                responses.iter().map(|r| r.ihsan_score).sum::<f32>() / responses.len() as f32;
+            let avg_confidence =
+                responses.iter().map(|r| r.confidence).sum::<f32>() / responses.len() as f32;
 
             println!("   Average Ihsān: {:.1}%", avg_ihsan * 100.0);
             println!("   Average Confidence: {:.1}%", avg_confidence * 100.0);
@@ -201,7 +213,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             println!("   Individual Agent Performance:");
             for response in &responses {
-                println!("     • {:<20} | Ihsān: {:.1}% | Confidence: {:.1}% | {}ms",
+                println!(
+                    "     • {:<20} | Ihsān: {:.1}% | Confidence: {:.1}% | {}ms",
                     response.agent.name(),
                     response.ihsan_score * 100.0,
                     response.confidence * 100.0,
@@ -222,11 +235,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let workflow = WorkflowOrchestrator::new();
 
     // Sequential workflow: Plan → Research → Code
-    let sequential_agents = vec![
-        AgentRole::Planner,
-        AgentRole::Researcher,
-        AgentRole::Coder,
-    ];
+    let sequential_agents = vec![AgentRole::Planner, AgentRole::Researcher, AgentRole::Coder];
 
     let coordination_task = Task {
         examples: Some(vec![serde_json::json!({
@@ -241,11 +250,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })]),
     };
 
-    match workflow.execute_sequential(sequential_agents.clone(), coordination_task.clone()).await {
+    match workflow
+        .execute_sequential(sequential_agents.clone(), coordination_task.clone())
+        .await
+    {
         Ok(_) => {
             println!("✅ A2A Sequential Coordination Successful!");
             println!("   Agents coordinated: {}", sequential_agents.len());
-            println!("   Pending messages: {}", workflow.coordinator().pending_count().await);
+            println!(
+                "   Pending messages: {}",
+                workflow.coordinator().pending_count().await
+            );
             println!();
         }
         Err(e) => println!("❌ A2A coordination failed: {}\n", e),
@@ -257,13 +272,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let team_metrics = pat_manager.get_team_metrics();
-    println!("Total Tasks Completed: {}", team_metrics.total_tasks_completed);
+    println!(
+        "Total Tasks Completed: {}",
+        team_metrics.total_tasks_completed
+    );
     println!("Total Tasks Failed: {}", team_metrics.total_tasks_failed);
     println!("Success Rate: {:.1}%", team_metrics.success_rate() * 100.0);
     println!("Average Latency: {:.0}ms", team_metrics.avg_latency_ms);
-    println!("Average Confidence: {:.1}%", team_metrics.avg_confidence * 100.0);
+    println!(
+        "Average Confidence: {:.1}%",
+        team_metrics.avg_confidence * 100.0
+    );
     println!("Total Tokens Used: ~{}", team_metrics.total_tokens_used);
-    println!("Average Tasks/Agent: {:.1}", team_metrics.avg_tasks_per_agent());
+    println!(
+        "Average Tasks/Agent: {:.1}",
+        team_metrics.avg_tasks_per_agent()
+    );
 
     println!("\n╔═══════════════════════════════════════════════════════════════╗");
     println!("║  PAT Demonstration Complete!                                 ║");

@@ -2,12 +2,12 @@
 // Security Auditor Agent - Vulnerability Detection & Security Hardening
 // Performs security audits, vulnerability scanning, and compliance checking
 
-use crate::agents::{Agent, AgentRole, AgentResponse, AgentState, AgentMetrics, BaseAgent};
-use crate::types::Task;
+use crate::agents::{Agent, AgentMetrics, AgentResponse, AgentRole, AgentState, BaseAgent};
 use crate::ai_backend::AIBackend;
+use crate::types::Task;
 use async_trait::async_trait;
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
 
 /// Security Auditor Agent
 /// Specialized in security analysis, vulnerability detection, and compliance
@@ -37,7 +37,10 @@ impl Agent for SecurityAuditorAgent {
         self.base.metrics.clone()
     }
 
-    async fn process(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    async fn process(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         self.base.process_with_moe(task).await
     }
 

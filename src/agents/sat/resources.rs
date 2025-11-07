@@ -2,12 +2,12 @@
 // Resource Allocator Agent - Resource Management & Optimization
 // Optimizes resource allocation, cost management, and capacity planning
 
-use crate::agents::{Agent, AgentRole, AgentResponse, AgentState, AgentMetrics, BaseAgent};
-use crate::types::Task;
+use crate::agents::{Agent, AgentMetrics, AgentResponse, AgentRole, AgentState, BaseAgent};
 use crate::ai_backend::AIBackend;
+use crate::types::Task;
 use async_trait::async_trait;
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
 
 /// Resource Allocator Agent
 /// Specialized in resource management, cost optimization, and capacity planning
@@ -37,7 +37,10 @@ impl Agent for ResourceAllocatorAgent {
         self.base.metrics.clone()
     }
 
-    async fn process(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    async fn process(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         self.base.process_with_moe(task).await
     }
 

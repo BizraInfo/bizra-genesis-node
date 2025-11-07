@@ -387,12 +387,7 @@ impl OllamaClient {
 
         debug!("Sending request to model: {}", model);
 
-        let response = self
-            .client
-            .post(&url)
-            .json(&request)
-            .send()
-            .await?;
+        let response = self.client.post(&url).json(&request).send().await?;
 
         if !response.status().is_success() {
             let status = response.status();
@@ -405,10 +400,7 @@ impl OllamaClient {
                 model_health.record_failure();
             }
 
-            return Err(MoeError::OllamaApi(format!(
-                "Status {}: {}",
-                status, body
-            )));
+            return Err(MoeError::OllamaApi(format!("Status {}: {}", status, body)));
         }
 
         let ollama_response: OllamaResponse = response.json().await?;
@@ -468,7 +460,11 @@ impl OllamaClient {
                 Ok(true)
             }
             Ok(response) => {
-                warn!("Health check failed for model {}: {}", model, response.status());
+                warn!(
+                    "Health check failed for model {}: {}",
+                    model,
+                    response.status()
+                );
                 Ok(false)
             }
             Err(e) => {
@@ -511,7 +507,9 @@ impl HarmonicSynthesizer {
     /// Synthesize multiple model responses into a single response
     pub fn synthesize(&self, responses: Vec<ModelResponse>) -> MoeResult<EnsembleResponse> {
         if responses.is_empty() {
-            return Err(MoeError::SynthesisFailed("No responses to synthesize".to_string()));
+            return Err(MoeError::SynthesisFailed(
+                "No responses to synthesize".to_string(),
+            ));
         }
 
         let start = Instant::now();
@@ -597,7 +595,10 @@ impl EnsembleOrchestrator {
         let client = Arc::new(OllamaClient::with_config(config.clone()));
         let synthesizer = HarmonicSynthesizer::new(config.ihsan_threshold);
 
-        Self { client, synthesizer }
+        Self {
+            client,
+            synthesizer,
+        }
     }
 
     /// Create a new ensemble orchestrator with custom configuration
@@ -606,7 +607,10 @@ impl EnsembleOrchestrator {
         let client = Arc::new(OllamaClient::with_config(config));
         let synthesizer = HarmonicSynthesizer::new(ihsan_threshold);
 
-        Self { client, synthesizer }
+        Self {
+            client,
+            synthesizer,
+        }
     }
 
     /// Generate a response using the multi-model ensemble
@@ -632,9 +636,7 @@ impl EnsembleOrchestrator {
             let model = model.clone();
             let prompt = prompt.to_string();
 
-            let task = tokio::spawn(async move {
-                client.generate(&model, &prompt).await
-            });
+            let task = tokio::spawn(async move { client.generate(&model, &prompt).await });
 
             tasks.push(task);
         }

@@ -3,9 +3,9 @@
 // Prerequisites: Install Ollama and pull models (see OLLAMA_SETUP.md)
 // Run with: cargo run --example moe_real
 
-use synthesis_orchestrator::{SynthesisOrchestrator, Task, Contract};
 use bizra_moe::OllamaConfig;
 use std::time::Duration;
+use synthesis_orchestrator::{Contract, SynthesisOrchestrator, Task};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,33 +34,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔧 MOE Configuration:");
     println!("   Base URL: {}", moe_config.base_url);
     println!("   Models: {:?}", moe_config.models);
-    println!("   Ihsān threshold: {:.0}%", moe_config.ihsan_threshold * 100.0);
+    println!(
+        "   Ihsān threshold: {:.0}%",
+        moe_config.ihsan_threshold * 100.0
+    );
     println!();
 
     // Create orchestrator with MOE backend
     println!("🏗️  Creating orchestrator with MOE backend...");
-    let mut orchestrator = SynthesisOrchestrator::with_moe_config(moe_config)
-        .expect("Failed to create orchestrator");
+    let mut orchestrator =
+        SynthesisOrchestrator::with_moe_config(moe_config).expect("Failed to create orchestrator");
 
     println!("✅ Orchestrator created successfully\n");
 
     // Create a real-world task
     let task = Task {
-        examples: Some(vec![
-            serde_json::json!({
-                "input": "What is the capital of France?",
-                "expected_format": "JSON with answer and reasoning"
-            })
-        ]),
+        examples: Some(vec![serde_json::json!({
+            "input": "What is the capital of France?",
+            "expected_format": "JSON with answer and reasoning"
+        })]),
     };
 
     // Create contract with strict quality requirements
     let contract = Contract::example();
 
     // Available routes
-    let routes = vec![
-        "moe-ensemble".to_string(),
-    ];
+    let routes = vec!["moe-ensemble".to_string()];
 
     println!("📋 Task:");
     println!("   Examples: {:?}", task.examples);
@@ -86,12 +85,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Display scores
             println!("\n📊 Quality Scores:");
-            println!("   Accuracy:   {:.2}%", result.winner.scores.accuracy * 100.0);
+            println!(
+                "   Accuracy:   {:.2}%",
+                result.winner.scores.accuracy * 100.0
+            );
             println!("   Safety:     {:.2}%", result.winner.scores.safety * 100.0);
-            println!("   Efficiency: {:.2}%", result.winner.scores.efficiency * 100.0);
-            println!("   Ihsān (إحسان): {:.2}% {}",
+            println!(
+                "   Efficiency: {:.2}%",
+                result.winner.scores.efficiency * 100.0
+            );
+            println!(
+                "   Ihsān (إحسان): {:.2}% {}",
                 result.winner.scores.ihsan * 100.0,
-                if result.winner.scores.ihsan >= 0.75 { "✅" } else { "❌" }
+                if result.winner.scores.ihsan >= 0.75 {
+                    "✅"
+                } else {
+                    "❌"
+                }
             );
 
             // Display response
@@ -102,14 +112,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("\n💰 Economics:");
             println!("   Cost: ${:.6}", result.winner.cost_usd);
             println!("   Latency: {}ms", result.winner.latency_ms);
-            println!("   Cost per second: ${:.6}/s",
+            println!(
+                "   Cost per second: ${:.6}/s",
                 result.winner.cost_usd / (result.winner.latency_ms as f32 / 1000.0)
             );
 
             // Display telemetry
             println!("\n📈 Telemetry:");
-            println!("   JSON Compliance: {:.1}%", result.telemetry.sli_metrics.json_compliance_rate * 100.0);
-            println!("   Accuracy Uplift: +{:.2}%", result.telemetry.quality_metrics.accuracy_uplift * 100.0);
+            println!(
+                "   JSON Compliance: {:.1}%",
+                result.telemetry.sli_metrics.json_compliance_rate * 100.0
+            );
+            println!(
+                "   Accuracy Uplift: +{:.2}%",
+                result.telemetry.quality_metrics.accuracy_uplift * 100.0
+            );
 
             println!("\n✨ Synthesis completed successfully!");
         }

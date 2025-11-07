@@ -2,15 +2,12 @@
 // Complete BIZRA Agent Ecosystem Demonstration
 // Shows PAT (7 agents) + SAT (5 agents) = 12 agents working together
 
-use synthesis_orchestrator::{
-    agents::pat::PATManager,
-    agents::sat::SATManager,
-    agents::AgentRole,
-    AIBackend, SimulatedBackend, MoeBackend,
-    Task,
-};
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
+use synthesis_orchestrator::{
+    agents::pat::PATManager, agents::sat::SATManager, agents::AgentRole, AIBackend, MoeBackend,
+    SimulatedBackend, Task,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -104,9 +101,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         AgentRole::Ethicist,
     ];
 
-    match pat_manager.execute_selective_workflow(&app_task, pat_roles).await {
+    match pat_manager
+        .execute_selective_workflow(&app_task, pat_roles)
+        .await
+    {
         Ok(responses) => {
-            println!("   ✅ PAT workflow completed successfully ({} agents)", responses.len());
+            println!(
+                "   ✅ PAT workflow completed successfully ({} agents)",
+                responses.len()
+            );
             println!();
         }
         Err(e) => {
@@ -150,14 +153,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     println!("🏥 System Health Report:");
-    println!("   Overall Health: {:.1}%", health_report.overall_health * 100.0);
+    println!(
+        "   Overall Health: {:.1}%",
+        health_report.overall_health * 100.0
+    );
     println!("   Status: {}", health_report.status());
     println!("   Health Scores:");
     for (agent, score) in &health_report.health_scores {
         println!("     • {}: {:.1}%", agent, score * 100.0);
     }
-    println!("   Critical Issues: {}", health_report.critical_issues.len());
-    println!("   System Health: {}", if health_report.is_healthy() { "✅ HEALTHY" } else { "⚠️  NEEDS ATTENTION" });
+    println!(
+        "   Critical Issues: {}",
+        health_report.critical_issues.len()
+    );
+    println!(
+        "   System Health: {}",
+        if health_report.is_healthy() {
+            "✅ HEALTHY"
+        } else {
+            "⚠️  NEEDS ATTENTION"
+        }
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -168,9 +184,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let pat_metrics = pat_manager.get_team_metrics();
     println!("👥 PAT (Personal Agentic Team) - 7 Agents:");
     println!("   Tasks Completed: {}", pat_metrics.total_tasks_completed);
-    println!("   Success Rate: {:.1}%", pat_metrics.success_rate() * 100.0);
+    println!(
+        "   Success Rate: {:.1}%",
+        pat_metrics.success_rate() * 100.0
+    );
     println!("   Average Latency: {:.0}ms", pat_metrics.avg_latency_ms);
-    println!("   Average Confidence: {:.1}%", pat_metrics.avg_confidence * 100.0);
+    println!(
+        "   Average Confidence: {:.1}%",
+        pat_metrics.avg_confidence * 100.0
+    );
     println!("   Tokens Used: ~{}", pat_metrics.total_tokens_used);
     println!("   Tasks/Agent: {:.1}", pat_metrics.avg_tasks_per_agent());
     println!();
@@ -179,9 +201,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let sat_metrics = sat_manager.get_team_metrics();
     println!("🔧 SAT (System Agentic Team) - 5 Agents:");
     println!("   Tasks Completed: {}", sat_metrics.total_tasks_completed);
-    println!("   Success Rate: {:.1}%", sat_metrics.success_rate() * 100.0);
+    println!(
+        "   Success Rate: {:.1}%",
+        sat_metrics.success_rate() * 100.0
+    );
     println!("   Average Latency: {:.0}ms", sat_metrics.avg_latency_ms);
-    println!("   Average Confidence: {:.1}%", sat_metrics.avg_confidence * 100.0);
+    println!(
+        "   Average Confidence: {:.1}%",
+        sat_metrics.avg_confidence * 100.0
+    );
     println!("   Tokens Used: ~{}", sat_metrics.total_tokens_used);
     println!("   Tasks/Agent: {:.1}", sat_metrics.avg_tasks_per_agent());
     println!();
@@ -189,16 +217,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Combined Metrics
     let total_tasks = pat_metrics.total_tasks_completed + sat_metrics.total_tasks_completed;
     let total_tokens = pat_metrics.total_tokens_used + sat_metrics.total_tokens_used;
-    let combined_success =
-        (pat_metrics.total_tasks_completed + sat_metrics.total_tasks_completed) as f32 /
-        (pat_metrics.total_tasks_completed + pat_metrics.total_tasks_failed +
-         sat_metrics.total_tasks_completed + sat_metrics.total_tasks_failed) as f32;
+    let combined_success = (pat_metrics.total_tasks_completed + sat_metrics.total_tasks_completed)
+        as f32
+        / (pat_metrics.total_tasks_completed
+            + pat_metrics.total_tasks_failed
+            + sat_metrics.total_tasks_completed
+            + sat_metrics.total_tasks_failed) as f32;
 
     println!("🌟 COMBINED ECOSYSTEM - 12 Agents Total:");
     println!("   Total Tasks: {}", total_tasks);
     println!("   Overall Success Rate: {:.1}%", combined_success * 100.0);
     println!("   Total Tokens: ~{}", total_tokens);
-    println!("   System Health: {:.1}%", health_report.overall_health * 100.0);
+    println!(
+        "   System Health: {:.1}%",
+        health_report.overall_health * 100.0
+    );
     println!();
 
     println!("═══════════════════════════════════════════════════════════════");
@@ -231,12 +264,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("   • 12 specialized agents (7 PAT + 5 SAT) operational");
     println!("   • Complete end-to-end workflow executed");
     println!("   • {:.1}% overall success rate", combined_success * 100.0);
-    println!("   • {:.1}% system health score", health_report.overall_health * 100.0);
+    println!(
+        "   • {:.1}% system health score",
+        health_report.overall_health * 100.0
+    );
     println!("   • {} total tasks completed", total_tasks);
     println!();
 
     println!("💡 Agent Specializations:");
-    println!("   PAT: Planning, Research, Development, Evaluation, Ethics, Publishing, Integration");
+    println!(
+        "   PAT: Planning, Research, Development, Evaluation, Ethics, Publishing, Integration"
+    );
     println!("   SAT: Infrastructure, Performance, Security, Backup, Resources");
     println!();
 

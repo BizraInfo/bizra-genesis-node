@@ -77,22 +77,25 @@ pub struct TrustBridge {
 impl TrustBridge {
     pub fn new() -> Result<Self, String> {
         let rng = SystemRandom::new();
-        let pkcs8 = Ed25519KeyPair::generate_pkcs8(&rng)
-            .map_err(|e| format!("Key gen failed: {:?}", e))?;
-        
+        let pkcs8 =
+            Ed25519KeyPair::generate_pkcs8(&rng).map_err(|e| format!("Key gen failed: {:?}", e))?;
+
         let key_pair = Ed25519KeyPair::from_pkcs8(pkcs8.as_ref())
             .map_err(|e| format!("Key parse failed: {:?}", e))?;
 
-        Ok(Self { key_pair, _rng: rng })
+        Ok(Self {
+            key_pair,
+            _rng: rng,
+        })
     }
 
     pub fn sign_receipt(&self, mut receipt: RunReceipt) -> RunReceipt {
         let payload = self.serialize_for_signing(&receipt);
         let signature = self.key_pair.sign(&payload);
-        
+
         receipt.public_key_der = self.key_pair.public_key().as_ref().to_vec();
         receipt.signature = signature.as_ref().to_vec();
-        
+
         receipt
     }
 
@@ -124,7 +127,9 @@ impl Default for ImpactTracker {
 
 impl ImpactTracker {
     pub fn new() -> Self {
-        Self { impacts: Vec::new() }
+        Self {
+            impacts: Vec::new(),
+        }
     }
 
     pub fn record(&mut self, impact: ProofOfImpact) {

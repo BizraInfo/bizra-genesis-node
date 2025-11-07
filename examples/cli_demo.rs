@@ -2,9 +2,9 @@
 // BIZRA CLI Demonstration
 // Shows complete CLI functionality with all 12 agents
 
-use synthesis_orchestrator::cli::{CLIConfig, CommandExecutor, Command, WorkflowType, Display};
-use synthesis_orchestrator::{Task, agents::AgentRole};
 use std::error::Error;
+use synthesis_orchestrator::cli::{CLIConfig, Command, CommandExecutor, Display, WorkflowType};
+use synthesis_orchestrator::{agents::AgentRole, Task};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -69,11 +69,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         AgentRole::Ethicist,
     ];
 
-    executor.execute(Command::Run {
-        workflow: WorkflowType::PAT,
-        agents: pat_agents,
-        task: task.clone(),
-    }).await?;
+    executor
+        .execute(Command::Run {
+            workflow: WorkflowType::PAT,
+            agents: pat_agents,
+            task: task.clone(),
+        })
+        .await?;
 
     // Demo 4: Run SAT workflow
     println!("\n═══════════════════════════════════════════════════════════════");
@@ -86,11 +88,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         AgentRole::SecurityAuditor,
     ];
 
-    executor.execute(Command::Run {
-        workflow: WorkflowType::SAT,
-        agents: sat_agents,
-        task: task.clone(),
-    }).await?;
+    executor
+        .execute(Command::Run {
+            workflow: WorkflowType::SAT,
+            agents: sat_agents,
+            task: task.clone(),
+        })
+        .await?;
 
     // Demo 5: System health check
     println!("\n═══════════════════════════════════════════════════════════════");
@@ -131,11 +135,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         })]),
     };
 
-    executor.execute(Command::Run {
-        workflow: WorkflowType::Full,
-        agents: vec![],
-        task: full_task,
-    }).await?;
+    executor
+        .execute(Command::Run {
+            workflow: WorkflowType::Full,
+            agents: vec![],
+            task: full_task,
+        })
+        .await?;
 
     // Final health check
     println!("\n═══════════════════════════════════════════════════════════════");

@@ -53,7 +53,8 @@ impl BufferPool {
 
     pub async fn acquire(&self) -> BytesMut {
         let mut pool = self.pool.lock().await;
-        pool.pop().unwrap_or_else(|| BytesMut::with_capacity(self.buffer_size))
+        pool.pop()
+            .unwrap_or_else(|| BytesMut::with_capacity(self.buffer_size))
     }
 
     pub async fn release(&self, mut buffer: BytesMut) {

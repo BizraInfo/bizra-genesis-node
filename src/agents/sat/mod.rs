@@ -2,24 +2,24 @@
 // System Agentic Team (SAT) - Software Development & Infrastructure Focus
 // Ensures system sustainability, performance, security, and operational excellence
 
+pub mod backup;
 pub mod infrastructure;
 pub mod performance;
-pub mod security;
-pub mod backup;
 pub mod resources;
+pub mod security;
 
-use crate::agents::{Agent, AgentRole, AgentResponse};
-use crate::types::Task;
+use crate::agents::{Agent, AgentResponse, AgentRole};
 use crate::ai_backend::AIBackend;
-use std::sync::Arc;
+use crate::types::Task;
 use std::error::Error;
+use std::sync::Arc;
 
 // Re-export individual agents
+pub use backup::BackupCoordinatorAgent;
 pub use infrastructure::InfrastructureManagerAgent;
 pub use performance::PerformanceMonitorAgent;
-pub use security::SecurityAuditorAgent;
-pub use backup::BackupCoordinatorAgent;
 pub use resources::ResourceAllocatorAgent;
+pub use security::SecurityAuditorAgent;
 
 /// System Agentic Team (SAT) Manager
 /// Coordinates 5 system agents for software sustainability and operations
@@ -44,7 +44,10 @@ impl SATManager {
     }
 
     /// Execute complete SAT workflow for system health
-    pub async fn execute_full_workflow(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    pub async fn execute_full_workflow(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         tracing::info!("🔧 Starting SAT full workflow");
 
         // Phase 1: Infrastructure Assessment
@@ -67,13 +70,19 @@ impl SATManager {
         tracing::info!("⚡ Phase 5: Resource Allocation");
         let final_result = self.resources.process(task).await?;
 
-        tracing::info!("✨ SAT workflow complete - System Health: {:.2}%", final_result.ihsan_score * 100.0);
+        tracing::info!(
+            "✨ SAT workflow complete - System Health: {:.2}%",
+            final_result.ihsan_score * 100.0
+        );
 
         Ok(final_result)
     }
 
     /// Execute parallel system health check
-    pub async fn execute_parallel_health_check(&mut self, task: &Task) -> Result<Vec<AgentResponse>, Box<dyn Error + Send + Sync>> {
+    pub async fn execute_parallel_health_check(
+        &mut self,
+        task: &Task,
+    ) -> Result<Vec<AgentResponse>, Box<dyn Error + Send + Sync>> {
         tracing::info!("⚡ Starting SAT parallel health check");
 
         let results = tokio::join!(
@@ -86,11 +95,21 @@ impl SATManager {
 
         let mut responses = Vec::new();
 
-        if let Ok(r) = results.0 { responses.push(r); }
-        if let Ok(r) = results.1 { responses.push(r); }
-        if let Ok(r) = results.2 { responses.push(r); }
-        if let Ok(r) = results.3 { responses.push(r); }
-        if let Ok(r) = results.4 { responses.push(r); }
+        if let Ok(r) = results.0 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.1 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.2 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.3 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.4 {
+            responses.push(r);
+        }
 
         Ok(responses)
     }
@@ -101,7 +120,10 @@ impl SATManager {
         task: &Task,
         roles: Vec<AgentRole>,
     ) -> Result<Vec<AgentResponse>, Box<dyn Error + Send + Sync>> {
-        tracing::info!("🎯 Starting SAT selective workflow with {} agents", roles.len());
+        tracing::info!(
+            "🎯 Starting SAT selective workflow with {} agents",
+            roles.len()
+        );
 
         let mut responses = Vec::new();
 
@@ -135,16 +157,19 @@ impl SATManager {
 
     /// Get collective metrics for all SAT agents
     pub fn get_team_metrics(&self) -> SATMetrics {
-        let agents_metrics = [self.infrastructure.metrics(),
+        let agents_metrics = [
+            self.infrastructure.metrics(),
             self.performance.metrics(),
             self.security.metrics(),
             self.backup.metrics(),
-            self.resources.metrics()];
+            self.resources.metrics(),
+        ];
 
         let total_completed: usize = agents_metrics.iter().map(|m| m.tasks_completed).sum();
         let total_failed: usize = agents_metrics.iter().map(|m| m.tasks_failed).sum();
         let avg_latency: f32 = agents_metrics.iter().map(|m| m.avg_latency_ms).sum::<f32>() / 5.0;
-        let avg_confidence: f32 = agents_metrics.iter().map(|m| m.avg_confidence).sum::<f32>() / 5.0;
+        let avg_confidence: f32 =
+            agents_metrics.iter().map(|m| m.avg_confidence).sum::<f32>() / 5.0;
         let total_tokens: usize = agents_metrics.iter().map(|m| m.total_tokens_used).sum();
 
         SATMetrics {
@@ -158,7 +183,10 @@ impl SATManager {
     }
 
     /// Generate comprehensive system health report
-    pub async fn generate_health_report(&mut self, task: &Task) -> Result<SystemHealthReport, Box<dyn Error + Send + Sync>> {
+    pub async fn generate_health_report(
+        &mut self,
+        task: &Task,
+    ) -> Result<SystemHealthReport, Box<dyn Error + Send + Sync>> {
         let responses = self.execute_parallel_health_check(task).await?;
 
         let mut health_scores = std::collections::HashMap::new();
@@ -166,21 +194,20 @@ impl SATManager {
         let recommendations = Vec::new();
 
         for response in &responses {
-            health_scores.insert(
-                response.agent.name().to_string(),
-                response.ihsan_score,
-            );
+            health_scores.insert(response.agent.name().to_string(), response.ihsan_score);
 
             // Extract issues and recommendations from response
             if response.ihsan_score < 0.85 {
-                issues.push(format!("{}: Below threshold ({:.1}%)",
+                issues.push(format!(
+                    "{}: Below threshold ({:.1}%)",
                     response.agent.name(),
                     response.ihsan_score * 100.0
                 ));
             }
         }
 
-        let overall_health = responses.iter().map(|r| r.ihsan_score).sum::<f32>() / responses.len() as f32;
+        let overall_health =
+            responses.iter().map(|r| r.ihsan_score).sum::<f32>() / responses.len() as f32;
 
         Ok(SystemHealthReport {
             overall_health,
@@ -258,7 +285,10 @@ mod tests {
         let backend: Arc<dyn AIBackend> = Arc::new(SimulatedBackend);
         let manager = SATManager::new(backend);
 
-        assert_eq!(manager.infrastructure.role(), AgentRole::InfrastructureManager);
+        assert_eq!(
+            manager.infrastructure.role(),
+            AgentRole::InfrastructureManager
+        );
         assert_eq!(manager.performance.role(), AgentRole::PerformanceMonitor);
     }
 
@@ -278,10 +308,7 @@ mod tests {
         let mut manager = SATManager::new(backend);
 
         let task = Task::example();
-        let roles = vec![
-            AgentRole::SecurityAuditor,
-            AgentRole::PerformanceMonitor,
-        ];
+        let roles = vec![AgentRole::SecurityAuditor, AgentRole::PerformanceMonitor];
 
         let results = manager.execute_selective_workflow(&task, roles).await;
         assert!(results.is_ok());

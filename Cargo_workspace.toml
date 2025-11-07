@@ -1,0 +1,26 @@
+# Cargo.toml (workspace root)
+# BIZRA Synthesis Orchestrator - Professional Elite Implementation
+# Ihsan Compliance Target: 100/100
+
+[workspace]
+members = ["synthesis_orchestrator"]
+resolver = "2"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = true
+opt-level = 3
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = "deny"
+pedantic = "warn"
+nursery = "warn"

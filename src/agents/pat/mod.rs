@@ -2,28 +2,28 @@
 // Personal Agentic Team (PAT) - General Purpose Personal Agents
 // Adaptable for any domain: software, business, creative, research, etc.
 
-pub mod planner;
-pub mod researcher;
 pub mod coder;
-pub mod evaluator;
 pub mod ethicist;
-pub mod publisher;
+pub mod evaluator;
 pub mod integrator;
+pub mod planner;
+pub mod publisher;
+pub mod researcher;
 
-use crate::agents::{Agent, AgentRole, AgentResponse};
-use crate::types::Task;
+use crate::agents::{Agent, AgentResponse, AgentRole};
 use crate::ai_backend::AIBackend;
-use std::sync::Arc;
+use crate::types::Task;
 use std::error::Error;
+use std::sync::Arc;
 
 // Re-export individual agents
-pub use planner::PlannerAgent;
-pub use researcher::ResearcherAgent;
 pub use coder::CoderAgent;
-pub use evaluator::EvaluatorAgent;
 pub use ethicist::EthicistAgent;
-pub use publisher::PublisherAgent;
+pub use evaluator::EvaluatorAgent;
 pub use integrator::IntegratorAgent;
+pub use planner::PlannerAgent;
+pub use publisher::PublisherAgent;
+pub use researcher::ResearcherAgent;
 
 /// Personal Agentic Team (PAT) Manager
 /// Coordinates all 7 personal agents for comprehensive task handling
@@ -52,7 +52,10 @@ impl PATManager {
     }
 
     /// Execute complete PAT workflow for any task
-    pub async fn execute_full_workflow(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    pub async fn execute_full_workflow(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         tracing::info!("🚀 Starting PAT full workflow");
 
         // Phase 1: Planning
@@ -83,13 +86,19 @@ impl PATManager {
         tracing::info!("🔗 Phase 7: Final Integration");
         let final_result = self.integrator.process(task).await?;
 
-        tracing::info!("✨ PAT workflow complete - Ihsān: {:.2}%", final_result.ihsan_score * 100.0);
+        tracing::info!(
+            "✨ PAT workflow complete - Ihsān: {:.2}%",
+            final_result.ihsan_score * 100.0
+        );
 
         Ok(final_result)
     }
 
     /// Execute parallel workflow (all agents work simultaneously)
-    pub async fn execute_parallel_workflow(&mut self, task: &Task) -> Result<Vec<AgentResponse>, Box<dyn Error + Send + Sync>> {
+    pub async fn execute_parallel_workflow(
+        &mut self,
+        task: &Task,
+    ) -> Result<Vec<AgentResponse>, Box<dyn Error + Send + Sync>> {
         tracing::info!("⚡ Starting PAT parallel workflow");
 
         let results = tokio::join!(
@@ -103,12 +112,24 @@ impl PATManager {
 
         let mut responses = Vec::new();
 
-        if let Ok(r) = results.0 { responses.push(r); }
-        if let Ok(r) = results.1 { responses.push(r); }
-        if let Ok(r) = results.2 { responses.push(r); }
-        if let Ok(r) = results.3 { responses.push(r); }
-        if let Ok(r) = results.4 { responses.push(r); }
-        if let Ok(r) = results.5 { responses.push(r); }
+        if let Ok(r) = results.0 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.1 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.2 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.3 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.4 {
+            responses.push(r);
+        }
+        if let Ok(r) = results.5 {
+            responses.push(r);
+        }
 
         // Use integrator to synthesize all parallel results
         let integrated = self.integrator.process(task).await?;
@@ -123,7 +144,10 @@ impl PATManager {
         task: &Task,
         roles: Vec<AgentRole>,
     ) -> Result<Vec<AgentResponse>, Box<dyn Error + Send + Sync>> {
-        tracing::info!("🎯 Starting PAT selective workflow with {} agents", roles.len());
+        tracing::info!(
+            "🎯 Starting PAT selective workflow with {} agents",
+            roles.len()
+        );
 
         let mut responses = Vec::new();
 
@@ -174,7 +198,8 @@ impl PATManager {
         let total_completed: usize = agents_metrics.iter().map(|m| m.tasks_completed).sum();
         let total_failed: usize = agents_metrics.iter().map(|m| m.tasks_failed).sum();
         let avg_latency: f32 = agents_metrics.iter().map(|m| m.avg_latency_ms).sum::<f32>() / 7.0;
-        let avg_confidence: f32 = agents_metrics.iter().map(|m| m.avg_confidence).sum::<f32>() / 7.0;
+        let avg_confidence: f32 =
+            agents_metrics.iter().map(|m| m.avg_confidence).sum::<f32>() / 7.0;
         let total_tokens: usize = agents_metrics.iter().map(|m| m.total_tokens_used).sum();
 
         TeamMetrics {

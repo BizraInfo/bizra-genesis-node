@@ -2,19 +2,19 @@
 // Professional Agent System for BIZRA Genesis Node
 // Implements PAT (Personal Agentic Team) and SAT (System Agentic Team)
 
+pub mod a2a;
 pub mod pat;
 pub mod sat;
-pub mod a2a;
 
 // Re-export team metrics
 pub use pat::TeamMetrics;
 
-use crate::types::{Task, Candidate};
 use crate::ai_backend::AIBackend;
+use crate::types::{Candidate, Task};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::error::Error;
+use std::sync::Arc;
 
 /// Agent role defines the specialization and capabilities
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -75,25 +75,27 @@ impl AgentRole {
 
     /// Check if agent is part of PAT (Personal Agentic Team)
     pub fn is_pat(&self) -> bool {
-        matches!(self,
-            AgentRole::Planner |
-            AgentRole::Researcher |
-            AgentRole::Coder |
-            AgentRole::Evaluator |
-            AgentRole::Ethicist |
-            AgentRole::Publisher |
-            AgentRole::Integrator
+        matches!(
+            self,
+            AgentRole::Planner
+                | AgentRole::Researcher
+                | AgentRole::Coder
+                | AgentRole::Evaluator
+                | AgentRole::Ethicist
+                | AgentRole::Publisher
+                | AgentRole::Integrator
         )
     }
 
     /// Check if agent is part of SAT (System Agentic Team)
     pub fn is_sat(&self) -> bool {
-        matches!(self,
-            AgentRole::InfrastructureManager |
-            AgentRole::PerformanceMonitor |
-            AgentRole::SecurityAuditor |
-            AgentRole::BackupCoordinator |
-            AgentRole::ResourceAllocator
+        matches!(
+            self,
+            AgentRole::InfrastructureManager
+                | AgentRole::PerformanceMonitor
+                | AgentRole::SecurityAuditor
+                | AgentRole::BackupCoordinator
+                | AgentRole::ResourceAllocator
         )
     }
 }
@@ -164,7 +166,8 @@ pub trait Agent: Send + Sync {
     fn metrics(&self) -> AgentMetrics;
 
     /// Process a task using the agent's specialization
-    async fn process(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>>;
+    async fn process(&mut self, task: &Task)
+        -> Result<AgentResponse, Box<dyn Error + Send + Sync>>;
 
     /// Check if agent can handle this task
     fn can_handle(&self, task: &Task) -> bool;
@@ -249,9 +252,14 @@ impl BaseAgent {
     }
 
     /// Process task using MOE backend
-    pub async fn process_with_moe(&mut self, task: &Task) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
+    pub async fn process_with_moe(
+        &mut self,
+        task: &Task,
+    ) -> Result<AgentResponse, Box<dyn Error + Send + Sync>> {
         let task_id = uuid::Uuid::new_v4().to_string();
-        self.state = AgentState::Processing { task_id: task_id.clone() };
+        self.state = AgentState::Processing {
+            task_id: task_id.clone(),
+        };
 
         let start = std::time::Instant::now();
 
@@ -264,12 +272,17 @@ impl BaseAgent {
         };
 
         // Use MOE backend to generate candidates
-        match self.ai_backend.generate_candidates(&prompt_task, &format!("agent-{:?}", self.role), 3).await {
+        match self
+            .ai_backend
+            .generate_candidates(&prompt_task, &format!("agent-{:?}", self.role), 3)
+            .await
+        {
             Ok(candidates) => {
                 let latency_ms = start.elapsed().as_millis() as u32;
 
                 // Select best candidate based on Ihsān score
-                let best = candidates.iter()
+                let best = candidates
+                    .iter()
                     .max_by(|a, b| a.scores.ihsan.partial_cmp(&b.scores.ihsan).unwrap())
                     .cloned()
                     .unwrap_or_else(|| candidates[0].clone());
@@ -294,7 +307,9 @@ impl BaseAgent {
             }
             Err(e) => {
                 self.metrics.update_failure();
-                self.state = AgentState::Error { message: e.to_string() };
+                self.state = AgentState::Error {
+                    message: e.to_string(),
+                };
                 Err(format!("Agent {:?} processing failed: {}", self.role, e).into())
             }
         }

@@ -2,16 +2,18 @@
 // BIZRA Synthesis Orchestrator - Main Entry Point
 // Supports both CLI mode (agent orchestration) and legacy mode (synthesis demo)
 
-use synthesis_orchestrator::*;
-use synthesis_orchestrator::cli::{CLIConfig, CommandExecutor, Display};
-use tracing_subscriber::{fmt, EnvFilter};
 use std::env;
+use synthesis_orchestrator::cli::{CLIConfig, CommandExecutor, Display};
+use synthesis_orchestrator::*;
+use tracing_subscriber::{fmt, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize tracing
     fmt()
-        .with_env_filter(EnvFilter::from_default_env().add_directive("synthesis_orchestrator=info".parse()?))
+        .with_env_filter(
+            EnvFilter::from_default_env().add_directive("synthesis_orchestrator=info".parse()?),
+        )
         .init();
 
     // Parse command line arguments
@@ -107,10 +109,16 @@ async fn run_legacy_mode() -> Result<(), Box<dyn std::error::Error>> {
     println!("⏱️  Latency: {}ms", result.winner.latency_ms);
     println!();
     println!("📈 Telemetry:");
-    println!("   • JSON Compliance: {:.2}%", result.telemetry.sli_metrics.json_compliance_rate * 100.0);
-    println!("   • Accuracy Uplift: {:.2}%", result.telemetry.quality_metrics.accuracy_uplift * 100.0);
+    println!(
+        "   • JSON Compliance: {:.2}%",
+        result.telemetry.sli_metrics.json_compliance_rate * 100.0
+    );
+    println!(
+        "   • Accuracy Uplift: {:.2}%",
+        result.telemetry.quality_metrics.accuracy_uplift * 100.0
+    );
     println!();
-    
+
     println!("✨ Ihsan Excellence: VALIDATED ✨");
     println!();
 

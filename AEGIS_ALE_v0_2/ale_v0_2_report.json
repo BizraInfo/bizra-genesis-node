@@ -1,0 +1,7062 @@
+{
+  "emulation_id": "ALE2-1761736360-9737",
+  "duration": 365,
+  "phases": {
+    "birth": {
+      "name": "birth",
+      "start_day": 0,
+      "end_day": 7,
+      "performance_improvement": 0.015172556583111951,
+      "challenges": [
+        "Onboarding instability"
+      ],
+      "breakthroughs": [],
+      "resource_metrics": {
+        "avg_mean_latency_ms": 4542.8089238801,
+        "avg_p95_latency_ms": 7598.83005922923,
+        "avg_p99_latency_ms": 11694.890882843432,
+        "tasks_sum": 337
+      }
+    },
+    "early_learning": {
+      "name": "early_learning",
+      "start_day": 7,
+      "end_day": 30,
+      "performance_improvement": -0.014697177461153677,
+      "challenges": [
+        "Onboarding instability"
+      ],
+      "breakthroughs": [],
+      "resource_metrics": {
+        "avg_mean_latency_ms": 3148.611065393316,
+        "avg_p95_latency_ms": 5266.7327218546225,
+        "avg_p99_latency_ms": 8105.703642678699,
+        "tasks_sum": 1262
+      }
+    },
+    "capability_expansion": {
+      "name": "capability_expansion",
+      "start_day": 30,
+      "end_day": 90,
+      "performance_improvement": 0.2354610818432667,
+      "challenges": [],
+      "breakthroughs": [
+        "Cross-domain workflow chaining"
+      ],
+      "resource_metrics": {
+        "avg_mean_latency_ms": 1339.102590551933,
+        "avg_p95_latency_ms": 2239.938590414359,
+        "avg_p99_latency_ms": 3447.351394225436,
+        "tasks_sum": 4604
+      }
+    },
+    "optimization_mastery": {
+      "name": "optimization_mastery",
+      "start_day": 90,
+      "end_day": 180,
+      "performance_improvement": 0.2565150053666667,
+      "challenges": [],
+      "breakthroughs": [
+        "Cross-domain workflow chaining"
+      ],
+      "resource_metrics": {
+        "avg_mean_latency_ms": 593.267509661978,
+        "avg_p95_latency_ms": 992.3681715701612,
+        "avg_p99_latency_ms": 1527.2926742221514,
+        "tasks_sum": 10957
+      }
+    },
+    "peak_performance": {
+      "name": "peak_performance",
+      "start_day": 180,
+      "end_day": 364,
+      "performance_improvement": 0.030464712558573193,
+      "challenges": [],
+      "breakthroughs": [
+        "Emergent innovation patterns"
+      ],
+      "resource_metrics": {
+        "avg_mean_latency_ms": 502.2885839284939,
+        "avg_p95_latency_ms": 840.186249062731,
+        "avg_p99_latency_ms": 1293.078859175174,
+        "tasks_sum": 37268
+      }
+    }
+  },
+  "evolution_trajectory": [
+    {
+      "day": 0,
+      "success_rate": 0.45733588532115993,
+      "mean_latency_ms": 4924.409342671632,
+      "p95_latency_ms": 8237.139259883625,
+      "p99_latency_ms": 12677.273222359172,
+      "tasks_processed": 40,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 1,
+      "success_rate": 0.43659017064833694,
+      "mean_latency_ms": 4788.110483307772,
+      "p95_latency_ms": 8009.149950421725,
+      "p99_latency_ms": 12326.388931510564,
+      "tasks_processed": 39,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 2,
+      "success_rate": 0.4444760339950886,
+      "mean_latency_ms": 4796.352739456377,
+      "p95_latency_ms": 8022.936905767494,
+      "p99_latency_ms": 12347.607584529336,
+      "tasks_processed": 42,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 3,
+      "success_rate": 0.4327601437204801,
+      "mean_latency_ms": 4698.682723408168,
+      "p95_latency_ms": 7859.56268812627,
+      "p99_latency_ms": 12096.168398037275,
+      "tasks_processed": 43,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 4,
+      "success_rate": 0.47720519309001325,
+      "mean_latency_ms": 4449.34033936487,
+      "p95_latency_ms": 7442.483644156751,
+      "p99_latency_ms": 11454.26775402696,
+      "tasks_processed": 44,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 5,
+      "success_rate": 0.43562621322057915,
+      "mean_latency_ms": 4407.489795302824,
+      "p95_latency_ms": 7372.479561321112,
+      "p99_latency_ms": 11346.528785825929,
+      "tasks_processed": 33,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 6,
+      "success_rate": 0.47313735821740605,
+      "mean_latency_ms": 4188.695971953669,
+      "p95_latency_ms": 7006.499589568472,
+      "p99_latency_ms": 10783.271573650904,
+      "tasks_processed": 43,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 7,
+      "success_rate": 0.4725084419042719,
+      "mean_latency_ms": 4089.389995575493,
+      "p95_latency_ms": 6840.388874588397,
+      "p99_latency_ms": 10527.620812807314,
+      "tasks_processed": 53,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 8,
+      "success_rate": 0.45220750595235243,
+      "mean_latency_ms": 4052.342899509897,
+      "p95_latency_ms": 6778.419597009811,
+      "p99_latency_ms": 10432.247718038603,
+      "tasks_processed": 50,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 9,
+      "success_rate": 0.46910436812784445,
+      "mean_latency_ms": 4091.0259780656766,
+      "p95_latency_ms": 6843.125408994994,
+      "p99_latency_ms": 10531.832444207525,
+      "tasks_processed": 36,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 10,
+      "success_rate": 0.4985473203118098,
+      "mean_latency_ms": 3901.098792800346,
+      "p95_latency_ms": 6525.431130269691,
+      "p99_latency_ms": 10042.88876539956,
+      "tasks_processed": 36,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 11,
+      "success_rate": 0.4613598734084204,
+      "mean_latency_ms": 3708.8707605315226,
+      "p95_latency_ms": 6203.888187498674,
+      "p99_latency_ms": 9548.021845025658,
+      "tasks_processed": 45,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 12,
+      "success_rate": 0.47272198011362154,
+      "mean_latency_ms": 3733.7530685232373,
+      "p95_latency_ms": 6245.509227053409,
+      "p99_latency_ms": 9612.078221103176,
+      "tasks_processed": 37,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 13,
+      "success_rate": 0.46473856402488106,
+      "mean_latency_ms": 3569.9549424249585,
+      "p95_latency_ms": 5971.521448765368,
+      "p99_latency_ms": 9190.400522650165,
+      "tasks_processed": 50,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 14,
+      "success_rate": 0.455351485289736,
+      "mean_latency_ms": 3437.778305683325,
+      "p95_latency_ms": 5750.427447844399,
+      "p99_latency_ms": 8850.128376087081,
+      "tasks_processed": 58,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 15,
+      "success_rate": 0.477200414214471,
+      "mean_latency_ms": 3324.7854375047996,
+      "p95_latency_ms": 5561.422447286248,
+      "p99_latency_ms": 8559.242431723227,
+      "tasks_processed": 58,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 16,
+      "success_rate": 0.48388471647728154,
+      "mean_latency_ms": 3272.7600781691485,
+      "p95_latency_ms": 5474.3987861580445,
+      "p99_latency_ms": 8425.309679814427,
+      "tasks_processed": 40,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 17,
+      "success_rate": 0.4614529307800058,
+      "mean_latency_ms": 3200.0923874049163,
+      "p95_latency_ms": 5352.8463629400285,
+      "p99_latency_ms": 8238.235838841583,
+      "tasks_processed": 58,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 18,
+      "success_rate": 0.43559049796016697,
+      "mean_latency_ms": 3158.051714159162,
+      "p95_latency_ms": 5282.524247939604,
+      "p99_latency_ms": 8130.007406942141,
+      "tasks_processed": 60,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 19,
+      "success_rate": 0.4505027081443215,
+      "mean_latency_ms": 3037.4581970461554,
+      "p95_latency_ms": 5080.805518813788,
+      "p99_latency_ms": 7819.554546730189,
+      "tasks_processed": 58,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 20,
+      "success_rate": 0.47369985141011894,
+      "mean_latency_ms": 2887.29958411835,
+      "p95_latency_ms": 4829.6327751023055,
+      "p99_latency_ms": 7432.990061466764,
+      "tasks_processed": 43,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 21,
+      "success_rate": 0.4911763443797208,
+      "mean_latency_ms": 2939.662667158411,
+      "p95_latency_ms": 4917.221352140427,
+      "p99_latency_ms": 7567.792240625942,
+      "tasks_processed": 44,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 22,
+      "success_rate": 0.48138141815435626,
+      "mean_latency_ms": 2964.2558753652033,
+      "p95_latency_ms": 4958.358809802863,
+      "p99_latency_ms": 7631.104365625429,
+      "tasks_processed": 60,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 23,
+      "success_rate": 0.44203603672116615,
+      "mean_latency_ms": 2789.7933893140125,
+      "p95_latency_ms": 4666.532583908832,
+      "p99_latency_ms": 7181.972612186941,
+      "tasks_processed": 44,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 24,
+      "success_rate": 0.446857839610853,
+      "mean_latency_ms": 2732.4131793591673,
+      "p95_latency_ms": 4570.551777426366,
+      "p99_latency_ms": 7034.254470063677,
+      "tasks_processed": 55,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 25,
+      "success_rate": 0.48735202486587015,
+      "mean_latency_ms": 2595.6678454035796,
+      "p95_latency_ms": 4341.815642684086,
+      "p99_latency_ms": 6682.220786467169,
+      "tasks_processed": 65,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 26,
+      "success_rate": 0.45110324818833625,
+      "mean_latency_ms": 2506.2966659882995,
+      "p95_latency_ms": 4192.3230234810835,
+      "p99_latency_ms": 6452.1459123428085,
+      "tasks_processed": 64,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 27,
+      "success_rate": 0.4870386290786238,
+      "mean_latency_ms": 2460.457419043572,
+      "p95_latency_ms": 4115.646972735258,
+      "p99_latency_ms": 6334.138529652274,
+      "tasks_processed": 53,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 28,
+      "success_rate": 0.46466484689184706,
+      "mean_latency_ms": 2330.6796632332675,
+      "p95_latency_ms": 3898.565618798771,
+      "p99_latency_ms": 6000.042000686782,
+      "tasks_processed": 65,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 29,
+      "success_rate": 0.4784397995637935,
+      "mean_latency_ms": 2511.827447507165,
+      "p95_latency_ms": 4201.574451300484,
+      "p99_latency_ms": 6466.384214557104,
+      "tasks_processed": 62,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 30,
+      "success_rate": 0.4578112644431182,
+      "mean_latency_ms": 2270.9492755499255,
+      "p95_latency_ms": 3798.6536319679653,
+      "p99_latency_ms": 5846.273621243265,
+      "tasks_processed": 68,
+      "edge_case": "conflicting_instr",
+      "recovered": false,
+      "recovery_time_s": 3.3432246623963646
+    },
+    {
+      "day": 31,
+      "success_rate": 0.47839303031700375,
+      "mean_latency_ms": 2181.4001868606983,
+      "p95_latency_ms": 3648.8634210411346,
+      "p99_latency_ms": 5615.740742043033,
+      "tasks_processed": 65,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 32,
+      "success_rate": 0.46858801095223707,
+      "mean_latency_ms": 2278.8737426653915,
+      "p95_latency_ms": 3811.9090164513,
+      "p99_latency_ms": 5866.67416631855,
+      "tasks_processed": 63,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 33,
+      "success_rate": 0.5014979954139421,
+      "mean_latency_ms": 2035.6129417370746,
+      "p95_latency_ms": 3405.0027350514156,
+      "p99_latency_ms": 5240.429794037124,
+      "tasks_processed": 61,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 34,
+      "success_rate": 0.49361250719481625,
+      "mean_latency_ms": 2210.1251702288,
+      "p95_latency_ms": 3696.912165931319,
+      "p99_latency_ms": 5689.689603139853,
+      "tasks_processed": 52,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 35,
+      "success_rate": 0.4664392444278631,
+      "mean_latency_ms": 2070.3021452440457,
+      "p95_latency_ms": 3463.0279275603566,
+      "p99_latency_ms": 5329.732790624586,
+      "tasks_processed": 53,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 36,
+      "success_rate": 0.48499609081751954,
+      "mean_latency_ms": 1987.7393569663202,
+      "p95_latency_ms": 3324.923814477236,
+      "p99_latency_ms": 5117.1852641777605,
+      "tasks_processed": 63,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 37,
+      "success_rate": 0.47614210035392607,
+      "mean_latency_ms": 1999.5202686818384,
+      "p95_latency_ms": 3344.629936299449,
+      "p99_latency_ms": 5147.513741408922,
+      "tasks_processed": 68,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 38,
+      "success_rate": 0.47208541668011733,
+      "mean_latency_ms": 1919.86445236347,
+      "p95_latency_ms": 3211.3883622920866,
+      "p99_latency_ms": 4942.449849082256,
+      "tasks_processed": 61,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 39,
+      "success_rate": 0.4895714128085898,
+      "mean_latency_ms": 1997.116320444502,
+      "p95_latency_ms": 3340.6088131501347,
+      "p99_latency_ms": 5141.325078668585,
+      "tasks_processed": 59,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 40,
+      "success_rate": 0.4749919586147228,
+      "mean_latency_ms": 1897.5407851112332,
+      "p95_latency_ms": 3174.0472025402846,
+      "p99_latency_ms": 4884.980372158536,
+      "tasks_processed": 58,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 41,
+      "success_rate": 0.523633041714821,
+      "mean_latency_ms": 1735.1434082882533,
+      "p95_latency_ms": 2902.4024802506183,
+      "p99_latency_ms": 4466.908726745239,
+      "tasks_processed": 74,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 42,
+      "success_rate": 0.5045715701121055,
+      "mean_latency_ms": 1797.0799117153058,
+      "p95_latency_ms": 3006.0046726146848,
+      "p99_latency_ms": 4626.356474027015,
+      "tasks_processed": 69,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 43,
+      "success_rate": 0.49571788251475607,
+      "mean_latency_ms": 1870.7120208358422,
+      "p95_latency_ms": 3129.170294036349,
+      "p99_latency_ms": 4815.913088902814,
+      "tasks_processed": 75,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 44,
+      "success_rate": 0.4873056399006363,
+      "mean_latency_ms": 1632.990114963972,
+      "p95_latency_ms": 2731.5290121015746,
+      "p99_latency_ms": 4203.9279061189145,
+      "tasks_processed": 61,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 45,
+      "success_rate": 0.49717988774186817,
+      "mean_latency_ms": 1675.6198348713988,
+      "p95_latency_ms": 2802.836434992783,
+      "p99_latency_ms": 4313.672764649681,
+      "tasks_processed": 64,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 46,
+      "success_rate": 0.47848379333196445,
+      "mean_latency_ms": 1556.4154544151888,
+      "p95_latency_ms": 2603.441337250313,
+      "p99_latency_ms": 4006.796062249972,
+      "tasks_processed": 69,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 47,
+      "success_rate": 0.4786293883891652,
+      "mean_latency_ms": 1552.1433873011786,
+      "p95_latency_ms": 2596.295381401203,
+      "p99_latency_ms": 3995.7981621446183,
+      "tasks_processed": 58,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 48,
+      "success_rate": 0.49143434236680683,
+      "mean_latency_ms": 1513.9550050797538,
+      "p95_latency_ms": 2532.417055986266,
+      "p99_latency_ms": 3897.486969542128,
+      "tasks_processed": 60,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 49,
+      "success_rate": 0.4793699095497807,
+      "mean_latency_ms": 1508.313387825663,
+      "p95_latency_ms": 2522.980231437538,
+      "p99_latency_ms": 3882.9633346512746,
+      "tasks_processed": 79,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 50,
+      "success_rate": 0.4954606311470376,
+      "mean_latency_ms": 1470.8877153727115,
+      "p95_latency_ms": 2460.377703004656,
+      "p99_latency_ms": 3786.615642532085,
+      "tasks_processed": 65,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 51,
+      "success_rate": 0.4965322183021932,
+      "mean_latency_ms": 1348.6031935500716,
+      "p95_latency_ms": 2255.830402914673,
+      "p99_latency_ms": 3471.80950312814,
+      "tasks_processed": 78,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 52,
+      "success_rate": 0.4774525834803516,
+      "mean_latency_ms": 1368.7849123996446,
+      "p95_latency_ms": 2289.588690883797,
+      "p99_latency_ms": 3523.764802972098,
+      "tasks_processed": 74,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 53,
+      "success_rate": 0.49822099764536476,
+      "mean_latency_ms": 1381.769402065942,
+      "p95_latency_ms": 2311.308057036609,
+      "p99_latency_ms": 3557.191740437706,
+      "tasks_processed": 76,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 54,
+      "success_rate": 0.5104654774507107,
+      "mean_latency_ms": 1367.050921116534,
+      "p95_latency_ms": 2286.6882155819903,
+      "p99_latency_ms": 3519.3008602468867,
+      "tasks_processed": 66,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 55,
+      "success_rate": 0.5224121542284428,
+      "mean_latency_ms": 1313.4818397077704,
+      "p95_latency_ms": 2197.0823455410086,
+      "p99_latency_ms": 3381.393989791381,
+      "tasks_processed": 63,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 56,
+      "success_rate": 0.5436588721707115,
+      "mean_latency_ms": 1338.7887205187383,
+      "p95_latency_ms": 2239.4135749266084,
+      "p99_latency_ms": 3446.5433752549898,
+      "tasks_processed": 80,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 57,
+      "success_rate": 0.5135960400352673,
+      "mean_latency_ms": 1285.6930018192397,
+      "p95_latency_ms": 2150.599506355676,
+      "p99_latency_ms": 3309.855117628162,
+      "tasks_processed": 84,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 58,
+      "success_rate": 0.5599631860935735,
+      "mean_latency_ms": 1264.719298500488,
+      "p95_latency_ms": 2115.5164531385126,
+      "p99_latency_ms": 3255.8609532615815,
+      "tasks_processed": 68,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 59,
+      "success_rate": 0.5213854129684735,
+      "mean_latency_ms": 1263.8552751010234,
+      "p95_latency_ms": 2114.071187205091,
+      "p99_latency_ms": 3253.636633562853,
+      "tasks_processed": 78,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 60,
+      "success_rate": 0.5250918873575205,
+      "mean_latency_ms": 1298.9162491617794,
+      "p95_latency_ms": 2172.7182463402946,
+      "p99_latency_ms": 3343.8967067372546,
+      "tasks_processed": 67,
+      "edge_case": "ambiguous_context",
+      "recovered": false,
+      "recovery_time_s": 3.161953411033233
+    },
+    {
+      "day": 61,
+      "success_rate": 0.5200075314661449,
+      "mean_latency_ms": 1311.8822897732052,
+      "p95_latency_ms": 2194.406752460234,
+      "p99_latency_ms": 3377.276149428766,
+      "tasks_processed": 77,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 62,
+      "success_rate": 0.5435657175830289,
+      "mean_latency_ms": 1120.9509355363703,
+      "p95_latency_ms": 1875.0327840334485,
+      "p99_latency_ms": 2885.7473637526723,
+      "tasks_processed": 82,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 63,
+      "success_rate": 0.546528779962644,
+      "mean_latency_ms": 1294.9512495775787,
+      "p95_latency_ms": 2166.0859273213564,
+      "p99_latency_ms": 3333.6893134119514,
+      "tasks_processed": 73,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 64,
+      "success_rate": 0.5537814994758454,
+      "mean_latency_ms": 1177.0354026783223,
+      "p95_latency_ms": 1968.8461805278164,
+      "p99_latency_ms": 3030.129778782207,
+      "tasks_processed": 73,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 65,
+      "success_rate": 0.5448922213408386,
+      "mean_latency_ms": 1031.6909648790743,
+      "p95_latency_ms": 1725.7261855209897,
+      "p99_latency_ms": 2655.9587826051093,
+      "tasks_processed": 71,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 66,
+      "success_rate": 0.5709036933969174,
+      "mean_latency_ms": 1102.2767901922095,
+      "p95_latency_ms": 1843.7962386824674,
+      "p99_latency_ms": 2837.673122509045,
+      "tasks_processed": 85,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 67,
+      "success_rate": 0.5645965516374277,
+      "mean_latency_ms": 1053.9069786311427,
+      "p95_latency_ms": 1762.88727151958,
+      "p99_latency_ms": 2713.1511191166555,
+      "tasks_processed": 90,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 68,
+      "success_rate": 0.5611809938815213,
+      "mean_latency_ms": 1102.7454303556772,
+      "p95_latency_ms": 1844.580140673677,
+      "p99_latency_ms": 2838.8795777368346,
+      "tasks_processed": 80,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 69,
+      "success_rate": 0.5514147576753643,
+      "mean_latency_ms": 1123.9160890420276,
+      "p95_latency_ms": 1879.9926443239783,
+      "p99_latency_ms": 2893.3807789547195,
+      "tasks_processed": 89,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 70,
+      "success_rate": 0.562157344976919,
+      "mean_latency_ms": 1132.3274648416907,
+      "p95_latency_ms": 1894.0624888490183,
+      "p99_latency_ms": 2915.0348092694344,
+      "tasks_processed": 73,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 71,
+      "success_rate": 0.5900303467011354,
+      "mean_latency_ms": 974.6478954496663,
+      "p95_latency_ms": 1630.3093194555215,
+      "p99_latency_ms": 2509.108566411207,
+      "tasks_processed": 73,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 72,
+      "success_rate": 0.5842914597133914,
+      "mean_latency_ms": 1018.0746624434676,
+      "p95_latency_ms": 1702.9499759165433,
+      "p99_latency_ms": 2620.905322536577,
+      "tasks_processed": 86,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 73,
+      "success_rate": 0.5720981952933564,
+      "mean_latency_ms": 999.1139503481144,
+      "p95_latency_ms": 1671.234085719801,
+      "p99_latency_ms": 2572.093351192035,
+      "tasks_processed": 83,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 74,
+      "success_rate": 0.5786932077726478,
+      "mean_latency_ms": 941.248743765098,
+      "p95_latency_ms": 1574.4420175227144,
+      "p99_latency_ms": 2423.1266461773835,
+      "tasks_processed": 76,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 75,
+      "success_rate": 0.5874807691728932,
+      "mean_latency_ms": 897.2897913514003,
+      "p95_latency_ms": 1500.911165890917,
+      "p99_latency_ms": 2309.9598455444366,
+      "tasks_processed": 86,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 76,
+      "success_rate": 0.6076431302789832,
+      "mean_latency_ms": 944.9091158388146,
+      "p95_latency_ms": 1580.564781171326,
+      "p99_latency_ms": 2432.5498142458637,
+      "tasks_processed": 94,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 77,
+      "success_rate": 0.6225923900843896,
+      "mean_latency_ms": 919.4411209171478,
+      "p95_latency_ms": 1537.9640536034663,
+      "p99_latency_ms": 2366.985660744268,
+      "tasks_processed": 84,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 78,
+      "success_rate": 0.6101071684325579,
+      "mean_latency_ms": 969.2009996267873,
+      "p95_latency_ms": 1621.1982085983575,
+      "p99_latency_ms": 2495.0862173830683,
+      "tasks_processed": 95,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 79,
+      "success_rate": 0.6344342834207938,
+      "mean_latency_ms": 954.8333550938928,
+      "p95_latency_ms": 1597.1652168995495,
+      "p99_latency_ms": 2458.0985214726356,
+      "tasks_processed": 94,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 80,
+      "success_rate": 0.640846855795441,
+      "mean_latency_ms": 823.1352259700083,
+      "p95_latency_ms": 1376.871623420372,
+      "p99_latency_ms": 2119.0582326587833,
+      "tasks_processed": 81,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 81,
+      "success_rate": 0.6517470662384671,
+      "mean_latency_ms": 906.6484852760749,
+      "p95_latency_ms": 1516.5656047857854,
+      "p99_latency_ms": 2334.0526273648807,
+      "tasks_processed": 82,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 82,
+      "success_rate": 0.6447778319148324,
+      "mean_latency_ms": 850.1056038374236,
+      "p95_latency_ms": 1421.9854112731618,
+      "p99_latency_ms": 2188.4900823169182,
+      "tasks_processed": 86,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 83,
+      "success_rate": 0.6545673413014764,
+      "mean_latency_ms": 880.2718598720226,
+      "p95_latency_ms": 1472.4449962944755,
+      "p99_latency_ms": 2266.1493188333484,
+      "tasks_processed": 85,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 84,
+      "success_rate": 0.6479272336929536,
+      "mean_latency_ms": 781.1063176138657,
+      "p95_latency_ms": 1306.5691877413326,
+      "p99_latency_ms": 2010.8600879896726,
+      "tasks_processed": 92,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 85,
+      "success_rate": 0.6771123873689072,
+      "mean_latency_ms": 843.9121633680278,
+      "p95_latency_ms": 1411.625543095238,
+      "p99_latency_ms": 2172.5458478812097,
+      "tasks_processed": 87,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 86,
+      "success_rate": 0.6847904724368087,
+      "mean_latency_ms": 752.8332556233427,
+      "p95_latency_ms": 1259.276379058431,
+      "p99_latency_ms": 1938.074641706666,
+      "tasks_processed": 97,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 87,
+      "success_rate": 0.6910690595665385,
+      "mean_latency_ms": 962.4289827772068,
+      "p95_latency_ms": 1609.8705463390675,
+      "p99_latency_ms": 2477.6525107404013,
+      "tasks_processed": 89,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 88,
+      "success_rate": 0.7057498962995646,
+      "mean_latency_ms": 866.2317211672498,
+      "p95_latency_ms": 1448.959828898431,
+      "p99_latency_ms": 2230.0047455343993,
+      "tasks_processed": 83,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 89,
+      "success_rate": 0.7274784129195042,
+      "mean_latency_ms": 810.11329549003,
+      "p95_latency_ms": 1355.0896294121499,
+      "p99_latency_ms": 2085.5349085218636,
+      "tasks_processed": 85,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 90,
+      "success_rate": 0.6932723462863849,
+      "mean_latency_ms": 744.0601818671695,
+      "p95_latency_ms": 1244.601516503722,
+      "p99_latency_ms": 1915.4894654413274,
+      "tasks_processed": 94,
+      "edge_case": "ui_redesign",
+      "recovered": false,
+      "recovery_time_s": 2.84188753608962
+    },
+    {
+      "day": 91,
+      "success_rate": 0.7024957155436365,
+      "mean_latency_ms": 807.9333149221131,
+      "p95_latency_ms": 1351.4431406107078,
+      "p99_latency_ms": 2079.922822410452,
+      "tasks_processed": 88,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 92,
+      "success_rate": 0.6915172409868426,
+      "mean_latency_ms": 839.3809678595107,
+      "p95_latency_ms": 1404.0461389839697,
+      "p99_latency_ms": 2160.880854277282,
+      "tasks_processed": 90,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 93,
+      "success_rate": 0.7117763935165025,
+      "mean_latency_ms": 646.6381198571473,
+      "p95_latency_ms": 1081.6420555978582,
+      "p99_latency_ms": 1664.688605471261,
+      "tasks_processed": 85,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 94,
+      "success_rate": 0.7157781544768106,
+      "mean_latency_ms": 797.5155078159942,
+      "p95_latency_ms": 1334.0171059445574,
+      "p99_latency_ms": 2053.103486755783,
+      "tasks_processed": 95,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 95,
+      "success_rate": 0.7285542063604364,
+      "mean_latency_ms": 779.5222887525961,
+      "p95_latency_ms": 1303.9195570112286,
+      "p99_latency_ms": 2006.7822046804158,
+      "tasks_processed": 106,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 96,
+      "success_rate": 0.7344721392276354,
+      "mean_latency_ms": 700.1884884203539,
+      "p95_latency_ms": 1171.2166243590161,
+      "p99_latency_ms": 1802.5473020566887,
+      "tasks_processed": 99,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 97,
+      "success_rate": 0.7546944669856965,
+      "mean_latency_ms": 702.1557289339673,
+      "p95_latency_ms": 1174.507259426231,
+      "p99_latency_ms": 1807.6117156238267,
+      "tasks_processed": 90,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 98,
+      "success_rate": 0.7621233458716062,
+      "mean_latency_ms": 769.3806291728948,
+      "p95_latency_ms": 1286.9554387848154,
+      "p99_latency_ms": 1980.673776141394,
+      "tasks_processed": 104,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 99,
+      "success_rate": 0.7602534539730263,
+      "mean_latency_ms": 730.7821664849239,
+      "p95_latency_ms": 1222.3911651321012,
+      "p99_latency_ms": 1881.3068828942626,
+      "tasks_processed": 94,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 100,
+      "success_rate": 0.7917616136673304,
+      "mean_latency_ms": 790.2214623557696,
+      "p95_latency_ms": 1321.8162379738228,
+      "p99_latency_ms": 2034.325883035006,
+      "tasks_processed": 94,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 101,
+      "success_rate": 0.7885702883732044,
+      "mean_latency_ms": 624.4912444583457,
+      "p95_latency_ms": 1044.5966184424965,
+      "p99_latency_ms": 1607.6742569646804,
+      "tasks_processed": 101,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 102,
+      "success_rate": 0.7803174416741562,
+      "mean_latency_ms": 644.7048137076357,
+      "p95_latency_ms": 1078.408183091054,
+      "p99_latency_ms": 1659.7115516614901,
+      "tasks_processed": 103,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 103,
+      "success_rate": 0.783409479121187,
+      "mean_latency_ms": 692.298045084405,
+      "p95_latency_ms": 1158.0181520027006,
+      "p99_latency_ms": 1782.2343469275156,
+      "tasks_processed": 105,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 104,
+      "success_rate": 0.8030003135260607,
+      "mean_latency_ms": 670.9886918731016,
+      "p95_latency_ms": 1122.373651774309,
+      "p99_latency_ms": 1727.3760940786804,
+      "tasks_processed": 96,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 105,
+      "success_rate": 0.8040013814451097,
+      "mean_latency_ms": 695.4334313206505,
+      "p95_latency_ms": 1163.2627633386587,
+      "p99_latency_ms": 1790.3060049089238,
+      "tasks_processed": 93,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 106,
+      "success_rate": 0.8109759260235029,
+      "mean_latency_ms": 542.5511459112165,
+      "p95_latency_ms": 907.5340885564019,
+      "p99_latency_ms": 1396.7297670036912,
+      "tasks_processed": 94,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 107,
+      "success_rate": 0.8272691835838921,
+      "mean_latency_ms": 618.6783261952547,
+      "p95_latency_ms": 1034.8732559217383,
+      "p99_latency_ms": 1592.7096291458906,
+      "tasks_processed": 94,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 108,
+      "success_rate": 0.7983942601462505,
+      "mean_latency_ms": 622.667051421012,
+      "p95_latency_ms": 1041.5452612055542,
+      "p99_latency_ms": 1602.9781011548416,
+      "tasks_processed": 104,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 109,
+      "success_rate": 0.8107410143586458,
+      "mean_latency_ms": 672.4622225544371,
+      "p95_latency_ms": 1124.8384504092824,
+      "p99_latency_ms": 1731.169513705059,
+      "tasks_processed": 104,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 110,
+      "success_rate": 0.867542407254602,
+      "mean_latency_ms": 614.8568144766944,
+      "p95_latency_ms": 1028.4809513794883,
+      "p99_latency_ms": 1582.871627304973,
+      "tasks_processed": 106,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 111,
+      "success_rate": 0.8384530715373693,
+      "mean_latency_ms": 657.68822164076,
+      "p95_latency_ms": 1100.125739811268,
+      "p99_latency_ms": 1693.1357043409391,
+      "tasks_processed": 115,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 112,
+      "success_rate": 0.8616717835615629,
+      "mean_latency_ms": 650.1785815328458,
+      "p95_latency_ms": 1087.5642431817168,
+      "p99_latency_ms": 1673.8030792838254,
+      "tasks_processed": 104,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 113,
+      "success_rate": 0.8607736007769244,
+      "mean_latency_ms": 571.3624777317859,
+      "p95_latency_ms": 955.727269901475,
+      "p99_latency_ms": 1470.9009213438483,
+      "tasks_processed": 104,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 114,
+      "success_rate": 0.8800170110561234,
+      "mean_latency_ms": 649.7828200534996,
+      "p95_latency_ms": 1086.9022465457303,
+      "p99_latency_ms": 1672.7842410728997,
+      "tasks_processed": 117,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 115,
+      "success_rate": 0.8714112051607089,
+      "mean_latency_ms": 603.6404786879891,
+      "p95_latency_ms": 1009.7192048535478,
+      "p99_latency_ms": 1553.9965798723808,
+      "tasks_processed": 104,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 116,
+      "success_rate": 0.8817353153911507,
+      "mean_latency_ms": 670.132803494805,
+      "p95_latency_ms": 1120.9419934225432,
+      "p99_latency_ms": 1725.1727169699795,
+      "tasks_processed": 119,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 117,
+      "success_rate": 0.885114138961744,
+      "mean_latency_ms": 625.0456692998773,
+      "p95_latency_ms": 1045.5240138540153,
+      "p99_latency_ms": 1609.1015540694204,
+      "tasks_processed": 115,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 118,
+      "success_rate": 0.8621146151906035,
+      "mean_latency_ms": 665.1470849013925,
+      "p95_latency_ms": 1112.6023011860227,
+      "p99_latency_ms": 1712.337610783581,
+      "tasks_processed": 116,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 119,
+      "success_rate": 0.8508925927640645,
+      "mean_latency_ms": 568.4129557571048,
+      "p95_latency_ms": 950.7935567259666,
+      "p99_latency_ms": 1463.3077475545833,
+      "tasks_processed": 110,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 120,
+      "success_rate": 0.8855947655793692,
+      "mean_latency_ms": 590.5332304471295,
+      "p95_latency_ms": 987.7944984449512,
+      "p99_latency_ms": 1520.2536158781413,
+      "tasks_processed": 112,
+      "edge_case": "resource_exhaust",
+      "recovered": false,
+      "recovery_time_s": 1.841744886764584
+    },
+    {
+      "day": 121,
+      "success_rate": 0.8514198808399004,
+      "mean_latency_ms": 590.6904423654363,
+      "p95_latency_ms": 988.0574693668003,
+      "p99_latency_ms": 1520.658338212029,
+      "tasks_processed": 119,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 122,
+      "success_rate": 0.8623518130537504,
+      "mean_latency_ms": 560.7894040660466,
+      "p95_latency_ms": 938.041518346457,
+      "p99_latency_ms": 1443.6818714368414,
+      "tasks_processed": 118,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 123,
+      "success_rate": 0.8711290290335293,
+      "mean_latency_ms": 563.2938324248896,
+      "p95_latency_ms": 942.2307162223178,
+      "p99_latency_ms": 1450.129207627146,
+      "tasks_processed": 118,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 124,
+      "success_rate": 0.9159715214192636,
+      "mean_latency_ms": 491.93382408031994,
+      "p95_latency_ms": 822.8656745660171,
+      "p99_latency_ms": 1266.4218307657538,
+      "tasks_processed": 119,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 125,
+      "success_rate": 0.9051105762037771,
+      "mean_latency_ms": 555.4402608643366,
+      "p95_latency_ms": 929.0939198818581,
+      "p99_latency_ms": 1429.9111742517018,
+      "tasks_processed": 117,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 126,
+      "success_rate": 0.8799343919980029,
+      "mean_latency_ms": 582.6959150084621,
+      "p95_latency_ms": 974.6848939828419,
+      "p99_latency_ms": 1500.0774318463123,
+      "tasks_processed": 106,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 127,
+      "success_rate": 0.8969468542606579,
+      "mean_latency_ms": 655.1802403681445,
+      "p95_latency_ms": 1095.9305989189982,
+      "p99_latency_ms": 1686.6792216204626,
+      "tasks_processed": 125,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 128,
+      "success_rate": 0.8990591830532502,
+      "mean_latency_ms": 614.8190250469487,
+      "p95_latency_ms": 1028.4177403883411,
+      "p99_latency_ms": 1582.7743431654003,
+      "tasks_processed": 113,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 129,
+      "success_rate": 0.8932804294798952,
+      "mean_latency_ms": 600.5318484799619,
+      "p95_latency_ms": 1004.5193487593119,
+      "p99_latency_ms": 1545.993801924384,
+      "tasks_processed": 127,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 130,
+      "success_rate": 0.8993632869784569,
+      "mean_latency_ms": 605.7736206773469,
+      "p95_latency_ms": 1013.2873460060687,
+      "p99_latency_ms": 1559.4880859474024,
+      "tasks_processed": 110,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 131,
+      "success_rate": 0.9267531062224565,
+      "mean_latency_ms": 535.5692007861618,
+      "p95_latency_ms": 895.8552758708712,
+      "p99_latency_ms": 1378.7556263881156,
+      "tasks_processed": 111,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 132,
+      "success_rate": 0.9187234453607304,
+      "mean_latency_ms": 676.4872641786134,
+      "p95_latency_ms": 1131.5712027208895,
+      "p99_latency_ms": 1741.531477719481,
+      "tasks_processed": 122,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 133,
+      "success_rate": 0.9331552311994228,
+      "mean_latency_ms": 529.8220293921795,
+      "p95_latency_ms": 886.2418892028633,
+      "p99_latency_ms": 1363.9602556243763,
+      "tasks_processed": 112,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 134,
+      "success_rate": 0.9427348584756464,
+      "mean_latency_ms": 474.91189083779125,
+      "p95_latency_ms": 794.3928111555432,
+      "p99_latency_ms": 1222.601002018153,
+      "tasks_processed": 117,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 135,
+      "success_rate": 0.919752045618454,
+      "mean_latency_ms": 570.3058107491704,
+      "p95_latency_ms": 953.9597659265916,
+      "p99_latency_ms": 1468.1806649412001,
+      "tasks_processed": 128,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 136,
+      "success_rate": 0.9343903543087875,
+      "mean_latency_ms": 532.6510020553833,
+      "p95_latency_ms": 890.9739575927287,
+      "p99_latency_ms": 1371.243090355285,
+      "tasks_processed": 127,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 137,
+      "success_rate": 0.9154658194789745,
+      "mean_latency_ms": 541.6957361197595,
+      "p95_latency_ms": 906.1032307445947,
+      "p99_latency_ms": 1394.527621956688,
+      "tasks_processed": 122,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 138,
+      "success_rate": 0.9425969412882256,
+      "mean_latency_ms": 570.5466361294034,
+      "p95_latency_ms": 954.3625984403527,
+      "p99_latency_ms": 1468.8006396288517,
+      "tasks_processed": 129,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 139,
+      "success_rate": 0.9236789964335769,
+      "mean_latency_ms": 601.6614050524274,
+      "p95_latency_ms": 1006.4087763316076,
+      "p99_latency_ms": 1548.9017034193257,
+      "tasks_processed": 116,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 140,
+      "success_rate": 0.9198323595505358,
+      "mean_latency_ms": 577.8250576934283,
+      "p95_latency_ms": 966.5373320668801,
+      "p99_latency_ms": 1487.5380215916186,
+      "tasks_processed": 122,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 141,
+      "success_rate": 0.9372488998543563,
+      "mean_latency_ms": 563.360108405667,
+      "p95_latency_ms": 942.3415771287252,
+      "p99_latency_ms": 1450.2998268137183,
+      "tasks_processed": 118,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 142,
+      "success_rate": 0.9327479670690915,
+      "mean_latency_ms": 659.9375898096239,
+      "p95_latency_ms": 1103.888294376569,
+      "p99_latency_ms": 1698.9264201141516,
+      "tasks_processed": 126,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 143,
+      "success_rate": 0.9466454665328913,
+      "mean_latency_ms": 553.1549621878988,
+      "p95_latency_ms": 925.2712637746318,
+      "p99_latency_ms": 1424.0279599005205,
+      "tasks_processed": 117,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 144,
+      "success_rate": 0.9373591943903427,
+      "mean_latency_ms": 600.9494043129001,
+      "p95_latency_ms": 1005.2178011635189,
+      "p99_latency_ms": 1547.0687469607121,
+      "tasks_processed": 116,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 145,
+      "success_rate": 0.9309952398692112,
+      "mean_latency_ms": 443.18510320569237,
+      "p95_latency_ms": 741.3228996577775,
+      "p99_latency_ms": 1140.924372946194,
+      "tasks_processed": 125,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 146,
+      "success_rate": 0.9106727887533822,
+      "mean_latency_ms": 557.329119808015,
+      "p95_latency_ms": 932.2534448276282,
+      "p99_latency_ms": 1434.77380431375,
+      "tasks_processed": 129,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 147,
+      "success_rate": 0.9046778585281013,
+      "mean_latency_ms": 611.4384432227505,
+      "p95_latency_ms": 1022.7629864213923,
+      "p99_latency_ms": 1574.0714599455719,
+      "tasks_processed": 134,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 148,
+      "success_rate": 0.934012337197953,
+      "mean_latency_ms": 663.9107129208302,
+      "p95_latency_ms": 1110.5342017506935,
+      "p99_latency_ms": 1709.15472643921,
+      "tasks_processed": 133,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 149,
+      "success_rate": 0.9529102597560173,
+      "mean_latency_ms": 657.3882481535875,
+      "p95_latency_ms": 1099.6239693011073,
+      "p99_latency_ms": 1692.3634602824698,
+      "tasks_processed": 133,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 150,
+      "success_rate": 0.9540660452785705,
+      "mean_latency_ms": 622.0179498542213,
+      "p95_latency_ms": 1040.4594985023737,
+      "p99_latency_ms": 1601.307070714712,
+      "tasks_processed": 124,
+      "edge_case": "ambiguous_context",
+      "recovered": false,
+      "recovery_time_s": 1.2045955467995837
+    },
+    {
+      "day": 151,
+      "success_rate": 0.9458661615471109,
+      "mean_latency_ms": 491.3081038325855,
+      "p95_latency_ms": 821.8190221738903,
+      "p99_latency_ms": 1264.8109925942472,
+      "tasks_processed": 121,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 152,
+      "success_rate": 0.9252426615118291,
+      "mean_latency_ms": 483.61382236153105,
+      "p95_latency_ms": 808.9486729458886,
+      "p99_latency_ms": 1245.0030315433542,
+      "tasks_processed": 138,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 153,
+      "success_rate": 0.9396258145785304,
+      "mean_latency_ms": 470.51591412062294,
+      "p95_latency_ms": 787.0395897064752,
+      "p99_latency_ms": 1211.2841122056498,
+      "tasks_processed": 130,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 154,
+      "success_rate": 0.9432331553072119,
+      "mean_latency_ms": 439.76637235023435,
+      "p95_latency_ms": 735.6043331884049,
+      "p99_latency_ms": 1132.1232798378699,
+      "tasks_processed": 139,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 155,
+      "success_rate": 0.9309603385587045,
+      "mean_latency_ms": 521.2669275949615,
+      "p95_latency_ms": 871.9316318740255,
+      "p99_latency_ms": 1341.9362207845784,
+      "tasks_processed": 133,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 156,
+      "success_rate": 0.9423529926208554,
+      "mean_latency_ms": 660.1619277498523,
+      "p95_latency_ms": 1104.2635480824142,
+      "p99_latency_ms": 1699.5039499587494,
+      "tasks_processed": 134,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 157,
+      "success_rate": 0.9407805248561674,
+      "mean_latency_ms": 499.10206268306763,
+      "p95_latency_ms": 834.8561033687678,
+      "p99_latency_ms": 1284.875560536477,
+      "tasks_processed": 144,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 158,
+      "success_rate": 0.907759440308041,
+      "mean_latency_ms": 517.0868474299432,
+      "p95_latency_ms": 864.9395440842537,
+      "p99_latency_ms": 1331.1751295235206,
+      "tasks_processed": 128,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 159,
+      "success_rate": 0.9442889389421806,
+      "mean_latency_ms": 531.4177029571406,
+      "p95_latency_ms": 888.9109982174218,
+      "p99_latency_ms": 1368.0681167604157,
+      "tasks_processed": 133,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 160,
+      "success_rate": 0.9486806428107537,
+      "mean_latency_ms": 513.4313294698599,
+      "p95_latency_ms": 858.8248999901302,
+      "p99_latency_ms": 1321.7644577607864,
+      "tasks_processed": 141,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 161,
+      "success_rate": 0.9614450507294172,
+      "mean_latency_ms": 490.11178723407795,
+      "p95_latency_ms": 819.817924024834,
+      "p99_latency_ms": 1261.7312257990088,
+      "tasks_processed": 127,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 162,
+      "success_rate": 0.9430155036631244,
+      "mean_latency_ms": 585.0804001337129,
+      "p95_latency_ms": 978.673460869354,
+      "p99_latency_ms": 1506.2159892496375,
+      "tasks_processed": 137,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 163,
+      "success_rate": 0.9520838637302211,
+      "mean_latency_ms": 549.8420758867805,
+      "p95_latency_ms": 919.7297452054892,
+      "p99_latency_ms": 1415.4993503005924,
+      "tasks_processed": 128,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 164,
+      "success_rate": 0.9397667784007521,
+      "mean_latency_ms": 513.9250108206677,
+      "p95_latency_ms": 859.6506887809552,
+      "p99_latency_ms": 1323.0353783795797,
+      "tasks_processed": 143,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 165,
+      "success_rate": 0.9365518530116144,
+      "mean_latency_ms": 614.0612124256772,
+      "p95_latency_ms": 1027.1501349437208,
+      "p99_latency_ms": 1580.8234497723681,
+      "tasks_processed": 146,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 166,
+      "success_rate": 0.9385038397491733,
+      "mean_latency_ms": 557.2468880862916,
+      "p95_latency_ms": 932.1158944949323,
+      "p99_latency_ms": 1434.5621090765571,
+      "tasks_processed": 147,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 167,
+      "success_rate": 0.9482076321367502,
+      "mean_latency_ms": 356.3950387971543,
+      "p95_latency_ms": 596.1477533285442,
+      "p99_latency_ms": 917.4942551533725,
+      "tasks_processed": 135,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 168,
+      "success_rate": 0.9219091785105195,
+      "mean_latency_ms": 480.53055896249555,
+      "p95_latency_ms": 803.7912483238778,
+      "p99_latency_ms": 1237.065557258396,
+      "tasks_processed": 139,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 169,
+      "success_rate": 0.9521979974942069,
+      "mean_latency_ms": 588.4762264566398,
+      "p95_latency_ms": 984.3537145562161,
+      "p99_latency_ms": 1514.958117516347,
+      "tasks_processed": 143,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 170,
+      "success_rate": 0.9548224051974356,
+      "mean_latency_ms": 471.34978214087954,
+      "p95_latency_ms": 788.4344142487203,
+      "p99_latency_ms": 1213.4308006688898,
+      "tasks_processed": 141,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 171,
+      "success_rate": 0.9476096316999981,
+      "mean_latency_ms": 481.2963201454825,
+      "p95_latency_ms": 805.0721494564089,
+      "p99_latency_ms": 1239.036913225024,
+      "tasks_processed": 147,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 172,
+      "success_rate": 0.9414421240784541,
+      "mean_latency_ms": 585.8838600141272,
+      "p95_latency_ms": 980.0174212236146,
+      "p99_latency_ms": 1508.2843957768825,
+      "tasks_processed": 146,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 173,
+      "success_rate": 0.9519594246308539,
+      "mean_latency_ms": 548.4210519681941,
+      "p95_latency_ms": 917.3527754829297,
+      "p99_latency_ms": 1411.8411027387322,
+      "tasks_processed": 144,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 174,
+      "success_rate": 0.9412829196164829,
+      "mean_latency_ms": 528.6188814087595,
+      "p95_latency_ms": 884.2293640856276,
+      "p99_latency_ms": 1360.8629022868759,
+      "tasks_processed": 149,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 175,
+      "success_rate": 0.9407870989035344,
+      "mean_latency_ms": 493.31926174696264,
+      "p95_latency_ms": 825.1831185886195,
+      "p99_latency_ms": 1269.9884659925158,
+      "tasks_processed": 142,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 176,
+      "success_rate": 0.9174783042714812,
+      "mean_latency_ms": 559.3304678638559,
+      "p95_latency_ms": 935.60113213311,
+      "p99_latency_ms": 1439.9260234635833,
+      "tasks_processed": 138,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 177,
+      "success_rate": 0.958960511914125,
+      "mean_latency_ms": 548.2128381610643,
+      "p95_latency_ms": 917.0044928756536,
+      "p99_latency_ms": 1411.305082449197,
+      "tasks_processed": 142,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 178,
+      "success_rate": 0.9219911560633303,
+      "mean_latency_ms": 537.0096388473353,
+      "p95_latency_ms": 898.2647199441548,
+      "p99_latency_ms": 1382.463853221157,
+      "tasks_processed": 150,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 179,
+      "success_rate": 0.9406231560232713,
+      "mean_latency_ms": 550.3060984856411,
+      "p95_latency_ms": 920.5059233215994,
+      "p99_latency_ms": 1416.6939181883854,
+      "tasks_processed": 146,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 180,
+      "success_rate": 0.9497873516530516,
+      "mean_latency_ms": 496.12391385461,
+      "p95_latency_ms": 829.8745055913265,
+      "p99_latency_ms": 1277.2086905084227,
+      "tasks_processed": 138,
+      "edge_case": "ui_redesign",
+      "recovered": false,
+      "recovery_time_s": 1.8076553404901419
+    },
+    {
+      "day": 181,
+      "success_rate": 0.9504476980583927,
+      "mean_latency_ms": 558.3789258531297,
+      "p95_latency_ms": 934.0094724012386,
+      "p99_latency_ms": 1437.476398094709,
+      "tasks_processed": 156,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 182,
+      "success_rate": 0.9362530494810867,
+      "mean_latency_ms": 464.2919067139473,
+      "p95_latency_ms": 776.628591717523,
+      "p99_latency_ms": 1195.2611870298972,
+      "tasks_processed": 151,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 183,
+      "success_rate": 0.9353116924963681,
+      "mean_latency_ms": 533.4179957579715,
+      "p95_latency_ms": 892.2569203807586,
+      "p99_latency_ms": 1373.2176192887944,
+      "tasks_processed": 144,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 184,
+      "success_rate": 0.9506470277014044,
+      "mean_latency_ms": 516.2638819346214,
+      "p95_latency_ms": 863.5629563720371,
+      "p99_latency_ms": 1329.0565082410915,
+      "tasks_processed": 149,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 185,
+      "success_rate": 0.9299506853947999,
+      "mean_latency_ms": 663.7367335260462,
+      "p95_latency_ms": 1110.2431835993862,
+      "p99_latency_ms": 1708.7068383435524,
+      "tasks_processed": 156,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 186,
+      "success_rate": 0.9356569353229863,
+      "mean_latency_ms": 539.1390252710711,
+      "p95_latency_ms": 901.8265791012374,
+      "p99_latency_ms": 1387.9456910642793,
+      "tasks_processed": 151,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 187,
+      "success_rate": 0.9370197420100091,
+      "mean_latency_ms": 522.283099567736,
+      "p95_latency_ms": 873.6313991901184,
+      "p99_latency_ms": 1344.5522278715898,
+      "tasks_processed": 144,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 188,
+      "success_rate": 0.9472204240648213,
+      "mean_latency_ms": 478.3804730365311,
+      "p95_latency_ms": 800.1947647741822,
+      "p99_latency_ms": 1231.5304311471673,
+      "tasks_processed": 145,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 189,
+      "success_rate": 0.9552654722113852,
+      "mean_latency_ms": 671.5713379854845,
+      "p95_latency_ms": 1123.3482533626336,
+      "p99_latency_ms": 1728.8760432999222,
+      "tasks_processed": 145,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 190,
+      "success_rate": 0.9547804446480556,
+      "mean_latency_ms": 540.7010807628361,
+      "p95_latency_ms": 904.439454620305,
+      "p99_latency_ms": 1391.9670066941562,
+      "tasks_processed": 157,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 191,
+      "success_rate": 0.9419021365056607,
+      "mean_latency_ms": 511.81543424204136,
+      "p95_latency_ms": 856.121965872614,
+      "p99_latency_ms": 1317.6045384940733,
+      "tasks_processed": 156,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 192,
+      "success_rate": 0.9635378462285958,
+      "mean_latency_ms": 563.9817136072987,
+      "p95_latency_ms": 943.3813462165913,
+      "p99_latency_ms": 1451.9000713159844,
+      "tasks_processed": 155,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 193,
+      "success_rate": 0.946554431792838,
+      "mean_latency_ms": 511.3345466941136,
+      "p95_latency_ms": 855.3175774830662,
+      "p99_latency_ms": 1316.3665539135702,
+      "tasks_processed": 165,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 194,
+      "success_rate": 0.9551897358838913,
+      "mean_latency_ms": 466.2426653933328,
+      "p95_latency_ms": 779.8916573536965,
+      "p99_latency_ms": 1200.2831701853509,
+      "tasks_processed": 148,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 195,
+      "success_rate": 0.9512535247766568,
+      "mean_latency_ms": 604.1989209116749,
+      "p95_latency_ms": 1010.6533202052585,
+      "p99_latency_ms": 1555.4342192227948,
+      "tasks_processed": 149,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 196,
+      "success_rate": 0.9353346257719759,
+      "mean_latency_ms": 447.45971288344595,
+      "p95_latency_ms": 748.4731084944378,
+      "p99_latency_ms": 1151.9288185624928,
+      "tasks_processed": 167,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 197,
+      "success_rate": 0.9486670366549192,
+      "mean_latency_ms": 416.90673264605545,
+      "p95_latency_ms": 697.3666436359902,
+      "p99_latency_ms": 1073.2740091683156,
+      "tasks_processed": 153,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 198,
+      "success_rate": 0.9357334371775555,
+      "mean_latency_ms": 457.4501022531676,
+      "p95_latency_ms": 765.1841945907479,
+      "p99_latency_ms": 1177.6478209492843,
+      "tasks_processed": 148,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 199,
+      "success_rate": 0.955855806370727,
+      "mean_latency_ms": 522.1683465647657,
+      "p95_latency_ms": 873.4394499835873,
+      "p99_latency_ms": 1344.2568106813208,
+      "tasks_processed": 159,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 200,
+      "success_rate": 0.9572671413704956,
+      "mean_latency_ms": 435.5426324154987,
+      "p95_latency_ms": 728.5392149947423,
+      "p99_latency_ms": 1121.249791984445,
+      "tasks_processed": 154,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 201,
+      "success_rate": 0.9467874788469264,
+      "mean_latency_ms": 519.4812219476256,
+      "p95_latency_ms": 868.9446531176482,
+      "p99_latency_ms": 1337.339145925301,
+      "tasks_processed": 154,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 202,
+      "success_rate": 0.9406038393309374,
+      "mean_latency_ms": 617.8346657396145,
+      "p95_latency_ms": 1033.462051414236,
+      "p99_latency_ms": 1590.537731287934,
+      "tasks_processed": 166,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 203,
+      "success_rate": 0.958618963362658,
+      "mean_latency_ms": 430.6844490191827,
+      "p95_latency_ms": 720.4128529478786,
+      "p99_latency_ms": 1108.7430091413253,
+      "tasks_processed": 153,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 204,
+      "success_rate": 0.9707579560512922,
+      "mean_latency_ms": 408.1930160441513,
+      "p95_latency_ms": 682.7910687545357,
+      "p99_latency_ms": 1050.8416404398836,
+      "tasks_processed": 152,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 205,
+      "success_rate": 0.923671874475217,
+      "mean_latency_ms": 509.7719744602282,
+      "p95_latency_ms": 852.7038376010854,
+      "p99_latency_ms": 1312.343907996022,
+      "tasks_processed": 158,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 206,
+      "success_rate": 0.9426665694244932,
+      "mean_latency_ms": 402.12613705650773,
+      "p95_latency_ms": 672.6429020168432,
+      "p99_latency_ms": 1035.2232226396238,
+      "tasks_processed": 160,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 207,
+      "success_rate": 0.9361573361045352,
+      "mean_latency_ms": 498.1766369984397,
+      "p95_latency_ms": 833.3081288385238,
+      "p99_latency_ms": 1282.4931683682726,
+      "tasks_processed": 171,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 208,
+      "success_rate": 0.9742042650438268,
+      "mean_latency_ms": 541.6465724059497,
+      "p95_latency_ms": 906.0209938042831,
+      "p99_latency_ms": 1394.4010561516898,
+      "tasks_processed": 169,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 209,
+      "success_rate": 0.9713217015097274,
+      "mean_latency_ms": 588.4648217470556,
+      "p95_latency_ms": 984.3346377137912,
+      "p99_latency_ms": 1514.9287575242417,
+      "tasks_processed": 169,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 210,
+      "success_rate": 0.9505965469585806,
+      "mean_latency_ms": 414.1318418770186,
+      "p95_latency_ms": 692.7250389063721,
+      "p99_latency_ms": 1066.1304014798861,
+      "tasks_processed": 158,
+      "edge_case": "resource_exhaust",
+      "recovered": false,
+      "recovery_time_s": 1.7785243094910967
+    },
+    {
+      "day": 211,
+      "success_rate": 0.9829696129567367,
+      "mean_latency_ms": 594.6243603483059,
+      "p95_latency_ms": 994.637797687816,
+      "p99_latency_ms": 1530.7857158593415,
+      "tasks_processed": 170,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 212,
+      "success_rate": 0.946773890182428,
+      "mean_latency_ms": 591.5473191850638,
+      "p95_latency_ms": 989.4907811003877,
+      "p99_latency_ms": 1522.864259938763,
+      "tasks_processed": 163,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 213,
+      "success_rate": 0.9539236284119759,
+      "mean_latency_ms": 623.8505815332645,
+      "p95_latency_ms": 1043.52497119197,
+      "p99_latency_ms": 1606.0249507475219,
+      "tasks_processed": 163,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 214,
+      "success_rate": 0.9477019109906278,
+      "mean_latency_ms": 493.24541585061706,
+      "p95_latency_ms": 825.0595953618445,
+      "p99_latency_ms": 1269.7983590092865,
+      "tasks_processed": 175,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 215,
+      "success_rate": 0.947748644215132,
+      "mean_latency_ms": 546.913887019327,
+      "p95_latency_ms": 914.8317162639376,
+      "p99_latency_ms": 1407.9610959159081,
+      "tasks_processed": 167,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 216,
+      "success_rate": 0.9347429397546706,
+      "mean_latency_ms": 611.1179179628625,
+      "p95_latency_ms": 1022.2268386281678,
+      "p99_latency_ms": 1573.246307930069,
+      "tasks_processed": 165,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 217,
+      "success_rate": 0.9241050305670344,
+      "mean_latency_ms": 381.4802388517494,
+      "p95_latency_ms": 638.1081737227674,
+      "p99_latency_ms": 982.0729513584117,
+      "tasks_processed": 164,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 218,
+      "success_rate": 0.9559006227939021,
+      "mean_latency_ms": 520.049020189191,
+      "p95_latency_ms": 869.8944184319897,
+      "p99_latency_ms": 1338.800871168393,
+      "tasks_processed": 177,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 219,
+      "success_rate": 0.9517912930973911,
+      "mean_latency_ms": 417.58340659702486,
+      "p95_latency_ms": 698.4985271127294,
+      "p99_latency_ms": 1075.0160212477253,
+      "tasks_processed": 177,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 220,
+      "success_rate": 0.9816333562770123,
+      "mean_latency_ms": 510.2572426770717,
+      "p95_latency_ms": 853.5155536064743,
+      "p99_latency_ms": 1313.5931700583258,
+      "tasks_processed": 174,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 221,
+      "success_rate": 0.9570319583356727,
+      "mean_latency_ms": 580.0057269053877,
+      "p95_latency_ms": 970.1849727743657,
+      "p99_latency_ms": 1493.1518805306075,
+      "tasks_processed": 172,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 222,
+      "success_rate": 0.9430253610606656,
+      "mean_latency_ms": 468.08995679707067,
+      "p95_latency_ms": 782.9816516022084,
+      "p99_latency_ms": 1205.0387898377555,
+      "tasks_processed": 177,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 223,
+      "success_rate": 0.9468955260451404,
+      "mean_latency_ms": 598.704687185969,
+      "p95_latency_ms": 1001.463026471384,
+      "p99_latency_ms": 1541.2900047106668,
+      "tasks_processed": 179,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 224,
+      "success_rate": 0.9500965801895564,
+      "mean_latency_ms": 472.0117519010628,
+      "p95_latency_ms": 789.5417017873918,
+      "p99_latency_ms": 1215.1349586563379,
+      "tasks_processed": 166,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 225,
+      "success_rate": 0.9535186156824428,
+      "mean_latency_ms": 476.4541784916902,
+      "p95_latency_ms": 796.9726206920657,
+      "p99_latency_ms": 1226.571427832784,
+      "tasks_processed": 166,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 226,
+      "success_rate": 0.9648288189662226,
+      "mean_latency_ms": 617.6474067737331,
+      "p95_latency_ms": 1033.1488203092867,
+      "p99_latency_ms": 1590.0556566047342,
+      "tasks_processed": 175,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 227,
+      "success_rate": 0.936045017411092,
+      "mean_latency_ms": 438.61825742997155,
+      "p95_latency_ms": 733.6838627671897,
+      "p99_latency_ms": 1129.1676022079218,
+      "tasks_processed": 169,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 228,
+      "success_rate": 0.9312658221211229,
+      "mean_latency_ms": 454.97362797096866,
+      "p95_latency_ms": 761.0417559516142,
+      "p99_latency_ms": 1171.2724490175613,
+      "tasks_processed": 179,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 229,
+      "success_rate": 0.9451113507712027,
+      "mean_latency_ms": 493.21491762882135,
+      "p95_latency_ms": 825.0085804923181,
+      "p99_latency_ms": 1269.7198451686224,
+      "tasks_processed": 179,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 230,
+      "success_rate": 0.9609178619572832,
+      "mean_latency_ms": 500.5002487789591,
+      "p95_latency_ms": 837.1948718954401,
+      "p99_latency_ms": 1288.4750149928177,
+      "tasks_processed": 172,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 231,
+      "success_rate": 0.9424825655621849,
+      "mean_latency_ms": 551.712451056225,
+      "p95_latency_ms": 922.8583520427483,
+      "p99_latency_ms": 1420.314396207906,
+      "tasks_processed": 174,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 232,
+      "success_rate": 0.9456809871699016,
+      "mean_latency_ms": 556.3081243530895,
+      "p95_latency_ms": 930.5456091948241,
+      "p99_latency_ms": 1432.1453797778956,
+      "tasks_processed": 186,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 233,
+      "success_rate": 0.9397274346385665,
+      "mean_latency_ms": 562.9340634363733,
+      "p95_latency_ms": 941.6289248086521,
+      "p99_latency_ms": 1449.2030275622928,
+      "tasks_processed": 171,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 234,
+      "success_rate": 0.9065045282437898,
+      "mean_latency_ms": 497.3613902220899,
+      "p95_latency_ms": 831.9444523525389,
+      "p99_latency_ms": 1280.3944179581727,
+      "tasks_processed": 187,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 235,
+      "success_rate": 0.9398117851669796,
+      "mean_latency_ms": 494.28033034097587,
+      "p95_latency_ms": 826.7907135906414,
+      "p99_latency_ms": 1272.4626163532841,
+      "tasks_processed": 177,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 236,
+      "success_rate": 0.9528670250234798,
+      "mean_latency_ms": 448.3937044393091,
+      "p95_latency_ms": 750.0354112962242,
+      "p99_latency_ms": 1154.3332624901013,
+      "tasks_processed": 184,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 237,
+      "success_rate": 0.9464958129545291,
+      "mean_latency_ms": 524.805363883311,
+      "p95_latency_ms": 877.8504315596638,
+      "p99_latency_ms": 1351.0454804918509,
+      "tasks_processed": 174,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 238,
+      "success_rate": 0.9283364382764571,
+      "mean_latency_ms": 541.6615058393494,
+      "p95_latency_ms": 906.0459732001826,
+      "p99_latency_ms": 1394.4395003999605,
+      "tasks_processed": 173,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 239,
+      "success_rate": 0.9529424138599901,
+      "mean_latency_ms": 511.4565828263147,
+      "p95_latency_ms": 855.5217092978141,
+      "p99_latency_ms": 1316.6807206050996,
+      "tasks_processed": 192,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 240,
+      "success_rate": 0.9261344266315693,
+      "mean_latency_ms": 542.7246904827485,
+      "p95_latency_ms": 907.824379371814,
+      "p99_latency_ms": 1397.1765357015124,
+      "tasks_processed": 182,
+      "edge_case": "conflicting_instr",
+      "recovered": false,
+      "recovery_time_s": 2.659160641263505
+    },
+    {
+      "day": 241,
+      "success_rate": 0.9231668902035863,
+      "mean_latency_ms": 511.96295578251454,
+      "p95_latency_ms": 856.3687275425228,
+      "p99_latency_ms": 1317.9843141675856,
+      "tasks_processed": 184,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 242,
+      "success_rate": 0.962639332595702,
+      "mean_latency_ms": 555.242399586964,
+      "p95_latency_ms": 928.7629541187695,
+      "p99_latency_ms": 1429.401805249486,
+      "tasks_processed": 184,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 243,
+      "success_rate": 0.9338270992763353,
+      "mean_latency_ms": 452.35019415377303,
+      "p95_latency_ms": 756.6534957182344,
+      "p99_latency_ms": 1164.5187482248232,
+      "tasks_processed": 190,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 244,
+      "success_rate": 0.9302562352988505,
+      "mean_latency_ms": 440.4882197468993,
+      "p95_latency_ms": 736.8117790193572,
+      "p99_latency_ms": 1133.981585278296,
+      "tasks_processed": 176,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 245,
+      "success_rate": 0.995,
+      "mean_latency_ms": 463.59631710743565,
+      "p95_latency_ms": 775.4650677174127,
+      "p99_latency_ms": 1193.4704789715768,
+      "tasks_processed": 196,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 246,
+      "success_rate": 0.9651060657212229,
+      "mean_latency_ms": 465.425277612011,
+      "p95_latency_ms": 778.5243995740207,
+      "p99_latency_ms": 1198.178908026914,
+      "tasks_processed": 181,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 247,
+      "success_rate": 0.931927648975328,
+      "mean_latency_ms": 456.9969308828856,
+      "p95_latency_ms": 764.4261675004203,
+      "p99_latency_ms": 1176.4811881862781,
+      "tasks_processed": 182,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 248,
+      "success_rate": 0.9192880030281155,
+      "mean_latency_ms": 460.9182789872284,
+      "p95_latency_ms": 770.9854699820517,
+      "p99_latency_ms": 1186.576206260419,
+      "tasks_processed": 188,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 249,
+      "success_rate": 0.9793442212744558,
+      "mean_latency_ms": 531.2668579658616,
+      "p95_latency_ms": 888.6586773575259,
+      "p99_latency_ms": 1367.6797852803131,
+      "tasks_processed": 192,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 250,
+      "success_rate": 0.912392351690443,
+      "mean_latency_ms": 427.83199728271296,
+      "p95_latency_ms": 715.6415107319103,
+      "p99_latency_ms": 1101.399730485858,
+      "tasks_processed": 189,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 251,
+      "success_rate": 0.9440073914330953,
+      "mean_latency_ms": 595.7008817170441,
+      "p95_latency_ms": 996.4385124159156,
+      "p99_latency_ms": 1533.5570848848517,
+      "tasks_processed": 188,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 252,
+      "success_rate": 0.9523250838188158,
+      "mean_latency_ms": 488.62072930418736,
+      "p95_latency_ms": 817.3238072773421,
+      "p99_latency_ms": 1257.8926844730895,
+      "tasks_processed": 186,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 253,
+      "success_rate": 0.9485008940622008,
+      "mean_latency_ms": 517.6442498404354,
+      "p95_latency_ms": 865.871920123595,
+      "p99_latency_ms": 1332.6100920054926,
+      "tasks_processed": 188,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 254,
+      "success_rate": 0.9449598471751299,
+      "mean_latency_ms": 456.5031181886563,
+      "p95_latency_ms": 763.6001590093275,
+      "p99_latency_ms": 1175.2099294403479,
+      "tasks_processed": 199,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 255,
+      "success_rate": 0.9451254224575425,
+      "mean_latency_ms": 519.3425782144546,
+      "p95_latency_ms": 868.7127414997926,
+      "p99_latency_ms": 1336.9822250514108,
+      "tasks_processed": 189,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 256,
+      "success_rate": 0.9377766889959314,
+      "mean_latency_ms": 366.93013891573105,
+      "p95_latency_ms": 613.7699859162301,
+      "p99_latency_ms": 944.6155469336476,
+      "tasks_processed": 195,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 257,
+      "success_rate": 0.9791514263851245,
+      "mean_latency_ms": 589.1226871966021,
+      "p95_latency_ms": 985.4350599055907,
+      "p99_latency_ms": 1516.6223494795631,
+      "tasks_processed": 188,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 258,
+      "success_rate": 0.9200488836125059,
+      "mean_latency_ms": 535.9650900022459,
+      "p95_latency_ms": 896.5174861741684,
+      "p99_latency_ms": 1379.7747934412255,
+      "tasks_processed": 185,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 259,
+      "success_rate": 0.9273228982570688,
+      "mean_latency_ms": 504.8375244121629,
+      "p95_latency_ms": 844.4499030906773,
+      "p99_latency_ms": 1299.6407862389945,
+      "tasks_processed": 185,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 260,
+      "success_rate": 0.9422897721990989,
+      "mean_latency_ms": 444.04655658445085,
+      "p95_latency_ms": 742.7638666759424,
+      "p99_latency_ms": 1143.142076449477,
+      "tasks_processed": 202,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 261,
+      "success_rate": 0.9738847503211439,
+      "mean_latency_ms": 483.621253610901,
+      "p95_latency_ms": 808.9611033170611,
+      "p99_latency_ms": 1245.022162361304,
+      "tasks_processed": 199,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 262,
+      "success_rate": 0.9472886400307299,
+      "mean_latency_ms": 603.1811308849447,
+      "p95_latency_ms": 1008.950846344109,
+      "p99_latency_ms": 1552.8140466591426,
+      "tasks_processed": 190,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 263,
+      "success_rate": 0.9386836835797426,
+      "mean_latency_ms": 434.7043523728387,
+      "p95_latency_ms": 727.1370103911694,
+      "p99_latency_ms": 1119.0917453237898,
+      "tasks_processed": 192,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 264,
+      "success_rate": 0.964312810430657,
+      "mean_latency_ms": 428.2890400682095,
+      "p95_latency_ms": 716.4060136011655,
+      "p99_latency_ms": 1102.5763297209871,
+      "tasks_processed": 198,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 265,
+      "success_rate": 0.9331444185947548,
+      "mean_latency_ms": 470.7845043777356,
+      "p95_latency_ms": 787.4888649794538,
+      "p99_latency_ms": 1211.9755640808582,
+      "tasks_processed": 191,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 266,
+      "success_rate": 0.9532136923114556,
+      "mean_latency_ms": 452.3017822922011,
+      "p95_latency_ms": 756.5725164133373,
+      "p99_latency_ms": 1164.3941179689614,
+      "tasks_processed": 191,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 267,
+      "success_rate": 0.9696172779533908,
+      "mean_latency_ms": 430.64403936790245,
+      "p95_latency_ms": 720.3452590697345,
+      "p99_latency_ms": 1108.638979570578,
+      "tasks_processed": 192,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 268,
+      "success_rate": 0.9566456921300028,
+      "mean_latency_ms": 399.38185970104405,
+      "p95_latency_ms": 668.0525048399032,
+      "p99_latency_ms": 1028.1584253386195,
+      "tasks_processed": 196,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 269,
+      "success_rate": 0.9333347297016684,
+      "mean_latency_ms": 530.6073951886684,
+      "p95_latency_ms": 887.5555832899024,
+      "p99_latency_ms": 1365.9820812056314,
+      "tasks_processed": 205,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 270,
+      "success_rate": 0.9365826623978836,
+      "mean_latency_ms": 497.8569478759384,
+      "p95_latency_ms": 832.7733796658475,
+      "p99_latency_ms": 1281.6701688834326,
+      "tasks_processed": 193,
+      "edge_case": "ui_redesign",
+      "recovered": false,
+      "recovery_time_s": 2.2830241536761915
+    },
+    {
+      "day": 271,
+      "success_rate": 0.9698739279660679,
+      "mean_latency_ms": 502.80512654112977,
+      "p95_latency_ms": 841.0502782564616,
+      "p99_latency_ms": 1294.4086332405896,
+      "tasks_processed": 197,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 272,
+      "success_rate": 0.9574640685446942,
+      "mean_latency_ms": 509.56213752821014,
+      "p95_latency_ms": 852.352839966522,
+      "p99_latency_ms": 1311.8037091753667,
+      "tasks_processed": 208,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 273,
+      "success_rate": 0.9541548041994397,
+      "mean_latency_ms": 450.80162093308184,
+      "p95_latency_ms": 754.0631722123421,
+      "p99_latency_ms": 1160.5321410081135,
+      "tasks_processed": 212,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 274,
+      "success_rate": 0.9338219302755428,
+      "mean_latency_ms": 463.2006378346436,
+      "p95_latency_ms": 774.8032085896605,
+      "p99_latency_ms": 1192.4518523910986,
+      "tasks_processed": 194,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 275,
+      "success_rate": 0.9590378036779826,
+      "mean_latency_ms": 535.5884891372708,
+      "p95_latency_ms": 895.8875398081519,
+      "p99_latency_ms": 1378.8052818249391,
+      "tasks_processed": 198,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 276,
+      "success_rate": 0.9159191872655252,
+      "mean_latency_ms": 494.28192036863516,
+      "p95_latency_ms": 826.7933732556581,
+      "p99_latency_ms": 1272.4667096797443,
+      "tasks_processed": 202,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 277,
+      "success_rate": 0.9136922830535086,
+      "mean_latency_ms": 512.7247676665866,
+      "p95_latency_ms": 857.6430226187988,
+      "p99_latency_ms": 1319.9455031602902,
+      "tasks_processed": 208,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 278,
+      "success_rate": 0.9424531850434792,
+      "mean_latency_ms": 526.2708819971775,
+      "p95_latency_ms": 880.3018274432669,
+      "p99_latency_ms": 1354.8182727698634,
+      "tasks_processed": 196,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 279,
+      "success_rate": 0.9769140178068909,
+      "mean_latency_ms": 337.9157191878803,
+      "p95_latency_ms": 565.2370961395737,
+      "p99_latency_ms": 869.9215682891725,
+      "tasks_processed": 202,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 280,
+      "success_rate": 0.927926899236287,
+      "mean_latency_ms": 396.6690408551811,
+      "p95_latency_ms": 663.5147288214524,
+      "p99_latency_ms": 1021.1746140185988,
+      "tasks_processed": 203,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 281,
+      "success_rate": 0.9325771066529444,
+      "mean_latency_ms": 492.7977694627054,
+      "p95_latency_ms": 824.310809999007,
+      "p99_latency_ms": 1268.645949619316,
+      "tasks_processed": 217,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 282,
+      "success_rate": 0.9363474797924449,
+      "mean_latency_ms": 531.5739535868411,
+      "p95_latency_ms": 889.172361176251,
+      "p99_latency_ms": 1368.4703643775488,
+      "tasks_processed": 207,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 283,
+      "success_rate": 0.9520341177165592,
+      "mean_latency_ms": 475.19985547562635,
+      "p95_latency_ms": 794.87449426893,
+      "p99_latency_ms": 1223.3423308026183,
+      "tasks_processed": 203,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 284,
+      "success_rate": 0.9480009679250054,
+      "mean_latency_ms": 378.03004300127395,
+      "p95_latency_ms": 632.3369752466432,
+      "p99_latency_ms": 973.1908555732143,
+      "tasks_processed": 209,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 285,
+      "success_rate": 0.9343185886801433,
+      "mean_latency_ms": 487.5113186164052,
+      "p95_latency_ms": 815.4680780526251,
+      "p99_latency_ms": 1255.036646027434,
+      "tasks_processed": 204,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 286,
+      "success_rate": 0.9644698294077126,
+      "mean_latency_ms": 512.0225833997991,
+      "p95_latency_ms": 856.4684676236429,
+      "p99_latency_ms": 1318.1378179775477,
+      "tasks_processed": 203,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 287,
+      "success_rate": 0.9637377467337457,
+      "mean_latency_ms": 547.6117337313943,
+      "p95_latency_ms": 915.999015761065,
+      "p99_latency_ms": 1409.7576146089302,
+      "tasks_processed": 218,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 288,
+      "success_rate": 0.9230260405925165,
+      "mean_latency_ms": 501.304713460752,
+      "p95_latency_ms": 838.5405129972398,
+      "p99_latency_ms": 1290.546008254985,
+      "tasks_processed": 202,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 289,
+      "success_rate": 0.9731406280492859,
+      "mean_latency_ms": 502.32100895394035,
+      "p95_latency_ms": 840.240486927929,
+      "p99_latency_ms": 1293.1623333297828,
+      "tasks_processed": 206,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 290,
+      "success_rate": 0.9336787244408534,
+      "mean_latency_ms": 527.0260855413984,
+      "p95_latency_ms": 881.5650686424501,
+      "p99_latency_ms": 1356.7624494217976,
+      "tasks_processed": 204,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 291,
+      "success_rate": 0.9260143861283836,
+      "mean_latency_ms": 451.97746776013935,
+      "p95_latency_ms": 756.0300302431797,
+      "p99_latency_ms": 1163.5592109482752,
+      "tasks_processed": 214,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 292,
+      "success_rate": 0.9554963073428959,
+      "mean_latency_ms": 424.96663148605614,
+      "p95_latency_ms": 710.8485669583192,
+      "p99_latency_ms": 1094.023206204772,
+      "tasks_processed": 209,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 293,
+      "success_rate": 0.9315119034762366,
+      "mean_latency_ms": 528.976741037819,
+      "p95_latency_ms": 884.8279616828074,
+      "p99_latency_ms": 1361.7841669456711,
+      "tasks_processed": 207,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 294,
+      "success_rate": 0.9393234405407014,
+      "mean_latency_ms": 517.2103384358724,
+      "p95_latency_ms": 865.1461094898478,
+      "p99_latency_ms": 1331.4930416046916,
+      "tasks_processed": 211,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 295,
+      "success_rate": 0.9583013547403381,
+      "mean_latency_ms": 554.6131869232895,
+      "p95_latency_ms": 927.7104599059393,
+      "p99_latency_ms": 1427.7819762918803,
+      "tasks_processed": 216,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 296,
+      "success_rate": 0.9684635648656009,
+      "mean_latency_ms": 628.797063347501,
+      "p95_latency_ms": 1051.7990314325107,
+      "p99_latency_ms": 1618.7590467750654,
+      "tasks_processed": 224,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 297,
+      "success_rate": 0.9477480046895234,
+      "mean_latency_ms": 434.6690129190158,
+      "p95_latency_ms": 727.0778975144262,
+      "p99_latency_ms": 1119.0007683394522,
+      "tasks_processed": 208,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 298,
+      "success_rate": 0.9468490795315667,
+      "mean_latency_ms": 452.37112456175674,
+      "p95_latency_ms": 756.6885063506439,
+      "p99_latency_ms": 1164.5726309307906,
+      "tasks_processed": 211,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 299,
+      "success_rate": 0.9629578863936354,
+      "mean_latency_ms": 488.48047406632253,
+      "p95_latency_ms": 817.089200069487,
+      "p99_latency_ms": 1257.5316149828127,
+      "tasks_processed": 227,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 300,
+      "success_rate": 0.9567725216767751,
+      "mean_latency_ms": 503.4315985800313,
+      "p95_latency_ms": 842.098188181849,
+      "p99_latency_ms": 1296.0214068040116,
+      "tasks_processed": 225,
+      "edge_case": "security_attack",
+      "recovered": false,
+      "recovery_time_s": 1.5561892196360976
+    },
+    {
+      "day": 301,
+      "success_rate": 0.9400087862930865,
+      "mean_latency_ms": 408.9219579066535,
+      "p95_latency_ms": 684.0103816133918,
+      "p99_latency_ms": 1052.7182096913634,
+      "tasks_processed": 227,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 302,
+      "success_rate": 0.9363000043393233,
+      "mean_latency_ms": 488.4025308729117,
+      "p95_latency_ms": 816.9588232275535,
+      "p99_latency_ms": 1257.3309600230125,
+      "tasks_processed": 215,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 303,
+      "success_rate": 0.9386626588415904,
+      "mean_latency_ms": 385.07378997522903,
+      "p95_latency_ms": 644.1191648857304,
+      "p99_latency_ms": 991.3240972849088,
+      "tasks_processed": 218,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 304,
+      "success_rate": 0.9460695538935942,
+      "mean_latency_ms": 401.17565030253763,
+      "p95_latency_ms": 671.0530074300382,
+      "p99_latency_ms": 1032.7763138967007,
+      "tasks_processed": 223,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 305,
+      "success_rate": 0.9429262924498173,
+      "mean_latency_ms": 450.37971665999055,
+      "p95_latency_ms": 753.3574461018665,
+      "p99_latency_ms": 1159.4460014588872,
+      "tasks_processed": 228,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 306,
+      "success_rate": 0.9345465968963338,
+      "mean_latency_ms": 437.14439031575364,
+      "p95_latency_ms": 731.2185013754843,
+      "p99_latency_ms": 1125.3733164773514,
+      "tasks_processed": 230,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 307,
+      "success_rate": 0.9638261389109405,
+      "mean_latency_ms": 494.2884493902985,
+      "p95_latency_ms": 826.8042944559339,
+      "p99_latency_ms": 1272.4835178258072,
+      "tasks_processed": 233,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 308,
+      "success_rate": 0.9460113466202104,
+      "mean_latency_ms": 427.80446924120645,
+      "p95_latency_ms": 715.5954641310567,
+      "p99_latency_ms": 1101.3288630012173,
+      "tasks_processed": 233,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 309,
+      "success_rate": 0.9617918106785515,
+      "mean_latency_ms": 487.49184852281365,
+      "p95_latency_ms": 815.4355101117501,
+      "p99_latency_ms": 1254.9865227174178,
+      "tasks_processed": 218,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 310,
+      "success_rate": 0.9438992007619748,
+      "mean_latency_ms": 553.4618729464238,
+      "p95_latency_ms": 925.7846383709345,
+      "p99_latency_ms": 1424.8180630925892,
+      "tasks_processed": 225,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 311,
+      "success_rate": 0.9552879192951513,
+      "mean_latency_ms": 432.2439371114057,
+      "p95_latency_ms": 723.0214339361527,
+      "p99_latency_ms": 1112.757715323611,
+      "tasks_processed": 217,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 312,
+      "success_rate": 0.9417896329366364,
+      "mean_latency_ms": 492.34066448808085,
+      "p95_latency_ms": 823.5462031049901,
+      "p99_latency_ms": 1267.4691902860889,
+      "tasks_processed": 234,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 313,
+      "success_rate": 0.9303629419255044,
+      "mean_latency_ms": 526.6304972699429,
+      "p95_latency_ms": 880.9033617341067,
+      "p99_latency_ms": 1355.744057112825,
+      "tasks_processed": 224,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 314,
+      "success_rate": 0.9517858177911375,
+      "mean_latency_ms": 566.7710775499716,
+      "p95_latency_ms": 948.0471604581483,
+      "p99_latency_ms": 1459.0809383717442,
+      "tasks_processed": 233,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 315,
+      "success_rate": 0.9384772415059697,
+      "mean_latency_ms": 552.9529456445396,
+      "p95_latency_ms": 924.9333474308319,
+      "p99_latency_ms": 1423.5078936880302,
+      "tasks_processed": 220,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 316,
+      "success_rate": 0.9422679556747642,
+      "mean_latency_ms": 538.7105986088952,
+      "p95_latency_ms": 901.1099428849077,
+      "p99_latency_ms": 1386.8427604437306,
+      "tasks_processed": 224,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 317,
+      "success_rate": 0.9388365405485019,
+      "mean_latency_ms": 550.146381300439,
+      "p95_latency_ms": 920.2387617992403,
+      "p99_latency_ms": 1416.2827463596009,
+      "tasks_processed": 237,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 318,
+      "success_rate": 0.9596001250858106,
+      "mean_latency_ms": 499.2816857480382,
+      "p95_latency_ms": 835.1565617785974,
+      "p99_latency_ms": 1285.337977552045,
+      "tasks_processed": 221,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 319,
+      "success_rate": 0.914430496955052,
+      "mean_latency_ms": 479.377581064841,
+      "p95_latency_ms": 801.8626435216221,
+      "p99_latency_ms": 1234.0973605040651,
+      "tasks_processed": 227,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 320,
+      "success_rate": 0.9098595690166226,
+      "mean_latency_ms": 564.3863110863808,
+      "p95_latency_ms": 944.0581229724381,
+      "p99_latency_ms": 1452.9416566982065,
+      "tasks_processed": 222,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 321,
+      "success_rate": 0.948959808975895,
+      "mean_latency_ms": 563.0246500233338,
+      "p95_latency_ms": 941.7804504597398,
+      "p99_latency_ms": 1449.4362313504564,
+      "tasks_processed": 235,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 322,
+      "success_rate": 0.9490462928970407,
+      "mean_latency_ms": 509.3408349318866,
+      "p95_latency_ms": 851.9826635295849,
+      "p99_latency_ms": 1311.233993442336,
+      "tasks_processed": 235,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 323,
+      "success_rate": 0.9645336689742323,
+      "mean_latency_ms": 636.9866396458675,
+      "p95_latency_ms": 1065.4978683396168,
+      "p99_latency_ms": 1639.8420821373159,
+      "tasks_processed": 225,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 324,
+      "success_rate": 0.9381211579371141,
+      "mean_latency_ms": 416.3287174996198,
+      "p95_latency_ms": 696.3997883394056,
+      "p99_latency_ms": 1071.7859817871363,
+      "tasks_processed": 239,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 325,
+      "success_rate": 0.9630525375699632,
+      "mean_latency_ms": 515.9473946717088,
+      "p95_latency_ms": 863.0335630017499,
+      "p99_latency_ms": 1328.2417515415282,
+      "tasks_processed": 225,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 326,
+      "success_rate": 0.9219302820414952,
+      "mean_latency_ms": 477.37820475309326,
+      "p95_latency_ms": 798.5182543844173,
+      "p99_latency_ms": 1228.9502173616988,
+      "tasks_processed": 233,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 327,
+      "success_rate": 0.9386942660644564,
+      "mean_latency_ms": 468.8748987386396,
+      "p95_latency_ms": 784.2946367002588,
+      "p99_latency_ms": 1207.0595242577676,
+      "tasks_processed": 237,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 328,
+      "success_rate": 0.9416664916715501,
+      "mean_latency_ms": 441.222418042378,
+      "p95_latency_ms": 738.0398843987831,
+      "p99_latency_ms": 1135.8716865561335,
+      "tasks_processed": 237,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 329,
+      "success_rate": 0.9432495171835633,
+      "mean_latency_ms": 601.6497000545644,
+      "p95_latency_ms": 1006.389197192116,
+      "p99_latency_ms": 1548.87157037277,
+      "tasks_processed": 242,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 330,
+      "success_rate": 0.9235459959711808,
+      "mean_latency_ms": 461.136615480861,
+      "p95_latency_ms": 771.3506849709806,
+      "p99_latency_ms": 1187.1382861346906,
+      "tasks_processed": 232,
+      "edge_case": "ui_redesign",
+      "recovered": false,
+      "recovery_time_s": 2.752344145037491
+    },
+    {
+      "day": 331,
+      "success_rate": 0.9316027395780373,
+      "mean_latency_ms": 371.35362146998057,
+      "p95_latency_ms": 621.1692168244496,
+      "p99_latency_ms": 956.0032470682864,
+      "tasks_processed": 230,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 332,
+      "success_rate": 0.9632176564335855,
+      "mean_latency_ms": 527.6360337579281,
+      "p95_latency_ms": 882.5853389025472,
+      "p99_latency_ms": 1358.3326844803305,
+      "tasks_processed": 233,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 333,
+      "success_rate": 0.9408369529449714,
+      "mean_latency_ms": 515.9463680948417,
+      "p95_latency_ms": 863.031845829999,
+      "p99_latency_ms": 1328.2391087483472,
+      "tasks_processed": 246,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 334,
+      "success_rate": 0.9797603604418816,
+      "mean_latency_ms": 562.7320292907815,
+      "p95_latency_ms": 941.2909790213125,
+      "p99_latency_ms": 1448.6829160350649,
+      "tasks_processed": 243,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 335,
+      "success_rate": 0.9295702350457222,
+      "mean_latency_ms": 584.3774973639557,
+      "p95_latency_ms": 977.4977040226445,
+      "p99_latency_ms": 1504.4064543712618,
+      "tasks_processed": 251,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 336,
+      "success_rate": 0.9302101187528,
+      "mean_latency_ms": 534.7082888199012,
+      "p95_latency_ms": 894.4152144821599,
+      "p99_latency_ms": 1376.5393166832907,
+      "tasks_processed": 237,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 337,
+      "success_rate": 0.9446671685121768,
+      "mean_latency_ms": 630.4647161796755,
+      "p95_latency_ms": 1054.5885413330645,
+      "p99_latency_ms": 1623.0522094921294,
+      "tasks_processed": 247,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 338,
+      "success_rate": 0.9553296048169811,
+      "mean_latency_ms": 457.00825950804943,
+      "p95_latency_ms": 764.4451170752031,
+      "p99_latency_ms": 1176.5103523086016,
+      "tasks_processed": 239,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 339,
+      "success_rate": 0.9723545020688359,
+      "mean_latency_ms": 563.6271406086397,
+      "p95_latency_ms": 942.7882462193103,
+      "p99_latency_ms": 1450.9872676742737,
+      "tasks_processed": 243,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 340,
+      "success_rate": 0.9443465538847173,
+      "mean_latency_ms": 493.49241233947794,
+      "p95_latency_ms": 825.4727503889499,
+      "p99_latency_ms": 1270.4342204408547,
+      "tasks_processed": 246,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 341,
+      "success_rate": 0.9574425754001905,
+      "mean_latency_ms": 404.7914249547659,
+      "p95_latency_ms": 677.1011722494566,
+      "p99_latency_ms": 1042.0846715061261,
+      "tasks_processed": 236,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 342,
+      "success_rate": 0.94812586614147,
+      "mean_latency_ms": 627.0341152534371,
+      "p95_latency_ms": 1048.8501196040575,
+      "p99_latency_ms": 1614.220558377761,
+      "tasks_processed": 251,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 343,
+      "success_rate": 0.977156968292275,
+      "mean_latency_ms": 489.28389113613656,
+      "p95_latency_ms": 818.4330888137628,
+      "p99_latency_ms": 1259.599911299546,
+      "tasks_processed": 238,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 344,
+      "success_rate": 0.9541339117730154,
+      "mean_latency_ms": 518.6094945596244,
+      "p95_latency_ms": 867.486500597832,
+      "p99_latency_ms": 1335.0949932758977,
+      "tasks_processed": 238,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 345,
+      "success_rate": 0.9572430709296745,
+      "mean_latency_ms": 408.18522650123475,
+      "p95_latency_ms": 682.7780390599455,
+      "p99_latency_ms": 1050.8215872402093,
+      "tasks_processed": 255,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 346,
+      "success_rate": 0.9570997511773314,
+      "mean_latency_ms": 497.8772771398513,
+      "p95_latency_ms": 832.8073847548335,
+      "p99_latency_ms": 1281.7225040195065,
+      "tasks_processed": 255,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 347,
+      "success_rate": 0.9534347037310709,
+      "mean_latency_ms": 629.8884116897178,
+      "p95_latency_ms": 1053.6245474792756,
+      "p99_latency_ms": 1621.568585981152,
+      "tasks_processed": 240,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 348,
+      "success_rate": 0.9484035328535066,
+      "mean_latency_ms": 558.1076071972062,
+      "p95_latency_ms": 933.5556332913826,
+      "p99_latency_ms": 1436.7779222995207,
+      "tasks_processed": 244,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 349,
+      "success_rate": 0.9521603869416136,
+      "mean_latency_ms": 492.91896314685425,
+      "p95_latency_ms": 824.5135326372533,
+      "p99_latency_ms": 1268.9579475341652,
+      "tasks_processed": 247,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 350,
+      "success_rate": 0.933205095152239,
+      "mean_latency_ms": 418.2384057787917,
+      "p95_latency_ms": 699.5941548519942,
+      "p99_latency_ms": 1076.702234356723,
+      "tasks_processed": 241,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 351,
+      "success_rate": 0.9416913456360844,
+      "mean_latency_ms": 677.2545539136106,
+      "p95_latency_ms": 1132.8546606871237,
+      "p99_latency_ms": 1743.5067687512376,
+      "tasks_processed": 247,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 352,
+      "success_rate": 0.9103651711944925,
+      "mean_latency_ms": 508.27132414839036,
+      "p95_latency_ms": 850.1936755209583,
+      "p99_latency_ms": 1308.4806722878259,
+      "tasks_processed": 246,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 353,
+      "success_rate": 0.9677857906132301,
+      "mean_latency_ms": 557.5264039291487,
+      "p95_latency_ms": 932.5834451721288,
+      "p99_latency_ms": 1435.2816874997343,
+      "tasks_processed": 257,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 354,
+      "success_rate": 0.9508515970312855,
+      "mean_latency_ms": 432.50515729978997,
+      "p95_latency_ms": 723.4583811758076,
+      "p99_latency_ms": 1113.4301938827434,
+      "tasks_processed": 250,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 355,
+      "success_rate": 0.9552360672269454,
+      "mean_latency_ms": 411.2796601439227,
+      "p95_latency_ms": 687.9541483294195,
+      "p99_latency_ms": 1058.7878179141856,
+      "tasks_processed": 256,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 356,
+      "success_rate": 0.936217480517387,
+      "mean_latency_ms": 582.6683562648798,
+      "p95_latency_ms": 974.6387960261292,
+      "p99_latency_ms": 1500.0064853230363,
+      "tasks_processed": 258,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 357,
+      "success_rate": 0.9499746053158892,
+      "mean_latency_ms": 517.3635161282275,
+      "p95_latency_ms": 865.4023322966127,
+      "p99_latency_ms": 1331.8873783306672,
+      "tasks_processed": 255,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 358,
+      "success_rate": 0.938655421486023,
+      "mean_latency_ms": 562.6867831482383,
+      "p95_latency_ms": 941.2152950659046,
+      "p99_latency_ms": 1448.5664355251483,
+      "tasks_processed": 252,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 359,
+      "success_rate": 0.9323106267087035,
+      "mean_latency_ms": 468.2636014738747,
+      "p95_latency_ms": 783.2721098653301,
+      "p99_latency_ms": 1205.4858162440248,
+      "tasks_processed": 264,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 360,
+      "success_rate": 0.9589961797401404,
+      "mean_latency_ms": 471.7928555064866,
+      "p95_latency_ms": 789.1755502430866,
+      "p99_latency_ms": 1214.5714373874255,
+      "tasks_processed": 260,
+      "edge_case": "ui_redesign",
+      "recovered": false,
+      "recovery_time_s": 1.4761375293549457
+    },
+    {
+      "day": 361,
+      "success_rate": 0.9517424455654967,
+      "mean_latency_ms": 492.0412003424095,
+      "p95_latency_ms": 823.0452845786074,
+      "p99_latency_ms": 1266.6982574633282,
+      "tasks_processed": 259,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 362,
+      "success_rate": 0.9318300671064932,
+      "mean_latency_ms": 395.9290216032954,
+      "p95_latency_ms": 662.2768866339727,
+      "p99_latency_ms": 1019.2695274197516,
+      "tasks_processed": 248,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 363,
+      "success_rate": 0.9242450803062711,
+      "mean_latency_ms": 448.39229081148966,
+      "p95_latency_ms": 750.0330466980764,
+      "p99_latency_ms": 1154.3296232828677,
+      "tasks_processed": 265,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    },
+    {
+      "day": 364,
+      "success_rate": 0.9802520642116248,
+      "mean_latency_ms": 620.9484756670067,
+      "p95_latency_ms": 1038.6705717089408,
+      "p99_latency_ms": 1598.5538437727325,
+      "tasks_processed": 254,
+      "edge_case": null,
+      "recovered": null,
+      "recovery_time_s": null
+    }
+  ],
+  "real_world_performance": {
+    "final_success_rate": 0.9802520642116248,
+    "final_p95_latency_ms": 1038.6705717089408,
+    "final_p99_latency_ms": 1598.5538437727325,
+    "mean_success_rate": 0.8263220526861513,
+    "p95_of_p95": 5080.805518813788,
+    "p99_of_p99": 11454.26775402696,
+    "edge_case_recovery_under_1s_ratio": 0.0
+  },
+  "critical_events": [],
+  "system_health_over_time": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.017035095376730352,
+    0,
+    0,
+    0.04360914218419939,
+    0.03267525303902492,
+    0.06324896441037378,
+    0.06440829822994114,
+    0.07659543886444162,
+    0.07622297443641493,
+    0.0891205346167758,
+    0.12316806027794225,
+    0.11306257162372993,
+    0.11437359563118175,
+    0.1213736802013859,
+    0.13981798051132338,
+    0.1378331860145845,
+    0.145416243313242,
+    0.16509274164930102,
+    0.1539701199732477,
+    0.14479964580187135,
+    0.13963818533964953,
+    0.20383120400141358,
+    0.1519193469115796,
+    0.190344636112517,
+    0.2314472964559772,
+    0.22002699921852908,
+    0.23282319349560485,
+    0.21613322166906448,
+    0.20586286154157302,
+    0.2072369649930059,
+    0.2693863557049909,
+    0.2526184172976708,
+    0.2533948605090095,
+    0.27498690724856145,
+    0.29356195377363326,
+    0.2875033531990963,
+    0.3034174847521035,
+    0.2804056189272648,
+    0.2966688267913663,
+    0.3467255722278043,
+    0.32227467167936635,
+    0.33915627508308893,
+    0.33329587248909737,
+    0.36573998054572326,
+    0.3585026735168583,
+    0.3973436502554964,
+    0.32022515140573554,
+    0.3648821466371305,
+    0.39887892859669427,
+    0.4056564084403422,
+    0.3860347101836837,
+    0.3678765369040347,
+    0.4551472997134292,
+    0.3974913870989802,
+    0.4118955136883807,
+    0.4477301460303233,
+    0.45922975694452633,
+    0.43518375087349137,
+    0.4504777521737624,
+    0.4429071611507191,
+    0.5139910028269132,
+    0.49981720350412745,
+    0.4810086800300819,
+    0.5025781821033408,
+    0.4922464252091306,
+    0.5656464934018617,
+    0.5418962657374986,
+    0.5212063407365699,
+    0.5067567922671695,
+    0.5701254604628471,
+    0.5309851363300099,
+    0.5492973098415058,
+    0.5865519996189937,
+    0.5611861889510036,
+    0.5781176621022613,
+    0.5522772680226137,
+    0.5766447765330028,
+    0.5423843802748809,
+    0.5812181945420897,
+    0.5939995531490535,
+    0.5710026232294821,
+    0.592711211698497,
+    0.5975275193840911,
+    0.6647310134672891,
+    0.6247996651465455,
+    0.5940481388058597,
+    0.5692830198645266,
+    0.5908563785495797,
+    0.5941746043863676,
+    0.595592140925892,
+    0.6500075530094214,
+    0.5721897806824899,
+    0.6574881461935191,
+    0.6931009270093824,
+    0.6272832302355593,
+    0.65688453033713,
+    0.6389636405902589,
+    0.6427371858983058,
+    0.6138127802589357,
+    0.6234815879676164,
+    0.642846031037384,
+    0.5895314462520542,
+    0.6546775174777533,
+    0.6232758116285201,
+    0.700939209606734,
+    0.6276801739446743,
+    0.5962541824155978,
+    0.5882614554261435,
+    0.6036292723491303,
+    0.6231770189423425,
+    0.6867558935504383,
+    0.6757513871175237,
+    0.693118242717364,
+    0.7119510232235596,
+    0.6603824161555423,
+    0.5954843062283264,
+    0.6789750704872859,
+    0.6460404281619696,
+    0.664492664501926,
+    0.6770971234159144,
+    0.6987084222117699,
+    0.6353807547886421,
+    0.6601972472626032,
+    0.6704763922855301,
+    0.615892065610724,
+    0.6469057243909302,
+    0.7597836822743161,
+    0.674901668698449,
+    0.6397647855520692,
+    0.7038841239463042,
+    0.693311590687227,
+    0.6338988965215712,
+    0.6608652178534383,
+    0.6638462538041009,
+    0.6820132215031482,
+    0.6313470575434934,
+    0.6658368126089286,
+    0.6459271135325919,
+    0.6520067604456452,
+    0.6870525820297279,
+    0.6545386470555623,
+    0.6938794203778426,
+    0.6571322490487266,
+    0.6769991751320329,
+    0.5857935488804153,
+    0.6543901709247609,
+    0.6641497859163531,
+    0.6945668159235376,
+    0.5975668723092882,
+    0.6669334097681824,
+    0.6731077669173802,
+    0.6605433027266733,
+    0.6766862172738679,
+    0.7068749004819822,
+    0.6307910137191624,
+    0.7019770208272984,
+    0.728144120894872,
+    0.6970639583514421,
+    0.6775617497773716,
+    0.7247982574657216,
+    0.672552173052668,
+    0.6165777148765851,
+    0.7284184892673146,
+    0.7498163352798821,
+    0.6611323571254818,
+    0.7313072437938422,
+    0.6761214967552928,
+    0.6799877595827004,
+    0.6526198364566872,
+    0.7310958702998654,
+    0.6570700359482922,
+    0.6344992114750736,
+    0.6221092527926603,
+    0.6870650592554365,
+    0.6587384712904156,
+    0.6162364996761983,
+    0.7275453727726503,
+    0.6787230840125427,
+    0.7301830209816419,
+    0.7023535771032271,
+    0.6475326168549752,
+    0.6969015094919827,
+    0.630801906290014,
+    0.7000496232611418,
+    0.7002092056760737,
+    0.6325582335944375,
+    0.7071246427117084,
+    0.6950217632795286,
+    0.6852030261355602,
+    0.6927593598428272,
+    0.6525565964676051,
+    0.6523478903999087,
+    0.6447692566745976,
+    0.6551173904754977,
+    0.6808025663339456,
+    0.7146390213487814,
+    0.6695352269973464,
+    0.6479646077179957,
+    0.6811881062706956,
+    0.645878622941011,
+    0.6596431385125754,
+    0.6646180824982004,
+    0.698299252921716,
+    0.7017816514073851,
+    0.7378040858737248,
+    0.7146531922742694,
+    0.6944643552773656,
+    0.6830354386736178,
+    0.6892433078226244,
+    0.6947437380424466,
+    0.6304589511566877,
+    0.6928724293946463,
+    0.6747407972686728,
+    0.7044360173216769,
+    0.6714445901894621,
+    0.7459169605967307,
+    0.657521378212968,
+    0.6451022461812946,
+    0.6662969877347529,
+    0.7089901739565004,
+    0.7112731229466595,
+    0.6286994150003415,
+    0.7111664677860278,
+    0.7340329783022692,
+    0.6881974722410562,
+    0.7128219316875467,
+    0.7367975415247822,
+    0.7436158418394191,
+    0.6572059128933058,
+    0.6765956260307092,
+    0.6979696823028848,
+    0.6854316625480373,
+    0.7143238047206811,
+    0.6926458543325826,
+    0.6726411308379555,
+    0.6634938824425771,
+    0.6524850125930146,
+    0.6659054313523118,
+    0.792851336939154,
+    0.7226958442653215,
+    0.6763326432624048,
+    0.6588227132962848,
+    0.6997849051009869,
+    0.7481822797288094,
+    0.6803495940801975,
+    0.6891238304536926,
+    0.6694768042471132,
+    0.6650277973964299,
+    0.7005832429954584,
+    0.6593125415069547,
+    0.6926494913449631,
+    0.7290919137400081,
+    0.6567693105308531,
+    0.6684394338285661,
+    0.6619592912287902,
+    0.6289205516978291,
+    0.7180524624818063,
+    0.7080258076214924,
+    0.7006837233623089,
+    0.6882070526747114,
+    0.725683530082328,
+    0.681327154428321,
+    0.7371257895341022,
+    0.7344486141008305,
+    0.7061394446023852,
+    0.7067606762136351,
+    0.6981942753241248,
+    0.7203575370675652,
+    0.7003654120912287,
+    0.652616740683295,
+    0.7250567055515966,
+    0.6832538741604334,
+    0.6571763275338343,
+    0.6510065371507293,
+    0.6491342760147131,
+    0.6592389477679758,
+    0.6508519486797567,
+    0.6924613447028181,
+    0.6700146117533291,
+    0.6235394633851745,
+    0.6510558768540593,
+    0.6795226300852742,
+    0.6219641462296209,
+    0.720352032662406,
+    0.6860036499510026,
+    0.676537562214859,
+    0.6932899732725768,
+    0.7100040154530572,
+    0.6268241424001576,
+    0.6860867171063219,
+    0.7387084248663036,
+    0.6798437291868011,
+    0.6701795355699145,
+    0.672347164146344,
+    0.6266859782173945,
+    0.6528787577935462,
+    0.6125887780833459,
+    0.7118972542837395,
+    0.6667797034991931,
+    0.6845024381662026,
+    0.7413474120118545,
+    0.6166452234407429,
+    0.7105777696871621,
+    0.6782344823644509,
+    0.7393815553053134,
+    0.6914065042681663,
+    0.6185806343078419,
+    0.6532743792772266,
+    0.690470678850119,
+    0.7155834852033707,
+    0.5860915356918953,
+    0.6523696008731218,
+    0.6669387883469905,
+    0.7215510779890572,
+    0.7361831955327263,
+    0.6320595211740263,
+    0.675937858961581,
+    0.6441631416529635,
+    0.6888929894980387,
+    0.7067240671309927,
+    0.6906334015801653,
+    0.7261202285347551,
+    0.6931736291469974,
+    0.6408657402271055
+  ],
+  "analysis": {
+    "inflection_day_90pct_\u22641500ms": 124,
+    "first_day_success_\u226595pct": 149,
+    "recovery_slo_pass_days": []
+  },
+  "validation": {
+    "slo_checks": {
+      "final_success_rate_\u22650.94": true,
+      "final_p95_latency_ms_\u22641500": true,
+      "final_p99_latency_ms_\u22642500": true,
+      "recovery_under_1s_ratio_\u22650.8": false
+    },
+    "overall_readiness": "pending"
+  },
+  "telemetry": {
+    "wall_time_s": 0.03976389900000754,
+    "cpu_time_s": 0.03000000000000025,
+    "peak_alloc_mb": 0.20303630828857422
+  },
+  "scalability_projection": {
+    "series": [
+      {
+        "day": 0,
+        "users": 94,
+        "total_tasks": 7542,
+        "contention_factor": 0.007542,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 1,
+        "users": 96,
+        "total_tasks": 7563,
+        "contention_factor": 0.007563,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 2,
+        "users": 97,
+        "total_tasks": 7766,
+        "contention_factor": 0.007766,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 3,
+        "users": 98,
+        "total_tasks": 7798,
+        "contention_factor": 0.007798,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 4,
+        "users": 100,
+        "total_tasks": 9266,
+        "contention_factor": 0.009266,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 5,
+        "users": 101,
+        "total_tasks": 8624,
+        "contention_factor": 0.008624,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 6,
+        "users": 103,
+        "total_tasks": 10052,
+        "contention_factor": 0.010052,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 7,
+        "users": 105,
+        "total_tasks": 10482,
+        "contention_factor": 0.010482,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 8,
+        "users": 106,
+        "total_tasks": 10220,
+        "contention_factor": 0.01022,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 9,
+        "users": 108,
+        "total_tasks": 10699,
+        "contention_factor": 0.010699,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 10,
+        "users": 110,
+        "total_tasks": 12145,
+        "contention_factor": 0.012145,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 11,
+        "users": 112,
+        "total_tasks": 12037,
+        "contention_factor": 0.012037,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 12,
+        "users": 113,
+        "total_tasks": 12360,
+        "contention_factor": 0.01236,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 13,
+        "users": 115,
+        "total_tasks": 12934,
+        "contention_factor": 0.012934,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 14,
+        "users": 117,
+        "total_tasks": 13389,
+        "contention_factor": 0.013389,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 15,
+        "users": 119,
+        "total_tasks": 14756,
+        "contention_factor": 0.014756,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 16,
+        "users": 122,
+        "total_tasks": 15584,
+        "contention_factor": 0.015584,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 17,
+        "users": 124,
+        "total_tasks": 15448,
+        "contention_factor": 0.015448,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 18,
+        "users": 126,
+        "total_tasks": 15015,
+        "contention_factor": 0.015015,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 19,
+        "users": 128,
+        "total_tasks": 16402,
+        "contention_factor": 0.016402,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 20,
+        "users": 131,
+        "total_tasks": 18569,
+        "contention_factor": 0.018569,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 21,
+        "users": 133,
+        "total_tasks": 19200,
+        "contention_factor": 0.0192,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 22,
+        "users": 136,
+        "total_tasks": 19082,
+        "contention_factor": 0.019082,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 23,
+        "users": 138,
+        "total_tasks": 18892,
+        "contention_factor": 0.018892,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 24,
+        "users": 141,
+        "total_tasks": 19923,
+        "contention_factor": 0.019923,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 25,
+        "users": 144,
+        "total_tasks": 23359,
+        "contention_factor": 0.023359,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 26,
+        "users": 147,
+        "total_tasks": 22859,
+        "contention_factor": 0.022859,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 27,
+        "users": 150,
+        "total_tasks": 25653,
+        "contention_factor": 0.025653,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 28,
+        "users": 153,
+        "total_tasks": 26354,
+        "contention_factor": 0.026354,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 29,
+        "users": 156,
+        "total_tasks": 25672,
+        "contention_factor": 0.025672,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 30,
+        "users": 159,
+        "total_tasks": 27694,
+        "contention_factor": 0.027694,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 31,
+        "users": 162,
+        "total_tasks": 30695,
+        "contention_factor": 0.030695,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 32,
+        "users": 166,
+        "total_tasks": 29491,
+        "contention_factor": 0.029491,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 33,
+        "users": 169,
+        "total_tasks": 35972,
+        "contention_factor": 0.035972,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 34,
+        "users": 173,
+        "total_tasks": 33383,
+        "contention_factor": 0.033383,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 35,
+        "users": 176,
+        "total_tasks": 34260,
+        "contention_factor": 0.03426,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 36,
+        "users": 180,
+        "total_tasks": 37945,
+        "contention_factor": 0.037945,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 37,
+        "users": 184,
+        "total_tasks": 37856,
+        "contention_factor": 0.037856,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 38,
+        "users": 188,
+        "total_tasks": 39941,
+        "contention_factor": 0.039941,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 39,
+        "users": 192,
+        "total_tasks": 40665,
+        "contention_factor": 0.040665,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 40,
+        "users": 197,
+        "total_tasks": 42606,
+        "contention_factor": 0.042606,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 41,
+        "users": 201,
+        "total_tasks": 52408,
+        "contention_factor": 0.052408,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 42,
+        "users": 205,
+        "total_tasks": 49730,
+        "contention_factor": 0.04973,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 43,
+        "users": 210,
+        "total_tasks": 48079,
+        "contention_factor": 0.048079,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 44,
+        "users": 215,
+        "total_tasks": 55433,
+        "contention_factor": 0.055433,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 45,
+        "users": 220,
+        "total_tasks": 56399,
+        "contention_factor": 0.056399,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 46,
+        "users": 225,
+        "total_tasks": 59763,
+        "contention_factor": 0.059763,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 47,
+        "users": 230,
+        "total_tasks": 61278,
+        "contention_factor": 0.061278,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 48,
+        "users": 236,
+        "total_tasks": 66187,
+        "contention_factor": 0.066187,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 49,
+        "users": 241,
+        "total_tasks": 66177,
+        "contention_factor": 0.066177,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 50,
+        "users": 247,
+        "total_tasks": 71885,
+        "contention_factor": 0.071885,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 51,
+        "users": 253,
+        "total_tasks": 80481,
+        "contention_factor": 0.080481,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 52,
+        "users": 259,
+        "total_tasks": 78056,
+        "contention_factor": 0.078056,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 53,
+        "users": 265,
+        "total_tasks": 82555,
+        "contention_factor": 0.082555,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 54,
+        "users": 272,
+        "total_tasks": 87753,
+        "contention_factor": 0.087753,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 55,
+        "users": 278,
+        "total_tasks": 95531,
+        "contention_factor": 0.095531,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 56,
+        "users": 285,
+        "total_tasks": 99993,
+        "contention_factor": 0.099993,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 57,
+        "users": 292,
+        "total_tasks": 100781,
+        "contention_factor": 0.100781,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 58,
+        "users": 299,
+        "total_tasks": 114380,
+        "contention_factor": 0.11438,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 59,
+        "users": 307,
+        "total_tasks": 109424,
+        "contention_factor": 0.109424,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 60,
+        "users": 314,
+        "total_tasks": 109672,
+        "contention_factor": 0.109672,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 61,
+        "users": 322,
+        "total_tasks": 110276,
+        "contention_factor": 0.110276,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 62,
+        "users": 330,
+        "total_tasks": 138258,
+        "contention_factor": 0.138258,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 63,
+        "users": 338,
+        "total_tasks": 123250,
+        "contention_factor": 0.12325,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 64,
+        "users": 347,
+        "total_tasks": 141056,
+        "contention_factor": 0.141056,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 65,
+        "users": 356,
+        "total_tasks": 162451,
+        "contention_factor": 0.162451,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 66,
+        "users": 365,
+        "total_tasks": 163334,
+        "contention_factor": 0.163334,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 67,
+        "users": 374,
+        "total_tasks": 173109,
+        "contention_factor": 0.173109,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 68,
+        "users": 384,
+        "total_tasks": 168838,
+        "contention_factor": 0.168838,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 69,
+        "users": 393,
+        "total_tasks": 166590,
+        "contention_factor": 0.16659,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 70,
+        "users": 403,
+        "total_tasks": 172864,
+        "contention_factor": 0.172864,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 71,
+        "users": 414,
+        "total_tasks": 216541,
+        "contention_factor": 0.216541,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 72,
+        "users": 424,
+        "total_tasks": 210246,
+        "contention_factor": 0.210246,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 73,
+        "users": 435,
+        "total_tasks": 215208,
+        "contention_factor": 0.215208,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 74,
+        "users": 447,
+        "total_tasks": 237446,
+        "contention_factor": 0.237446,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 75,
+        "users": 458,
+        "total_tasks": 259083,
+        "contention_factor": 0.259083,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 76,
+        "users": 470,
+        "total_tasks": 261138,
+        "contention_factor": 0.261138,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 77,
+        "users": 483,
+        "total_tasks": 282579,
+        "contention_factor": 0.282579,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 78,
+        "users": 495,
+        "total_tasks": 269222,
+        "contention_factor": 0.269222,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 79,
+        "users": 508,
+        "total_tasks": 291632,
+        "contention_factor": 0.291632,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 80,
+        "users": 521,
+        "total_tasks": 350456,
+        "contention_factor": 0.350456,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 81,
+        "users": 535,
+        "total_tasks": 332282,
+        "contention_factor": 0.332282,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 82,
+        "users": 549,
+        "total_tasks": 359768,
+        "contention_factor": 0.359768,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 83,
+        "users": 564,
+        "total_tasks": 362351,
+        "contention_factor": 0.362351,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 84,
+        "users": 578,
+        "total_tasks": 414245,
+        "contention_factor": 0.414245,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 85,
+        "users": 594,
+        "total_tasks": 411778,
+        "contention_factor": 0.411778,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 86,
+        "users": 609,
+        "total_tasks": 478619,
+        "contention_factor": 0.478619,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 87,
+        "users": 625,
+        "total_tasks": 387745,
+        "contention_factor": 0.387745,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 88,
+        "users": 642,
+        "total_tasks": 451924,
+        "contention_factor": 0.451924,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 89,
+        "users": 659,
+        "total_tasks": 511297,
+        "contention_factor": 0.511297,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 90,
+        "users": 676,
+        "total_tasks": 544197,
+        "contention_factor": 0.544197,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 91,
+        "users": 694,
+        "total_tasks": 521364,
+        "contention_factor": 0.521364,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 92,
+        "users": 712,
+        "total_tasks": 506801,
+        "contention_factor": 0.506801,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 93,
+        "users": 731,
+        "total_tasks": 695205,
+        "contention_factor": 0.695205,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 94,
+        "users": 750,
+        "total_tasks": 581586,
+        "contention_factor": 0.581586,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 95,
+        "users": 770,
+        "total_tasks": 621781,
+        "contention_factor": 0.621781,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 96,
+        "users": 790,
+        "total_tasks": 715980,
+        "contention_factor": 0.71598,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 97,
+        "users": 811,
+        "total_tasks": 753134,
+        "contention_factor": 0.753134,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 98,
+        "users": 833,
+        "total_tasks": 712923,
+        "contention_factor": 0.712923,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 99,
+        "users": 855,
+        "total_tasks": 768511,
+        "contention_factor": 0.768511,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 100,
+        "users": 877,
+        "total_tasks": 759204,
+        "contention_factor": 0.759204,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 101,
+        "users": 900,
+        "total_tasks": 981906,
+        "contention_factor": 0.981906,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 102,
+        "users": 924,
+        "total_tasks": 966264,
+        "contention_factor": 0.966264,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 103,
+        "users": 948,
+        "total_tasks": 926867,
+        "contention_factor": 0.926867,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 104,
+        "users": 973,
+        "total_tasks": 1006067,
+        "contention_factor": 1.006067,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 105,
+        "users": 998,
+        "total_tasks": 996886,
+        "contention_factor": 0.996886,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 106,
+        "users": 1024,
+        "total_tasks": 1179648,
+        "contention_factor": 1.179648,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 107,
+        "users": 1051,
+        "total_tasks": 1210752,
+        "contention_factor": 1.210752,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 108,
+        "users": 1078,
+        "total_tasks": 1194246,
+        "contention_factor": 1.194246,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 109,
+        "users": 1106,
+        "total_tasks": 1152081,
+        "contention_factor": 1.152081,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 110,
+        "users": 1135,
+        "total_tasks": 1307520,
+        "contention_factor": 1.30752,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 111,
+        "users": 1164,
+        "total_tasks": 1282110,
+        "contention_factor": 1.28211,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 112,
+        "users": 1194,
+        "total_tasks": 1367184,
+        "contention_factor": 1.367184,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 113,
+        "users": 1225,
+        "total_tasks": 1411200,
+        "contention_factor": 1.4112,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 114,
+        "users": 1257,
+        "total_tasks": 1448064,
+        "contention_factor": 1.448064,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 115,
+        "users": 1289,
+        "total_tasks": 1484928,
+        "contention_factor": 1.484928,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 116,
+        "users": 1322,
+        "total_tasks": 1502873,
+        "contention_factor": 1.502873,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 117,
+        "users": 1355,
+        "total_tasks": 1560960,
+        "contention_factor": 1.56096,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 118,
+        "users": 1390,
+        "total_tasks": 1556595,
+        "contention_factor": 1.556595,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 119,
+        "users": 1425,
+        "total_tasks": 1641600,
+        "contention_factor": 1.6416,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 120,
+        "users": 1461,
+        "total_tasks": 1683072,
+        "contention_factor": 1.683072,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 121,
+        "users": 1498,
+        "total_tasks": 1725696,
+        "contention_factor": 1.725696,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 122,
+        "users": 1535,
+        "total_tasks": 1768320,
+        "contention_factor": 1.76832,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 123,
+        "users": 1573,
+        "total_tasks": 1812096,
+        "contention_factor": 1.812096,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 124,
+        "users": 1613,
+        "total_tasks": 1858176,
+        "contention_factor": 1.858176,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 125,
+        "users": 1653,
+        "total_tasks": 1904256,
+        "contention_factor": 1.904256,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 126,
+        "users": 1693,
+        "total_tasks": 1950336,
+        "contention_factor": 1.950336,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 127,
+        "users": 1735,
+        "total_tasks": 1998720,
+        "contention_factor": 1.99872,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 128,
+        "users": 1777,
+        "total_tasks": 2047104,
+        "contention_factor": 2.047104,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 129,
+        "users": 1821,
+        "total_tasks": 2097792,
+        "contention_factor": 2.097792,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 130,
+        "users": 1865,
+        "total_tasks": 2148480,
+        "contention_factor": 2.14848,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 131,
+        "users": 1910,
+        "total_tasks": 2200320,
+        "contention_factor": 2.20032,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 132,
+        "users": 1955,
+        "total_tasks": 2252160,
+        "contention_factor": 2.25216,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 133,
+        "users": 2002,
+        "total_tasks": 2306304,
+        "contention_factor": 2.306304,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 134,
+        "users": 2050,
+        "total_tasks": 2361600,
+        "contention_factor": 2.3616,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 135,
+        "users": 2098,
+        "total_tasks": 2416896,
+        "contention_factor": 2.416896,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 136,
+        "users": 2147,
+        "total_tasks": 2473344,
+        "contention_factor": 2.473344,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 137,
+        "users": 2197,
+        "total_tasks": 2530944,
+        "contention_factor": 2.530944,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 138,
+        "users": 2248,
+        "total_tasks": 2589696,
+        "contention_factor": 2.589696,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 139,
+        "users": 2300,
+        "total_tasks": 2649600,
+        "contention_factor": 2.6496,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 140,
+        "users": 2353,
+        "total_tasks": 2710656,
+        "contention_factor": 2.710656,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 141,
+        "users": 2406,
+        "total_tasks": 2771712,
+        "contention_factor": 2.771712,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 142,
+        "users": 2461,
+        "total_tasks": 2835072,
+        "contention_factor": 2.835072,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 143,
+        "users": 2516,
+        "total_tasks": 2898432,
+        "contention_factor": 2.898432,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 144,
+        "users": 2572,
+        "total_tasks": 2962944,
+        "contention_factor": 2.962944,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 145,
+        "users": 2629,
+        "total_tasks": 3028608,
+        "contention_factor": 3.028608,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 146,
+        "users": 2687,
+        "total_tasks": 3095424,
+        "contention_factor": 3.095424,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 147,
+        "users": 2745,
+        "total_tasks": 3162240,
+        "contention_factor": 3.16224,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 148,
+        "users": 2804,
+        "total_tasks": 3230208,
+        "contention_factor": 3.230208,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 149,
+        "users": 2865,
+        "total_tasks": 3300480,
+        "contention_factor": 3.30048,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 150,
+        "users": 2926,
+        "total_tasks": 3370752,
+        "contention_factor": 3.370752,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 151,
+        "users": 2987,
+        "total_tasks": 3441024,
+        "contention_factor": 3.441024,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 152,
+        "users": 3050,
+        "total_tasks": 3513600,
+        "contention_factor": 3.5136,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 153,
+        "users": 3113,
+        "total_tasks": 3586176,
+        "contention_factor": 3.586176,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 154,
+        "users": 3177,
+        "total_tasks": 3659904,
+        "contention_factor": 3.659904,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 155,
+        "users": 3242,
+        "total_tasks": 3734784,
+        "contention_factor": 3.734784,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 156,
+        "users": 3307,
+        "total_tasks": 3809664,
+        "contention_factor": 3.809664,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 157,
+        "users": 3373,
+        "total_tasks": 3885696,
+        "contention_factor": 3.885696,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 158,
+        "users": 3440,
+        "total_tasks": 3962880,
+        "contention_factor": 3.96288,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 159,
+        "users": 3507,
+        "total_tasks": 4040064,
+        "contention_factor": 4.040064,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 160,
+        "users": 3575,
+        "total_tasks": 4118400,
+        "contention_factor": 4.1184,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 161,
+        "users": 3644,
+        "total_tasks": 4197888,
+        "contention_factor": 4.197888,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 162,
+        "users": 3713,
+        "total_tasks": 4277376,
+        "contention_factor": 4.277376,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 163,
+        "users": 3783,
+        "total_tasks": 4358016,
+        "contention_factor": 4.358016,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 164,
+        "users": 3853,
+        "total_tasks": 4438656,
+        "contention_factor": 4.438656,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 165,
+        "users": 3924,
+        "total_tasks": 4520448,
+        "contention_factor": 4.520448,
+        "privacy_incidents": 3
+      },
+      {
+        "day": 166,
+        "users": 3995,
+        "total_tasks": 4602240,
+        "contention_factor": 4.60224,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 167,
+        "users": 4066,
+        "total_tasks": 4684032,
+        "contention_factor": 4.684032,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 168,
+        "users": 4139,
+        "total_tasks": 4768128,
+        "contention_factor": 4.768128,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 169,
+        "users": 4211,
+        "total_tasks": 4851072,
+        "contention_factor": 4.851072,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 170,
+        "users": 4284,
+        "total_tasks": 4935168,
+        "contention_factor": 4.935168,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 171,
+        "users": 4357,
+        "total_tasks": 5019264,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 172,
+        "users": 4430,
+        "total_tasks": 5103360,
+        "contention_factor": 5.0,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 173,
+        "users": 4504,
+        "total_tasks": 5188608,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 174,
+        "users": 4578,
+        "total_tasks": 5273856,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 175,
+        "users": 4652,
+        "total_tasks": 5359104,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 176,
+        "users": 4726,
+        "total_tasks": 5444352,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 177,
+        "users": 4801,
+        "total_tasks": 5530752,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 178,
+        "users": 4875,
+        "total_tasks": 5616000,
+        "contention_factor": 5.0,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 179,
+        "users": 4950,
+        "total_tasks": 5702400,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 180,
+        "users": 5025,
+        "total_tasks": 5788800,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 181,
+        "users": 5099,
+        "total_tasks": 5874048,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 182,
+        "users": 5174,
+        "total_tasks": 5960448,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 183,
+        "users": 5248,
+        "total_tasks": 6045696,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 184,
+        "users": 5323,
+        "total_tasks": 6132096,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 185,
+        "users": 5397,
+        "total_tasks": 6217344,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 186,
+        "users": 5471,
+        "total_tasks": 6302592,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 187,
+        "users": 5545,
+        "total_tasks": 6387840,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 188,
+        "users": 5619,
+        "total_tasks": 6473088,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 189,
+        "users": 5692,
+        "total_tasks": 6557184,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 190,
+        "users": 5765,
+        "total_tasks": 6641280,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 191,
+        "users": 5838,
+        "total_tasks": 6725376,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 192,
+        "users": 5910,
+        "total_tasks": 6808320,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 193,
+        "users": 5983,
+        "total_tasks": 6892416,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 194,
+        "users": 6054,
+        "total_tasks": 6974208,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 195,
+        "users": 6125,
+        "total_tasks": 7056000,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 196,
+        "users": 6196,
+        "total_tasks": 7137792,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 197,
+        "users": 6266,
+        "total_tasks": 7218432,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 198,
+        "users": 6336,
+        "total_tasks": 7299072,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 199,
+        "users": 6405,
+        "total_tasks": 7378560,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 200,
+        "users": 6474,
+        "total_tasks": 7458048,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 201,
+        "users": 6542,
+        "total_tasks": 7536384,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 202,
+        "users": 6609,
+        "total_tasks": 7613568,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 203,
+        "users": 6676,
+        "total_tasks": 7690752,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 204,
+        "users": 6742,
+        "total_tasks": 7766784,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 205,
+        "users": 6807,
+        "total_tasks": 7841664,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 206,
+        "users": 6872,
+        "total_tasks": 7916544,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 207,
+        "users": 6936,
+        "total_tasks": 7990272,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 208,
+        "users": 6999,
+        "total_tasks": 8062848,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 209,
+        "users": 7062,
+        "total_tasks": 8135424,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 210,
+        "users": 7123,
+        "total_tasks": 8205696,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 211,
+        "users": 7184,
+        "total_tasks": 8275968,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 212,
+        "users": 7245,
+        "total_tasks": 8346240,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 213,
+        "users": 7304,
+        "total_tasks": 8414208,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 214,
+        "users": 7362,
+        "total_tasks": 8481024,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 215,
+        "users": 7420,
+        "total_tasks": 8547840,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 216,
+        "users": 7477,
+        "total_tasks": 8613504,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 217,
+        "users": 7533,
+        "total_tasks": 8678016,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 218,
+        "users": 7588,
+        "total_tasks": 8741376,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 219,
+        "users": 7643,
+        "total_tasks": 8804736,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 220,
+        "users": 7696,
+        "total_tasks": 8865792,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 221,
+        "users": 7749,
+        "total_tasks": 8926848,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 222,
+        "users": 7801,
+        "total_tasks": 8986752,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 223,
+        "users": 7852,
+        "total_tasks": 9045504,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 224,
+        "users": 7902,
+        "total_tasks": 9103104,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 225,
+        "users": 7951,
+        "total_tasks": 9159552,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 226,
+        "users": 7999,
+        "total_tasks": 9214848,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 227,
+        "users": 8047,
+        "total_tasks": 9270144,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 228,
+        "users": 8094,
+        "total_tasks": 9324288,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 229,
+        "users": 8139,
+        "total_tasks": 9376128,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 230,
+        "users": 8184,
+        "total_tasks": 9427968,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 231,
+        "users": 8228,
+        "total_tasks": 9478656,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 232,
+        "users": 8272,
+        "total_tasks": 9529344,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 233,
+        "users": 8314,
+        "total_tasks": 9577728,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 234,
+        "users": 8356,
+        "total_tasks": 9626112,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 235,
+        "users": 8396,
+        "total_tasks": 9672192,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 236,
+        "users": 8436,
+        "total_tasks": 9718272,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 237,
+        "users": 8476,
+        "total_tasks": 9764352,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 238,
+        "users": 8514,
+        "total_tasks": 9808128,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 239,
+        "users": 8551,
+        "total_tasks": 9850752,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 240,
+        "users": 8588,
+        "total_tasks": 9893376,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 241,
+        "users": 8624,
+        "total_tasks": 9934848,
+        "contention_factor": 5.0,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 242,
+        "users": 8659,
+        "total_tasks": 9975168,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 243,
+        "users": 8694,
+        "total_tasks": 10015488,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 244,
+        "users": 8727,
+        "total_tasks": 10053504,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 245,
+        "users": 8760,
+        "total_tasks": 10091520,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 246,
+        "users": 8792,
+        "total_tasks": 10128384,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 247,
+        "users": 8824,
+        "total_tasks": 10165248,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 248,
+        "users": 8855,
+        "total_tasks": 10200960,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 249,
+        "users": 8885,
+        "total_tasks": 10235520,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 250,
+        "users": 8914,
+        "total_tasks": 10268928,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 251,
+        "users": 8943,
+        "total_tasks": 10302336,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 252,
+        "users": 8971,
+        "total_tasks": 10334592,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 253,
+        "users": 8998,
+        "total_tasks": 10365696,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 254,
+        "users": 9025,
+        "total_tasks": 10396800,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 255,
+        "users": 9051,
+        "total_tasks": 10426752,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 256,
+        "users": 9076,
+        "total_tasks": 10455552,
+        "contention_factor": 5.0,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 257,
+        "users": 9101,
+        "total_tasks": 10484352,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 258,
+        "users": 9125,
+        "total_tasks": 10512000,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 259,
+        "users": 9149,
+        "total_tasks": 10539648,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 260,
+        "users": 9172,
+        "total_tasks": 10566144,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 261,
+        "users": 9194,
+        "total_tasks": 10591488,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 262,
+        "users": 9216,
+        "total_tasks": 10616832,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 263,
+        "users": 9238,
+        "total_tasks": 10642176,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 264,
+        "users": 9259,
+        "total_tasks": 10666368,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 265,
+        "users": 9279,
+        "total_tasks": 10689408,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 266,
+        "users": 9299,
+        "total_tasks": 10712448,
+        "contention_factor": 5.0,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 267,
+        "users": 9318,
+        "total_tasks": 10734336,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 268,
+        "users": 9337,
+        "total_tasks": 10756224,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 269,
+        "users": 9355,
+        "total_tasks": 10776960,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 270,
+        "users": 9373,
+        "total_tasks": 10797696,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 271,
+        "users": 9390,
+        "total_tasks": 10817280,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 272,
+        "users": 9407,
+        "total_tasks": 10836864,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 273,
+        "users": 9424,
+        "total_tasks": 10856448,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 274,
+        "users": 9440,
+        "total_tasks": 10874880,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 275,
+        "users": 9455,
+        "total_tasks": 10892160,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 276,
+        "users": 9471,
+        "total_tasks": 10910592,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 277,
+        "users": 9485,
+        "total_tasks": 10926720,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 278,
+        "users": 9500,
+        "total_tasks": 10944000,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 279,
+        "users": 9514,
+        "total_tasks": 10960128,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 280,
+        "users": 9528,
+        "total_tasks": 10976256,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 281,
+        "users": 9541,
+        "total_tasks": 10991232,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 282,
+        "users": 9554,
+        "total_tasks": 11006208,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 283,
+        "users": 9566,
+        "total_tasks": 11020032,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 284,
+        "users": 9579,
+        "total_tasks": 11035008,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 285,
+        "users": 9591,
+        "total_tasks": 11048832,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 286,
+        "users": 9602,
+        "total_tasks": 11061504,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 287,
+        "users": 9614,
+        "total_tasks": 11075328,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 288,
+        "users": 9625,
+        "total_tasks": 11088000,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 289,
+        "users": 9635,
+        "total_tasks": 11099520,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 290,
+        "users": 9646,
+        "total_tasks": 11112192,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 291,
+        "users": 9656,
+        "total_tasks": 11123712,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 292,
+        "users": 9665,
+        "total_tasks": 11134080,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 293,
+        "users": 9675,
+        "total_tasks": 11145600,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 294,
+        "users": 9684,
+        "total_tasks": 11155968,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 295,
+        "users": 9693,
+        "total_tasks": 11166336,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 296,
+        "users": 9702,
+        "total_tasks": 11176704,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 297,
+        "users": 9711,
+        "total_tasks": 11187072,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 298,
+        "users": 9719,
+        "total_tasks": 11196288,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 299,
+        "users": 9727,
+        "total_tasks": 11205504,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 300,
+        "users": 9735,
+        "total_tasks": 11214720,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 301,
+        "users": 9742,
+        "total_tasks": 11222784,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 302,
+        "users": 9750,
+        "total_tasks": 11232000,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 303,
+        "users": 9757,
+        "total_tasks": 11240064,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 304,
+        "users": 9764,
+        "total_tasks": 11248128,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 305,
+        "users": 9771,
+        "total_tasks": 11256192,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 306,
+        "users": 9777,
+        "total_tasks": 11263104,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 307,
+        "users": 9784,
+        "total_tasks": 11271168,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 308,
+        "users": 9790,
+        "total_tasks": 11278080,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 309,
+        "users": 9796,
+        "total_tasks": 11284992,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 310,
+        "users": 9802,
+        "total_tasks": 11291904,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 311,
+        "users": 9808,
+        "total_tasks": 11298816,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 312,
+        "users": 9813,
+        "total_tasks": 11304576,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 313,
+        "users": 9819,
+        "total_tasks": 11311488,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 314,
+        "users": 9824,
+        "total_tasks": 11317248,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 315,
+        "users": 9829,
+        "total_tasks": 11323008,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 316,
+        "users": 9834,
+        "total_tasks": 11328768,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 317,
+        "users": 9839,
+        "total_tasks": 11334528,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 318,
+        "users": 9844,
+        "total_tasks": 11340288,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 319,
+        "users": 9848,
+        "total_tasks": 11344896,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 320,
+        "users": 9852,
+        "total_tasks": 11349504,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 321,
+        "users": 9857,
+        "total_tasks": 11355264,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 322,
+        "users": 9861,
+        "total_tasks": 11359872,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 323,
+        "users": 9865,
+        "total_tasks": 11364480,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 324,
+        "users": 9869,
+        "total_tasks": 11369088,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 325,
+        "users": 9873,
+        "total_tasks": 11373696,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 326,
+        "users": 9876,
+        "total_tasks": 11377152,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 327,
+        "users": 9880,
+        "total_tasks": 11381760,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 328,
+        "users": 9883,
+        "total_tasks": 11385216,
+        "contention_factor": 5.0,
+        "privacy_incidents": 2
+      },
+      {
+        "day": 329,
+        "users": 9887,
+        "total_tasks": 11389824,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 330,
+        "users": 9890,
+        "total_tasks": 11393280,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 331,
+        "users": 9893,
+        "total_tasks": 11396736,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 332,
+        "users": 9896,
+        "total_tasks": 11400192,
+        "contention_factor": 5.0,
+        "privacy_incidents": 3
+      },
+      {
+        "day": 333,
+        "users": 9899,
+        "total_tasks": 11403648,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 334,
+        "users": 9902,
+        "total_tasks": 11407104,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 335,
+        "users": 9905,
+        "total_tasks": 11410560,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 336,
+        "users": 9908,
+        "total_tasks": 11414016,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 337,
+        "users": 9911,
+        "total_tasks": 11417472,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 338,
+        "users": 9913,
+        "total_tasks": 11419776,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 339,
+        "users": 9916,
+        "total_tasks": 11423232,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 340,
+        "users": 9918,
+        "total_tasks": 11425536,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 341,
+        "users": 9921,
+        "total_tasks": 11428992,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 342,
+        "users": 9923,
+        "total_tasks": 11431296,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 343,
+        "users": 9925,
+        "total_tasks": 11433600,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 344,
+        "users": 9927,
+        "total_tasks": 11435904,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      },
+      {
+        "day": 345,
+        "users": 9930,
+        "total_tasks": 11439360,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 346,
+        "users": 9932,
+        "total_tasks": 11441664,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 347,
+        "users": 9934,
+        "total_tasks": 11443968,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 348,
+        "users": 9936,
+        "total_tasks": 11446272,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 349,
+        "users": 9937,
+        "total_tasks": 11447424,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 350,
+        "users": 9939,
+        "total_tasks": 11449728,
+        "contention_factor": 5.0,
+        "privacy_incidents": 3
+      },
+      {
+        "day": 351,
+        "users": 9941,
+        "total_tasks": 11452032,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 352,
+        "users": 9943,
+        "total_tasks": 11454336,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 353,
+        "users": 9944,
+        "total_tasks": 11455488,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 354,
+        "users": 9946,
+        "total_tasks": 11457792,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 355,
+        "users": 9948,
+        "total_tasks": 11460096,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 356,
+        "users": 9949,
+        "total_tasks": 11461248,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 357,
+        "users": 9951,
+        "total_tasks": 11463552,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 358,
+        "users": 9952,
+        "total_tasks": 11464704,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 359,
+        "users": 9953,
+        "total_tasks": 11465856,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 360,
+        "users": 9955,
+        "total_tasks": 11468160,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 361,
+        "users": 9956,
+        "total_tasks": 11469312,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 362,
+        "users": 9957,
+        "total_tasks": 11470464,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 363,
+        "users": 9959,
+        "total_tasks": 11472768,
+        "contention_factor": 5.0,
+        "privacy_incidents": 0
+      },
+      {
+        "day": 364,
+        "users": 9960,
+        "total_tasks": 11473920,
+        "contention_factor": 5.0,
+        "privacy_incidents": 1
+      }
+    ],
+    "max_users_observed": 9960,
+    "max_contention_factor": 5.0,
+    "total_tasks_overall": 2114217741,
+    "privacy_incidents_total": 75
+  }
+}

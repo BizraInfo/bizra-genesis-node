@@ -3,9 +3,9 @@
 // Automatically falls back to simulated backend if Ollama unavailable
 // Run with: cargo run --example moe_hybrid
 
-use synthesis_orchestrator::{SynthesisOrchestrator, Task, Contract};
 use bizra_moe::OllamaConfig;
 use std::time::Duration;
+use synthesis_orchestrator::{Contract, SynthesisOrchestrator, Task};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -22,10 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         base_url: std::env::var("OLLAMA_URL")
             .unwrap_or_else(|_| "http://localhost:11434".to_string()),
         timeout: Duration::from_secs(30),
-        models: vec![
-            "llama3.2".to_string(),
-            "mistral-nemo".to_string(),
-        ],
+        models: vec!["llama3.2".to_string(), "mistral-nemo".to_string()],
         min_healthy_models: 1,
         health_check_interval: Duration::from_secs(30),
         ihsan_threshold: 0.80,
@@ -40,8 +37,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create orchestrator with hybrid backend
     // This will try MOE first, then fall back to simulated if MOE fails
     println!("🏗️  Creating hybrid orchestrator...");
-    let mut orchestrator = SynthesisOrchestrator::with_hybrid(moe_config)
-        .expect("Failed to create orchestrator");
+    let mut orchestrator =
+        SynthesisOrchestrator::with_hybrid(moe_config).expect("Failed to create orchestrator");
 
     println!("✅ Orchestrator created\n");
 
@@ -55,11 +52,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Create task
         let task = Task {
-            examples: Some(vec![
-                serde_json::json!({
-                    "prompt": format!("Explain quantum computing in simple terms (Cycle {})", cycle),
-                })
-            ]),
+            examples: Some(vec![serde_json::json!({
+                "prompt": format!("Explain quantum computing in simple terms (Cycle {})", cycle),
+            })]),
         };
 
         // Create contract
