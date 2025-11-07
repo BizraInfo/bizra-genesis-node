@@ -21,7 +21,7 @@ pub mod agents;
 mod ai_backend;
 pub mod cli;
 pub mod consensus;
-mod parser;
+pub mod parser;
 pub mod performance;
 pub mod routing;
 pub mod scoring;
