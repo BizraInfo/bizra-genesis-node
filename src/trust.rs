@@ -42,8 +42,8 @@ impl RunReceipt {
 
     fn hash_json(value: &Value) -> String {
         let json_bytes = serde_json::to_vec(value).unwrap_or_default();
-        let hash = ring::digest::digest(&ring::digest::SHA256, &json_bytes);
-        hex::encode(hash.as_ref())
+        let hash = blake3::hash(&json_bytes);
+        hash.to_hex().to_string()
     }
 
     fn current_timestamp_ms() -> u64 {
