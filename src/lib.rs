@@ -3,7 +3,7 @@
 // All Weeks 1-4 unified into working system
 
 #![forbid(unsafe_code)]
-#![cfg_attr(feature = "avx512", feature(avx512_target_feature))]
+// AVX512 target features are now stable in Rust 1.89.0+, no feature flag needed
 
 //! # BIZRA Synthesis Orchestrator
 //!
