@@ -95,7 +95,14 @@ jobs:
       run: cargo test --workspace --lib --verbose
 
     - name: Run integration tests
-      run: cargo test --workspace --test '*' --verbose
+      run: |
+        # Skip integration test step if no integration tests exist in workspace
+        if git ls-files -- "**/tests/*.rs" "**/tests/**/*.rs" | grep -q .; then
+          echo "Integration tests found — running cargo test --workspace --test '*'"
+          cargo test --workspace --test '*' --verbose
+        else
+          echo "No integration tests found — skipping integration test step"
+        fi
 
     - name: Run doc tests
       run: cargo test --workspace --doc --verbose
