@@ -817,6 +817,5 @@ class AchievementSystem extends EventEmitter {
 export default AchievementSystem;
 
 export {
-  AchievementSystem,
-  ACHIEVEMENT_DEFINITIONS
+  AchievementSystem
 };
