@@ -1,0 +1,16 @@
+# Nixpacks Configuration for Railway
+# Explicitly configure as Node.js project (not Rust)
+
+[phases.setup]
+nixPkgs = ["nodejs-18_x", "npm-9_x"]
+nixLibs = []
+nixOverlays = []
+
+[phases.install]
+cmds = ["npm ci --legacy-peer-deps"]
+
+[phases.build]
+cmds = ["npm run build:dashboard"]
+
+[start]
+cmd = "node backend/server.js"
