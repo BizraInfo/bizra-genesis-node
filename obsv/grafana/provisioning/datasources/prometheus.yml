@@ -1,0 +1,19 @@
+# BIZRA Genesis Node - Grafana Datasource Provisioning
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prom
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s
+      queryTimeout: 30s
+      defaultRegion: us-east-1
+      tlsSkipVerify: false
+    editable: false
+    version: 1

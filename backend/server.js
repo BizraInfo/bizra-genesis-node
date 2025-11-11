@@ -347,10 +347,14 @@ class BizraAPIServer {
       });
     });
 
-    // Metrics endpoint
+    // Metrics endpoint (JSON format - legacy)
     this.app.get('/metrics', (req, res) => {
       res.json(this.metrics.getMetrics());
     });
+
+    // Prometheus metrics endpoint (text exposition format)
+    const { prometheusMetricsHandler } = require('./prometheus-adapter.js');
+    this.app.get('/metrics/prometheus', prometheusMetricsHandler(this.metrics));
 
     // Ω Consciousness Monitor endpoint
     this.app.get('/api/consciousness/state', async (req, res) => {

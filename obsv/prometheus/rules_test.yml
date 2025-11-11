@@ -1,0 +1,106 @@
+# BIZRA Genesis Node - Prometheus Rule Unit Tests
+# Semantic Coverage: Verify SLO alerts fire correctly
+
+rule_files:
+  - rules/bizra-slos.yml
+
+evaluation_interval: 1m
+
+tests:
+  # Test 1: ApiHighErrorRate alert fires when error rate > 1%
+  # Note: Using pre-calculated gauge from prometheus-adapter
+  - interval: 1m
+    input_series:
+      - series: 'bizra_api_error_rate{job="bizra-genesis"}'
+        values: '0.015 0.015 0.015 0.015 0.015 0.015'  # 1.5% error rate
+
+    alert_rule_tests:
+      - eval_time: 5m
+        alertname: ApiHighErrorRate
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              component: api
+              slo: error_rate
+            exp_annotations:
+              summary: "API 5xx error rate above SLO"
+              runbook_url: "https://docs.bizra.ai/runbooks/high-error-rate"
+
+  # Test 2: ApiHighErrorRate does NOT fire when error rate < 1%
+  - interval: 1m
+    input_series:
+      - series: 'bizra_api_error_rate{job="bizra-genesis"}'
+        values: '0.005 0.005 0.005 0.005 0.005 0.005'  # 0.5% error rate
+
+    alert_rule_tests:
+      - eval_time: 10m
+        alertname: ApiHighErrorRate
+        exp_alerts: []  # No alert expected
+
+  # Test 3: ApiHighP95Latency alert fires when P95 > 300ms
+  # Note: Using summary quantile from prometheus-adapter (milliseconds)
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_milliseconds{job="bizra-genesis",quantile="0.95"}'
+        values: '450 450 450 450 450 450'  # 450ms P95
+
+    alert_rule_tests:
+      - eval_time: 5m
+        alertname: ApiHighP95Latency
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              component: api
+              slo: latency_p95
+            exp_annotations:
+              summary: "API P95 latency above SLO"
+              runbook_url: "https://docs.bizra.ai/runbooks/high-latency"
+
+  # Test 4: PoiValidationLowSuccessRate alert fires when success < 99%
+  # Note: Using pre-calculated success rate gauge from prometheus-adapter
+  - interval: 1m
+    input_series:
+      - series: 'bizra_poi_validation_success_rate{job="bizra-genesis"}'
+        values: '0.95 0.95 0.95 0.95 0.95 0.95'  # 95% success rate
+
+    alert_rule_tests:
+      - eval_time: 5m
+        alertname: PoiValidationLowSuccessRate
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              component: poi
+              slo: validation_success
+            exp_annotations:
+              summary: "PoI validation success rate below SLO"
+              runbook_url: "https://docs.bizra.ai/runbooks/poi-validation-failures"
+
+  # Test 5: Recording rule produces correct aggregation
+  - interval: 5m
+    input_series:
+      - series: 'http_requests_total{job="bizra-genesis",status="200"}'
+        values: '0+100x5'
+      - series: 'http_requests_total{job="bizra-genesis",status="500"}'
+        values: '0+5x5'
+
+    promql_expr_test:
+      - expr: job:http_requests:rate5m{job="bizra-genesis",status="200"}
+        eval_time: 5m
+        exp_samples:
+          - labels: 'job:http_requests:rate5m{job="bizra-genesis",status="200"}'
+            value: 0.333  # ~100/5m/60s ≈ 0.333 req/s
+
+  # Test 6: Error rate recording rule
+  - interval: 5m
+    input_series:
+      - series: 'http_requests_total{job="bizra-genesis",status="200"}'
+        values: '0+100x5'
+      - series: 'http_requests_total{job="bizra-genesis",status="500"}'
+        values: '0+2x5'  # 2% error rate
+
+    promql_expr_test:
+      - expr: job:http_requests:error_rate5m{job="bizra-genesis"}
+        eval_time: 5m
+        exp_samples:
+          - labels: 'job:http_requests:error_rate5m{job="bizra-genesis"}'
+            value: 0.02  # 2% error rate
