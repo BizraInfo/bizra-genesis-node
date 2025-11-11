@@ -7,7 +7,13 @@ use synthesis_orchestrator::{
     Candidate, CandidateScores, ConsensusConfig, ScoredCandidate, WeightedScoreConsensus,
 };
 
-fn create_scored_candidate(model: &str, accuracy: f32, safety: f32, efficiency: f32, ihsan: f32) -> ScoredCandidate {
+fn create_scored_candidate(
+    model: &str,
+    accuracy: f32,
+    safety: f32,
+    efficiency: f32,
+    ihsan: f32,
+) -> ScoredCandidate {
     ScoredCandidate {
         candidate: Candidate {
             model: model.to_string(),

@@ -13,9 +13,7 @@ fn json_parsing_benchmarks(c: &mut Criterion) {
     group.bench_with_input(
         BenchmarkId::new("small", small_json.len()),
         small_json,
-        |b, json| {
-            b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json)))
-        },
+        |b, json| b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json))),
     );
 
     // Medium JSON (~1KB)
@@ -41,9 +39,7 @@ fn json_parsing_benchmarks(c: &mut Criterion) {
     group.bench_with_input(
         BenchmarkId::new("medium", medium_json.len()),
         medium_json,
-        |b, json| {
-            b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json)))
-        },
+        |b, json| b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json))),
     );
 
     // Large JSON (~10KB) - complex nested structure
@@ -53,9 +49,7 @@ fn json_parsing_benchmarks(c: &mut Criterion) {
     group.bench_with_input(
         BenchmarkId::new("large", large_json.len()),
         large_json,
-        |b, json| {
-            b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json)))
-        },
+        |b, json| b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json))),
     );
 
     // Array parsing
@@ -64,9 +58,7 @@ fn json_parsing_benchmarks(c: &mut Criterion) {
     group.bench_with_input(
         BenchmarkId::new("array", array_json.len()),
         array_json,
-        |b, json| {
-            b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json)))
-        },
+        |b, json| b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json))),
     );
 
     // Deeply nested structure (stress test)
@@ -75,9 +67,7 @@ fn json_parsing_benchmarks(c: &mut Criterion) {
     group.bench_with_input(
         BenchmarkId::new("deeply_nested", nested_json.len()),
         nested_json,
-        |b, json| {
-            b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json)))
-        },
+        |b, json| b.iter(|| EarlyCloseJsonParser::parse_balanced_json(black_box(json))),
     );
 
     group.finish();

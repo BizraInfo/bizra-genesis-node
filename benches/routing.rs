@@ -9,9 +9,7 @@ fn routing_benchmarks(c: &mut Criterion) {
 
     // Route selection with varying number of routes
     for num_routes in [2, 5, 10, 20, 50].iter() {
-        let routes: Vec<String> = (0..*num_routes)
-            .map(|i| format!("route-{}", i))
-            .collect();
+        let routes: Vec<String> = (0..*num_routes).map(|i| format!("route-{}", i)).collect();
 
         group.bench_with_input(
             BenchmarkId::new("select_route", num_routes),

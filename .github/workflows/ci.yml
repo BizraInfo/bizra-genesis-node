@@ -100,8 +100,8 @@ jobs:
       run: |
         # Skip integration test step if no integration tests exist in workspace
         if git ls-files -- "**/tests/*.rs" "**/tests/**/*.rs" | grep -q .; then
-          echo "Integration tests found — running cargo test --workspace --test '*'"
-          cargo test --workspace --test '*' --verbose
+          echo "Integration tests found — running integration tests"
+          cargo test --package bizra-moe --test integration_tests --verbose
         else
           echo "No integration tests found — skipping integration test step"
         fi

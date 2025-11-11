@@ -181,7 +181,13 @@ mod tests {
     use crate::{Candidate, CandidateScores};
     use serde_json::json;
 
-    fn create_candidate(name: &str, accuracy: f32, safety: f32, efficiency: f32, ihsan: f32) -> ScoredCandidate {
+    fn create_candidate(
+        name: &str,
+        accuracy: f32,
+        safety: f32,
+        efficiency: f32,
+        ihsan: f32,
+    ) -> ScoredCandidate {
         ScoredCandidate {
             candidate: Candidate {
                 model: name.to_string(),

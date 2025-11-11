@@ -298,17 +298,17 @@ mod tests {
     #[test]
     fn test_win_rate_tracking() {
         let mut router = ThompsonRouter::new();
-        
+
         // Update with multiple successes
         for _ in 0..10 {
             router.update("route-a", true);
         }
-        
+
         // Update with failures
         for _ in 0..5 {
             router.update("route-a", false);
         }
-        
+
         let win_rate = router.get_win_rate("route-a");
         assert!((0.6..=0.7).contains(&win_rate)); // 10 wins out of 15 samples
     }
