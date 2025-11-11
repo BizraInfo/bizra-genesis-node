@@ -1,7 +1,7 @@
 # Railway Deployment Status
 
 **Generated**: 2025-11-11 (Post-Phase 7 Growth Flywheel)
-**Last Updated**: After Docker deployment fix (commit 115b6ca)
+**Last Updated**: After fixing Rust auto-detection issue (commit f26911b)
 
 ---
 
@@ -11,20 +11,22 @@
 
 | Commit | Description | Status |
 |--------|-------------|--------|
-| `115b6ca` | **Docker deployment** - Switched from Nixpacks to Docker | ✅ CURRENT |
+| `f26911b` | **Fixed Rust detection** - Renamed Dockerfile, added .railwayignore | ✅ CURRENT |
+| `38482fe` | Added .railwayignore to exclude Rust files | ✅ APPLIED |
+| `115b6ca` | Docker deployment - Switched from Nixpacks to Docker | ⚠️ SUPERSEDED (Railway ignored) |
 | `ccd513f` | Nixpacks Node.js config (didn't work) | ⚠️ SUPERSEDED |
 | `b18dc11` | Increased health check timeout to 300s | ✅ APPLIED |
 | `16dc742` | Initial Railway config | ✅ APPLIED |
 
 ### Current Configuration Files
 
-**`railway.json`** (Commit 115b6ca):
+**`railway.json`** (Commit f26911b):
 ```json
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile.railway"
+    "dockerfilePath": "Dockerfile"
   },
   "deploy": {
     "numReplicas": 1,
@@ -36,12 +38,17 @@
 }
 ```
 
-**`Dockerfile.railway`** (Alpine-based, Node.js 18):
+**`Dockerfile`** (Alpine-based, Node.js 18):
 - ✅ Uses `npm ci --legacy-peer-deps --omit=dev` (production dependencies only)
 - ✅ Builds dashboard with `npm run build:dashboard` (verified working locally)
 - ✅ Graceful failure: `|| echo "Dashboard build skipped"`
 - ✅ Health check: Node.js-based HTTP GET to `/health`
 - ✅ CMD: `["node", "backend/server.js"]`
+
+**`.railwayignore`** (Commit 38482fe):
+- Excludes Rust source code (`Cargo.toml`, `src/`, `target/`, etc.)
+- Excludes Rust workspace members (`bizra-moe/`, `bizra-ledger/`)
+- Keeps Node.js backend files (`backend/`, `apps/`, `package.json`, etc.)
 
 ---
 
@@ -187,8 +194,36 @@ ENABLE_ANALYTICS=true
 **Fix Attempted** (commit ccd513f): Created `nixpacks.toml` to explicitly configure Node.js
 - **Result**: FAILED - Nixpacks ignored configuration
 
-**Final Fix** (commit 115b6ca): Switched to Docker
-- **Result**: ✅ SUCCESS (expected) - Docker uses explicit configuration, no auto-detection
+**Fix Attempted** (commit 115b6ca): Switched to Docker via `railway.json`
+- **Result**: FAILED - Railway still used Railpack to build Rust orchestrator
+
+**Final Fix** (commit f26911b): Renamed `Dockerfile.railway` → `Dockerfile` + `.railwayignore`
+- **Result**: ✅ SUCCESS (expected) - Railway prioritizes `Dockerfile` at root over auto-detection
+
+### Issue 1a: Railway Ignored railway.json and Built Rust Orchestrator
+
+**Symptom**: Railway deployed successfully but ran Rust synthesis orchestrator instead of Node.js backend
+
+**What Happened**:
+- Railway logs showed: "Detected Rust" using Railpack 0.10.0
+- Built `synthesis_orchestrator` binary from Cargo.toml
+- Rust demo ran successfully but was wrong application
+- Phase 7 Growth Flywheel (Node.js backend) not deployed
+
+**Root Cause**: Railway's builder detection priority:
+1. Railpack auto-detection (detected `Cargo.toml`)
+2. `railway.json` configuration (ignored when Railpack matched)
+3. Dockerfile (only if at root with standard name)
+
+**Fix Applied** (commits 38482fe + f26911b):
+1. Created `.railwayignore` to exclude Rust files from detection
+2. Renamed `Dockerfile.railway` → `Dockerfile` (Railway prioritizes this name)
+3. Updated `railway.json` to point to `Dockerfile`
+
+**Why This Works**:
+- `Dockerfile` at root has highest detection priority
+- `.railwayignore` prevents Railpack from seeing `Cargo.toml`
+- Railway will use Docker builder instead of Railpack
 
 ### Issue 2: Local Windows ES Module Path Check
 
