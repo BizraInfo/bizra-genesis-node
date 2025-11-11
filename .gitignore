@@ -58,3 +58,4 @@ node_modules/
 
 # Project specific
 New folder (2)/
+.github/workflows/*.bak
