@@ -302,7 +302,7 @@ mod integration_tests {
             let task = Task::example();
             let contract = Contract::example();
             let routes = vec!["test-route".to_string()];
-            
+
             let synthesis_result = orchestrator.synthesize(&task, &contract, routes).await;
             // Should succeed if Ollama is available
             if synthesis_result.is_ok() {
@@ -318,7 +318,7 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-1".to_string()];
-        
+
         // This should succeed
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
@@ -330,10 +330,12 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-a".to_string(), "route-b".to_string()];
-        
+
         // Run multiple syntheses
         for i in 0..10 {
-            let result = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            let result = orchestrator
+                .synthesize(&task, &contract, routes.clone())
+                .await;
             assert!(result.is_ok(), "Synthesis {} failed", i);
             let synthesis_result = result.unwrap();
             assert!(!synthesis_result.winner.model.is_empty());
@@ -345,8 +347,12 @@ mod integration_tests {
         let mut orchestrator = SynthesisOrchestrator::new().unwrap();
         let task = Task::example();
         let contract = Contract::example();
-        let routes = vec!["model-1".to_string(), "model-2".to_string(), "model-3".to_string()];
-        
+        let routes = vec![
+            "model-1".to_string(),
+            "model-2".to_string(),
+            "model-3".to_string(),
+        ];
+
         // Run synthesis and verify consensus works
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
@@ -361,7 +367,7 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["test-model".to_string()];
-        
+
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
         // Trust receipt should be generated internally
@@ -374,7 +380,7 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["test-route".to_string()];
-        
+
         // Run synthesis - impact should be recorded internally
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
@@ -387,10 +393,12 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-a".to_string(), "route-b".to_string()];
-        
+
         // Run multiple syntheses - router should adapt internally
         for _ in 0..20 {
-            let result = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            let result = orchestrator
+                .synthesize(&task, &contract, routes.clone())
+                .await;
             assert!(result.is_ok());
         }
         // Router adaptation is tested in test_thompson_sampling_adaptation
@@ -401,11 +409,11 @@ mod integration_tests {
         // Test default creation
         let orchestrator1 = SynthesisOrchestrator::new();
         assert!(orchestrator1.is_ok());
-        
+
         // Test MOE creation (may fail if Ollama not available)
         let _orchestrator2 = SynthesisOrchestrator::with_moe();
         // This is OK to fail if Ollama is not configured
-        
+
         // Test that we can create multiple instances
         let orchestrator3 = SynthesisOrchestrator::new();
         assert!(orchestrator3.is_ok());
@@ -417,10 +425,10 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["test-route".to_string()];
-        
+
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
-        
+
         let synthesis_result = result.unwrap();
         // Verify telemetry is collected
         assert!(synthesis_result.telemetry.sli_metrics.json_compliance_rate >= 0.0);

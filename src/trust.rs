@@ -492,7 +492,7 @@ mod tests {
         let candidate = create_test_candidate();
         let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
         let signed = bridge.sign_receipt(receipt);
-        
+
         assert!(!signed.signature.is_empty());
         assert!(!signed.public_key_der.is_empty());
     }
@@ -503,7 +503,7 @@ mod tests {
         let candidate = create_test_candidate();
         let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
         let signed = bridge.sign_receipt(receipt);
-        
+
         let verified = bridge.verify_receipt(&signed);
         assert!(verified);
     }
@@ -514,10 +514,10 @@ mod tests {
         let candidate = create_test_candidate();
         let mut receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
         receipt = bridge.sign_receipt(receipt);
-        
+
         // Tamper with the receipt
         receipt.winner_model = "tampered-model".to_string();
-        
+
         let verified = bridge.verify_receipt(&receipt);
         assert!(!verified);
     }
@@ -540,7 +540,7 @@ mod tests {
     fn test_impact_tracker() {
         let mut tracker = ImpactTracker::new();
         assert!(tracker.is_empty());
-        
+
         let poi = ProofOfImpact {
             quality: 90.0,
             utility: 80.0,
@@ -548,7 +548,7 @@ mod tests {
             fairness: 75.0,
             diversity: 70.0,
         };
-        
+
         tracker.record(poi);
         assert_eq!(tracker.len(), 1);
         assert!(!tracker.is_empty());
@@ -560,7 +560,7 @@ mod tests {
         let receipt1 = RunReceipt::new("run-1".to_string(), &candidate);
         std::thread::sleep(std::time::Duration::from_millis(10));
         let receipt2 = RunReceipt::new("run-2".to_string(), &candidate);
-        
+
         assert!(receipt2.timestamp_ms >= receipt1.timestamp_ms);
     }
 
@@ -568,10 +568,10 @@ mod tests {
     fn test_hash_json_consistency() {
         let candidate1 = create_test_candidate();
         let candidate2 = create_test_candidate();
-        
+
         let receipt1 = RunReceipt::new("run-1".to_string(), &candidate1);
         let receipt2 = RunReceipt::new("run-2".to_string(), &candidate2);
-        
+
         // Same JSON should produce same hash
         assert_eq!(receipt1.winner_json_sha256, receipt2.winner_json_sha256);
     }

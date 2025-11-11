@@ -120,7 +120,10 @@ mod tests {
 
     #[test]
     fn test_parse_json_with_bom() {
-        let json_with_bom = &[0xEF, 0xBB, 0xBF, b'{', b'"', b't', b'e', b's', b't', b'"', b':', b't', b'r', b'u', b'e', b'}'];
+        let json_with_bom = &[
+            0xEF, 0xBB, 0xBF, b'{', b'"', b't', b'e', b's', b't', b'"', b':', b't', b'r', b'u',
+            b'e', b'}',
+        ];
         let result = EarlyCloseJsonParser::parse_balanced_json(json_with_bom);
         assert!(result.is_ok());
         let value = result.unwrap();
@@ -173,7 +176,10 @@ mod tests {
         assert!(result.is_ok());
         let value = result.unwrap();
         // Number can be parsed as integer or float
-        let num_value = value.as_i64().or_else(|| value.as_f64().map(|f| f as i64)).unwrap_or(0);
+        let num_value = value
+            .as_i64()
+            .or_else(|| value.as_f64().map(|f| f as i64))
+            .unwrap_or(0);
         assert_eq!(num_value, 42);
     }
 }

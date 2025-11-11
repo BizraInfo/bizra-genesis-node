@@ -177,7 +177,7 @@ mod tests {
         let gate = IhsanGate::new(0.85);
         let candidate = create_test_candidate();
         let contract = create_test_contract();
-        
+
         let score = gate.score(&candidate, &contract);
         // Score should be a valid value between 0 and 1
         assert!(score > 0.0);
@@ -189,10 +189,10 @@ mod tests {
         let gate = IhsanGate::new(0.85);
         let candidate = create_test_candidate();
         let contract = create_test_contract();
-        
+
         let score1 = gate.score(&candidate, &contract);
         let score2 = gate.score(&candidate, &contract);
-        
+
         // Scores should be consistent for same input
         assert!((score1 - score2).abs() < 0.01);
     }
@@ -202,7 +202,7 @@ mod tests {
         let gate = IhsanGate::new(0.85);
         let candidate = create_test_candidate();
         let contract = create_test_contract();
-        
+
         // This tests the internal calculation
         // Since calculate_formal_validity is private, we test through score
         let score = gate.score(&candidate, &contract);
@@ -213,7 +213,7 @@ mod tests {
     fn test_ihsan_floor_threshold() {
         let mut gate = IhsanGate::new(0.95);
         assert_eq!(gate.ihsan_floor, 0.95);
-        
+
         gate.ihsan_floor = 0.80;
         assert_eq!(gate.ihsan_floor, 0.80);
     }
