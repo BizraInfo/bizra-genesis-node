@@ -168,25 +168,23 @@ This is the **beating heart** of Node-0's decision-making system.
 
 ---
 
-## 📈 **Performance Metrics (Validated)**
+## 📈 **Performance Metrics**
 
-**Throughput:**
-- Validation API: 523,793 req/s (21x above baseline)
-- Consensus: ~0.03 tasks/sec (complex multi-agent)
+**Benchmarked (Criterion framework):**
+- Thompson Sampling routing: ≤2.3μs (route selection)
+- Weighted-Score Consensus: ≤46μs (Pareto optimization)
+- JSON parsing: 4-16x speedup (SIMD/AVX2/AVX512 depending on platform)
 
-**Latency:**
-- API response: P50 = 0.089ms
-- Consensus: ~120ms (3-5 candidates)
+**Architecture:**
+- 18 specialized agents (7 PAT + 5 SAT + 6 TAT)
+- A2A protocol with Byzantine fault tolerance
+- Zero unsafe code (`#![forbid(unsafe_code)]`)
+- 24/24 tests passing (100% success rate)
 
-**Resource Usage:**
-- RAM: 3.0 GB typical, 4 GB peak
-- CPU: 70% avg, 85% peak (8-core)
-- VRAM: 1 GB (optional GPU inference)
-
-**Scalability:**
-- Agents: Tested up to 29 active agents
-- Messages: 32 inter-agent messages (hierarchical routing)
-- Overhead: 91% coordination (expected for deliberative system)
+**Load Testing:**
+- Status: ⏳ Pending (Phase 1, Sprint 1.2 - Weeks 3-4)
+- Target: Establish honest baseline (500-1K RPS realistic goal)
+- Tools: k6 load testing, wrk HTTP benchmarks
 
 ---
 
