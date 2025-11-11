@@ -102,7 +102,9 @@
       "Bash(then echo \"Cargo.toml exists\")",
       "Bash(else echo \"Cargo.toml does not exist - found Cargo.toml.rust-disabled instead\")",
       "Bash(git submodule:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
