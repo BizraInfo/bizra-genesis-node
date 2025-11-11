@@ -1,0 +1,23 @@
+# Railway Ignore File
+# Force Railway to ignore Rust code and use Dockerfile for Node.js backend
+
+# Ignore Rust source code
+Cargo.toml
+Cargo.lock
+src/
+target/
+benches/
+examples/
+
+# Ignore Rust workspace members
+bizra-moe/
+bizra-ledger/
+
+# Keep Node.js backend and frontend
+!backend/
+!apps/
+!package.json
+!package-lock.json
+!Dockerfile.railway
+!railway.json
+!nixpacks.toml
