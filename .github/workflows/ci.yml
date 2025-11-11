@@ -81,6 +81,8 @@ jobs:
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
 
     - name: Cache dependencies
       uses: actions/cache@v4
@@ -95,7 +97,14 @@ jobs:
       run: cargo test --workspace --lib --verbose
 
     - name: Run integration tests
-      run: cargo test --workspace --test '*' --verbose
+      run: |
+        # Skip integration test step if no integration tests exist in workspace
+        if git ls-files -- "**/tests/*.rs" "**/tests/**/*.rs" | grep -q .; then
+          echo "Integration tests found — running cargo test --workspace --test '*'"
+          cargo test --workspace --test '*' --verbose
+        else
+          echo "No integration tests found — skipping integration test step"
+        fi
 
     - name: Run doc tests
       run: cargo test --workspace --doc --verbose
@@ -119,6 +128,7 @@ jobs:
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
       with:
+        toolchain: stable
         components: rustfmt, clippy
 
     - name: Cache dependencies
@@ -153,6 +163,8 @@ jobs:
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
 
     - name: Cache cargo-audit
       uses: actions/cache@v4
@@ -190,6 +202,8 @@ jobs:
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
 
     - name: Cache dependencies
       uses: actions/cache@v4
@@ -223,6 +237,8 @@ jobs:
 
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
 
     - name: Install tarpaulin
       run: cargo install cargo-tarpaulin || true
@@ -257,7 +273,7 @@ jobs:
     steps:
     - name: Generate summary
       run: |
-        echo "# 🏗️ BIZRA Genesis Node - Build Report" >> $GITHUB_STEP_SUMMARY
+        echo "# 🏷️ BIZRA Genesis Node - Build Report" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## Pipeline Status" >> $GITHUB_STEP_SUMMARY
         echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
