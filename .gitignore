@@ -54,7 +54,7 @@ Desktop.ini
 
 # Package manager
 node_modules/
-package-lock.json
+# package-lock.json - NEEDED for Railway npm ci
 
 # Project specific
 New folder (2)/
