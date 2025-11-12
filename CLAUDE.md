@@ -355,6 +355,201 @@ curl http://localhost:9090/api/v1/rules | jq '.data.groups[] | select(.name == "
 
 ---
 
+## CI/CD Pipelines
+
+**Elite Professional DevOps Standards** - Automated quality gates, security scanning, and progressive delivery.
+
+### Pipeline Architecture
+
+The project uses **7 GitHub Actions workflows** implementing world-class CI/CD practices:
+
+1. **Elite CI/CD** (`.github/workflows/ci.yml`) - Main quality pipeline
+2. **Security Scanning** (`.github/workflows/security.yml`) - Comprehensive security
+3. **Performance Verification** (`.github/workflows/performance-verification.yml`) - Benchmarking
+4. **Observability Checks** (`.github/workflows/obsv.yml`) - Monitoring validation
+5. **Automated Release** (`.github/workflows/release.yml`) - Semantic versioning
+6. **Progressive Delivery** (`.github/workflows/deploy.yml`) - Canary rollouts
+7. **SLO Monitoring** (`.github/workflows/slo-monitor.yml`) - Production health
+
+### Quality Gates (Blocking)
+
+**Rust**:
+- `cargo fmt --all -- --check` - Zero formatting violations
+- `cargo clippy --all-targets --all-features -- -D warnings` - Zero clippy warnings
+- `cargo test --workspace` - 100% test pass rate
+- `cargo llvm-cov` - ≥95% coverage on core modules
+- `cargo audit` - Zero critical/high vulnerabilities
+- `cargo deny check` - License compliance (MIT/Apache only)
+- `scripts/geiger-check.sh` - Zero unsafe code verification
+
+**Node.js**:
+- `npm run lint` - ESLint compliance
+- `npm run type-check` - TypeScript type safety
+- `npm test -- --coverage` - ≥75% coverage
+- `npm audit` - Zero critical vulnerabilities
+
+**Performance**:
+- Criterion benchmarks - ≤10% regression threshold
+- k6 load tests - SLO compliance (P95 <300ms, error rate <1%)
+
+**Security**:
+- CodeQL SAST - Zero critical findings
+- Trivy container scan - Zero critical/high CVEs
+- TruffleHog secret scan - Zero leaked credentials
+- Dependency Review - Block on vulnerabilities (PR only)
+
+**Observability**:
+- Dashboard spec validation - 100% compliance
+- Prometheus rule tests - `promtool test rules` passing
+- Panel data assertions - All panels have data
+
+### Automated Releases
+
+**Trigger**: Push to `main` (auto) or manual dispatch
+
+**Process**:
+1. Calculate semantic version (conventional commits)
+2. Build multi-platform binaries (5 platforms)
+3. Build and push container images (GHCR)
+4. Generate SBOM (CycloneDX format)
+5. Sign images with Cosign (keyless)
+6. Update CHANGELOG.md
+7. Create GitHub release with artifacts
+8. Tag commit with version
+
+**Artifacts**:
+- Linux x64 (glibc)
+- Linux x64 (musl)
+- macOS x64
+- macOS ARM64
+- Windows x64
+
+### Progressive Delivery
+
+**Strategy**: Canary rollout with SLO gates
+
+**Canary Steps**:
+1. **20% traffic** → Pause 2 min → SLO analysis
+2. **40% traffic** → Pause 2 min → SLO analysis
+3. **60% traffic** → Pause 2 min
+4. **80% traffic** → Pause 2 min
+5. **100% traffic** (full rollout)
+
+**SLO Gates** (at each step):
+- Error rate < 1%
+- P95 latency < 300ms
+- PoI validation success > 99%
+
+**Auto-Rollback**: Triggered on SLO violation, reverts to previous version and creates P0 incident
+
+### SLO Monitoring
+
+**Schedule**:
+- Business hours (8-18 UTC, Mon-Fri): Every 5 minutes
+- Off-hours: Every 15 minutes
+
+**Monitored Metrics**:
+- Error rate (5m window)
+- P95/P99 latency
+- PoI validation success rate
+- Consensus latency
+- Burn rates (1h, 6h windows)
+
+**Automated Incident Response**:
+- **P0** (Critical): Burn rate 1h, PoI success <99% → Page on-call immediately
+- **P1** (High): Error rate >1%, burn rate 6h → Notify team lead within 15 min
+- **P2** (Medium): P95/P99 latency violations → Team notification during business hours
+
+**Incident Artifacts**:
+- GitHub issue created automatically
+- Severity classification
+- Runbook links
+- Prometheus queries
+- Grafana dashboard links
+- Investigation checklist
+
+### Dependency Management
+
+**Renovate** (`renovate.json`):
+- **Schedule**: Weekly (Monday before 3 AM UTC)
+- **Automerge**: Patch updates only (after CI passes)
+- **Manual review**: Major updates
+- **Security**: Immediate processing (any time)
+- **Grouping**: Rust toolchain, Node toolchain, GitHub Actions, Docker images
+- **Pinning**: Production deps pinned, dev deps widened
+
+**cargo-deny** (`deny.toml`):
+- **Allowed licenses**: MIT, Apache-2.0, BSD-*, ISC
+- **Denied licenses**: GPL-3.0, AGPL-3.0 (copyleft incompatible)
+- **Banned crates**: openssl, native-tls (use rustls instead)
+- **Sources**: Crates.io only (deny unknown registries)
+
+### CI/CD Commands
+
+```bash
+# View workflow status
+gh workflow list
+
+# View recent runs
+gh run list --limit 10
+
+# View specific run
+gh run view <run-id>
+
+# Watch workflow in real-time
+gh run watch
+
+# Re-run failed jobs
+gh run rerun <run-id> --failed
+
+# Manually trigger release
+gh workflow run release.yml -f release_type=minor
+
+# Manually trigger deployment
+gh workflow run deploy.yml -f environment=staging -f version=v1.0.0
+```
+
+### Workflow Triggers
+
+**On Every PR/Push**:
+- CI (quality gates)
+- Security scanning
+- Dependency review (PR only)
+- Observability checks (if obsv/** changed)
+
+**On Push to Main**:
+- Performance verification
+- Automated release (if meaningful changes)
+
+**Scheduled**:
+- Security scan (Monday 2 AM UTC)
+- Performance verification (Sunday midnight UTC)
+- SLO monitoring (every 5-15 min)
+
+**Manual**:
+- All workflows support manual dispatch
+- Release workflow allows version override
+- Deploy workflow supports staging/production targeting
+
+### Artifact Retention
+
+- **Test results**: 30 days
+- **Benchmark results**: 90 days
+- **Security scan results**: 90 days
+- **SBOM artifacts**: 90 days
+- **Coverage reports**: 30 days
+- **Release binaries**: Indefinite (GitHub Releases)
+
+### Status Badges
+
+CI/CD status visible in README.md via shields.io badges:
+- CI: ![CI Status](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/ci.yml/badge.svg)
+- Security: ![Security Status](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/security.yml/badge.svg)
+- Performance: ![Performance Status](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/performance-verification.yml/badge.svg)
+- Observability: ![Observability Status](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/obsv.yml/badge.svg)
+
+---
+
 ## Current Known Issues
 
 ### Build Failures

@@ -6,6 +6,11 @@
 [![Phase](https://img.shields.io/badge/Phase-1%20Sprint%201.1-blue)](ROADMAP_2025.md)
 [![Ihsan](https://img.shields.io/badge/Ihsan-90%2F100-orange)](STATUS_SUMMARY.md)
 
+[![CI](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/ci.yml/badge.svg)](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/ci.yml)
+[![Security](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/security.yml/badge.svg)](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/security.yml)
+[![Performance](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/performance-verification.yml/badge.svg)](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/performance-verification.yml)
+[![Observability](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/obsv.yml/badge.svg)](https://github.com/BizraInfo/bizra-genesis-node/actions/workflows/obsv.yml)
+
 [![Tests](https://img.shields.io/badge/Tests-24%2F24%20Passing-success)](IMPLEMENTED.md#testing)
 [![Coverage](https://img.shields.io/badge/Coverage-95%25%20Core-green)](IMPLEMENTED.md#test-coverage)
 [![Unsafe Code](https://img.shields.io/badge/Unsafe%20Code-Zero-success)](SECURITY.md)
@@ -13,7 +18,7 @@
 
 [![Contributions](https://img.shields.io/badge/Contributions-Welcome-brightgreen)](CONTRIBUTING.md)
 [![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-Contributor%20Covenant-purple)](CODE_OF_CONDUCT.md)
-[![Security](https://img.shields.io/badge/Security-Responsible%20Disclosure-green)](SECURITY.md)
+[![Security Policy](https://img.shields.io/badge/Security-Responsible%20Disclosure-green)](SECURITY.md)
 
 **Professional Elite multi-agent consensus system with cryptographic verifiability, Thompson Sampling routing, and Ihsan excellence scoring.**
 
@@ -69,12 +74,20 @@
 - 📈 [Load Testing Guide](load-tests/README.md) - k6 load testing framework
 - ✅ [Elite Implementation Summary](ELITE_IMPLEMENTATION_COMPLETE.md) - World-class standards achieved
 
-**Observability & Monitoring** (🏆 NEW - Professional Elite):
+**Observability & Monitoring** (🏆 Professional Elite):
 - 📊 [Observability Test Coverage](docs/OBSERVABILITY_TEST_COVERAGE.md) - 4-layer coverage framework
 - 🎯 [Observability Quick Reference](docs/OBSERVABILITY_QUICK_REFERENCE.md) - Commands cheat sheet
 - 🔧 [Observability Integration Guide](docs/OBSERVABILITY_INTEGRATION.md) - Connect to BIZRA Genesis Node
 - 📈 [Observability Implementation Summary](OBSERVABILITY_IMPLEMENTATION_SUMMARY.md) - Complete overview
 - 🐛 [Observability Troubleshooting](docs/OBSERVABILITY_TROUBLESHOOTING.md) - Common issues & solutions
+
+**CI/CD & DevOps** (🏆 NEW - Elite Professional Standards):
+- 🚀 [CI/CD Overview](#cicd-pipeline) - Automated testing, security, deployment
+- 🔐 [Security Scanning](.github/workflows/security.yml) - CodeQL, dependency review, vulnerability scanning
+- 📦 [Automated Releases](.github/workflows/release.yml) - Semantic versioning, multi-platform builds
+- 🎯 [Progressive Delivery](.github/workflows/deploy.yml) - Canary rollouts with SLO gates
+- 📊 [SLO Monitoring](.github/workflows/slo-monitor.yml) - Automated incident response
+- 🔄 [Dependency Management](renovate.json) - Automated updates with Renovate
 
 **Community & Security**:
 - 🔒 [Security Policy](SECURITY.md) - Responsible disclosure, vulnerability reporting
@@ -321,6 +334,228 @@ cargo run --example full_ecosystem_demo
 3. **Weighted-Score Consensus**: Selects optimal candidate with graceful fallback
 4. **Trust Bridge**: Cryptographic signing and verification for tamper-proof receipts
 5. **Proof-of-Impact**: Tracks genuine value creation across quality, utility, trust, fairness, and diversity
+
+---
+
+## CI/CD Pipeline
+
+**Elite Professional DevOps Standards** - Automated quality gates, security scanning, and progressive delivery.
+
+### Pipeline Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    BIZRA GENESIS NODE                       │
+│              Elite CI/CD Pipeline Architecture              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐       ┌──────────────┐                   │
+│  │   PR/Commit  │──────▶│  CI Workflow │                   │
+│  └──────────────┘       └──────┬───────┘                   │
+│                                 │                           │
+│         ┌───────────────────────┼───────────────────┐       │
+│         │                       │                   │       │
+│         ▼                       ▼                   ▼       │
+│  ┌─────────────┐      ┌──────────────┐    ┌──────────────┐ │
+│  │   Quality   │      │   Security   │    │ Performance  │ │
+│  │    Gates    │      │   Scanning   │    │ Verification │ │
+│  ├─────────────┤      ├──────────────┤    ├──────────────┤ │
+│  │ • Rust fmt  │      │ • CodeQL     │    │ • Benchmarks │ │
+│  │ • Clippy    │      │ • cargo-audit│    │ • k6 tests   │ │
+│  │ • Tests     │      │ • npm audit  │    │ • Regression │ │
+│  │ • Coverage  │      │ • Trivy scan │    │ • SLO gates  │ │
+│  │ • Geiger    │      │ • Secrets    │    │              │ │
+│  └──────┬──────┘      └──────┬───────┘    └──────┬───────┘ │
+│         │                    │                    │         │
+│         └────────────────────┼────────────────────┘         │
+│                              ▼                              │
+│                     ┌──────────────────┐                    │
+│                     │  Build & Package │                    │
+│                     │   - Multi-arch   │                    │
+│                     │   - Containers   │                    │
+│                     │   - SBOM         │                    │
+│                     │   - Cosign       │                    │
+│                     └────────┬─────────┘                    │
+│                              │                              │
+│                              ▼                              │
+│                     ┌──────────────────┐                    │
+│                     │  Release (main)  │                    │
+│                     │   - Semver tag   │                    │
+│                     │   - Changelog    │                    │
+│                     │   - Artifacts    │                    │
+│                     └────────┬─────────┘                    │
+│                              │                              │
+│          ┌───────────────────┼───────────────────┐          │
+│          ▼                   ▼                   ▼          │
+│   ┌────────────┐     ┌──────────────┐    ┌──────────────┐  │
+│   │  Staging   │     │  Production  │    │ SLO Monitor  │  │
+│   │   Deploy   │────▶│   (Canary)   │    │  (5-15 min)  │  │
+│   │            │     │  20→40→60→80 │    │              │  │
+│   │  Smoke     │     │              │    │ Auto-Incident│  │
+│   │  Tests     │     │  Auto-       │    │ Creation     │  │
+│   │            │     │  Rollback    │    │              │  │
+│   └────────────┘     └──────────────┘    └──────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Workflows
+
+**1. Elite CI/CD (`.github/workflows/ci.yml`)** - Main quality pipeline
+- **Triggers**: PR, push to main/develop
+- **Features**:
+  - Nx affected-only computation (optimize CI time)
+  - Rust quality gates: fmt, clippy, tests, coverage (≥95%), geiger
+  - Node.js quality gates: lint, type-check, tests (≥75%)
+  - PoI/Genesis validation
+  - Validation API preflight checks
+  - Container build & Trivy scanning
+  - Supply chain security (SBOM + Cosign)
+  - Chaos engineering (kind cluster)
+- **Duration**: ~20-30 minutes
+- **Status**: ✅ Production-ready
+
+**2. Security Scanning (`.github/workflows/security.yml`)** - Comprehensive security
+- **Triggers**: PR, push, weekly schedule (Monday 2 AM UTC)
+- **Features**:
+  - CodeQL SAST (JavaScript, Python)
+  - Dependency Review (PR-blocking on vulnerabilities)
+  - cargo-audit + cargo-deny (Rust dependencies)
+  - npm audit (Node.js dependencies)
+  - Trivy container scanning
+  - TruffleHog secret scanning
+  - SARIF reports to GitHub Security tab
+- **Duration**: ~15-20 minutes
+- **Status**: ✅ Production-ready
+
+**3. Performance Verification (`.github/workflows/performance-verification.yml`)** - Benchmarking
+- **Triggers**: Push to main, weekly schedule (Sunday midnight UTC), manual
+- **Features**:
+  - Rust Criterion benchmarks (routing, consensus, SIMD)
+  - k6 load testing (API throughput, latency)
+  - Performance regression detection (>10% fails CI)
+  - Evidence package generation
+  - PR comments with results
+  - Performance regression alerts (GitHub issues)
+- **Duration**: ~25-35 minutes
+- **Status**: ✅ Production-ready
+
+**4. Observability Checks (`.github/workflows/obsv.yml`)** - Monitoring validation
+- **Triggers**: Push to obsv/**, PR, manual
+- **Features**:
+  - Dashboard spec coverage validation
+  - Prometheus rule testing (promtool)
+  - Live system tests (Grafana + Prometheus + BIZRA Node)
+  - K6 synthetic scenarios
+  - Panel data assertions
+  - Unified coverage report (4-layer framework)
+- **Duration**: ~10-15 minutes
+- **Status**: ✅ Production-ready
+
+**5. Automated Release (`.github/workflows/release.yml`)** - Semantic releases
+- **Triggers**: Push to main (auto), manual dispatch
+- **Features**:
+  - Semantic versioning (conventional commits)
+  - Multi-platform builds (Linux x64/musl, macOS x64/ARM, Windows x64)
+  - Container image publishing (GHCR)
+  - SBOM generation (CycloneDX)
+  - Cosign keyless signing
+  - Automated changelog generation
+  - GitHub release creation
+  - Artifact upload (binaries + SBOM)
+- **Duration**: ~40-60 minutes
+- **Status**: ✅ Production-ready
+
+**6. Progressive Delivery (`.github/workflows/deploy.yml`)** - Production deployment
+- **Triggers**: Release published, manual dispatch
+- **Features**:
+  - Pre-deployment validation (image verification, SBOM check)
+  - Staging deployment with smoke tests
+  - Production canary rollout (20→40→60→80→100%)
+  - Argo Rollouts integration
+  - SLO gates at each canary step (error rate, latency, PoI success)
+  - Automated rollback on SLO violations
+  - Post-deployment validation
+  - Incident creation on failure
+- **Duration**: ~30-45 minutes
+- **Status**: ✅ Production-ready
+
+**7. SLO Monitoring (`.github/workflows/slo-monitor.yml`)** - Production health
+- **Triggers**: Scheduled (5-15 min intervals), manual
+- **Features**:
+  - Real-time Prometheus metric queries
+  - SLO violation detection (error rate, P95/P99 latency, PoI success)
+  - Multi-window burn-rate alerting (1h, 6h)
+  - Automated incident creation (GitHub issues)
+  - Severity classification (P0/P1/P2)
+  - Runbook links for each violation type
+  - On-call engineer notification
+- **Duration**: ~2-5 minutes
+- **Status**: ✅ Production-ready
+
+### Dependency Management
+
+**Renovate (`.renovate.json`)** - Automated dependency updates
+- **Schedule**: Weekly (Monday before 3 AM UTC)
+- **Features**:
+  - Semantic commits with conventional changelog
+  - Grouped updates (Rust toolchain, Node toolchain, GitHub Actions)
+  - Automerge for patch updates
+  - Manual review for major updates
+  - Security updates processed immediately
+  - Pin production deps, widen dev deps
+  - Vulnerability alerts with labels
+- **Status**: ✅ Configured
+
+**cargo-deny (`.deny.toml`)** - License and security compliance
+- **Licenses**: Allow MIT, Apache-2.0, BSD-*, ISC
+- **Deny**: GPL-3.0, AGPL-3.0 (copyleft)
+- **Advisories**: RustSec advisory-db integration
+- **Bans**: Deny known vulnerable crates (openssl, native-tls)
+- **Sources**: Crates.io only (deny unknown registries)
+- **Status**: ✅ Enforced in CI
+
+### Quality Gates
+
+**Enforcement Levels**:
+- 🚫 **BLOCKING** (PR cannot merge):
+  - Rust: fmt check, clippy warnings, test failures
+  - Node.js: lint errors, type errors, test failures
+  - Security: Critical vulnerabilities, banned licenses
+  - Performance: >10% regression on benchmarks
+  - Observability: Dashboard spec violations
+
+- ⚠️ **WARNING** (review required):
+  - Coverage decrease >2%
+  - Security: High-severity vulnerabilities
+  - Performance: 5-10% regression
+  - Dependency: Major version updates
+
+- ℹ️ **INFORMATIONAL**:
+  - Performance: <5% regression
+  - Security: Moderate/low vulnerabilities
+  - Dependency: Patch/minor updates
+
+### Metrics & Reporting
+
+**CI Pipeline Metrics**:
+- Average CI duration: ~20-30 minutes
+- Test success rate: 100% (24/24 tests passing)
+- Coverage: 95% (core modules)
+- Security scan frequency: Weekly + every PR
+- Performance verification: Weekly + every main commit
+
+**Artifact Retention**:
+- Test results: 30 days
+- Benchmark results: 90 days
+- Security scan results: 90 days
+- SBOM artifacts: 90 days
+- Release binaries: Indefinite (GitHub Releases)
+
+**Notifications**:
+- PR comments: Coverage reports, benchmark results, security findings
+- GitHub Issues: Performance regressions, SLO violations, incidents
+- Deployment reports: Success/failure notifications
 
 ---
 

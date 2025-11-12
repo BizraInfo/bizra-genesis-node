@@ -1,0 +1,177 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "BIZRA Genesis Node - Automated Dependency Management (Elite Professional Standards)",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":enablePreCommit",
+    "group:monorepos",
+    "group:recommended",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "UTC",
+  "schedule": [
+    "before 3am on Monday"
+  ],
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{#if isPinDigest}}{{{newDigestShort}}}{{else}}{{#if isMajor}}{{prettyNewMajor}}{{else}}{{#if isSingleVersion}}{{prettyNewVersion}}{{else}}{{#if newValue}}{{{newValue}}}{{else}}{{{newDigestShort}}}{{/if}}{{/if}}{{/if}}{{/if}}",
+  "prConcurrentLimit": 5,
+  "prCreation": "not-pending",
+  "prHourlyLimit": 2,
+  "labels": ["dependencies", "automated"],
+  "assignees": [],
+  "reviewers": [],
+  "ignoreTests": false,
+  "stopUpdatingLabel": "dependencies-hold",
+  "rebaseWhen": "behind-base-branch",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 3am on the first day of the month"
+    ]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security", "dependencies"],
+    "assignees": [],
+    "commitMessageSuffix": "[SECURITY]"
+  },
+  "packageRules": [
+    {
+      "description": "Group Rust toolchain updates",
+      "matchManagers": ["cargo"],
+      "matchPackageNames": ["rust", "rustc", "cargo"],
+      "groupName": "rust-toolchain",
+      "automerge": false,
+      "schedule": [
+        "before 3am on Monday"
+      ]
+    },
+    {
+      "description": "Automerge Rust patch updates (security + non-breaking)",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group Node.js toolchain updates",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["node", "npm"],
+      "groupName": "node-toolchain",
+      "automerge": false
+    },
+    {
+      "description": "Automerge Node.js patch updates",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "automerge": false,
+      "pinDigests": true
+    },
+    {
+      "description": "Critical security updates - immediate",
+      "matchDatasources": ["cargo", "npm", "github-actions"],
+      "matchUpdateTypes": ["patch"],
+      "labels": ["security", "dependencies", "automerge"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "schedule": [
+        "at any time"
+      ]
+    },
+    {
+      "description": "Major updates - manual review required",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"],
+      "schedule": [
+        "before 3am on Monday"
+      ]
+    },
+    {
+      "description": "Docker image updates",
+      "matchManagers": ["docker-compose", "dockerfile"],
+      "groupName": "docker-images",
+      "automerge": false,
+      "schedule": [
+        "before 3am on Monday"
+      ]
+    },
+    {
+      "description": "Python dependencies (vLLM service)",
+      "matchManagers": ["pip_requirements", "pip_setup"],
+      "groupName": "python-deps",
+      "automerge": false
+    },
+    {
+      "description": "Pin production dependencies",
+      "matchDepTypes": ["dependencies"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "description": "Widen range for dev dependencies",
+      "matchDepTypes": ["devDependencies"],
+      "rangeStrategy": "widen"
+    }
+  ],
+  "cargo": {
+    "enabled": true,
+    "rangeStrategy": "pin"
+  },
+  "npm": {
+    "enabled": true,
+    "rangeStrategy": "pin"
+  },
+  "pip_requirements": {
+    "enabled": true,
+    "fileMatch": [
+      "^services/llm-inference/.*/requirements\\.txt$"
+    ]
+  },
+  "dockerfile": {
+    "enabled": true
+  },
+  "docker-compose": {
+    "enabled": true
+  },
+  "github-actions": {
+    "enabled": true,
+    "pinDigests": true
+  },
+  "hostRules": [],
+  "ignoreDeps": [],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/target/**",
+    "**/dist/**",
+    "**/build/**",
+    "flagship-proof-pack/**",
+    "KG_Launch_Audit_Pack_v1/**"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^Dockerfile$",
+        "Dockerfile\\..*$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s+ARG .*?_VERSION=(?<currentValue>.*)\\s"
+      ]
+    }
+  ]
+}

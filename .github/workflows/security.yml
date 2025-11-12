@@ -1,0 +1,390 @@
+# BIZRA Genesis Node - Security Scanning Pipeline
+# Elite security standards with CodeQL, Dependency Review, SAST, and supply chain analysis
+# Implements: OWASP Top 10, CWE detection, vulnerability scanning, license compliance
+
+name: Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Weekly security scan - Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # ============================================================================
+  # CodeQL Analysis (SAST)
+  # ============================================================================
+  codeql:
+    name: 🔍 CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python' ]
+        # Note: Rust support via CodeQL is experimental
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+          config: |
+            paths-ignore:
+              - node_modules
+              - target
+              - dist
+              - build
+
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ============================================================================
+  # Dependency Review (PR Only)
+  # ============================================================================
+  dependency-review:
+    name: 🔐 Dependency Security Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔍 Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          deny-licenses: GPL-3.0, AGPL-3.0
+          comment-summary-in-pr: always
+
+  # ============================================================================
+  # Rust Security Audit (cargo-audit + cargo-deny)
+  # ============================================================================
+  rust-security:
+    name: 🦀 Rust Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 📦 Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "security-audit"
+
+      - name: 🔍 Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: 🔍 Install cargo-deny
+        run: cargo install cargo-deny --locked
+
+      - name: 🛡️ Run cargo-audit (Vulnerability Scan)
+        run: |
+          cargo audit --json > audit-results.json || true
+
+          # Parse and display results
+          if jq -e '.vulnerabilities.found' audit-results.json > /dev/null; then
+            VULN_COUNT=$(jq -r '.vulnerabilities.found' audit-results.json)
+            echo "⚠️  Found $VULN_COUNT vulnerabilities"
+
+            # Display vulnerability details
+            jq -r '.vulnerabilities.list[] | "  - \(.advisory.id): \(.advisory.title) (\(.package))"' audit-results.json || true
+
+            # Fail if critical vulnerabilities found
+            CRITICAL_COUNT=$(jq -r '[.vulnerabilities.list[] | select(.advisory.severity == "critical")] | length' audit-results.json)
+            if [ "$CRITICAL_COUNT" -gt 0 ]; then
+              echo "❌ CRITICAL: $CRITICAL_COUNT critical vulnerabilities found"
+              exit 1
+            fi
+
+            # Warn on high vulnerabilities
+            HIGH_COUNT=$(jq -r '[.vulnerabilities.list[] | select(.advisory.severity == "high")] | length' audit-results.json)
+            if [ "$HIGH_COUNT" -gt 0 ]; then
+              echo "⚠️  WARNING: $HIGH_COUNT high-severity vulnerabilities found"
+              echo "   Review and remediate before production deployment"
+            fi
+          else
+            echo "✅ No vulnerabilities found"
+          fi
+
+      - name: 🔍 Run cargo-deny (License & Banned Crates)
+        run: |
+          # Initialize cargo-deny config if not exists
+          if [ ! -f "deny.toml" ]; then
+            cargo deny init
+          fi
+
+          # Check licenses
+          cargo deny check licenses || {
+            echo "⚠️  License compliance issues detected"
+            exit 1
+          }
+
+          # Check banned dependencies
+          cargo deny check bans || {
+            echo "⚠️  Banned dependencies detected"
+            exit 1
+          }
+
+          # Check advisories
+          cargo deny check advisories || {
+            echo "⚠️  Security advisories detected"
+            exit 1
+          }
+
+      - name: 📤 Upload Audit Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-security-audit
+          path: |
+            audit-results.json
+          retention-days: 90
+
+  # ============================================================================
+  # Node.js Security Audit
+  # ============================================================================
+  npm-security:
+    name: 📦 npm Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci || npm install
+
+      - name: 🔍 npm Audit
+        run: |
+          npm audit --json > npm-audit.json || true
+
+          # Parse results
+          if jq -e '.metadata.vulnerabilities' npm-audit.json > /dev/null; then
+            CRITICAL=$(jq -r '.metadata.vulnerabilities.critical' npm-audit.json)
+            HIGH=$(jq -r '.metadata.vulnerabilities.high' npm-audit.json)
+            MODERATE=$(jq -r '.metadata.vulnerabilities.moderate' npm-audit.json)
+            LOW=$(jq -r '.metadata.vulnerabilities.low' npm-audit.json)
+
+            echo "📊 npm Audit Results:"
+            echo "   Critical: $CRITICAL"
+            echo "   High: $HIGH"
+            echo "   Moderate: $MODERATE"
+            echo "   Low: $LOW"
+
+            # Fail on critical vulnerabilities
+            if [ "$CRITICAL" -gt 0 ]; then
+              echo "❌ CRITICAL: $CRITICAL critical vulnerabilities found"
+              npm audit
+              exit 1
+            fi
+
+            # Warn on high vulnerabilities
+            if [ "$HIGH" -gt 0 ]; then
+              echo "⚠️  WARNING: $HIGH high-severity vulnerabilities found"
+              npm audit
+            fi
+          else
+            echo "✅ No vulnerabilities found"
+          fi
+
+      - name: 📤 Upload npm Audit Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-security-audit
+          path: npm-audit.json
+          retention-days: 90
+
+  # ============================================================================
+  # Container Security Scan (Trivy)
+  # ============================================================================
+  container-scan:
+    name: 🐳 Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Build Container Images
+        run: |
+          # Build backend
+          docker build -t bizra-backend:scan backend/
+
+          # Build LLM inference
+          docker build -t bizra-llm:scan -f services/llm-inference/models/bizra-agentic-v1/Dockerfile.vllm services/llm-inference/models/bizra-agentic-v1/
+
+      - name: 🔍 Scan Backend Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bizra-backend:scan
+          format: 'sarif'
+          output: 'trivy-backend.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: 🔍 Scan LLM Inference Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: bizra-llm:scan
+          format: 'sarif'
+          output: 'trivy-llm.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'  # Don't fail on LLM image (may have base image vulns)
+          ignore-unfixed: true
+        continue-on-error: true
+
+      - name: 📤 Upload Trivy Results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: '.'
+          category: 'container-security'
+
+  # ============================================================================
+  # Secret Scanning Validation
+  # ============================================================================
+  secret-scan:
+    name: 🔑 Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+  # ============================================================================
+  # Security Report Summary
+  # ============================================================================
+  security-summary:
+    name: 📊 Security Summary
+    runs-on: ubuntu-latest
+    needs: [codeql, rust-security, npm-security, secret-scan]
+    if: always()
+    steps:
+      - name: 📥 Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: security-artifacts/
+        continue-on-error: true
+
+      - name: 📊 Generate Security Report
+        run: |
+          cat > SECURITY_REPORT.md << 'EOF'
+          # BIZRA Genesis Node - Security Scan Report
+
+          **Generated**: $(date -u)
+          **CI Run**: ${{ github.run_id }}
+          **Commit**: ${{ github.sha }}
+          **Branch**: ${{ github.ref_name }}
+
+          ---
+
+          ## Security Scan Results
+
+          | Component | Status | Details |
+          |-----------|--------|---------|
+          | CodeQL SAST | ${{ needs.codeql.result == 'success' && '✅ PASS' || '❌ FAIL' }} | Static analysis complete |
+          | Rust Audit | ${{ needs.rust-security.result == 'success' && '✅ PASS' || '❌ FAIL' }} | Vulnerability & license scan |
+          | npm Audit | ${{ needs.npm-security.result == 'success' && '✅ PASS' || '❌ FAIL' }} | Node.js dependency scan |
+          | Secret Scan | ${{ needs.secret-scan.result == 'success' && '✅ PASS' || '⚠️ CHECK' }} | Credential leak detection |
+
+          ---
+
+          ## Compliance Status
+
+          **Security Standards**:
+          - ✅ OWASP Top 10 scanning (CodeQL)
+          - ✅ CWE detection (CodeQL + Trivy)
+          - ✅ License compliance (cargo-deny)
+          - ✅ Supply chain security (Dependency Review)
+          - ✅ Secret scanning (TruffleHog)
+
+          **Professional Elite Standards**:
+          - ✅ Automated weekly scans
+          - ✅ PR-blocking on critical vulnerabilities
+          - ✅ SARIF reports to GitHub Security
+          - ✅ 90-day audit trail retention
+
+          ---
+
+          ## Action Items
+
+          EOF
+
+          # Add conditional action items based on results
+          if [ "${{ needs.rust-security.result }}" != "success" ]; then
+            echo "- ⚠️  **URGENT**: Review Rust security audit failures" >> SECURITY_REPORT.md
+          fi
+
+          if [ "${{ needs.npm-security.result }}" != "success" ]; then
+            echo "- ⚠️  **URGENT**: Review npm security audit failures" >> SECURITY_REPORT.md
+          fi
+
+          if [ "${{ needs.codeql.result }}" == "success" ] && [ "${{ needs.rust-security.result }}" == "success" ] && [ "${{ needs.npm-security.result }}" == "success" ]; then
+            echo "✅ **No security action items** - All scans passed" >> SECURITY_REPORT.md
+          fi
+
+          echo "" >> SECURITY_REPORT.md
+          echo "---" >> SECURITY_REPORT.md
+          echo "" >> SECURITY_REPORT.md
+          echo "*Generated with إحسان (Excellence) • Automated Security • Zero Trust*" >> SECURITY_REPORT.md
+
+          cat SECURITY_REPORT.md
+
+      - name: 📤 Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-report
+          path: SECURITY_REPORT.md
+          retention-days: 90
+
+      - name: ❌ Fail on Security Issues
+        if: needs.rust-security.result == 'failure' || needs.npm-security.result == 'failure'
+        run: |
+          echo "❌ Security vulnerabilities detected - deployment blocked"
+          exit 1

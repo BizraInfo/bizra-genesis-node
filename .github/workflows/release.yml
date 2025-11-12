@@ -1,0 +1,464 @@
+# BIZRA Genesis Node - Automated Release Pipeline
+# Elite release management with semantic versioning, CHANGELOG generation, and artifact publishing
+# Implements: Semantic Release, GitHub Releases, Container Registry publishing, SBOM generation
+
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/release.yml'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (major, minor, patch)'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  IMAGE_REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/bizra-genesis-node
+
+jobs:
+  # ============================================================================
+  # Semantic Version Calculation
+  # ============================================================================
+  version:
+    name: 📊 Calculate Version
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.semver.outputs.new_version }}
+      changelog: ${{ steps.semver.outputs.changelog }}
+      should_release: ${{ steps.semver.outputs.should_release }}
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📊 Calculate Semantic Version
+        id: semver
+        run: |
+          # Install conventional-changelog
+          npm install -g conventional-changelog-cli conventional-recommended-bump
+
+          # Get current version from Cargo.toml
+          CURRENT_VERSION=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
+          echo "Current version: $CURRENT_VERSION"
+
+          # Determine version bump type
+          if [ "${{ github.event.inputs.release_type }}" != "" ]; then
+            BUMP_TYPE="${{ github.event.inputs.release_type }}"
+            echo "Manual release type: $BUMP_TYPE"
+          else
+            # Auto-detect from conventional commits
+            BUMP_TYPE=$(conventional-recommended-bump -p angular)
+            echo "Auto-detected bump type: $BUMP_TYPE"
+          fi
+
+          # Calculate new version
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          case $BUMP_TYPE in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "New version: $NEW_VERSION"
+
+          # Check if this is a meaningful release
+          if [ "$CURRENT_VERSION" == "$NEW_VERSION" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "No version change needed"
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "should_release=true" >> $GITHUB_OUTPUT
+
+          # Generate changelog
+          conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+          CHANGELOG_CONTENT=$(cat CHANGELOG.md | head -n 100)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  # ============================================================================
+  # Build Release Artifacts
+  # ============================================================================
+  build:
+    name: 🏗️ Build Release Artifacts
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: bizra-genesis-node-linux-x64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact_name: bizra-genesis-node-linux-musl-x64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: bizra-genesis-node-macos-x64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: bizra-genesis-node-macos-arm64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: bizra-genesis-node-windows-x64.exe
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: 📦 Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "release-${{ matrix.target }}"
+
+      - name: 🔧 Install Build Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libclang-dev clang llvm pkg-config libssl-dev
+          if [ "${{ matrix.target }}" = "x86_64-unknown-linux-musl" ]; then
+            sudo apt-get install -y musl-tools
+          fi
+
+      - name: 🔧 Install Build Dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install llvm
+
+      - name: 🏗️ Build Release Binary
+        run: |
+          cargo build --release --target ${{ matrix.target }} --bin bizra-genesis-node
+
+      - name: 📦 Package Binary
+        run: |
+          mkdir -p dist
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            cp target/${{ matrix.target }}/release/bizra-genesis-node.exe dist/${{ matrix.artifact_name }}
+          else
+            cp target/${{ matrix.target }}/release/bizra-genesis-node dist/${{ matrix.artifact_name }}
+            chmod +x dist/${{ matrix.artifact_name }}
+          fi
+        shell: bash
+
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}
+          retention-days: 7
+
+  # ============================================================================
+  # Build and Push Container Images
+  # ============================================================================
+  container:
+    name: 🐳 Build & Push Containers
+    needs: version
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.version.outputs.new_version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.version.outputs.new_version }}
+            type=semver,pattern={{major}},value=${{ needs.version.outputs.new_version }}
+            type=raw,value=latest
+
+      - name: 🏗️ Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 📋 Generate SBOM
+        run: |
+          # Install syft for SBOM generation
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+          # Generate SBOM
+          syft ${{ env.IMAGE_NAME }}:${{ needs.version.outputs.new_version }} \
+            -o cyclonedx-json > sbom.cdx.json
+
+          # Calculate BLAKE3 hash
+          cargo install b3sum
+          b3sum sbom.cdx.json > sbom.cdx.json.blake3
+
+      - name: 🔏 Sign Image with Cosign (Keyless)
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          # Install cosign
+          curl -sL https://github.com/sigstore/cosign/releases/download/v2.2.4/cosign-linux-amd64 \
+            -o /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
+
+          # Sign image (keyless with OIDC)
+          cosign sign --yes ${{ env.IMAGE_NAME }}:${{ needs.version.outputs.new_version }} || {
+            echo "⚠️  Keyless signing requires OIDC token (not available in forks)"
+            echo "ℹ️  Image is available but not signed"
+          }
+
+      - name: 📤 Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: |
+            sbom.cdx.json
+            sbom.cdx.json.blake3
+          retention-days: 90
+
+  # ============================================================================
+  # Create GitHub Release
+  # ============================================================================
+  release:
+    name: 🚀 Create GitHub Release
+    needs: [version, build, container]
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📥 Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: 📝 Update Version in Cargo.toml
+        run: |
+          NEW_VERSION="${{ needs.version.outputs.new_version }}"
+          sed -i "0,/^version = /s/^version = .*/version = \"$NEW_VERSION\"/" Cargo.toml
+          echo "✅ Updated Cargo.toml to version $NEW_VERSION"
+
+      - name: 📝 Update CHANGELOG.md
+        run: |
+          npm install -g conventional-changelog-cli
+          conventional-changelog -p angular -i CHANGELOG.md -s
+          echo "✅ Updated CHANGELOG.md"
+
+      - name: 📤 Commit Version Bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Cargo.toml CHANGELOG.md
+          git commit -m "chore(release): ${{ needs.version.outputs.new_version }}
+
+          🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push
+
+      - name: 🏷️ Create Git Tag
+        run: |
+          git tag -a v${{ needs.version.outputs.new_version }} \
+            -m "Release v${{ needs.version.outputs.new_version }}"
+          git push origin v${{ needs.version.outputs.new_version }}
+
+      - name: 🚀 Create GitHub Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Get all artifacts
+            const artifacts = fs.readdirSync('artifacts').filter(f => !f.includes('sbom'));
+            const releaseFiles = [];
+
+            artifacts.forEach(dir => {
+              const files = fs.readdirSync(`artifacts/${dir}`);
+              files.forEach(file => {
+                releaseFiles.push({
+                  name: file,
+                  path: `artifacts/${dir}/${file}`
+                });
+              });
+            });
+
+            // Create release
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: 'v${{ needs.version.outputs.new_version }}',
+              name: 'v${{ needs.version.outputs.new_version }}',
+              body: `${{ needs.version.outputs.changelog }}
+
+            ## Container Images
+
+            \`\`\`bash
+            docker pull ${{ env.IMAGE_NAME }}:${{ needs.version.outputs.new_version }}
+            \`\`\`
+
+            ## Checksums
+
+            See attached SBOM artifacts for supply chain verification.
+
+            ---
+
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+            `,
+              draft: false,
+              prerelease: ${{ github.event.inputs.prerelease || 'false' }}
+            });
+
+            // Upload release assets
+            for (const file of releaseFiles) {
+              const data = fs.readFileSync(file.path);
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: file.name,
+                data: data
+              });
+              console.log(`✅ Uploaded ${file.name}`);
+            }
+
+            // Upload SBOM
+            if (fs.existsSync('artifacts/sbom')) {
+              const sbomFiles = fs.readdirSync('artifacts/sbom');
+              for (const sbomFile of sbomFiles) {
+                const data = fs.readFileSync(`artifacts/sbom/${sbomFile}`);
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: release.data.id,
+                  name: sbomFile,
+                  data: data
+                });
+                console.log(`✅ Uploaded ${sbomFile}`);
+              }
+            }
+
+            console.log(`🚀 Release v${{ needs.version.outputs.new_version }} created successfully!`);
+
+  # ============================================================================
+  # Post-Release Notifications
+  # ============================================================================
+  notify:
+    name: 📢 Post-Release Notifications
+    needs: [version, release]
+    if: needs.version.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📢 Create Release Announcement Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚀 Release v${{ needs.version.outputs.new_version }} Published',
+              body: `## Release v${{ needs.version.outputs.new_version }}
+
+            **Release Notes**: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.version.outputs.new_version }}
+
+            ## What's New
+
+            ${{ needs.version.outputs.changelog }}
+
+            ## Container Images
+
+            \`\`\`bash
+            docker pull ${{ env.IMAGE_NAME }}:${{ needs.version.outputs.new_version }}
+            \`\`\`
+
+            ## Installation
+
+            Download platform-specific binaries from the release page.
+
+            ---
+
+            🤖 Automated release generated with إحسان (Excellence)
+            `,
+              labels: ['release', 'announcement']
+            });
+
+      - name: ✅ Release Complete
+        run: |
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  🚀 Release v${{ needs.version.outputs.new_version }} Complete               ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "✅ Semantic version calculated: v${{ needs.version.outputs.new_version }}"
+          echo "✅ Release binaries built for 5 platforms"
+          echo "✅ Container images published to GHCR"
+          echo "✅ SBOM generated and attached"
+          echo "✅ GitHub release created with changelogs"
+          echo "✅ Git tag pushed"
+          echo ""
+          echo "🎯 Elite Release Pipeline: 100% Complete"

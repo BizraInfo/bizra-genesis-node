@@ -1,0 +1,405 @@
+# BIZRA Genesis Node - SLO Monitoring & Incident Response
+# Elite production monitoring with automated incident creation and escalation
+# Implements: SLO burn-rate alerting, automated incident response, runbook automation
+
+name: SLO Monitoring
+
+on:
+  schedule:
+    # Every 5 minutes during business hours (UTC)
+    - cron: '*/5 8-18 * * 1-5'
+    # Every 15 minutes during off-hours
+    - cron: '*/15 0-7,19-23 * * *'
+    - cron: '*/15 * * * 0,6'
+  workflow_dispatch:
+    inputs:
+      force_check:
+        description: 'Force SLO check (ignore cache)'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: slo-monitor
+  cancel-in-progress: true
+
+env:
+  PROMETHEUS_URL: https://prometheus.bizra.ai
+  GRAFANA_URL: https://grafana.bizra.ai
+  ALERTMANAGER_URL: https://alertmanager.bizra.ai
+
+  # SLO Thresholds (aligned with BIZRA excellence standards)
+  ERROR_RATE_SLO: "0.01"        # 1%
+  P95_LATENCY_SLO: "300"        # 300ms
+  P99_LATENCY_SLO: "500"        # 500ms
+  POI_SUCCESS_SLO: "0.99"       # 99%
+  CONSENSUS_LATENCY_SLO: "0.00005"  # 50μs
+
+  # Burn rate thresholds (multi-window)
+  BURN_RATE_1H: "14.4"   # 1% error budget consumed in 1h
+  BURN_RATE_6H: "6"      # 5% error budget consumed in 6h
+
+jobs:
+  # ============================================================================
+  # Query Production Metrics
+  # ============================================================================
+  query-metrics:
+    name: 📊 Query Production SLO Metrics
+    runs-on: ubuntu-latest
+    outputs:
+      error_rate: ${{ steps.query.outputs.error_rate }}
+      p95_latency: ${{ steps.query.outputs.p95_latency }}
+      p99_latency: ${{ steps.query.outputs.p99_latency }}
+      poi_success: ${{ steps.query.outputs.poi_success }}
+      consensus_latency: ${{ steps.query.outputs.consensus_latency }}
+      burn_rate_1h: ${{ steps.query.outputs.burn_rate_1h }}
+      burn_rate_6h: ${{ steps.query.outputs.burn_rate_6h }}
+      violations: ${{ steps.analyze.outputs.violations }}
+    steps:
+      - name: 📊 Query Prometheus Metrics
+        id: query
+        run: |
+          # Function to query Prometheus
+          query_prometheus() {
+            local query="$1"
+            curl -s -G "${{ env.PROMETHEUS_URL }}/api/v1/query" \
+              --data-urlencode "query=$query" | \
+              jq -r '.data.result[0].value[1] // "0"'
+          }
+
+          # Error rate (5m window)
+          ERROR_RATE=$(query_prometheus 'sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))')
+          echo "error_rate=$ERROR_RATE" >> $GITHUB_OUTPUT
+          echo "Error Rate: $ERROR_RATE (SLO: ${{ env.ERROR_RATE_SLO }})"
+
+          # P95 Latency
+          P95=$(query_prometheus 'histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000')
+          echo "p95_latency=$P95" >> $GITHUB_OUTPUT
+          echo "P95 Latency: ${P95}ms (SLO: ${{ env.P95_LATENCY_SLO }}ms)"
+
+          # P99 Latency
+          P99=$(query_prometheus 'histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000')
+          echo "p99_latency=$P99" >> $GITHUB_OUTPUT
+          echo "P99 Latency: ${P99}ms (SLO: ${{ env.P99_LATENCY_SLO }}ms)"
+
+          # PoI Validation Success Rate
+          POI_SUCCESS=$(query_prometheus 'sum(rate(poi_validation_success_total[5m])) / sum(rate(poi_validation_total[5m]))')
+          echo "poi_success=$POI_SUCCESS" >> $GITHUB_OUTPUT
+          echo "PoI Success Rate: $POI_SUCCESS (SLO: ${{ env.POI_SUCCESS_SLO }})"
+
+          # Consensus Latency (P99)
+          CONSENSUS=$(query_prometheus 'histogram_quantile(0.99, sum(rate(consensus_latency_seconds_bucket[5m])) by (le))')
+          echo "consensus_latency=$CONSENSUS" >> $GITHUB_OUTPUT
+          echo "Consensus Latency: ${CONSENSUS}s (SLO: ${{ env.CONSENSUS_LATENCY_SLO }}s)"
+
+          # Burn rates
+          BURN_1H=$(query_prometheus 'sum(rate(http_requests_total{status=~"5.."}[1h])) / sum(rate(http_requests_total[1h])) / 0.01')
+          echo "burn_rate_1h=$BURN_1H" >> $GITHUB_OUTPUT
+          echo "Burn Rate (1h): ${BURN_1H}x"
+
+          BURN_6H=$(query_prometheus 'sum(rate(http_requests_total{status=~"5.."}[6h])) / sum(rate(http_requests_total[6h])) / 0.01')
+          echo "burn_rate_6h=$BURN_6H" >> $GITHUB_OUTPUT
+          echo "Burn Rate (6h): ${BURN_6H}x"
+
+          # Note: In production, add authentication headers
+          # -H "Authorization: Bearer ${{ secrets.PROMETHEUS_TOKEN }}"
+
+      - name: 🔍 Analyze SLO Violations
+        id: analyze
+        run: |
+          VIOLATIONS=""
+
+          # Check error rate
+          if (( $(echo "${{ steps.query.outputs.error_rate }} > ${{ env.ERROR_RATE_SLO }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}error_rate,"
+            echo "⚠️  SLO VIOLATION: Error rate ${{ steps.query.outputs.error_rate }} > ${{ env.ERROR_RATE_SLO }}"
+          fi
+
+          # Check P95 latency
+          if (( $(echo "${{ steps.query.outputs.p95_latency }} > ${{ env.P95_LATENCY_SLO }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}p95_latency,"
+            echo "⚠️  SLO VIOLATION: P95 latency ${{ steps.query.outputs.p95_latency }}ms > ${{ env.P95_LATENCY_SLO }}ms"
+          fi
+
+          # Check P99 latency
+          if (( $(echo "${{ steps.query.outputs.p99_latency }} > ${{ env.P99_LATENCY_SLO }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}p99_latency,"
+            echo "⚠️  SLO VIOLATION: P99 latency ${{ steps.query.outputs.p99_latency }}ms > ${{ env.P99_LATENCY_SLO }}ms"
+          fi
+
+          # Check PoI success rate
+          if (( $(echo "${{ steps.query.outputs.poi_success }} < ${{ env.POI_SUCCESS_SLO }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}poi_success,"
+            echo "⚠️  SLO VIOLATION: PoI success rate ${{ steps.query.outputs.poi_success }} < ${{ env.POI_SUCCESS_SLO }}"
+          fi
+
+          # Check consensus latency
+          if (( $(echo "${{ steps.query.outputs.consensus_latency }} > ${{ env.CONSENSUS_LATENCY_SLO }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}consensus_latency,"
+            echo "⚠️  SLO VIOLATION: Consensus latency ${{ steps.query.outputs.consensus_latency }}s > ${{ env.CONSENSUS_LATENCY_SLO }}s"
+          fi
+
+          # Check burn rates
+          if (( $(echo "${{ steps.query.outputs.burn_rate_1h }} > ${{ env.BURN_RATE_1H }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}burn_rate_1h,"
+            echo "🔥 BURN RATE ALERT: 1h burn rate ${{ steps.query.outputs.burn_rate_1h }}x > ${{ env.BURN_RATE_1H }}x"
+          fi
+
+          if (( $(echo "${{ steps.query.outputs.burn_rate_6h }} > ${{ env.BURN_RATE_6H }}" | bc -l) )); then
+            VIOLATIONS="${VIOLATIONS}burn_rate_6h,"
+            echo "🔥 BURN RATE ALERT: 6h burn rate ${{ steps.query.outputs.burn_rate_6h }}x > ${{ env.BURN_RATE_6H }}x"
+          fi
+
+          if [ -z "$VIOLATIONS" ]; then
+            echo "✅ All SLOs met"
+            echo "violations=" >> $GITHUB_OUTPUT
+          else
+            VIOLATIONS="${VIOLATIONS%,}"  # Remove trailing comma
+            echo "violations=$VIOLATIONS" >> $GITHUB_OUTPUT
+          fi
+
+  # ============================================================================
+  # Create Incident (if SLO violated)
+  # ============================================================================
+  create-incident:
+    name: 🚨 Create Incident Report
+    needs: query-metrics
+    if: needs.query-metrics.outputs.violations != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout (for runbook links)
+        uses: actions/checkout@v4
+
+      - name: 🚨 Create Incident Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const violations = '${{ needs.query-metrics.outputs.violations }}'.split(',');
+            const timestamp = new Date().toISOString();
+
+            // Determine severity
+            let severity = 'P2';
+            let severityEmoji = '⚠️';
+
+            if (violations.includes('burn_rate_1h') || violations.includes('poi_success')) {
+              severity = 'P0';
+              severityEmoji = '🚨';
+            } else if (violations.includes('error_rate') || violations.includes('burn_rate_6h')) {
+              severity = 'P1';
+              severityEmoji = '⚠️';
+            }
+
+            // Build violation details table
+            let violationTable = '| Metric | Current | SLO | Status |\n|--------|---------|-----|--------|\n';
+
+            const metrics = {
+              'error_rate': {
+                current: '${{ needs.query-metrics.outputs.error_rate }}',
+                slo: '${{ env.ERROR_RATE_SLO }}',
+                unit: '',
+                runbook: 'https://docs.bizra.ai/runbooks/high-error-rate'
+              },
+              'p95_latency': {
+                current: '${{ needs.query-metrics.outputs.p95_latency }}',
+                slo: '${{ env.P95_LATENCY_SLO }}',
+                unit: 'ms',
+                runbook: 'https://docs.bizra.ai/runbooks/high-latency'
+              },
+              'p99_latency': {
+                current: '${{ needs.query-metrics.outputs.p99_latency }}',
+                slo: '${{ env.P99_LATENCY_SLO }}',
+                unit: 'ms',
+                runbook: 'https://docs.bizra.ai/runbooks/high-latency'
+              },
+              'poi_success': {
+                current: '${{ needs.query-metrics.outputs.poi_success }}',
+                slo: '${{ env.POI_SUCCESS_SLO }}',
+                unit: '',
+                runbook: 'https://docs.bizra.ai/runbooks/poi-validation-failures'
+              },
+              'consensus_latency': {
+                current: '${{ needs.query-metrics.outputs.consensus_latency }}',
+                slo: '${{ env.CONSENSUS_LATENCY_SLO }}',
+                unit: 's',
+                runbook: 'https://docs.bizra.ai/runbooks/consensus-slow'
+              },
+              'burn_rate_1h': {
+                current: '${{ needs.query-metrics.outputs.burn_rate_1h }}',
+                slo: '${{ env.BURN_RATE_1H }}',
+                unit: 'x',
+                runbook: 'https://docs.bizra.ai/runbooks/error-budget-burn'
+              },
+              'burn_rate_6h': {
+                current: '${{ needs.query-metrics.outputs.burn_rate_6h }}',
+                slo: '${{ env.BURN_RATE_6H }}',
+                unit: 'x',
+                runbook: 'https://docs.bizra.ai/runbooks/error-budget-burn'
+              }
+            };
+
+            violations.forEach(v => {
+              const m = metrics[v];
+              if (m) {
+                violationTable += `| **${v}** | ${m.current}${m.unit} | ${m.slo}${m.unit} | 🚨 VIOLATED |\n`;
+              }
+            });
+
+            // Get primary runbook
+            const primaryViolation = violations[0];
+            const primaryRunbook = metrics[primaryViolation]?.runbook || 'https://docs.bizra.ai/runbooks/';
+
+            const body = `## ${severityEmoji} SLO Violation Detected
+
+            **Severity**: ${severity}
+            **Detected**: ${timestamp}
+            **Duration**: Ongoing (since first detection)
+
+            ### Violated SLOs
+
+            ${violationTable}
+
+            ### Immediate Actions
+
+            1. **Runbook**: Follow [${primaryViolation} runbook](${primaryRunbook})
+            2. **Dashboards**: [Production Metrics](${process.env.GRAFANA_URL}/d/bizra-core-kpis)
+            3. **Logs**: Check CloudWatch/Loki for error spikes
+            4. **Recent Changes**: Review recent deployments
+
+            ### Investigation Checklist
+
+            - [ ] Check recent deployments (last 24h)
+            - [ ] Review error logs for patterns
+            - [ ] Check infrastructure metrics (CPU, memory, network)
+            - [ ] Verify upstream service health
+            - [ ] Check for traffic spikes
+            - [ ] Review recent code changes
+
+            ### Escalation
+
+            - **P0**: Page on-call engineer immediately
+            - **P1**: Notify team lead within 15 minutes
+            - **P2**: Team notification, investigate during business hours
+
+            ### Grafana Links
+
+            - [Production Dashboard](${process.env.GRAFANA_URL}/d/bizra-core-kpis)
+            - [Error Analysis](${process.env.GRAFANA_URL}/d/errors)
+            - [Latency Heatmap](${process.env.GRAFANA_URL}/d/latency)
+
+            ### Prometheus Queries
+
+            \`\`\`promql
+            # Current error rate
+            sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+
+            # P95 latency
+            histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+
+            # PoI success rate
+            sum(rate(poi_validation_success_total[5m])) / sum(rate(poi_validation_total[5m]))
+            \`\`\`
+
+            ---
+
+            **CI Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            🤖 Automated incident detection with إحسان (Excellence)
+
+            /cc @oncall
+            `;
+
+            // Check for existing open incident
+            const existingIncidents = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'incident,slo-violation',
+              per_page: 10
+            });
+
+            const recentIncident = existingIncidents.data.find(issue => {
+              const createdAt = new Date(issue.created_at);
+              const hoursSinceCreated = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
+              return hoursSinceCreated < 1;  // Within last hour
+            });
+
+            if (recentIncident) {
+              // Update existing incident
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: recentIncident.number,
+                body: `### ⚠️ SLO Violation Still Ongoing
+
+            **Update**: ${timestamp}
+
+            ${violationTable}
+
+            Incident is still active. Continuing investigation.`
+              });
+
+              console.log(`Updated existing incident #${recentIncident.number}`);
+            } else {
+              // Create new incident
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `${severityEmoji} [${severity}] SLO Violation: ${violations.join(', ')}`,
+                body: body,
+                labels: ['incident', 'slo-violation', severity, 'production', 'automated']
+              });
+
+              console.log(`Created incident #${issue.data.number}`);
+
+              // Pin issue for P0/P1
+              if (severity === 'P0' || severity === 'P1') {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.data.number,
+                  state: 'open',
+                  state_reason: 'not_planned'  // Prevents auto-close
+                });
+              }
+            }
+
+      - name: 📊 Generate Incident Summary
+        run: |
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  🚨 SLO Violation Incident Created                         ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Violated SLOs: ${{ needs.query-metrics.outputs.violations }}"
+          echo "Error Rate: ${{ needs.query-metrics.outputs.error_rate }}"
+          echo "P95 Latency: ${{ needs.query-metrics.outputs.p95_latency }}ms"
+          echo "PoI Success: ${{ needs.query-metrics.outputs.poi_success }}"
+          echo ""
+          echo "⚠️  Incident issue created - on-call engineer notified"
+
+  # ============================================================================
+  # Success Summary (no violations)
+  # ============================================================================
+  success-summary:
+    name: ✅ SLO Health Summary
+    needs: query-metrics
+    if: needs.query-metrics.outputs.violations == ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: ✅ All SLOs Met
+        run: |
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  ✅ All SLOs Met - System Healthy                          ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Error Rate: ${{ needs.query-metrics.outputs.error_rate }} (SLO: ${{ env.ERROR_RATE_SLO }})"
+          echo "P95 Latency: ${{ needs.query-metrics.outputs.p95_latency }}ms (SLO: ${{ env.P95_LATENCY_SLO }}ms)"
+          echo "P99 Latency: ${{ needs.query-metrics.outputs.p99_latency }}ms (SLO: ${{ env.P99_LATENCY_SLO }}ms)"
+          echo "PoI Success: ${{ needs.query-metrics.outputs.poi_success }} (SLO: ${{ env.POI_SUCCESS_SLO }})"
+          echo "Consensus Latency: ${{ needs.query-metrics.outputs.consensus_latency }}s (SLO: ${{ env.CONSENSUS_LATENCY_SLO }}s)"
+          echo ""
+          echo "🎯 Elite SLO Monitoring: 100% Healthy"
