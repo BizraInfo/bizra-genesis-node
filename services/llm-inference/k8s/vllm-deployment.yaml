@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bizra-vllm
+  labels: { app: bizra-vllm }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: bizra-vllm } }
+  template:
+    metadata:
+      labels: { app: bizra-vllm }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: /metrics
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: server
+        image: bizra/vllm:local
+        imagePullPolicy: IfNotPresent
+        ports: [{ containerPort: 8000 }]
+        env:
+          - name: MODEL_NAME
+            value: "microsoft/Phi-3-mini-4k-instruct"
+          - name: VLLM_WORKER_GPU_MEMORY_UTILIZATION
+            value: "0.90"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            cpu: "2"
+            memory: "8Gi"
+          requests:
+            cpu: "1"
+            memory: "4Gi"
+        readinessProbe:
+          httpGet: { path: /healthz, port: 8000 }
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: { path: /healthz, port: 8000 }
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        volumeMounts:
+          - name: cache
+            mountPath: /root/.cache
+      volumes:
+        - name: cache
+          emptyDir: {}
+      nodeSelector:
+        nvidia.com/gpu.present: "true"
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"

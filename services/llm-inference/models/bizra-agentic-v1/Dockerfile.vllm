@@ -1,0 +1,24 @@
+# BIZRA vLLM Production Dockerfile
+# Notes: choose a CUDA base that matches the vLLM/torch build.
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS base
+
+ENV DEBIAN_FRONTEND=noninteractive PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1     PIP_NO_CACHE_DIR=1     VLLM_WORKER_GPU_MEMORY_UTILIZATION=0.90     UVICORN_HOST=0.0.0.0 UVICORN_PORT=8000
+
+RUN apt-get update && apt-get install -y --no-install-recommends     python3 python3-pip python3-venv python3-dev build-essential git curl ca-certificates &&     ln -sf /usr/bin/python3 /usr/bin/python &&     pip3 install --upgrade pip setuptools wheel && rm -rf /var/lib/apt/lists/*
+
+# Install PyTorch (CUDA build) + vLLM
+# Adjust index-url to match chosen CUDA (here cu121).
+RUN pip install torch --index-url https://download.pytorch.org/whl/cu121 &&     pip install vllm==0.6.1
+
+# App deps
+WORKDIR /app
+COPY models/bizra-agentic-v1/requirements-vllm.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
+# App code
+COPY models/bizra-agentic-v1 /app/models/bizra-agentic-v1
+
+# Health & runtime
+EXPOSE 8000
+ENV MODEL_NAME="microsoft/Phi-3-mini-4k-instruct"
+CMD ["python", "models/bizra-agentic-v1/serve_vllm_production.py"]

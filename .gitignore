@@ -46,6 +46,7 @@ temp/
 # OS specific
 Thumbs.db
 Desktop.ini
+desktop.ini
 
 # Backup files
 *.bak
@@ -58,3 +59,18 @@ node_modules/
 
 # Project specific
 New folder (2)/
+
+# Flagship proof-pack (integrated or archived)
+flagship-proof-pack/
+KG_Launch_Audit_Pack_v1/
+
+# Large PDF/media files (document separately if needed)
+*.pdf
+
+# Service-specific
+services/llm-inference/models/*/model-cache/
+services/llm-inference/models/*/checkpoints/
+
+# Observability artifacts
+artifacts/
+baselines/

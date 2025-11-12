@@ -1,0 +1,7 @@
+# vLLM production requirements (versions chosen for stability)
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.8.2
+prometheus-client==0.20.0
+httpx==0.27.2
+# vLLM and torch installed in image build to match CUDA

@@ -1,0 +1,61 @@
+# BIZRA Genesis Node - Complete Stack
+# Includes: Backend API, LLM Inference, Observability
+version: '3.8'
+
+services:
+  # Node.js Backend API (Port 3006)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - bizra-network
+
+  # vLLM Inference Service (Port 8000) - Optional GPU
+  llm-inference:
+    build:
+      context: ./services/llm-inference/models/bizra-agentic-v1
+      dockerfile: Dockerfile.vllm
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=${MODEL_NAME:-facebook/opt-125m}
+      - TENSOR_PARALLEL_SIZE=${TENSOR_PARALLEL_SIZE:-1}
+      - VLLM_WORKER_GPU_MEMORY_UTILIZATION=${GPU_MEM_UTIL:-0.9}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - bizra-network
+    # Optional: Comment out if no GPU available (will use CPU fallback)
+    # profiles:
+    #   - gpu
+
+networks:
+  bizra-network:
+    driver: bridge
+
+# Note: For observability stack (Prometheus, Grafana), use:
+#   docker-compose -f docker-compose.obsv.yml up -d
+#
+# For full stack:
+#   docker-compose up -d && docker-compose -f docker-compose.obsv.yml up -d
