@@ -20,6 +20,8 @@ serde_json = "1.0"
 tracing = { version = "0.1", features = ["log"] }
 anyhow = "1.0"
 thiserror = "1.0"
+uuid = { version = "1.10", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
 
 # Performance Excellence
 rayon = "1.8"
@@ -38,7 +40,7 @@ ciborium = "0.2"  # Deterministic CBOR serialization
 
 # Networking Excellence
 libp2p = "0.53"
-quinn = "0.10"
+quinn = "0.11"  # Updated from 0.10 to fix ring vulnerability RUSTSEC-2025-0009
 tonic = "0.10"
 hyper = { version = "1.0", features = ["full"] }
 axum = "0.7"
@@ -47,7 +49,7 @@ utoipa-swagger-ui = { version = "6.0", features = ["axum"] }
 
 # Database Excellence
 rocksdb = "0.21"
-sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "migrate"] }
+sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls", "migrate"] }  # Updated from 0.7 to fix RUSTSEC-2024-0363
 redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
 
 # AI/ML Integration (temporarily disabled due to rand version conflicts)
@@ -56,9 +58,10 @@ redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
 # ort = "1.16"
 
 # Monitoring & Metrics
-prometheus = "0.13"
+prometheus = "0.14"  # Updated from 0.13 to fix protobuf vulnerability RUSTSEC-2024-0437
 metrics = "0.21"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+async-trait = "0.1"
 
 # Consensus & Orchestration
 rand = "0.9"
@@ -68,6 +71,7 @@ bytes = "1.5"
 cfg-if = "1.0"
 crossbeam-channel = "0.5"
 once_cell = "1.19"
+bizra-moe = { path = "bizra-moe" }
 
 [dev-dependencies]
 criterion = "0.5"

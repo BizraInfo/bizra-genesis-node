@@ -155,7 +155,7 @@ impl ThompsonRouter {
         let beta = ((wr.samples - wr.wins) as f64) + 1.0;
 
         let dist = Beta::new(alpha, beta).expect("valid beta");
-        dist.sample(&mut rand::thread_rng()) as f32
+        dist.sample(&mut rand::rng()) as f32
     }
 
     /// Updates route statistics with outcome feedback.
@@ -298,17 +298,17 @@ mod tests {
     #[test]
     fn test_win_rate_tracking() {
         let mut router = ThompsonRouter::new();
-        
+
         // Update with multiple successes
         for _ in 0..10 {
             router.update("route-a", true);
         }
-        
+
         // Update with failures
         for _ in 0..5 {
             router.update("route-a", false);
         }
-        
+
         let win_rate = router.get_win_rate("route-a");
         assert!((0.6..=0.7).contains(&win_rate)); // 10 wins out of 15 samples
     }

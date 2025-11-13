@@ -342,6 +342,12 @@ pub struct OllamaClient {
     health: Arc<RwLock<HashMap<String, ModelHealth>>>,
 }
 
+impl Default for OllamaClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OllamaClient {
     /// Create a new Ollama client with default configuration
     pub fn new() -> Self {
