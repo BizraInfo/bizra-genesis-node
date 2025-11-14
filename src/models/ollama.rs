@@ -697,8 +697,8 @@ mod tests {
         let provider = OllamaProvider::new("http://localhost:11434");
         let health = provider.health_check().await.unwrap();
 
-        assert_eq!(health.status, ProviderStatus::Healthy);
-        assert!(health.latency_ms.is_some());
+        assert_eq!(health.status, HealthStatus::Healthy);
+        assert!(health.latency_ms > 0);
         println!("Health: {:?}", health);
     }
 
