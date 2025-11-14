@@ -54,8 +54,8 @@ pub mod types;
 // Provider implementations
 pub mod ollama;
 pub mod openai;
+pub mod registry;
 // pub mod anthropic;
-// pub mod registry;
 
 // Re-exports for convenience
 pub use errors::{ModelError, ModelResult};
@@ -68,6 +68,7 @@ pub use types::{
 // Provider re-exports
 pub use ollama::{OllamaConfig, OllamaProvider};
 pub use openai::{OpenAIConfig, OpenAIProvider};
+pub use registry::{ModelRequirements, ProviderRegistry, SelectedModel, SelectionStrategy};
 
 /// Module version
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

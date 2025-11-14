@@ -48,8 +48,9 @@ pub use consensus::*;
 pub use genesis_validation::*;
 pub use metrics::*;
 pub use models::{
-    CompletionOptions, CompletionResponse, ModelError, ModelProvider, ModelResult,
-    OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider,
+    CompletionOptions, CompletionResponse, ModelError, ModelProvider, ModelRequirements,
+    ModelResult, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider, ProviderRegistry,
+    SelectedModel, SelectionStrategy,
 };
 pub use parser::*;
 pub use performance::*;
