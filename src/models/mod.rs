@@ -56,6 +56,7 @@ pub mod ollama;
 pub mod openai;
 pub mod anthropic;
 pub mod registry;
+pub mod rate_limit;
 
 // Re-exports for convenience
 pub use errors::{ModelError, ModelResult};
@@ -69,6 +70,7 @@ pub use types::{
 pub use anthropic::{AnthropicConfig, AnthropicProvider};
 pub use ollama::{OllamaConfig, OllamaProvider};
 pub use openai::{OpenAIConfig, OpenAIProvider};
+pub use rate_limit::{RateLimitConfig, RateLimiter, UsageStats};
 pub use registry::{ModelRequirements, ProviderRegistry, SelectedModel, SelectionStrategy};
 
 /// Module version

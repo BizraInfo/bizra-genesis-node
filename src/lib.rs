@@ -50,7 +50,8 @@ pub use metrics::*;
 pub use models::{
     AnthropicConfig, AnthropicProvider, CompletionOptions, CompletionResponse, ModelError,
     ModelProvider, ModelRequirements, ModelResult, OllamaConfig, OllamaProvider, OpenAIConfig,
-    OpenAIProvider, ProviderRegistry, SelectedModel, SelectionStrategy,
+    OpenAIProvider, ProviderRegistry, RateLimitConfig, RateLimiter, SelectedModel,
+    SelectionStrategy, UsageStats,
 };
 pub use parser::*;
 pub use performance::*;
