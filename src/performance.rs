@@ -158,7 +158,7 @@ mod tests {
         // Acquire and release multiple times
         for i in 0..5 {
             let mut buffer = pool.acquire().await;
-            buffer.extend_from_slice(&vec![i; 100]);
+            buffer.extend_from_slice(&[i; 100]);
             assert!(!buffer.is_empty());
             pool.release(buffer).await;
         }

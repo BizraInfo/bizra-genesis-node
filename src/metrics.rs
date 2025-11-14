@@ -415,7 +415,7 @@ mod tests {
         update_poi_success_rate();
 
         let rate = POI_VALIDATION_SUCCESS_RATE.get();
-        assert!(rate >= 0.0 && rate <= 1.0);
+        assert!((0.0..=1.0).contains(&rate));
     }
 
     #[test]

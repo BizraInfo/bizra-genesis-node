@@ -512,7 +512,7 @@ mod tests {
 
         assert_eq!(trace.seed, 42);
         assert!(!trace.candidates.is_empty());
-        assert!(trace.timing.total_ms >= 0); // Allow 0 for very fast executions
+        // timing.total_ms is u64, always >= 0 by type definition
         assert_eq!(engine.get_traces().len(), 1);
     }
 

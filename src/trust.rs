@@ -6,7 +6,7 @@ use ring::rand::SystemRandom;
 use ring::signature::{Ed25519KeyPair, KeyPair, UnparsedPublicKey, ED25519};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 /// Immutable cryptographic receipt for a synthesis run.
 ///
@@ -274,11 +274,21 @@ impl TrustBridge {
     /// assert!(!signed.signature.is_empty());
     /// ```
     pub fn sign_receipt(&self, mut receipt: RunReceipt) -> RunReceipt {
+        // Start timing for receipt generation metrics
+        let start_time = Instant::now();
+
         let payload = self.serialize_for_signing(&receipt);
         let signature = self.key_pair.sign(&payload);
 
         receipt.public_key_der = self.key_pair.public_key().as_ref().to_vec();
         receipt.signature = signature.as_ref().to_vec();
+
+        // Record metrics
+        let elapsed_micros = start_time.elapsed().as_micros() as f64;
+        crate::metrics::RECEIPT_GENERATION_LATENCY_MICROSECONDS.observe(elapsed_micros);
+        crate::metrics::RECEIPTS_GENERATED_TOTAL.inc();
+
+        tracing::debug!("Receipt signed in {:.2}μs (Ed25519)", elapsed_micros);
 
         receipt
     }
@@ -316,6 +326,12 @@ impl TrustBridge {
     /// let signed = bridge.sign_receipt(receipt);
     /// assert!(bridge.verify_receipt(&signed));
     /// ```
+    /// Initialize the trust bridge (placeholder for future initialization logic)
+    pub async fn initialize(&self) -> Result<(), String> {
+        // Trust bridge is ready to use immediately after creation
+        Ok(())
+    }
+
     pub fn verify_receipt(&self, receipt: &RunReceipt) -> bool {
         let payload = self.serialize_for_signing(receipt);
         let pk = UnparsedPublicKey::new(&ED25519, &receipt.public_key_der);
@@ -410,6 +426,42 @@ impl ImpactTracker {
     /// assert_eq!(tracker.len(), 1);
     /// ```
     pub fn record(&mut self, impact: ProofOfImpact) {
+        // Calculate normalized score for validation
+        let normalized = impact.normalized_score();
+
+        // Track PoI validation metrics
+        crate::metrics::POI_VALIDATION_ATTEMPTS_TOTAL.inc();
+
+        // Consider validation "successful" if normalized score >= 3.0 (60% of max 5.0)
+        // This replaces the simulated 99.5% success rate with real measurements
+        let validation_threshold = 3.0;
+        if normalized >= validation_threshold {
+            crate::metrics::POI_VALIDATION_SUCCESS_TOTAL.inc();
+        } else {
+            crate::metrics::POI_VALIDATION_FAILURE_TOTAL.inc();
+            tracing::warn!(
+                "PoI validation below threshold: {:.2} < {:.2}",
+                normalized,
+                validation_threshold
+            );
+        }
+
+        // Record PoI score distribution
+        crate::metrics::POI_SCORE_DISTRIBUTION.observe(normalized as f64);
+
+        // Update success rate gauge
+        crate::metrics::update_poi_success_rate();
+
+        tracing::debug!(
+            "PoI recorded: normalized={:.2}, quality={:.1}, utility={:.1}, trust={:.1}, fairness={:.1}, diversity={:.1}",
+            normalized,
+            impact.quality,
+            impact.utility,
+            impact.trust,
+            impact.fairness,
+            impact.diversity
+        );
+
         self.impacts.push(impact);
     }
 
@@ -492,7 +544,7 @@ mod tests {
         let candidate = create_test_candidate();
         let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
         let signed = bridge.sign_receipt(receipt);
-        
+
         assert!(!signed.signature.is_empty());
         assert!(!signed.public_key_der.is_empty());
     }
@@ -503,7 +555,7 @@ mod tests {
         let candidate = create_test_candidate();
         let receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
         let signed = bridge.sign_receipt(receipt);
-        
+
         let verified = bridge.verify_receipt(&signed);
         assert!(verified);
     }
@@ -514,10 +566,10 @@ mod tests {
         let candidate = create_test_candidate();
         let mut receipt = RunReceipt::new("test-run-id".to_string(), &candidate);
         receipt = bridge.sign_receipt(receipt);
-        
+
         // Tamper with the receipt
         receipt.winner_model = "tampered-model".to_string();
-        
+
         let verified = bridge.verify_receipt(&receipt);
         assert!(!verified);
     }
@@ -540,7 +592,7 @@ mod tests {
     fn test_impact_tracker() {
         let mut tracker = ImpactTracker::new();
         assert!(tracker.is_empty());
-        
+
         let poi = ProofOfImpact {
             quality: 90.0,
             utility: 80.0,
@@ -548,7 +600,7 @@ mod tests {
             fairness: 75.0,
             diversity: 70.0,
         };
-        
+
         tracker.record(poi);
         assert_eq!(tracker.len(), 1);
         assert!(!tracker.is_empty());
@@ -560,7 +612,7 @@ mod tests {
         let receipt1 = RunReceipt::new("run-1".to_string(), &candidate);
         std::thread::sleep(std::time::Duration::from_millis(10));
         let receipt2 = RunReceipt::new("run-2".to_string(), &candidate);
-        
+
         assert!(receipt2.timestamp_ms >= receipt1.timestamp_ms);
     }
 
@@ -568,10 +620,10 @@ mod tests {
     fn test_hash_json_consistency() {
         let candidate1 = create_test_candidate();
         let candidate2 = create_test_candidate();
-        
+
         let receipt1 = RunReceipt::new("run-1".to_string(), &candidate1);
         let receipt2 = RunReceipt::new("run-2".to_string(), &candidate2);
-        
+
         // Same JSON should produce same hash
         assert_eq!(receipt1.winner_json_sha256, receipt2.winner_json_sha256);
     }

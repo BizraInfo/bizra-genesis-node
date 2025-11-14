@@ -3,6 +3,59 @@
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
+
+/// Priority levels for tasks
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Priority {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
+
+/// Agent identifier (UUID wrapper)
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct AgentId(pub Uuid);
+
+impl AgentId {
+    pub fn new_v4() -> Self {
+        Self(Uuid::new_v4())
+    }
+}
+
+impl std::fmt::Display for AgentId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<Uuid> for AgentId {
+    fn from(uuid: Uuid) -> Self {
+        Self(uuid)
+    }
+}
+
+impl From<AgentId> for Uuid {
+    fn from(agent_id: AgentId) -> Self {
+        agent_id.0
+    }
+}
+
+/// Consensus result from AEGIS system
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ConsensusResult {
+    /// Task ID that was processed
+    pub task_id: Uuid,
+    /// Final consensus answer
+    pub final_answer: String,
+    /// Confidence score (0.0 - 1.0)
+    pub confidence: f64,
+    /// Number of supporting agents
+    pub supporting_agents: usize,
+    /// Additional consensus metadata
+    pub consensus_metadata: std::collections::HashMap<String, Value>,
+}
 
 /// AI synthesis task definition.
 ///
@@ -16,11 +69,26 @@ use serde_json::Value;
 /// use serde_json::json;
 ///
 /// let task = Task {
+///     id: uuid::Uuid::new_v4(),
+///     description: "Analyze the market trends".to_string(),
+///     priority: synthesis_orchestrator::Priority::High,
+///     created_at: chrono::Utc::now(),
+///     metadata: std::collections::HashMap::new(),
 ///     examples: Some(vec![json!({"input": "test", "output": "result"})]),
 /// };
 /// ```
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Task {
+    /// Unique task identifier
+    pub id: Uuid,
+    /// Task description
+    pub description: String,
+    /// Task priority
+    pub priority: Priority,
+    /// Creation timestamp
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    /// Additional metadata
+    pub metadata: std::collections::HashMap<String, Value>,
     /// Optional example inputs/outputs for few-shot learning
     pub examples: Option<Vec<Value>>,
 }
@@ -38,6 +106,11 @@ impl Task {
     /// ```
     pub fn example() -> Self {
         Self {
+            id: Uuid::new_v4(),
+            description: "Analyze the impact of AI on software development".to_string(),
+            priority: Priority::High,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
             examples: Some(vec![serde_json::json!({"name": "example", "value": 42})]),
         }
     }
@@ -109,7 +182,7 @@ impl Contract {
 
     /// Creates an example contract for testing.
     ///
-    /// Includes a simple schema requiring a "name" field and one invariant.
+    /// Includes a simple schema requiring a "name" field and example invariants.
     ///
     /// # Examples
     ///
@@ -118,12 +191,16 @@ impl Contract {
     ///
     /// let contract = Contract::example();
     /// assert!(contract.schema_json.contains("name"));
-    /// assert_eq!(contract.invariants.len(), 1);
+    /// assert_eq!(contract.invariants.len(), 2);
     /// ```
     pub fn example() -> Self {
         let mut c = Self::new();
-        c.schema_json = r#"{"type":"object","required":["name"]}"#.to_string();
-        c.invariants = vec![Invariant];
+        c.schema_json = r#"{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"score":{"type":"number"}}}"#.to_string();
+        c.invariants = vec![
+            Invariant::JsonPathExists("name".to_string()),
+            Invariant::NumericRange("score".to_string(), 0.0, 100.0),
+        ];
+        c.examples = vec![serde_json::json!({"name": "example", "score": 95.5})];
         c
     }
 }
@@ -131,17 +208,40 @@ impl Contract {
 /// Logical invariant constraint.
 ///
 /// Represents a logical condition that must always hold for valid outputs.
-/// Currently a placeholder type for future invariant logic implementation.
+/// Supports various types of constraints for runtime validation.
 ///
 /// # Examples
 ///
 /// ```
 /// use synthesis_orchestrator::Invariant;
+/// use serde_json::json;
 ///
-/// let inv = Invariant;
+/// // Check that a field exists
+/// let inv1 = Invariant::JsonPathExists("user.name".to_string());
+///
+/// // Check that a field has a specific value
+/// let inv2 = Invariant::JsonPathValue("status".to_string(), json!("active"));
+///
+/// // Check numeric range
+/// let inv3 = Invariant::NumericRange("score".to_string(), 0.0, 100.0);
+///
+/// // Check string length
+/// let inv4 = Invariant::StringLength("description".to_string(), 10, 500);
 /// ```
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Invariant;
+pub enum Invariant {
+    /// Checks that a value exists at the specified JSON path
+    JsonPathExists(String),
+
+    /// Checks that a value at the JSON path equals the expected value
+    JsonPathValue(String, Value),
+
+    /// Checks that a numeric value at the JSON path is within the specified range
+    NumericRange(String, f64, f64),
+
+    /// Checks that a string value at the JSON path has length within the specified bounds
+    StringLength(String, usize, usize),
+}
 
 /// AI-generated candidate response.
 ///
@@ -374,7 +474,14 @@ mod tests {
 
     #[test]
     fn test_task_creation() {
-        let task = Task { examples: None };
+        let task = Task {
+            id: Uuid::new_v4(),
+            description: "Test task".to_string(),
+            priority: Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
+            examples: None,
+        };
         assert!(task.examples.is_none());
     }
 
@@ -419,7 +526,8 @@ mod tests {
         let contract = Contract::example();
         assert!(contract.schema_json.contains("type"));
         assert!(contract.schema_json.contains("object"));
-        assert_eq!(contract.invariants.len(), 1);
+        assert_eq!(contract.invariants.len(), 2);
+        assert_eq!(contract.examples.len(), 1);
     }
 
     #[test]
@@ -604,13 +712,16 @@ mod tests {
 
     #[test]
     fn test_invariant_serialization() {
-        let invariant = Invariant;
+        let invariant = Invariant::JsonPathExists("test.path".to_string());
         let json = serde_json::to_string(&invariant).unwrap();
-        assert_eq!(json, "null");
+        assert!(json.contains("JsonPathExists"));
+        assert!(json.contains("test.path"));
 
         let deserialized: Invariant = serde_json::from_str(&json).unwrap();
-        // Should deserialize without error
-        let _: Invariant = deserialized;
+        match deserialized {
+            Invariant::JsonPathExists(path) => assert_eq!(path, "test.path"),
+            _ => panic!("Wrong variant deserialized"),
+        }
     }
 
     #[test]

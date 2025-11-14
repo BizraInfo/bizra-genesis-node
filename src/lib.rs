@@ -3,6 +3,7 @@
 // All Weeks 1-4 unified into working system
 
 #![forbid(unsafe_code)]
+#![allow(ambiguous_glob_reexports)]
 // AVX512 target features are now stable in Rust 1.89.0+, no feature flag needed
 
 //! # BIZRA Synthesis Orchestrator
@@ -10,6 +11,7 @@
 //! Professional Elite multi-agent consensus system implementing:
 //! - Thompson Sampling routing (Week 2)
 //! - Weighted-Score Consensus with Ihsan gates (Week 1, 2)
+//! - Genesis Validation Layer (Ramadan 2023 spiritual principles)
 //! - SIMD/AVX2/AVX512 performance optimization (Week 3)
 //! - Cryptographic receipts with Ed25519 + BLAKE3 (Week 4)
 
@@ -17,23 +19,35 @@
 // MODULE DECLARATIONS
 // ═══════════════════════════════════════════════════════════════════════
 
+// AEGIS multi-agent consensus system
+#[path = "aegis/mod.rs"]
+pub mod aegis;
+pub mod agentfold;
 pub mod agents;
 mod ai_backend;
 pub mod cli;
 pub mod consensus;
+pub mod genesis_validation;
+pub mod metrics;
 pub mod parser;
 pub mod performance;
+pub mod replay;
 pub mod routing;
 pub mod scoring;
 pub mod trust;
 pub mod types;
 
 // Re-export public API
+pub use aegis::{AegisError, AegisResult, Agent, AgentId};
+pub use agentfold::*;
 pub use agents::*;
 pub use ai_backend::*;
 pub use consensus::*;
+pub use genesis_validation::*;
+pub use metrics::*;
 pub use parser::*;
 pub use performance::*;
+pub use replay::*;
 pub use routing::*;
 pub use scoring::*;
 pub use trust::*;
@@ -53,6 +67,9 @@ pub struct SynthesisOrchestrator {
 
     /// WSC for consensus
     consensus: WeightedScoreConsensus,
+
+    /// Genesis validator for spiritual alignment (Ramadan 2023 principles)
+    genesis_validator: GenesisValidator,
 
     /// Trust bridge for signing
     trust_bridge: TrustBridge,
@@ -91,6 +108,7 @@ impl SynthesisOrchestrator {
             router: ThompsonRouter::new(),
             ihsan_gate: IhsanGate::new(0.85),
             consensus: WeightedScoreConsensus::new(ConsensusConfig::default()),
+            genesis_validator: GenesisValidator::default(),
             trust_bridge: TrustBridge::new()?,
             impact_tracker: ImpactTracker::new(),
             ai_backend,
@@ -119,6 +137,23 @@ impl SynthesisOrchestrator {
         // PHASE 4: CONSENSUS (WSC with Pareto)
         let winner = self.consensus.select_winner(&scored_candidates)?;
         tracing::info!("Consensus reached: {}", winner.model);
+
+        // PHASE 4.5: GENESIS VALIDATION (Ramadan 2023 Spiritual Principles)
+        let (spiritual_dims, genesis_passed) = self.genesis_validator.validate_candidate(
+            &winner.model,
+            &winner.scores,
+            &serde_json::to_string(&winner.json).unwrap_or_default(),
+        )?;
+        tracing::info!(
+            "Genesis validation: {:.2} spiritual score",
+            spiritual_dims.overall_alignment()
+        );
+
+        if !genesis_passed {
+            tracing::warn!("Candidate failed genesis validation - spiritual principles not met");
+            // Could implement fallback logic here, but for now we proceed
+            // The spiritual score is recorded for transparency
+        }
 
         // PHASE 5: PROOF-OF-IMPACT
         let impact = self.calculate_impact(&winner, &scored_candidates);
@@ -302,7 +337,7 @@ mod integration_tests {
             let task = Task::example();
             let contract = Contract::example();
             let routes = vec!["test-route".to_string()];
-            
+
             let synthesis_result = orchestrator.synthesize(&task, &contract, routes).await;
             // Should succeed if Ollama is available
             if synthesis_result.is_ok() {
@@ -318,7 +353,7 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-1".to_string()];
-        
+
         // This should succeed
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
@@ -330,10 +365,12 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-a".to_string(), "route-b".to_string()];
-        
+
         // Run multiple syntheses
         for i in 0..10 {
-            let result = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            let result = orchestrator
+                .synthesize(&task, &contract, routes.clone())
+                .await;
             assert!(result.is_ok(), "Synthesis {} failed", i);
             let synthesis_result = result.unwrap();
             assert!(!synthesis_result.winner.model.is_empty());
@@ -345,8 +382,12 @@ mod integration_tests {
         let mut orchestrator = SynthesisOrchestrator::new().unwrap();
         let task = Task::example();
         let contract = Contract::example();
-        let routes = vec!["model-1".to_string(), "model-2".to_string(), "model-3".to_string()];
-        
+        let routes = vec![
+            "model-1".to_string(),
+            "model-2".to_string(),
+            "model-3".to_string(),
+        ];
+
         // Run synthesis and verify consensus works
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
@@ -361,7 +402,7 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["test-model".to_string()];
-        
+
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
         // Trust receipt should be generated internally
@@ -374,7 +415,7 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["test-route".to_string()];
-        
+
         // Run synthesis - impact should be recorded internally
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
@@ -387,10 +428,12 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["route-a".to_string(), "route-b".to_string()];
-        
+
         // Run multiple syntheses - router should adapt internally
         for _ in 0..20 {
-            let result = orchestrator.synthesize(&task, &contract, routes.clone()).await;
+            let result = orchestrator
+                .synthesize(&task, &contract, routes.clone())
+                .await;
             assert!(result.is_ok());
         }
         // Router adaptation is tested in test_thompson_sampling_adaptation
@@ -401,11 +444,11 @@ mod integration_tests {
         // Test default creation
         let orchestrator1 = SynthesisOrchestrator::new();
         assert!(orchestrator1.is_ok());
-        
+
         // Test MOE creation (may fail if Ollama not available)
         let _orchestrator2 = SynthesisOrchestrator::with_moe();
         // This is OK to fail if Ollama is not configured
-        
+
         // Test that we can create multiple instances
         let orchestrator3 = SynthesisOrchestrator::new();
         assert!(orchestrator3.is_ok());
@@ -417,10 +460,10 @@ mod integration_tests {
         let task = Task::example();
         let contract = Contract::example();
         let routes = vec!["test-route".to_string()];
-        
+
         let result = orchestrator.synthesize(&task, &contract, routes).await;
         assert!(result.is_ok());
-        
+
         let synthesis_result = result.unwrap();
         // Verify telemetry is collected
         assert!(synthesis_result.telemetry.sli_metrics.json_compliance_rate >= 0.0);

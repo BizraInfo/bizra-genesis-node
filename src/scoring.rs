@@ -68,6 +68,24 @@ impl IhsanGate {
         Self { ihsan_floor: floor }
     }
 
+    /// Simple evaluation method for consensus engine (returns score as f64)
+    pub async fn evaluate(&self, output: &str) -> crate::aegis::error::AegisResult<f64> {
+        // Create a basic candidate from the output string
+        let candidate = Candidate {
+            model: "consensus-agent".to_string(),
+            json: serde_json::json!({"output": output}),
+            scores: crate::CandidateScores::default(),
+            cost_usd: 0.001,
+            latency_ms: 100,
+        };
+
+        // Create a basic contract
+        let contract = Contract::new();
+
+        // Return score as f64
+        Ok(self.score(&candidate, &contract) as f64)
+    }
+
     /// Calculates multi-dimensional Ihsan (excellence) score for a candidate.
     ///
     /// Evaluates candidate across four weighted dimensions using harmonic mean

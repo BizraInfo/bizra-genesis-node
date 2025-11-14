@@ -7,6 +7,7 @@ use crate::cli::{AgentCLI, CLIConfig};
 use crate::types::Task;
 use std::error::Error;
 use std::io::{self, Write};
+use uuid::Uuid;
 
 /// CLI Commands
 #[derive(Debug, Clone)]
@@ -237,7 +238,14 @@ impl CommandExecutor {
     async fn show_health(&mut self, detailed: bool) -> Result<(), Box<dyn Error>> {
         println!("\n🏥 Generating System Health Report...\n");
 
-        let task = Task { examples: None };
+        let task = Task {
+            id: Uuid::new_v4(),
+            description: "Health check task".to_string(),
+            priority: crate::types::Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
+            examples: None,
+        };
         let health = self
             .cli
             .sat_manager()
@@ -505,11 +513,23 @@ impl CommandExecutor {
         let input = input.trim();
 
         if input.is_empty() {
-            return Ok(Task { examples: None });
+            return Ok(Task {
+                id: Uuid::new_v4(),
+                description: "CLI default task".to_string(),
+                priority: crate::types::Priority::Medium,
+                created_at: chrono::Utc::now(),
+                metadata: std::collections::HashMap::new(),
+                examples: None,
+            });
         }
 
         let examples: serde_json::Value = serde_json::from_str(input)?;
         Ok(Task {
+            id: Uuid::new_v4(),
+            description: "CLI task from user input".to_string(),
+            priority: crate::types::Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
             examples: Some(vec![examples]),
         })
     }

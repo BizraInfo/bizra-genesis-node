@@ -456,10 +456,7 @@ mod tests {
         let backend = SimulatedBackend;
         let task = Task::example();
 
-        let candidates = backend
-            .generate_candidates(&task, "test", 5)
-            .await
-            .unwrap();
+        let candidates = backend.generate_candidates(&task, "test", 5).await.unwrap();
 
         // Verify quality increases with index
         for (i, candidate) in candidates.iter().enumerate() {
@@ -473,10 +470,7 @@ mod tests {
         let backend = SimulatedBackend;
         let task = Task::example();
 
-        let candidates = backend
-            .generate_candidates(&task, "test", 3)
-            .await
-            .unwrap();
+        let candidates = backend.generate_candidates(&task, "test", 3).await.unwrap();
 
         assert_eq!(candidates[0].cost_usd, 0.01);
         assert_eq!(candidates[1].cost_usd, 0.02);
@@ -488,10 +482,7 @@ mod tests {
         let backend = SimulatedBackend;
         let task = Task::example();
 
-        let candidates = backend
-            .generate_candidates(&task, "test", 3)
-            .await
-            .unwrap();
+        let candidates = backend.generate_candidates(&task, "test", 3).await.unwrap();
 
         assert_eq!(candidates[0].latency_ms, 1000);
         assert_eq!(candidates[1].latency_ms, 1200);
@@ -503,10 +494,7 @@ mod tests {
         let backend = SimulatedBackend;
         let task = Task::example();
 
-        let candidates = backend
-            .generate_candidates(&task, "test", 1)
-            .await
-            .unwrap();
+        let candidates = backend.generate_candidates(&task, "test", 1).await.unwrap();
 
         assert!(candidates[0].json.get("task").is_some());
         assert!(candidates[0].json.get("index").is_some());
@@ -644,11 +632,7 @@ mod tests {
 
         // Cache a response
         backend
-            .cache_response(
-                "test prompt".to_string(),
-                "test response".to_string(),
-                0.95,
-            )
+            .cache_response("test prompt".to_string(), "test response".to_string(), 0.95)
             .await;
 
         // Verify cached
@@ -664,6 +648,11 @@ mod tests {
     #[test]
     fn test_moe_backend_task_to_prompt_with_examples() {
         let task = Task {
+            id: uuid::Uuid::new_v4(),
+            description: "Test task for MOE backend".to_string(),
+            priority: crate::types::Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
             examples: Some(vec![serde_json::json!({"test": "value"})]),
         };
 
@@ -674,7 +663,14 @@ mod tests {
 
     #[test]
     fn test_moe_backend_task_to_prompt_without_examples() {
-        let task = Task { examples: None };
+        let task = Task {
+            id: uuid::Uuid::new_v4(),
+            description: "Test task for MOE backend without examples".to_string(),
+            priority: crate::types::Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
+            examples: None,
+        };
 
         let prompt = MoeBackend::task_to_prompt(&task);
         assert!(prompt.contains("Complete the given task"));
@@ -754,15 +750,17 @@ mod tests {
         let backend = MoeBackend::new();
 
         // Simulate some metrics updates
-        backend.update_metrics(|m| {
-            m.total_requests = 10;
-            m.cache_hits = 3;
-            m.cache_misses = 7;
-            m.successful_responses = 8;
-            m.failed_responses = 2;
-            m.total_latency_ms = 4000;
-            m.avg_confidence = 0.88;
-        }).await;
+        backend
+            .update_metrics(|m| {
+                m.total_requests = 10;
+                m.cache_hits = 3;
+                m.cache_misses = 7;
+                m.successful_responses = 8;
+                m.failed_responses = 2;
+                m.total_latency_ms = 4000;
+                m.avg_confidence = 0.88;
+            })
+            .await;
 
         let metrics = backend.get_metrics().await;
         assert_eq!(metrics.total_requests, 10);
@@ -789,7 +787,10 @@ mod tests {
 
         // Simulated is always healthy
         let is_healthy = backend.health_check().await;
-        assert!(is_healthy, "Hybrid should be healthy if simulated is healthy");
+        assert!(
+            is_healthy,
+            "Hybrid should be healthy if simulated is healthy"
+        );
     }
 
     // Note: Full MOE integration tests require Ollama running
@@ -804,10 +805,7 @@ mod tests {
         let backend: Box<dyn AIBackend> = Box::new(SimulatedBackend);
         let task = Task::example();
 
-        let candidates = backend
-            .generate_candidates(&task, "test", 2)
-            .await
-            .unwrap();
+        let candidates = backend.generate_candidates(&task, "test", 2).await.unwrap();
 
         assert_eq!(candidates.len(), 2);
         assert!(backend.health_check().await);
@@ -832,10 +830,12 @@ mod tests {
     async fn test_moe_backend_clone_metrics() {
         let backend = MoeBackend::new();
 
-        backend.update_metrics(|m| {
-            m.total_requests = 5;
-            m.cache_hits = 2;
-        }).await;
+        backend
+            .update_metrics(|m| {
+                m.total_requests = 5;
+                m.cache_hits = 2;
+            })
+            .await;
 
         let metrics1 = backend.get_metrics().await;
         let metrics2 = backend.get_metrics().await;
@@ -871,11 +871,7 @@ mod tests {
             let backend_clone = std::sync::Arc::clone(&backend);
             let handle = tokio::spawn(async move {
                 backend_clone
-                    .cache_response(
-                        format!("prompt-{}", i),
-                        format!("response-{}", i),
-                        0.9,
-                    )
+                    .cache_response(format!("prompt-{}", i), format!("response-{}", i), 0.9)
                     .await;
             });
             handles.push(handle);
