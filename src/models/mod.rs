@@ -51,8 +51,8 @@ pub mod errors;
 pub mod traits;
 pub mod types;
 
-// Provider implementations will be added here
-// pub mod ollama;
+// Provider implementations
+pub mod ollama;
 // pub mod openai;
 // pub mod anthropic;
 // pub mod registry;
@@ -64,6 +64,9 @@ pub use types::{
     CompletionOptions, CompletionResponse, FinishReason, HealthStatus, ModelInfo, ProviderHealth,
     RetryConfig, StreamChunk, TokenUsage,
 };
+
+// Provider re-exports
+pub use ollama::{OllamaConfig, OllamaProvider};
 
 /// Module version
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

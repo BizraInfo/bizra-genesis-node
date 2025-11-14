@@ -47,7 +47,10 @@ pub use ai_backend::*;
 pub use consensus::*;
 pub use genesis_validation::*;
 pub use metrics::*;
-pub use models::{ModelProvider, ModelError, ModelResult, CompletionOptions, CompletionResponse};
+pub use models::{
+    CompletionOptions, CompletionResponse, ModelError, ModelProvider, ModelResult,
+    OllamaConfig, OllamaProvider,
+};
 pub use parser::*;
 pub use performance::*;
 pub use persistence::{DatabasePool, DbError, DbResult, PersistenceManager, HealthStatus};
