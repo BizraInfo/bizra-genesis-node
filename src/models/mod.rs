@@ -54,8 +54,8 @@ pub mod types;
 // Provider implementations
 pub mod ollama;
 pub mod openai;
+pub mod anthropic;
 pub mod registry;
-// pub mod anthropic;
 
 // Re-exports for convenience
 pub use errors::{ModelError, ModelResult};
@@ -66,6 +66,7 @@ pub use types::{
 };
 
 // Provider re-exports
+pub use anthropic::{AnthropicConfig, AnthropicProvider};
 pub use ollama::{OllamaConfig, OllamaProvider};
 pub use openai::{OpenAIConfig, OpenAIProvider};
 pub use registry::{ModelRequirements, ProviderRegistry, SelectedModel, SelectionStrategy};

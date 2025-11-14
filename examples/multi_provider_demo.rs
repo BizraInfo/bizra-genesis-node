@@ -5,16 +5,17 @@
 //
 // Prerequisites:
 // 1. Set OPENAI_API_KEY environment variable (for OpenAI)
-// 2. Install and run Ollama with a model (for local inference)
+// 2. Set ANTHROPIC_API_KEY environment variable (for Claude 3)
+// 3. Install and run Ollama with a model (for local inference)
 //
 // Run this example:
 // ```bash
-// OPENAI_API_KEY=sk-... cargo run --example multi_provider_demo
+// OPENAI_API_KEY=sk-... ANTHROPIC_API_KEY=sk-ant-... cargo run --example multi_provider_demo
 // ```
 
 use bizra_genesis_node::models::{
-    CompletionOptions, ModelRequirements, OllamaProvider, OpenAIConfig, OpenAIProvider,
-    ProviderRegistry, SelectionStrategy,
+    AnthropicConfig, AnthropicProvider, CompletionOptions, ModelRequirements, OllamaProvider,
+    OpenAIConfig, OpenAIProvider, ProviderRegistry, SelectionStrategy,
 };
 use std::error::Error;
 use tracing::{info, Level};
@@ -43,7 +44,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let ollama = OllamaProvider::new("http://localhost:11434");
     registry.register("ollama", ollama, 5);
 
-    // Register OpenAI (cloud, lower priority)
+    // Register OpenAI (cloud, medium priority)
     if let Ok(api_key) = std::env::var("OPENAI_API_KEY") {
         info!("Registering OpenAI (GPT-4, GPT-3.5)...");
         let openai_config = OpenAIConfig::new(api_key);
@@ -51,7 +52,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
         registry.register("openai", openai, 10);
     } else {
         info!("⚠️  OPENAI_API_KEY not set - skipping OpenAI registration");
-        info!("   Demo will use Ollama only");
+    }
+
+    // Register Anthropic (Claude 3, high priority for quality)
+    if let Ok(api_key) = std::env::var("ANTHROPIC_API_KEY") {
+        info!("Registering Anthropic (Claude 3 Opus, Sonnet, Haiku)...");
+        let anthropic_config = AnthropicConfig::new(api_key);
+        let anthropic = AnthropicProvider::new(anthropic_config);
+        registry.register("anthropic", anthropic, 15);
+    } else {
+        info!("⚠️  ANTHROPIC_API_KEY not set - skipping Anthropic registration");
     }
 
     let providers = registry.list_providers().await;
