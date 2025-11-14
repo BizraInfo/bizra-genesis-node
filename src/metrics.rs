@@ -255,6 +255,172 @@ pub static IHSAN_PASSES_TOTAL: Lazy<Counter> = Lazy::new(|| {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
+// DATABASE & PERSISTENCE METRICS
+// ═══════════════════════════════════════════════════════════════════════
+
+/// PostgreSQL connection pool - active connections
+pub static DB_POOL_ACTIVE_CONNECTIONS: Lazy<Gauge> = Lazy::new(|| {
+    let gauge = register_gauge!(
+        "bizra_db_pool_active_connections",
+        "Number of active PostgreSQL connections in the pool"
+    )
+    .expect("Failed to register db_pool_active_connections gauge");
+
+    METRICS_REGISTRY
+        .register(Box::new(gauge.clone()))
+        .expect("Failed to register DB pool active to global registry");
+
+    gauge
+});
+
+/// PostgreSQL connection pool - idle connections
+pub static DB_POOL_IDLE_CONNECTIONS: Lazy<Gauge> = Lazy::new(|| {
+    let gauge = register_gauge!(
+        "bizra_db_pool_idle_connections",
+        "Number of idle PostgreSQL connections in the pool"
+    )
+    .expect("Failed to register db_pool_idle_connections gauge");
+
+    METRICS_REGISTRY
+        .register(Box::new(gauge.clone()))
+        .expect("Failed to register DB pool idle to global registry");
+
+    gauge
+});
+
+/// Database query duration by operation type
+/// Labels: operation (insert, select, update, delete)
+pub static DB_QUERY_DURATION_SECONDS: Lazy<HistogramVec> = Lazy::new(|| {
+    let histogram_vec = register_histogram_vec!(
+        "bizra_db_query_duration_seconds",
+        "Database query duration in seconds by operation type",
+        &["operation", "table"],
+        vec![0.001, 0.002, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0] // 1ms to 1s
+    )
+    .expect("Failed to register db_query_duration_seconds histogram_vec");
+
+    METRICS_REGISTRY
+        .register(Box::new(histogram_vec.clone()))
+        .expect("Failed to register DB query duration to global registry");
+
+    histogram_vec
+});
+
+/// Total database operations by type
+pub static DB_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
+    use prometheus::IntCounterVec;
+    let counter_vec = prometheus::register_int_counter_vec!(
+        "bizra_db_operations_total",
+        "Total number of database operations by type",
+        &["operation", "table"]
+    )
+    .expect("Failed to register db_operations_total counter_vec");
+
+    METRICS_REGISTRY
+        .register(Box::new(counter_vec.clone()))
+        .expect("Failed to register DB operations to global registry");
+
+    counter_vec
+});
+
+/// Database errors by type
+pub static DB_ERRORS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
+    use prometheus::IntCounterVec;
+    let counter_vec = prometheus::register_int_counter_vec!(
+        "bizra_db_errors_total",
+        "Total number of database errors by error type",
+        &["error_type", "table"]
+    )
+    .expect("Failed to register db_errors_total counter_vec");
+
+    METRICS_REGISTRY
+        .register(Box::new(counter_vec.clone()))
+        .expect("Failed to register DB errors to global registry");
+
+    counter_vec
+});
+
+/// Redis cache hit rate
+pub static CACHE_HIT_RATE: Lazy<Gauge> = Lazy::new(|| {
+    let gauge = register_gauge!(
+        "bizra_cache_hit_rate",
+        "Redis cache hit rate (0.0-1.0)"
+    )
+    .expect("Failed to register cache_hit_rate gauge");
+
+    METRICS_REGISTRY
+        .register(Box::new(gauge.clone()))
+        .expect("Failed to register cache hit rate to global registry");
+
+    gauge
+});
+
+/// Cache operations (hits, misses, sets)
+pub static CACHE_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
+    use prometheus::IntCounterVec;
+    let counter_vec = prometheus::register_int_counter_vec!(
+        "bizra_cache_operations_total",
+        "Total number of cache operations by type",
+        &["operation"] // hit, miss, set, delete
+    )
+    .expect("Failed to register cache_operations_total counter_vec");
+
+    METRICS_REGISTRY
+        .register(Box::new(counter_vec.clone()))
+        .expect("Failed to register cache operations to global registry");
+
+    counter_vec
+});
+
+/// Cache operation latency
+pub static CACHE_OPERATION_DURATION_SECONDS: Lazy<HistogramVec> = Lazy::new(|| {
+    let histogram_vec = register_histogram_vec!(
+        "bizra_cache_operation_duration_seconds",
+        "Redis cache operation duration in seconds",
+        &["operation"],
+        vec![0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.025] // 0.1ms to 25ms
+    )
+    .expect("Failed to register cache_operation_duration_seconds histogram_vec");
+
+    METRICS_REGISTRY
+        .register(Box::new(histogram_vec.clone()))
+        .expect("Failed to register cache duration to global registry");
+
+    histogram_vec
+});
+
+/// Database migration execution time
+pub static DB_MIGRATION_DURATION_SECONDS: Lazy<Histogram> = Lazy::new(|| {
+    let histogram = register_histogram!(
+        "bizra_db_migration_duration_seconds",
+        "Database migration execution time in seconds",
+        vec![0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0, 120.0] // 100ms to 2 minutes
+    )
+    .expect("Failed to register db_migration_duration_seconds histogram");
+
+    METRICS_REGISTRY
+        .register(Box::new(histogram.clone()))
+        .expect("Failed to register migration duration to global registry");
+
+    histogram
+});
+
+/// Total database migrations applied
+pub static DB_MIGRATIONS_APPLIED_TOTAL: Lazy<Counter> = Lazy::new(|| {
+    let counter = register_counter!(
+        "bizra_db_migrations_applied_total",
+        "Total number of database migrations applied"
+    )
+    .expect("Failed to register db_migrations_applied_total counter");
+
+    METRICS_REGISTRY
+        .register(Box::new(counter.clone()))
+        .expect("Failed to register migrations applied to global registry");
+
+    counter
+});
+
+// ═══════════════════════════════════════════════════════════════════════
 // CRYPTOGRAPHIC TRUST METRICS
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -328,29 +494,49 @@ pub fn gather_metrics() -> String {
 /// Call this at application startup to register all metrics with Prometheus
 pub fn initialize_metrics() {
     // Force initialization of all lazy statics by accessing them
+
+    // Consensus metrics
     let _ = &*CONSENSUS_LATENCY_MICROSECONDS;
     let _ = &*CONSENSUS_OPERATIONS_TOTAL;
     let _ = &*CONSENSUS_PARETO_CANDIDATES;
 
+    // PoI metrics
     let _ = &*POI_VALIDATION_SUCCESS_RATE;
     let _ = &*POI_VALIDATION_ATTEMPTS_TOTAL;
     let _ = &*POI_VALIDATION_SUCCESS_TOTAL;
     let _ = &*POI_VALIDATION_FAILURE_TOTAL;
     let _ = &*POI_SCORE_DISTRIBUTION;
 
+    // Routing metrics
     let _ = &*ROUTING_LATENCY_MICROSECONDS;
     let _ = &*ROUTING_OPERATIONS_TOTAL;
     let _ = &*ROUTE_WIN_RATES;
 
+    // Ihsan metrics
     let _ = &*IHSAN_SCORE_DISTRIBUTION;
     let _ = &*IHSAN_REJECTIONS_TOTAL;
     let _ = &*IHSAN_PASSES_TOTAL;
 
+    // Database metrics
+    let _ = &*DB_POOL_ACTIVE_CONNECTIONS;
+    let _ = &*DB_POOL_IDLE_CONNECTIONS;
+    let _ = &*DB_QUERY_DURATION_SECONDS;
+    let _ = &*DB_OPERATIONS_TOTAL;
+    let _ = &*DB_ERRORS_TOTAL;
+    let _ = &*DB_MIGRATION_DURATION_SECONDS;
+    let _ = &*DB_MIGRATIONS_APPLIED_TOTAL;
+
+    // Cache metrics
+    let _ = &*CACHE_HIT_RATE;
+    let _ = &*CACHE_OPERATIONS_TOTAL;
+    let _ = &*CACHE_OPERATION_DURATION_SECONDS;
+
+    // Cryptographic metrics
     let _ = &*RECEIPT_GENERATION_LATENCY_MICROSECONDS;
     let _ = &*RECEIPTS_GENERATED_TOTAL;
     let _ = &*RECEIPT_VERIFICATION_SUCCESS_RATE;
 
-    tracing::info!("✅ Prometheus metrics initialized (18 metrics registered)");
+    tracing::info!("✅ Prometheus metrics initialized (28 metrics registered)");
 }
 
 /// Calculate and update PoI success rate from counters
@@ -371,6 +557,60 @@ pub fn update_receipt_verification_rate(successes: u64, total: u64) {
         let rate = successes as f64 / total as f64;
         RECEIPT_VERIFICATION_SUCCESS_RATE.set(rate);
     }
+}
+
+/// Update database connection pool metrics
+pub fn update_db_pool_metrics(active: usize, idle: usize) {
+    DB_POOL_ACTIVE_CONNECTIONS.set(active as f64);
+    DB_POOL_IDLE_CONNECTIONS.set(idle as f64);
+}
+
+/// Record a database query with timing
+pub fn record_db_query(operation: &str, table: &str, duration_seconds: f64) {
+    DB_QUERY_DURATION_SECONDS
+        .with_label_values(&[operation, table])
+        .observe(duration_seconds);
+
+    DB_OPERATIONS_TOTAL
+        .with_label_values(&[operation, table])
+        .inc();
+}
+
+/// Record a database error
+pub fn record_db_error(error_type: &str, table: &str) {
+    DB_ERRORS_TOTAL
+        .with_label_values(&[error_type, table])
+        .inc();
+}
+
+/// Calculate and update cache hit rate from counters
+/// Call this periodically or after each batch of cache operations
+pub fn update_cache_hit_rate() {
+    let hits = CACHE_OPERATIONS_TOTAL.with_label_values(&["hit"]).get();
+    let misses = CACHE_OPERATIONS_TOTAL.with_label_values(&["miss"]).get();
+    let total = hits + misses;
+
+    if total > 0 {
+        let rate = hits as f64 / total as f64;
+        CACHE_HIT_RATE.set(rate);
+    }
+}
+
+/// Record a cache operation with timing
+pub fn record_cache_operation(operation: &str, duration_seconds: f64) {
+    CACHE_OPERATION_DURATION_SECONDS
+        .with_label_values(&[operation])
+        .observe(duration_seconds);
+
+    CACHE_OPERATIONS_TOTAL
+        .with_label_values(&[operation])
+        .inc();
+}
+
+/// Record database migration execution
+pub fn record_db_migration(duration_seconds: f64) {
+    DB_MIGRATION_DURATION_SECONDS.observe(duration_seconds);
+    DB_MIGRATIONS_APPLIED_TOTAL.inc();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -450,5 +690,76 @@ mod tests {
 
         let metrics_text = gather_metrics();
         assert!(metrics_text.contains("gpt-4"));
+    }
+
+    #[test]
+    fn test_db_pool_metrics() {
+        update_db_pool_metrics(15, 85); // 15 active, 85 idle (out of 100 max)
+
+        assert_eq!(DB_POOL_ACTIVE_CONNECTIONS.get(), 15.0);
+        assert_eq!(DB_POOL_IDLE_CONNECTIONS.get(), 85.0);
+    }
+
+    #[test]
+    fn test_db_query_metrics() {
+        record_db_query("insert", "trust_receipts", 0.003); // 3ms
+
+        let metrics_text = gather_metrics();
+        assert!(metrics_text.contains("trust_receipts"));
+        assert!(metrics_text.contains("insert"));
+    }
+
+    #[test]
+    fn test_db_error_metrics() {
+        record_db_error("connection_timeout", "router_state");
+
+        let metrics_text = gather_metrics();
+        assert!(metrics_text.contains("connection_timeout"));
+    }
+
+    #[test]
+    fn test_cache_operations() {
+        // Simulate cache hits and misses
+        record_cache_operation("hit", 0.0005); // 0.5ms cache hit
+        record_cache_operation("hit", 0.0003); // 0.3ms cache hit
+        record_cache_operation("miss", 0.001); // 1ms cache miss
+        record_cache_operation("set", 0.002); // 2ms cache set
+
+        update_cache_hit_rate();
+
+        // Hit rate should be 2 hits / (2 hits + 1 miss) = 66.67%
+        let hit_rate = CACHE_HIT_RATE.get();
+        assert!((0.66..=0.67).contains(&hit_rate));
+
+        let metrics_text = gather_metrics();
+        assert!(metrics_text.contains("bizra_cache_hit_rate"));
+    }
+
+    #[test]
+    fn test_db_migration_metrics() {
+        record_db_migration(1.5); // 1.5 seconds
+
+        assert_eq!(DB_MIGRATIONS_APPLIED_TOTAL.get(), 1.0);
+
+        let metrics_text = gather_metrics();
+        assert!(metrics_text.contains("bizra_db_migration_duration_seconds"));
+    }
+
+    #[test]
+    fn test_all_database_metrics_initialized() {
+        initialize_metrics();
+
+        let metrics_text = gather_metrics();
+
+        // Verify all database metrics are present
+        assert!(metrics_text.contains("bizra_db_pool_active_connections"));
+        assert!(metrics_text.contains("bizra_db_pool_idle_connections"));
+        assert!(metrics_text.contains("bizra_db_query_duration_seconds"));
+        assert!(metrics_text.contains("bizra_db_operations_total"));
+        assert!(metrics_text.contains("bizra_db_errors_total"));
+        assert!(metrics_text.contains("bizra_cache_hit_rate"));
+        assert!(metrics_text.contains("bizra_cache_operations_total"));
+        assert!(metrics_text.contains("bizra_cache_operation_duration_seconds"));
+        assert!(metrics_text.contains("bizra_db_migration_duration_seconds"));
     }
 }
