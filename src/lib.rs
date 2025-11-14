@@ -49,7 +49,7 @@ pub use genesis_validation::*;
 pub use metrics::*;
 pub use models::{
     CompletionOptions, CompletionResponse, ModelError, ModelProvider, ModelResult,
-    OllamaConfig, OllamaProvider,
+    OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider,
 };
 pub use parser::*;
 pub use performance::*;
