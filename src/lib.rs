@@ -48,10 +48,12 @@ pub use consensus::*;
 pub use genesis_validation::*;
 pub use metrics::*;
 pub use models::{
-    AnthropicConfig, AnthropicProvider, CompletionOptions, CompletionResponse, ModelError,
-    ModelProvider, ModelRequirements, ModelResult, OllamaConfig, OllamaProvider, OpenAIConfig,
-    OpenAIProvider, ProviderRegistry, RateLimitConfig, RateLimiter, SelectedModel,
-    SelectionStrategy, UsageStats,
+    AnthropicConfig, AnthropicProvider, BackpressureHandler, BufferConfig, BufferStats,
+    BufferedStream, CompletionOptions, CompletionResponse, ModelError, ModelProvider,
+    ModelRequirements, ModelResult, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider,
+    ProviderRegistry, RateLimitConfig, RateLimiter, SelectedModel, SelectionStrategy,
+    StreamAggregator, StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler,
+    UsageStats, collect_stream, collect_stream_with_metrics,
 };
 pub use parser::*;
 pub use performance::*;

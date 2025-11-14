@@ -57,6 +57,7 @@ pub mod openai;
 pub mod anthropic;
 pub mod registry;
 pub mod rate_limit;
+pub mod streaming;
 
 // Re-exports for convenience
 pub use errors::{ModelError, ModelResult};
@@ -72,6 +73,11 @@ pub use ollama::{OllamaConfig, OllamaProvider};
 pub use openai::{OpenAIConfig, OpenAIProvider};
 pub use rate_limit::{RateLimitConfig, RateLimiter, UsageStats};
 pub use registry::{ModelRequirements, ProviderRegistry, SelectedModel, SelectionStrategy};
+pub use streaming::{
+    BackpressureHandler, BufferConfig, BufferStats, BufferedStream, StreamAggregator,
+    StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler, collect_stream,
+    collect_stream_with_metrics,
+};
 
 /// Module version
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
