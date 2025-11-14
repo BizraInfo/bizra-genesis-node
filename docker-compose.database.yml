@@ -1,0 +1,279 @@
+# BIZRA Genesis Node - Database Stack (PostgreSQL + Redis)
+# Production-ready database services with persistence and monitoring
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # PostgreSQL - Primary Data Store
+  # ==========================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: bizra-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-bizra_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bizra_password}
+      POSTGRES_DB: ${POSTGRES_DB:-bizra_genesis}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+      # Performance tuning
+      POSTGRES_SHARED_BUFFERS: 2GB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 6GB
+      POSTGRES_WORK_MEM: 16MB
+      POSTGRES_MAINTENANCE_WORK_MEM: 512MB
+
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+    volumes:
+      # Data persistence
+      - postgres_data:/var/lib/postgresql/data
+      # Custom configuration (optional)
+      - ./infra/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      # Init scripts (optional)
+      - ./infra/postgres/init-scripts:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-bizra_user} -d ${POSTGRES_DB:-bizra_genesis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - bizra-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Security: Run as non-root user
+    user: postgres
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # ==========================================================================
+  # Redis - Caching Layer
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: bizra-redis
+    restart: unless-stopped
+
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+    volumes:
+      # Data persistence
+      - redis_data:/data
+      # Custom configuration (optional)
+      - ./infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+    networks:
+      - bizra-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # ==========================================================================
+  # PgAdmin - Database Management UI (Optional - Development Only)
+  # ==========================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bizra-pgadmin
+    restart: unless-stopped
+    profiles: ["dev"]  # Only start with --profile dev
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@bizra.ai}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - bizra-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ==========================================================================
+  # RedisInsight - Redis Management UI (Optional - Development Only)
+  # ==========================================================================
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: bizra-redis-insight
+    restart: unless-stopped
+    profiles: ["dev"]  # Only start with --profile dev
+
+    ports:
+      - "${REDIS_INSIGHT_PORT:-8001}:8001"
+
+    volumes:
+      - redis_insight_data:/db
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    networks:
+      - bizra-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  bizra-network:
+    name: bizra-network
+    driver: bridge
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  postgres_data:
+    name: bizra_postgres_data
+    driver: local
+
+  redis_data:
+    name: bizra_redis_data
+    driver: local
+
+  pgadmin_data:
+    name: bizra_pgadmin_data
+    driver: local
+
+  redis_insight_data:
+    name: bizra_redis_insight_data
+    driver: local
+
+# =============================================================================
+# USAGE
+# =============================================================================
+#
+# Start databases only:
+#   docker-compose -f docker-compose.database.yml up -d
+#
+# Start with management UIs (dev mode):
+#   docker-compose -f docker-compose.database.yml --profile dev up -d
+#
+# Stop all:
+#   docker-compose -f docker-compose.database.yml down
+#
+# View logs:
+#   docker-compose -f docker-compose.database.yml logs -f postgres redis
+#
+# Run migrations:
+#   docker-compose -f docker-compose.database.yml exec postgres \
+#     psql -U bizra_user -d bizra_genesis -f /migrations/schema.sql
+#
+# Backup database:
+#   docker-compose -f docker-compose.database.yml exec postgres \
+#     pg_dump -U bizra_user bizra_genesis > backup.sql
+#
+# Access PostgreSQL CLI:
+#   docker-compose -f docker-compose.database.yml exec postgres \
+#     psql -U bizra_user -d bizra_genesis
+#
+# Access Redis CLI:
+#   docker-compose -f docker-compose.database.yml exec redis redis-cli
+#
+# Check health:
+#   docker-compose -f docker-compose.database.yml ps
+#
+# =============================================================================
+# ENVIRONMENT VARIABLES
+# =============================================================================
+#
+# Create .env file with:
+#   POSTGRES_USER=bizra_user
+#   POSTGRES_PASSWORD=your_secure_password_here
+#   POSTGRES_DB=bizra_genesis
+#   POSTGRES_PORT=5432
+#   REDIS_PORT=6379
+#   PGADMIN_EMAIL=admin@bizra.ai
+#   PGADMIN_PASSWORD=admin_password
+#   PGADMIN_PORT=5050
+#   REDIS_INSIGHT_PORT=8001
+#
+# =============================================================================
+# PRODUCTION NOTES
+# =============================================================================
+#
+# For production deployment:
+# 1. Use secrets management (Docker Swarm secrets, Kubernetes secrets)
+# 2. Enable TLS/SSL for PostgreSQL and Redis
+# 3. Configure replication (PostgreSQL streaming, Redis Sentinel)
+# 4. Set up automated backups (pg_basebackup, redis BGSAVE)
+# 5. Monitor with Prometheus exporters
+# 6. Use managed services (AWS RDS, ElastiCache) for high availability
+#
+# Security checklist:
+# - ✅ Change default passwords
+# - ✅ Limit network exposure (use internal networks)
+# - ✅ Enable authentication (redis requirepass)
+# - ✅ Use TLS for all connections
+# - ✅ Regular security updates (image scanning)
+# - ✅ Backup encryption
+# - ✅ Audit logging enabled
+#
+# =============================================================================

@@ -48,7 +48,7 @@ pub use genesis_validation::*;
 pub use metrics::*;
 pub use parser::*;
 pub use performance::*;
-pub use persistence::{DatabasePool, DbError, DbResult};
+pub use persistence::{DatabasePool, DbError, DbResult, PersistenceManager, HealthStatus};
 pub use replay::*;
 pub use routing::*;
 pub use scoring::*;
