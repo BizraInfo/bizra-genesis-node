@@ -49,11 +49,12 @@ pub use genesis_validation::*;
 pub use metrics::*;
 pub use models::{
     AnthropicConfig, AnthropicProvider, BackpressureHandler, BufferConfig, BufferStats,
-    BufferedStream, CompletionOptions, CompletionResponse, ModelError, ModelProvider,
-    ModelRequirements, ModelResult, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider,
-    ProviderRegistry, RateLimitConfig, RateLimiter, SelectedModel, SelectionStrategy,
-    StreamAggregator, StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler,
-    UsageStats, collect_stream, collect_stream_with_metrics,
+    BufferedStream, ComparisonResult, CompletionOptions, CompletionResponse, ExperimentConfig,
+    ExperimentReport, MetricType, ModelError, ModelProvider, ModelRequirements, ModelResult,
+    Observation, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider, ProviderRegistry,
+    RateLimitConfig, RateLimiter, SelectedModel, SelectionStrategy, StreamAggregator,
+    StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler, SummaryStats, UsageStats,
+    Variant, VariantStats, collect_stream, collect_stream_with_metrics,
 };
 pub use parser::*;
 pub use performance::*;

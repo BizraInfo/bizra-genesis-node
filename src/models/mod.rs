@@ -58,6 +58,7 @@ pub mod anthropic;
 pub mod registry;
 pub mod rate_limit;
 pub mod streaming;
+pub mod ab_testing;
 
 // Re-exports for convenience
 pub use errors::{ModelError, ModelResult};
@@ -77,6 +78,10 @@ pub use streaming::{
     BackpressureHandler, BufferConfig, BufferStats, BufferedStream, StreamAggregator,
     StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler, collect_stream,
     collect_stream_with_metrics,
+};
+pub use ab_testing::{
+    ComparisonResult, ExperimentConfig, ExperimentReport, MetricType, Observation, SummaryStats,
+    Variant, VariantStats,
 };
 
 /// Module version
