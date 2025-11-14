@@ -59,6 +59,7 @@ pub mod registry;
 pub mod rate_limit;
 pub mod streaming;
 pub mod ab_testing;
+pub mod thompson_sampling;
 
 // Re-exports for convenience
 pub use errors::{ModelError, ModelResult};
@@ -83,6 +84,7 @@ pub use ab_testing::{
     ComparisonResult, ExperimentConfig, ExperimentReport, MetricType, Observation, SummaryStats,
     Variant, VariantStats,
 };
+pub use thompson_sampling::{ModelPerformance, ThompsonConfig, ThompsonSamplingRouter};
 
 /// Module version
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

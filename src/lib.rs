@@ -50,11 +50,12 @@ pub use metrics::*;
 pub use models::{
     AnthropicConfig, AnthropicProvider, BackpressureHandler, BufferConfig, BufferStats,
     BufferedStream, ComparisonResult, CompletionOptions, CompletionResponse, ExperimentConfig,
-    ExperimentReport, MetricType, ModelError, ModelProvider, ModelRequirements, ModelResult,
-    Observation, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider, ProviderRegistry,
-    RateLimitConfig, RateLimiter, SelectedModel, SelectionStrategy, StreamAggregator,
-    StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler, SummaryStats, UsageStats,
-    Variant, VariantStats, collect_stream, collect_stream_with_metrics,
+    ExperimentReport, MetricType, ModelError, ModelPerformance, ModelProvider, ModelRequirements,
+    ModelResult, Observation, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider,
+    ProviderRegistry, RateLimitConfig, RateLimiter, SelectedModel, SelectionStrategy,
+    StreamAggregator, StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler,
+    SummaryStats, ThompsonConfig, ThompsonSamplingRouter, UsageStats, Variant, VariantStats,
+    collect_stream, collect_stream_with_metrics,
 };
 pub use parser::*;
 pub use performance::*;
