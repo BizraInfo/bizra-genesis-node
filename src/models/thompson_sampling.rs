@@ -9,7 +9,7 @@
 // - Bayesian inference for exploration vs exploitation
 // - Performance-based model selection
 
-use super::ab_testing::{ExperimentConfig, MetricType, Observation, Variant};
+use super::ab_testing::{ExperimentConfig, MetricType, Observation};
 use super::errors::{ModelError, ModelResult};
 use super::traits::ModelProvider;
 use super::types::{CompletionOptions, CompletionResponse};
@@ -168,7 +168,7 @@ impl ModelPerformance {
 
     /// Sample from Beta distribution (Thompson Sampling)
     pub fn sample(&mut self) -> f64 {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         let sample = sample_beta(self.alpha, self.beta, &mut rng);
         self.last_sample = Some(sample);
         sample
@@ -185,6 +185,7 @@ impl ModelPerformance {
         let mean = self.success_rate();
         let variance = (self.alpha * self.beta)
             / ((self.alpha + self.beta).powi(2) * (self.alpha + self.beta + 1.0));
+        let variance: f64 = variance;
         let std_dev = variance.sqrt();
 
         let margin = 1.96 * std_dev; // 95% confidence
@@ -257,9 +258,9 @@ impl ThompsonSamplingRouter {
         let mut performance = self.performance.write().await;
 
         if performance.is_empty() {
-            return Err(ModelError::InvalidProvider(
-                "No models registered".to_string(),
-            ));
+            return Err(ModelError::InvalidProvider {
+                message: "No models registered".to_string(),
+            });
         }
 
         // Sample from each model's Beta distribution
@@ -284,9 +285,9 @@ impl ThompsonSamplingRouter {
         }
 
         if samples.is_empty() {
-            return Err(ModelError::InvalidProvider(
-                "No models available within cost constraints".to_string(),
-            ));
+            return Err(ModelError::InvalidProvider {
+                message: "No models available within cost constraints".to_string(),
+            });
         }
 
         // Select model with highest sample
@@ -317,7 +318,9 @@ impl ThompsonSamplingRouter {
         let providers = self.providers.read().await;
         let provider = providers
             .get(&model_id)
-            .ok_or_else(|| ModelError::InvalidProvider(format!("Provider not found: {}", model_id)))?
+            .ok_or_else(|| ModelError::InvalidProvider {
+                message: format!("Provider not found: {}", model_id),
+            })?
             .clone();
 
         // Execute request
@@ -396,10 +399,9 @@ impl ThompsonSamplingRouter {
             info!("Reset statistics for model: {}", model_id);
             Ok(())
         } else {
-            Err(ModelError::InvalidProvider(format!(
-                "Model not found: {}",
-                model_id
-            )))
+            Err(ModelError::InvalidProvider {
+                message: format!("Model not found: {}", model_id),
+            })
         }
     }
 
@@ -422,7 +424,7 @@ impl ThompsonSamplingRouter {
     async fn estimate_quality(&self, response: &CompletionResponse) -> f64 {
         // Simplified quality estimation (in production, use LLM-as-judge or domain-specific metrics)
         let length_score = (response.content.len() as f64 / 100.0).min(1.0);
-        let completeness_score = if response.finish_reason.is_some() {
+        let completeness_score = if response.finish_reason.is_success() {
             1.0
         } else {
             0.5
@@ -463,11 +465,11 @@ fn sample_gamma(alpha: f64, rng: &mut impl Rng) -> f64 {
         let c = 1.0 / (9.0 * d).sqrt();
 
         loop {
-            let x = rng.sample(rand_distr::StandardNormal);
-            let v = (1.0 + c * x).powi(3);
+            let x: f64 = rng.sample(rand_distr::StandardNormal);
+            let v: f64 = (1.0 + c * x).powi(3);
 
             if v > 0.0 {
-                let u: f64 = rng.gen();
+                let u: f64 = rng.random();
                 if u < 1.0 - 0.0331 * x.powi(4) {
                     return d * v;
                 }
@@ -479,7 +481,7 @@ fn sample_gamma(alpha: f64, rng: &mut impl Rng) -> f64 {
     } else {
         // For alpha < 1, use transformation
         let gamma_alpha_plus_1 = sample_gamma(alpha + 1.0, rng);
-        let u: f64 = rng.gen();
+        let u: f64 = rng.random();
         gamma_alpha_plus_1 * u.powf(1.0 / alpha)
     }
 }

@@ -4,15 +4,14 @@
 // Central registry for managing multiple AI model providers.
 // Supports dynamic model discovery, health monitoring, and intelligent routing.
 
-use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, info, warn};
 
 use super::errors::{ModelError, ModelResult};
 use super::traits::ModelProvider;
-use super::types::{CompletionOptions, CompletionResponse, HealthStatus, ModelInfo, ProviderHealth, StreamChunk};
+use super::types::{CompletionOptions, CompletionResponse, ModelInfo, ProviderHealth, StreamChunk};
 use futures::stream::Stream;
 use std::pin::Pin;
 

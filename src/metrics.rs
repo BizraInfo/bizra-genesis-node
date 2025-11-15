@@ -308,7 +308,7 @@ pub static DB_QUERY_DURATION_SECONDS: Lazy<HistogramVec> = Lazy::new(|| {
 
 /// Total database operations by type
 pub static DB_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
-    use prometheus::IntCounterVec;
+    
     let counter_vec = prometheus::register_int_counter_vec!(
         "bizra_db_operations_total",
         "Total number of database operations by type",
@@ -325,7 +325,7 @@ pub static DB_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
 
 /// Database errors by type
 pub static DB_ERRORS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
-    use prometheus::IntCounterVec;
+    
     let counter_vec = prometheus::register_int_counter_vec!(
         "bizra_db_errors_total",
         "Total number of database errors by error type",
@@ -357,7 +357,7 @@ pub static CACHE_HIT_RATE: Lazy<Gauge> = Lazy::new(|| {
 
 /// Cache operations (hits, misses, sets)
 pub static CACHE_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
-    use prometheus::IntCounterVec;
+    
     let counter_vec = prometheus::register_int_counter_vec!(
         "bizra_cache_operations_total",
         "Total number of cache operations by type",

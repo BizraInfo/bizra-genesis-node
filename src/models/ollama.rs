@@ -10,10 +10,9 @@ use reqwest::{Client, StatusCode};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::pin::Pin;
-use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, warn};
 
 use super::errors::{ModelError, ModelResult};
 use super::traits::ModelProvider;
