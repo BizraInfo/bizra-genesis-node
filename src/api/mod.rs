@@ -6,6 +6,7 @@
 pub mod auth;
 pub mod health;
 pub mod middleware;
+pub mod metrics;
 
 use axum::{
     routing::{get, post},
