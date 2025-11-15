@@ -325,6 +325,40 @@ else
     record_test "TLS configuration" "SKIP" "nginx.conf not found"
 fi
 
+# Run dependency vulnerability audit
+log_info "Running cargo audit for dependency vulnerabilities..."
+
+if command -v cargo >/dev/null 2>&1; then
+    AUDIT_OUTPUT=$(cargo audit 2>&1)
+    AUDIT_EXIT_CODE=$?
+
+    # Count vulnerabilities (error lines)
+    VULN_COUNT=$(echo "$AUDIT_OUTPUT" | grep -c "^Crate:" || echo "0")
+
+    # Extract severity if available
+    HIGH_CRIT_COUNT=$(echo "$AUDIT_OUTPUT" | grep -i "severity.*\(high\|critical\)" | wc -l || echo "0")
+
+    if [ "$AUDIT_EXIT_CODE" -eq 0 ]; then
+        # No vulnerabilities found
+        record_test "Dependency audit (cargo audit)" "PASS" "0 vulnerabilities"
+    elif [ "$HIGH_CRIT_COUNT" -gt 0 ]; then
+        # High/Critical vulnerabilities found - FAIL
+        record_test "Dependency audit (cargo audit)" "FAIL" "$HIGH_CRIT_COUNT HIGH/CRITICAL vulnerabilities found"
+    else
+        # Only LOW/MEDIUM vulnerabilities - document as WARN (acceptable for Alpha-100)
+        # As documented in DEPLOYMENT_READINESS_CERTIFICATION.md, we have 2 MEDIUM vulns that are acceptable
+        record_test "Dependency audit (cargo audit)" "WARN" "$VULN_COUNT vulnerabilities (acceptable per security docs)"
+    fi
+
+    # Save audit output for reference
+    if [ "$VULN_COUNT" -gt 0 ]; then
+        log_info "Vulnerability details saved to: /tmp/cargo-audit-$(date +%Y%m%d).txt"
+        echo "$AUDIT_OUTPUT" > "/tmp/cargo-audit-$(date +%Y%m%d).txt"
+    fi
+else
+    record_test "Dependency audit (cargo audit)" "SKIP" "cargo not found"
+fi
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # FINAL SUMMARY
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
