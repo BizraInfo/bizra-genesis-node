@@ -4,6 +4,8 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 pub mod jwt;
+pub mod metrics_middleware;
 
 // Re-export commonly used middleware
 pub use jwt::{jwt_auth, AuthenticatedUser, AuthError, Claims};
+pub use metrics_middleware::metrics_middleware;

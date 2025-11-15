@@ -9,6 +9,7 @@ pub mod middleware;
 pub mod metrics;
 
 use axum::{
+    middleware as axum_middleware,
     routing::{get, post},
     Extension, Router,
 };
@@ -16,8 +17,8 @@ use sqlx::PgPool;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 
-/// Create the complete API router with all routes
-pub fn create_router(pool: Arc<PgPool>) -> Router {
+/// Create the complete API router with all routes and metrics
+pub fn create_router(pool: Arc<PgPool>, metrics: Arc<metrics::MetricsCollector>) -> Router {
     // Create rate limiter configuration for auth routes
     let governor_conf = Box::leak(Box::new(
         tower_governor::governor::GovernorConfigBuilder::default()
@@ -41,12 +42,19 @@ pub fn create_router(pool: Arc<PgPool>) -> Router {
     // Create health check backend
     let health_backend: Arc<dyn health::HealthCheckBackend> = Arc::new(health::DbHealthCheck::new(pool.clone()));
 
-    // Combine all route groups
+    // Combine all route groups with metrics
     Router::new()
         .nest("/auth", auth_routes)
         .route("/health", get(health::health_check::<dyn health::HealthCheckBackend>))
+        .route("/metrics", get(metrics::metrics_handler))
+        // Add metrics middleware to all routes (except /metrics itself to avoid recursion)
+        .layer(axum_middleware::from_fn_with_state(
+            metrics.clone(),
+            middleware::metrics_middleware,
+        ))
         .layer(Extension(pool))
         .layer(Extension(health_backend))
+        .with_state(metrics)
 }
 
 #[cfg(test)]
