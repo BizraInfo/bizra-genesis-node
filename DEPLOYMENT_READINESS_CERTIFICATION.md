@@ -495,11 +495,57 @@ cargo test --lib
 
 ### Security Audit Results
 
-```bash
-cargo audit
-# Output: 0 vulnerabilities found
-# Status: ✅ PASS
-```
+**Last Run:** 2025-11-15
+**Command:** `cargo audit`
+
+**Vulnerabilities Found:** 2 (severity: MEDIUM)
+**Unmaintained Dependencies:** 3 (warnings)
+
+#### Vulnerabilities
+
+1. **idna 0.5.0** (RUSTSEC-2024-0421)
+   - Issue: Accepts Punycode labels that don't produce non-ASCII when decoded
+   - Severity: Not rated (but flagged)
+   - Solution: Upgrade to idna >=1.0.0
+   - Remediation: Update validator dependency to use idna 1.0.0+
+   - Risk Assessment: Low (doesn't accept domain names from user input)
+
+2. **rsa 0.9.9** (RUSTSEC-2023-0071)
+   - Issue: Marvin Attack - potential key recovery through timing sidechannels
+   - Severity: 5.9 (MEDIUM)
+   - Solution: **No fixed upgrade available** (library limitation)
+   - Dependency Chain: sqlx-mysql → rsa 0.9.9
+   - Risk Assessment: Low (used only in MySQL SSL which we don't use; PostgreSQL is primary DB)
+   - Mitigation: PostgreSQL-only deployment avoids this code path
+
+#### Unmaintained Dependencies (Warnings)
+
+3. **instant 0.1.13** (RUSTSEC-2024-0384) - Unmaintained
+   - Dependency: libp2p → instant
+   - Risk: Low (time utilities, no known security issues)
+
+4. **paste 1.0.15** (RUSTSEC-2024-0436) - Unmaintained
+   - Dependency: nalgebra → paste
+   - Risk: Low (proc-macro only, compile-time dependency)
+
+5. **proc-macro-error 1.0.4** (RUSTSEC-2024-0370) - Unmaintained
+   - Dependency: validator, utoipa → proc-macro-error
+   - Risk: Low (compile-time only)
+
+#### Risk Assessment Summary
+
+**Overall Risk:** **LOW-MEDIUM**
+- ✅ No HIGH or CRITICAL severity vulnerabilities
+- ✅ RSA vulnerability mitigated by using PostgreSQL (not MySQL)
+- ⚠️ idna upgrade recommended for validator library
+- ℹ️ Unmaintained dependencies are compile-time only (low runtime risk)
+
+**Remediation Plan:**
+- Week 1: Update validator to version using idna 1.0.0+
+- Week 2: Evaluate alternatives to libp2p if instant becomes problematic
+- Ongoing: Monitor RustSec advisory database for updates
+
+**Status:** ⚠️ ACCEPTABLE FOR ALPHA-100 (100 users, controlled environment)
 
 ### Compliance Standards
 
