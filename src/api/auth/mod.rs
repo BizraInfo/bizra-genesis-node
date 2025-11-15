@@ -4,6 +4,8 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 pub mod register;
+pub mod login;
+pub mod refresh;
 
 // Re-export public API
 pub use register::{
@@ -11,4 +13,17 @@ pub use register::{
     RegisterRequest,
     RegisterResponse,
     UserProgram,
+};
+
+pub use login::{
+    login_handler,
+    LoginRequest,
+    LoginResponse,
+    Claims,
+};
+
+pub use refresh::{
+    refresh_handler,
+    RefreshRequest,
+    RefreshResponse,
 };

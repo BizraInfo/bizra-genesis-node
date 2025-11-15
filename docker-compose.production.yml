@@ -1,0 +1,154 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║  BIZRA GENESIS NODE - DOCKER COMPOSE PRODUCTION                          ║
+# ║  Complete production environment with TLS/SSL                            ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
+version: '3.9'
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NGINX REVERSE PROXY (TLS TERMINATION)
+  # ═══════════════════════════════════════════════════════════════════════════
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: bizra-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-console.bizra.ai}
+      - SSL_EMAIL=${SSL_EMAIL:-admin@bizra.ai}
+      - STAGING=${STAGING:-0}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - letsencrypt:/etc/letsencrypt
+      - certbot:/var/www/certbot
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - api_server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bizra-network
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # API SERVER (RUST BACKEND)
+  # ═══════════════════════════════════════════════════════════════════════════
+  api_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      target: api-server
+    container_name: bizra-api-server
+    environment:
+      - RUST_LOG=${RUST_LOG:-info,bizra_genesis_node=debug}
+      - PORT=8080
+      - DATABASE_URL=${DATABASE_URL:-postgresql://bizra_user:bizra_secure_pass@postgres:5432/bizra_genesis}
+      - REDIS_URL=${REDIS_URL:-redis://:bizra_redis_pass@redis:6379}
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - ENABLE_METRICS=true
+      - ENABLE_TRACING=true
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bizra-network
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEBSOCKET SERVER
+  # ═══════════════════════════════════════════════════════════════════════════
+  websocket:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      target: websocket-server
+    container_name: bizra-websocket
+    environment:
+      - RUST_LOG=info
+      - BIND_ADDRESS=0.0.0.0:8081
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - bizra-network
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # POSTGRESQL DATABASE (Optional - for full system)
+  # ═══════════════════════════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: bizra-postgres
+    environment:
+      POSTGRES_USER: bizra_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bizra_secure_pass}
+      POSTGRES_DB: bizra_genesis
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bizra_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bizra-network
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # REDIS CACHE
+  # ═══════════════════════════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: bizra-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - bizra-network
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  letsencrypt:
+    driver: local
+  certbot:
+    driver: local
+  nginx-logs:
+    driver: local
+
+networks:
+  bizra-network:
+    driver: bridge

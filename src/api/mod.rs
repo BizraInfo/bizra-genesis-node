@@ -5,6 +5,7 @@
 
 pub mod auth;
 pub mod health;
+pub mod middleware;
 
 use axum::{
     routing::{get, post},
@@ -32,6 +33,8 @@ pub fn create_router(pool: Arc<PgPool>) -> Router {
 
     let auth_routes = Router::new()
         .route("/register", post(auth::register_handler))
+        .route("/login", post(auth::login_handler))
+        .route("/refresh", post(auth::refresh_handler))
         .layer(ServiceBuilder::new().layer(governor_limiter));
 
     // Create health check backend
