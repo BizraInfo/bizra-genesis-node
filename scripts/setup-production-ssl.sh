@@ -23,6 +23,32 @@ echo -e "${BLUE}║  BIZRA Genesis Node - Production SSL Setup                  
 echo -e "${BLUE}╚════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# PRE-FLIGHT CHECK: Validate deployment environment before proceeding
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}Running Pre-flight Check...${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Run pre-flight check
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE=".env.production" "$SCRIPT_DIR/preflight-check.sh"
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo -e "${RED}╔════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║  Pre-flight Check FAILED                                      ║${NC}"
+    echo -e "${RED}║  Deployment aborted - please fix issues above                 ║${NC}"
+    echo -e "${RED}╚════════════════════════════════════════════════════════════════╝${NC}"
+    exit 1
+fi
+
+echo ""
+echo -e "${GREEN}✅ Pre-flight check passed - proceeding with deployment${NC}"
+echo ""
+
 # Function to check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
