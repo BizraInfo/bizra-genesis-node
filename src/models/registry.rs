@@ -535,7 +535,9 @@ mod tests {
         let registry = ProviderRegistry::new();
 
         assert!(registry.quality_score("gpt-4-turbo") > registry.quality_score("gpt-3.5-turbo"));
-        assert!(registry.quality_score("claude-3-opus") > registry.quality_score("claude-3-sonnet"));
+        assert!(
+            registry.quality_score("claude-3-opus") > registry.quality_score("claude-3-sonnet")
+        );
         assert!(registry.quality_score("gpt-3.5-turbo") > registry.quality_score("llama3"));
     }
 

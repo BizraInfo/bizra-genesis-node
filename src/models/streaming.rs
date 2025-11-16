@@ -268,9 +268,7 @@ impl StreamCombiner {
     }
 
     /// Combine all streams with round-robin selection
-    pub async fn combine(
-        mut self,
-    ) -> Pin<Box<dyn Stream<Item = ModelResult<StreamChunk>> + Send>> {
+    pub async fn combine(mut self) -> Pin<Box<dyn Stream<Item = ModelResult<StreamChunk>> + Send>> {
         let (tx, rx) = mpsc::channel(100);
         let model_name = self.model_name.clone();
 

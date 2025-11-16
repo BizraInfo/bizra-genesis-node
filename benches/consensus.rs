@@ -1,13 +1,19 @@
 // benches/consensus.rs
 // Benchmark suite for Weighted-Score Consensus
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use serde_json::json;
-use synthesis_orchestrator::{
+use bizra_genesis_node::{
     Candidate, CandidateScores, ConsensusConfig, ScoredCandidate, WeightedScoreConsensus,
 };
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use serde_json::json;
 
-fn create_scored_candidate(model: &str, accuracy: f32, safety: f32, efficiency: f32, ihsan: f32) -> ScoredCandidate {
+fn create_scored_candidate(
+    model: &str,
+    accuracy: f32,
+    safety: f32,
+    efficiency: f32,
+    ihsan: f32,
+) -> ScoredCandidate {
     ScoredCandidate {
         candidate: Candidate {
             model: model.to_string(),

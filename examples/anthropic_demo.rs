@@ -373,7 +373,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("  • Opus:   Best quality - Use for complex reasoning, critical tasks");
 
     info!("\n💰 Cost Optimization:");
-    info!("  • Haiku is {}x cheaper than Opus", (opus_cost / haiku_cost) as i32);
+    info!(
+        "  • Haiku is {}x cheaper than Opus",
+        (opus_cost / haiku_cost) as i32
+    );
     info!("  • Use provider registry for automatic cost-optimized selection");
     info!("  • Combine with Ollama (local) for 99% cost reduction in dev");
 

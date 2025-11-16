@@ -152,10 +152,7 @@ fn generate_access_token(
 }
 
 /// Generate new refresh token with rotation (7 day expiration)
-fn generate_refresh_token(
-    user_id: Uuid,
-    jwt_secret: &str,
-) -> Result<String, RefreshError> {
+fn generate_refresh_token(user_id: Uuid, jwt_secret: &str) -> Result<String, RefreshError> {
     let now = Utc::now();
     let expiration = now + Duration::days(7);
 
@@ -206,9 +203,8 @@ pub async fn refresh_handler(
     Json(payload): Json<RefreshRequest>,
 ) -> Result<Json<RefreshResponse>, RefreshError> {
     // 1. Get JWT secret from environment
-    let jwt_secret = std::env::var("JWT_SECRET").map_err(|_| {
-        RefreshError::Internal("JWT_SECRET not configured".to_string())
-    })?;
+    let jwt_secret = std::env::var("JWT_SECRET")
+        .map_err(|_| RefreshError::Internal("JWT_SECRET not configured".to_string()))?;
 
     // 2. Decode and validate refresh token
     let token_data = decode::<RefreshClaims>(
@@ -219,8 +215,8 @@ pub async fn refresh_handler(
     .map_err(|_| RefreshError::InvalidToken)?;
 
     // 3. Extract user ID from token
-    let user_id = Uuid::parse_str(&token_data.claims.sub)
-        .map_err(|_| RefreshError::InvalidToken)?;
+    let user_id =
+        Uuid::parse_str(&token_data.claims.sub).map_err(|_| RefreshError::InvalidToken)?;
 
     // 4. Verify user still exists in database
     let user = sqlx::query_as::<_, User>(
@@ -236,12 +232,7 @@ pub async fn refresh_handler(
     .ok_or(RefreshError::UserNotFound)?;
 
     // 5. Generate new access token
-    let access_token = generate_access_token(
-        user.id,
-        &user.email,
-        &user.program,
-        &jwt_secret,
-    )?;
+    let access_token = generate_access_token(user.id, &user.email, &user.program, &jwt_secret)?;
 
     // 6. Generate new refresh token (rotation)
     let new_refresh_token = generate_refresh_token(user.id, &jwt_secret)?;

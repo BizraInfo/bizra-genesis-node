@@ -61,8 +61,7 @@ pub mod sacred {
 
     /// Fibonacci sequence for folding operations
     pub const FIBONACCI: [usize; 20] = [
-        1, 1, 2, 3, 5, 8, 13, 21, 34, 55,
-        89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765
+        1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765,
     ];
 
     /// Maximum reasoning depth (Fibonacci bound)
@@ -440,7 +439,11 @@ impl AgentFoldEngine {
 
         // Sort segments by compression priority (highest first)
         let mut sorted_segments = analysis.segments.clone();
-        sorted_segments.sort_by(|a, b| b.compression_priority.partial_cmp(&a.compression_priority).unwrap_or(std::cmp::Ordering::Equal));
+        sorted_segments.sort_by(|a, b| {
+            b.compression_priority
+                .partial_cmp(&a.compression_priority)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         for segment in sorted_segments {
             // Find the segment in the remaining context, but be more flexible
@@ -550,10 +553,22 @@ impl AgentFoldEngine {
         let efficiency_score = 1.0 - (avg_compression - self.config.target_ratio).abs().min(1.0);
 
         // Overall score: harmonic mean of components (avoid division by zero)
-        let p_score = if preservation_score > 0.0 { preservation_score } else { 0.001 };
-        let c_score = if coherence_score > 0.0 { coherence_score } else { 0.001 };
-        let e_score = if efficiency_score > 0.0 { efficiency_score } else { 0.001 };
-        let overall_score = 3.0 / (1.0/p_score + 1.0/c_score + 1.0/e_score);
+        let p_score = if preservation_score > 0.0 {
+            preservation_score
+        } else {
+            0.001
+        };
+        let c_score = if coherence_score > 0.0 {
+            coherence_score
+        } else {
+            0.001
+        };
+        let e_score = if efficiency_score > 0.0 {
+            efficiency_score
+        } else {
+            0.001
+        };
+        let overall_score = 3.0 / (1.0 / p_score + 1.0 / c_score + 1.0 / e_score);
 
         Ok(FoldingQuality {
             preservation_score,
@@ -574,9 +589,12 @@ impl AgentFoldEngine {
 
         // Update running averages
         let n = metrics.total_operations as f64;
-        metrics.avg_compression_ratio = (metrics.avg_compression_ratio * (n - 1.0) + result.compression_ratio) / n;
-        metrics.avg_phi_deviation = (metrics.avg_phi_deviation * (n - 1.0) + result.phi_deviation) / n;
-        metrics.avg_quality_score = (metrics.avg_quality_score * (n - 1.0) + result.quality_metrics.overall_score) / n;
+        metrics.avg_compression_ratio =
+            (metrics.avg_compression_ratio * (n - 1.0) + result.compression_ratio) / n;
+        metrics.avg_phi_deviation =
+            (metrics.avg_phi_deviation * (n - 1.0) + result.phi_deviation) / n;
+        metrics.avg_quality_score =
+            (metrics.avg_quality_score * (n - 1.0) + result.quality_metrics.overall_score) / n;
         metrics.total_processing_time_ms += processing_time;
     }
 
@@ -661,7 +679,11 @@ impl AgentFoldEngine {
 
         // For elite quality, preserve more content (closer to Φ ratio)
         let target_words = ((words.len() as f64) * sacred::TARGET_COMPRESSION).ceil() as usize;
-        let summary_words = words.iter().take(target_words.max(3)).cloned().collect::<Vec<_>>();
+        let summary_words = words
+            .iter()
+            .take(target_words.max(3))
+            .cloned()
+            .collect::<Vec<_>>();
 
         // Add key structural elements to maintain coherence
         let summary = summary_words.join(" ");
@@ -669,7 +691,11 @@ impl AgentFoldEngine {
         // Ensure minimum quality by preserving key phrases
         if summary.len() < text.len() / 3 {
             // If summary is too short, preserve more content
-            let extended_words = words.iter().take((words.len() as f64 * 0.7) as usize).cloned().collect::<Vec<_>>();
+            let extended_words = words
+                .iter()
+                .take((words.len() as f64 * 0.7) as usize)
+                .cloned()
+                .collect::<Vec<_>>();
             Ok(extended_words.join(" "))
         } else {
             Ok(summary)
@@ -716,13 +742,16 @@ impl AgentFoldEngine {
         let avg_quality = ranges.iter().map(|r| r.quality_score).sum::<f64>() / ranges.len() as f64;
 
         // Bonus for consistent compression ratios
-        let avg_ratio = ranges.iter().map(|r| r.compression_ratio).sum::<f64>() / ranges.len() as f64;
+        let avg_ratio =
+            ranges.iter().map(|r| r.compression_ratio).sum::<f64>() / ranges.len() as f64;
         let ratio_variance = if ranges.len() <= 1 {
             0.0 // No variance with 0 or 1 elements
         } else {
-            ranges.iter()
+            ranges
+                .iter()
                 .map(|r| (r.compression_ratio - avg_ratio).powi(2))
-                .sum::<f64>() / (ranges.len() - 1) as f64 // Use n-1 for sample variance
+                .sum::<f64>()
+                / (ranges.len() - 1) as f64 // Use n-1 for sample variance
         };
         let consistency_bonus = 1.0 - ratio_variance.sqrt().min(1.0);
 
@@ -815,21 +844,30 @@ mod tests {
     #[test]
     fn test_metrics_tracking() {
         let (fold, id) = create_test_fixture();
-        let metrics = fold.metrics.get(&id).expect("Invariant: folded agents must have metrics");
+        let metrics = fold
+            .metrics
+            .get(&id)
+            .expect("Invariant: folded agents must have metrics");
         assert_eq!(metrics.fold_count, 99);
     }
 
     #[test]
     fn test_phi_compression_target() {
         let (fold, id) = create_test_fixture();
-        let metrics = fold.metrics.get(&id).expect("Invariant: folded agents must have metrics");
+        let metrics = fold
+            .metrics
+            .get(&id)
+            .expect("Invariant: folded agents must have metrics");
         assert!((metrics.phi_convergence - sacred::PHI_INV).abs() < 0.01);
     }
 
     #[test]
     fn test_quality_threshold() {
         let (fold, id) = create_test_fixture();
-        let metrics = fold.metrics.get(&id).expect("Invariant: folded agents must have metrics");
+        let metrics = fold
+            .metrics
+            .get(&id)
+            .expect("Invariant: folded agents must have metrics");
         assert!(metrics.quality_score >= 0.95);
     }
 
@@ -843,7 +881,10 @@ mod tests {
         // Use content with semantic redundancy for folding
         let context = "The golden ratio optimization algorithm implements sacred geometry principles. The golden ratio optimization algorithm uses Fibonacci sequences for compression. The golden ratio optimization algorithm achieves mathematical perfection through phi. The golden ratio optimization algorithm maintains semantic coherence during folding operations.";
 
-        let result = engine.fold_context(context).await.expect("Invariant: folded agents must have metrics");
+        let result = engine
+            .fold_context(context)
+            .await
+            .expect("Invariant: folded agents must have metrics");
 
         assert!(result.compression_ratio > 0.0);
         assert!(result.compression_ratio < 1.0);
@@ -861,13 +902,20 @@ mod tests {
         // Use content with semantic patterns for Φ-optimization
         let context = "Fibonacci sequences demonstrate mathematical perfection. Fibonacci sequences appear in nature everywhere. Fibonacci sequences converge to the golden ratio phi. The golden ratio phi equals 1.618. The golden ratio phi optimizes natural systems. Natural systems follow phi proportions.";
 
-        let result = engine.fold_context(context).await.expect("Invariant: folded agents must have metrics");
+        let result = engine
+            .fold_context(context)
+            .await
+            .expect("Invariant: folded agents must have metrics");
 
         // Check if compression achieves Φ target with realistic precision for current algorithm
         let deviation = (result.compression_ratio - sacred::TARGET_COMPRESSION).abs();
-        assert!(deviation <= sacred::COMPRESSION_TOLERANCE * 15.0, // Allow realistic tolerance for algorithm maturity
-                "Compression ratio {:.4} deviates too much from target {:.4} (deviation: {:.4})",
-                result.compression_ratio, sacred::TARGET_COMPRESSION, deviation);
+        assert!(
+            deviation <= sacred::COMPRESSION_TOLERANCE * 15.0, // Allow realistic tolerance for algorithm maturity
+            "Compression ratio {:.4} deviates too much from target {:.4} (deviation: {:.4})",
+            result.compression_ratio,
+            sacred::TARGET_COMPRESSION,
+            deviation
+        );
         assert!(result.quality_metrics.overall_score >= 0.001); // Realistic quality
     }
 
@@ -891,7 +939,10 @@ mod tests {
         let result = engine.fold_context(context).await;
 
         // Should fail quality threshold
-        assert!(matches!(result, Err(FoldingError::QualityThresholdNotMet { .. })));
+        assert!(matches!(
+            result,
+            Err(FoldingError::QualityThresholdNotMet { .. })
+        ));
     }
 
     #[tokio::test]
@@ -904,13 +955,16 @@ mod tests {
         // Use content with semantic patterns for folding
         let context = "Sacred geometry principles guide optimization. Sacred geometry principles use mathematical ratios. Mathematical ratios include the golden ratio. The golden ratio equals 1.618. The golden ratio optimizes system performance. System performance improves with golden ratio optimization.";
 
-        let _result = engine.fold_context(context).await.expect("Invariant: folded agents must have metrics");
+        let _result = engine
+            .fold_context(context)
+            .await
+            .expect("Invariant: folded agents must have metrics");
         let metrics = engine.get_metrics().await;
 
         assert_eq!(metrics.total_operations, 1);
         assert!(metrics.avg_compression_ratio > 0.0);
         assert!(metrics.avg_quality_score >= 0.001); // Realistic quality tracking
-        // total_processing_time_ms is u64, always >= 0 by type definition
+                                                     // total_processing_time_ms is u64, always >= 0 by type definition
     }
 
     #[test]

@@ -59,8 +59,8 @@ impl Default for RateLimitConfig {
             burst_capacity: 20,
             tokens_per_minute: None,
             cost_per_minute: None,
-            cost_per_hour: Some(10.0),   // $10/hour default
-            cost_per_day: Some(100.0),   // $100/day default
+            cost_per_hour: Some(10.0), // $10/hour default
+            cost_per_day: Some(100.0), // $100/day default
             enable_queue: true,
             max_queue_size: 100,
             max_wait_ms: 30_000, // 30 seconds
@@ -401,11 +401,7 @@ impl RateLimiter {
     /// Wait until a request is allowed (with timeout)
     ///
     /// Returns `Ok(())` when request can proceed, or error if timeout exceeded.
-    pub async fn wait_for_request(
-        &self,
-        provider: &str,
-        model: &str,
-    ) -> ModelResult<()> {
+    pub async fn wait_for_request(&self, provider: &str, model: &str) -> ModelResult<()> {
         let start = Instant::now();
         let timeout = Duration::from_millis(self.config.max_wait_ms);
 

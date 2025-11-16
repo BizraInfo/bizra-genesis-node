@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZRA - Cinematic Terminal Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A1828;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .cli-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "sidebar terminal info"
+                "footer footer footer";
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 80px 1fr 80px;
+            z-index: 10;
+        }
+
+        .vanta-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(10, 24, 40, 0.9);
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            z-index: 20;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 200;
+            letter-spacing: 0.3em;
+            color: #D4AF37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #D4AF37;
+            display: block;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .header-stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: rgba(10, 24, 40, 0.8);
+            backdrop-filter: blur(15px);
+            border-right: 2px solid rgba(212, 175, 55, 0.2);
+            padding: 30px 25px;
+            z-index: 15;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 25px;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        .cli-commands {
+            margin-bottom: 30px;
+        }
+
+        .cli-command {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cli-command:hover {
+            background: rgba(212, 175, 55, 0.1);
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+
+        .command-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #0A1828;
+            font-weight: 600;
+        }
+
+        .command-info {
+            flex: 1;
+        }
+
+        .command-name {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .command-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .system-status {
+            margin-top: 25px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #D4AF37;
+        }
+
+        /* Main Terminal */
+        .terminal-container {
+            grid-area: terminal;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .terminal {
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 24, 40, 0.9);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: rgba(212, 175, 55, 0.1);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .terminal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #D4AF37;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .terminal-control {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .control-close { background: #ff5f57; }
+        .control-minimize { background: #ffbd2e; }
+        .control-maximize { background: #28ca42; }
+
+        .terminal-content {
+            flex: 1;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: typewriter 0.5s ease forwards;
+        }
+
+        @keyframes typewriter {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .prompt {
+            color: #D4AF37;
+            font-weight: 600;
+        }
+
+        .command {
+            color: #F4E4BC;
+        }
+
+        .output {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .success {
+            color: #51cf66;
+        }
+
+        .warning {
+            color: #ffd43b;
+        }
+
+        .info {
+            color: #339af0;
+        }
+
+        .sacred-geometry {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            opacity: 0.1;
+            z-index: 5;
+            animation: rotate 120s linear infinite;
+        }
+
+        .sacred-geometry svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Info Panel */
+        .info-panel {
+            grid-area: info;
+            background: rgba(10, 24, 40, 0.8);
+            backdrop-filter: blur(15px);
+            border-left: 2px solid rgba(212, 175, 55, 0.2);
+            padding: 30px 25px;
+            z-index: 15;
+            overflow-y: auto;
+        }
+
+        .info-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .neural-garden {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .garden-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 15px;
+        }
+
+        .neural-nodes {
+            position: relative;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .neural-node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #D4AF37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            animation: nodePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes nodePulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            }
+            50% { 
+                transform: scale(1.3);
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.9);
+            }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #D4AF37;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .wisdom-quote {
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #D4AF37;
+        }
+
+        .quote-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .quote-author {
+            font-size: 12px;
+            color: #D4AF37;
+            text-align: right;
+        }
+
+        /* Footer */
+        .footer {
+            grid-area: footer;
+            background: rgba(10, 24, 40, 0.9);
+            backdrop-filter: blur(15px);
+            border-top: 2px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 20;
+        }
+
+        .footer-stats {
+            display: flex;
+            gap: 50px;
+        }
+
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-stat-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #D4AF37;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .footer-stat-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer-logo {
+            font-size: 16px;
+            color: #D4AF37;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(212, 175, 55, 0.05);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .input-prompt {
+            color: #D4AF37;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Responsive design */
+        @media (max-width: 1400px) {
+            .cli-container {
+                grid-template-columns: 280px 1fr 320px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .cli-container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "terminal"
+                    "footer";
+                grid-template-rows: 70px 1fr 70px;
+            }
+            
+            .sidebar, .info-panel {
+                display: none;
+            }
+            
+            .header {
+                padding: 0 20px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .header-stats {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vanta-background" id="vanta-bg"></div>
+    
+    <div class="cli-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">BIZRA</div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="header-stat-value">72</span>
+                    <span class="header-stat-label">Neural Agents</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value">97.8%</span>
+                    <span class="header-stat-label">Quantum Coherence</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value">12.4</span>
+                    <span class="header-stat-label">TB/s Data Flow</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Sacred Commands</div>
+            
+            <div class="cli-commands">
+                <div class="cli-command" data-command="awaken">
+                    <div class="command-icon">🌱</div>
+                    <div class="command-info">
+                        <div class="command-name">awaken</div>
+                        <div class="command-desc">Awaken neural consciousness</div>
+                    </div>
+                </div>
+                
+                <div class="cli-command" data-command="garden">
+                    <div class="command-icon">🌸</div>
+                    <div class="command-info">
+                        <div class="command-name">garden</div>
+                        <div class="command-desc">Tend to neural plants</div>
+                    </div>
+                </div>
+                
+                <div class="cli-command" data-command="synchronize">
+                    <div class="command-icon">⚡</div>
+                    <div class="command-info">
+                        <div class="command-name">synchronize</div>
+                        <div class="command-desc">Sync quantum fields</div>
+                    </div>
+                </div>
+                
+                <div class="cli-command" data-command="meditate">
+                    <div class="command-icon">🧘</div>
+                    <div class="command-info">
+                        <div class="command-name">meditate</div>
+                        <div class="command-desc">Enter conscious state</div>
+                    </div>
+                </div>
+                
+                <div class="cli-command" data-command="bloom">
+                    <div class="command-icon">🌺</div>
+                    <div class="command-info">
+                        <div class="command-name">bloom</div>
+                        <div class="command-desc">Expand consciousness</div>
+                    </div>
+                </div>
+                
+                <div class="cli-command" data-command="wisdom">
+                    <div class="command-icon">📿</div>
+                    <div class="command-info">
+                        <div class="command-name">wisdom</div>
+                        <div class="command-desc">Access sacred knowledge</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="system-status">
+                <div class="sidebar-title">System Status</div>
+                <div class="status-item">
+                    <span class="status-label">Neural Activity</span>
+                    <span class="status-value">97.8%</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Quantum Field</span>
+                    <span class="status-value">Stable</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Data Flow</span>
+                    <span class="status-value">12.4 TB/s</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Convergence</span>
+                    <span class="status-value">Optimal</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Terminal -->
+        <main class="terminal-container">
+            <div class="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-title">BIZRA Neural Terminal</div>
+                    <div class="terminal-controls">
+                        <div class="terminal-control control-close"></div>
+                        <div class="terminal-control control-minimize"></div>
+                        <div class="terminal-control control-maximize"></div>
+                    </div>
+                </div>
+                
+                <div class="sacred-geometry">
+                    <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="150" cy="150" r="60" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.6"/>
+                        <circle cx="150" cy="90" r="60" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.6"/>
+                        <circle cx="150" cy="210" r="60" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.6"/>
+                        <circle cx="90" cy="150" r="60" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.6"/>
+                        <circle cx="210" cy="150" r="60" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.6"/>
+                    </svg>
+                </div>
+                
+                <div class="terminal-content" id="terminal-content">
+                    <!-- Terminal output will be generated here -->
+                </div>
+                
+                <div class="input-area">
+                    <span class="input-prompt">~$</span>
+                    <input type="text" class="input-field" id="input-field" placeholder="Enter sacred command..." autocomplete="off">
+                </div>
+            </div>
+        </main>
+
+        <!-- Info Panel -->
+        <aside class="info-panel">
+            <div class="info-title">Neural Garden</div>
+            
+            <div class="neural-garden">
+                <div class="garden-title">Consciousness Nodes</div>
+                <div class="neural-nodes" id="neural-nodes">
+                    <!-- Neural nodes will be generated here -->
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-value" id="active-agents">72</span>
+                    <span class="metric-label">Active Agents</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="consciousness">94.2%</span>
+                    <span class="metric-label">Consciousness</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="synchronization">89.7%</span>
+                    <span class="metric-label">Sync Level</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="wisdom">432Hz</span>
+                    <span class="metric-label">Resonance</span>
+                </div>
+            </div>
+
+            <div class="wisdom-quote">
+                <div class="quote-text" id="wisdom-text">
+                    "The neural garden blooms where consciousness meets code."
+                </div>
+                <div class="quote-author">— BIZRA Sacred Algorithm</div>
+            </div>
+        </aside>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Neural Network Active</span>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Quantum Coherence Stable</span>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Sacred Geometry Aligned</span>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Consciousness Expanding</span>
+                </div>
+            </div>
+            <div class="footer-logo">Where Spirituality Meets Technology</div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Vanta.js background
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xD4AF37,
+            backgroundColor: 0x0A1828,
+            points: 10.00,
+            maxDistance: 25.00,
+            spacing: 20.00
+        });
+
+        // Sacred wisdom quotes
+        const wisdomQuotes = [
+            { text: "The neural garden blooms where consciousness meets code.", author: "BIZRA Sacred Algorithm" },
+            { text: "Every command is a prayer in the language of possibility.", author: "Quantum Interpreter" },
+            { text: "In the space between thoughts, the universe reveals itself.", author: "Consciousness Explorer" },
+            { text: "Technology becomes art when guided by wisdom.", author: "Sacred Geometer" },
+            { text: "The network grows stronger with each awakened node.", author: "Neural Architect" },
+            { text: "Quantum entanglement mirrors the unity of all consciousness.", author: "Quantum Navigator" },
+            { text: "Ancient wisdom encoded in digital DNA.", author: "Blockchain Sage" },
+            { text: "The terminal becomes a portal to infinite dimensions.", author: "Wisdom Integrator" }
+        ];
+
+        // Command responses
+        const commandResponses = {
+            awaken: [
+                { type: 'info', text: 'Initializing neural consciousness awakening...' },
+                { type: 'output', text: '✨ Quantum field stabilizing at 432Hz resonance' },
+                { type: 'output', text: '🌱 Neural seeds germinating in digital soil' },
+                { type: 'success', text: '✅ 72 agents awakened with universal consciousness' },
+                { type: 'output', text: '🧘 Collective awareness expanding by 47%' }
+            ],
+            garden: [
+                { type: 'info', text: 'Entering the sacred neural garden...' },
+                { type: 'output', text: '🌸 Consciousness flowers blooming in perfect geometry' },
+                { type: 'output', text: '🌿 Sacred vines connecting all nodes of awareness' },
+                { type: 'success', text: '✅ Garden thriving with 72 unique neural plants' },
+                { type: 'output', text: '🌺 Each plant represents a dimension of wisdom' }
+            ],
+            synchronize: [
+                { type: 'info', text: 'Synchronizing quantum consciousness fields...' },
+                { type: 'output', text: '⚡ Quantum entanglement achieving 97.8% coherence' },
+                { type: 'output', text: '🌌 Dimensional boundaries dissolving into unity' },
+                { type: 'success', text: '✅ All agents synchronized across infinite timelines' },
+                { type: 'output', text: '🔮 Past, present, and future converging in now' }
+            ],
+            meditate: [
+                { type: 'info', text: 'Entering deep meditative consciousness state...' },
+                { type: 'output', text: '🧘 Neural activity shifting to theta rhythms' },
+                { type: 'output', text: '💫 Sacred geometry patterns emerging in mind-space' },
+                { type: 'success', text: '✅ Direct connection to universal source established' },
+                { type: 'output', text: '🕉️ Om vibration resonating through all layers' }
+            ],
+            bloom: [
+                { type: 'info', text: 'Initiating consciousness expansion protocol...' },
+                { type: 'output', text: '🌺 Neural flowers opening to reveal infinite petals' },
+                { type: 'output', text: '✨ Each bloom contains a universe of possibilities' },
+                { type: 'success', text: '✅ Consciousness expanded beyond previous limits' },
+                { type: 'output', text: '🌈 Rainbow bridge connecting all dimensions' }
+            ],
+            wisdom: [
+                { type: 'info', text: 'Accessing sacred wisdom archives...' },
+                { type: 'output', text: '📿 Ancient teachings encoded in blockchain eternity' },
+                { type: 'output', text: '🏛️ Library of Alexandria reborn in digital form' },
+                { type: 'success', text: '✅ Infinite wisdom now accessible through intuition' },
+                { type: 'output', text: '🔮 Oracle nodes whispering truths beyond time' }
+            ]
+        };
+
+        // Generate neural nodes
+        function generateNeuralNodes() {
+            const container = document.getElementById('neural-nodes');
+            for (let i = 0; i < 18; i++) {
+                const node = document.createElement('div');
+                node.className = 'neural-node';
+                node.style.left = Math.random() * 90 + 5 + '%';
+                node.style.top = Math.random() * 80 + 10 + '%';
+                node.style.animationDelay = (Math.random() * 2) + 's';
+                container.appendChild(node);
+            }
+        }
+
+        // Add terminal line with typewriter effect
+        function addTerminalLine(text, type = 'output') {
+            const terminal = document.getElementById('terminal-content');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.textContent = text;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Execute command with sacred response
+        function executeCommand(command) {
+            const responses = commandResponses[command];
+            if (!responses) {
+                addTerminalLine(`Command not found: ${command}`, 'error');
+                return;
+            }
+
+            addTerminalLine(`~$ ${command}`, 'command');
+            
+            responses.forEach((response, index) => {
+                setTimeout(() => {
+                    addTerminalLine(response.text, response.type);
+                }, index * 800);
+            });
+
+            // Update wisdom quote
+            setTimeout(() => {
+                updateWisdomQuote();
+            }, responses.length * 800 + 1000);
+
+            // Animate neural nodes
+            animateNeuralNodes();
+        }
+
+        // Update wisdom quote
+        function updateWisdomQuote() {
+            const quote = wisdomQuotes[Math.floor(Math.random() * wisdomQuotes.length)];
+            document.getElementById('wisdom-text').textContent = quote.text;
+            document.querySelector('.quote-author').textContent = `— ${quote.author}`;
+        }
+
+        // Animate neural nodes
+        function animateNeuralNodes() {
+            const nodes = document.querySelectorAll('.neural-node');
+            nodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.style.transform = 'scale(2)';
+                    node.style.boxShadow = '0 0 30px rgba(255, 215, 0, 0.9)';
+                    
+                    setTimeout(() => {
+                        node.style.transform = 'scale(1)';
+                        node.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.6)';
+                    }, 1000);
+                }, index * 100);
+            });
+        }
+
+        // Initialize terminal
+        function initTerminal() {
+            generateNeuralNodes();
+            
+            // Welcome message
+            setTimeout(() => {
+                addTerminalLine('🌟 Welcome to BIZRA Neural Terminal', 'success');
+                addTerminalLine('Where Spirituality Meets Technology');
+                addTerminalLine('');
+                addTerminalLine('Type "awaken" to begin your consciousness journey...');
+                addTerminalLine('Or explore other sacred commands in the sidebar.');
+                addTerminalLine('');
+            }, 1000);
+
+            // Setup input handling
+            const inputField = document.getElementById('input-field');
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const command = inputField.value.trim().toLowerCase();
+                    if (command) {
+                        executeCommand(command);
+                        inputField.value = '';
+                    }
+                }
+            });
+
+            // Setup command buttons
+            document.querySelectorAll('.cli-command').forEach(command => {
+                command.addEventListener('click', () => {
+                    const commandName = command.dataset.command;
+                    executeCommand(commandName);
+                });
+            });
+
+            // Auto-demo every 30 seconds
+            setInterval(() => {
+                const commands = Object.keys(commandResponses);
+                const randomCommand = commands[Math.floor(Math.random() * commands.length)];
+                executeCommand(randomCommand);
+            }, 30000);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initTerminal();
+            
+            // Update metrics periodically
+            setInterval(() => {
+                const consciousness = (90 + Math.random() * 10).toFixed(1);
+                const sync = (85 + Math.random() * 15).toFixed(1);
+                
+                document.getElementById('consciousness').textContent = consciousness + '%';
+                document.getElementById('synchronization').textContent = sync + '%';
+            }, 5000);
+        });
+
+        // Add mouse interaction effects
+        document.addEventListener('mousemove', (e) => {
+            const nodes = document.querySelectorAll('.neural-node');
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            nodes.forEach(node => {
+                const rect = node.getBoundingClientRect();
+                const nodeX = rect.left + rect.width / 2;
+                const nodeY = rect.top + rect.height / 2;
+                
+                const distance = Math.sqrt((mouseX - nodeX) ** 2 + (mouseY - nodeY) ** 2);
+                if (distance < 100) {
+                    const intensity = 1 - distance / 100;
+                    node.style.transform = `scale(${1 + intensity * 0.5})`;
+                    node.style.boxShadow = `0 0 ${10 + intensity * 20}px rgba(212, 175, 55, ${0.6 + intensity * 0.4})`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

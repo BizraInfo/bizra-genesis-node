@@ -2,11 +2,11 @@
 // Weighted-Score Consensus
 
 use crate::{Candidate, CandidateScores, ConsensusConfig, ConsensusError, ScoredCandidate};
-use std::time::Instant;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-use std::collections::HashMap;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::time::Instant;
+use uuid::Uuid;
 
 /// Runtime-agnostic metrics helper
 ///
@@ -227,20 +227,21 @@ impl WeightedScoreConsensus {
         let (passing_candidates, max_ihsan_candidate) = {
             let mut max_ihsan = None;
             let mut passing = Vec::new();
-            
+
             for candidate in candidates.iter() {
                 // Update max Ihsan candidate
-                if max_ihsan.map_or(true, |m: &ScoredCandidate|
-                    candidate.scores.ihsan > m.scores.ihsan) {
+                if max_ihsan.map_or(true, |m: &ScoredCandidate| {
+                    candidate.scores.ihsan > m.scores.ihsan
+                }) {
                     max_ihsan = Some(candidate);
                 }
-                
+
                 // Check Ihsan floor efficiently
                 if candidate.scores.ihsan >= self.config.ihsan_floor {
                     passing.push(candidate);
                 }
             }
-            
+
             (passing, max_ihsan)
         };
 
@@ -259,13 +260,15 @@ impl WeightedScoreConsensus {
             let winner = if passing_candidates.len() <= 4 {
                 passing_candidates
                     .iter()
-                    .fold(None, |best: Option<&ScoredCandidate>, current| {
-                        match best {
-                            None => Some(current),
-                            Some(prev) => {
-                                let score_prev = self.composite_score_unchecked(&prev.scores);
-                                let score_curr = self.composite_score_unchecked(&current.scores);
-                                if score_curr > score_prev { Some(current) } else { best }
+                    .fold(None, |best: Option<&ScoredCandidate>, current| match best {
+                        None => Some(current),
+                        Some(prev) => {
+                            let score_prev = self.composite_score_unchecked(&prev.scores);
+                            let score_curr = self.composite_score_unchecked(&current.scores);
+                            if score_curr > score_prev {
+                                Some(current)
+                            } else {
+                                best
                             }
                         }
                     })
@@ -274,26 +277,35 @@ impl WeightedScoreConsensus {
                 use rayon::prelude::*;
                 passing_candidates
                     .par_iter()
-                    .fold_with(None::<&ScoredCandidate>, |best, current| {
-                        match best {
-                            None => Some(current),
-                            Some(prev) => {
-                                let score_prev = self.composite_score_unchecked(&prev.scores);
-                                let score_curr = self.composite_score_unchecked(&current.scores);
-                                if score_curr > score_prev { Some(current) } else { best }
+                    .fold_with(None::<&ScoredCandidate>, |best, current| match best {
+                        None => Some(current),
+                        Some(prev) => {
+                            let score_prev = self.composite_score_unchecked(&prev.scores);
+                            let score_curr = self.composite_score_unchecked(&current.scores);
+                            if score_curr > score_prev {
+                                Some(current)
+                            } else {
+                                best
                             }
                         }
                     })
-                    .reduce(|| None, |a, b| match (a, b) {
-                        (None, None) => None,
-                        (Some(x), None) => Some(x),
-                        (None, Some(y)) => Some(y),
-                        (Some(x), Some(y)) => {
-                            let score_x = self.composite_score_unchecked(&x.scores);
-                            let score_y = self.composite_score_unchecked(&y.scores);
-                            if score_y > score_x { Some(y) } else { Some(x) }
-                        }
-                    })
+                    .reduce(
+                        || None,
+                        |a, b| match (a, b) {
+                            (None, None) => None,
+                            (Some(x), None) => Some(x),
+                            (None, Some(y)) => Some(y),
+                            (Some(x), Some(y)) => {
+                                let score_x = self.composite_score_unchecked(&x.scores);
+                                let score_y = self.composite_score_unchecked(&y.scores);
+                                if score_y > score_x {
+                                    Some(y)
+                                } else {
+                                    Some(x)
+                                }
+                            }
+                        },
+                    )
             };
             winner
         };
@@ -335,9 +347,15 @@ impl WeightedScoreConsensus {
     fn composite_score_unchecked(&self, scores: &CandidateScores) -> f32 {
         // Use fused multiply-add for better floating-point performance
         // Reduces instruction count and improves cache locality
-        f32::mul_add(scores.accuracy, 0.4,
-            f32::mul_add(scores.safety, 0.3,
-                f32::mul_add(scores.efficiency, 0.2, scores.ihsan * 0.1)))
+        f32::mul_add(
+            scores.accuracy,
+            0.4,
+            f32::mul_add(
+                scores.safety,
+                0.3,
+                f32::mul_add(scores.efficiency, 0.2, scores.ihsan * 0.1),
+            ),
+        )
     }
 
     /// Start the consensus engine (placeholder for now)
@@ -347,15 +365,16 @@ impl WeightedScoreConsensus {
     }
 
     /// Run consensus on messages
-    pub async fn run_consensus(&self, messages: Vec<ConsensusMessage>) -> Result<ConsensusState, ConsensusError> {
+    pub async fn run_consensus(
+        &self,
+        messages: Vec<ConsensusMessage>,
+    ) -> Result<ConsensusState, ConsensusError> {
         if messages.is_empty() {
             return Err(ConsensusError::NoCandidates);
         }
 
         // Simple consensus: take the most recent message
-        let latest_message = messages.iter()
-            .max_by_key(|m| m.timestamp)
-            .unwrap();
+        let latest_message = messages.iter().max_by_key(|m| m.timestamp).unwrap();
 
         Ok(ConsensusState {
             final_value: Some(latest_message.content.clone()),
@@ -441,9 +460,7 @@ mod tests {
 
     #[test]
     fn test_consensus_ihsan_floor() {
-        let config = ConsensusConfig {
-            ihsan_floor: 0.9,
-        };
+        let config = ConsensusConfig { ihsan_floor: 0.9 };
         let consensus = WeightedScoreConsensus::new(config);
         let candidates = vec![
             create_candidate("model-a", 0.9, 0.95, 0.85, 0.85), // Below floor
@@ -458,9 +475,7 @@ mod tests {
 
     #[test]
     fn test_consensus_fallback_when_all_below_floor() {
-        let config = ConsensusConfig {
-            ihsan_floor: 0.95,
-        };
+        let config = ConsensusConfig { ihsan_floor: 0.95 };
         let consensus = WeightedScoreConsensus::new(config);
         let candidates = vec![
             create_candidate("model-a", 0.9, 0.95, 0.85, 0.85),

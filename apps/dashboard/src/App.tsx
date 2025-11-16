@@ -1,7 +1,7 @@
-import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { OnboardingProvider } from './contexts/OnboardingContext'
+import { WebSocketProvider } from './contexts/WebSocketContext'
 import MainLayout from './layouts/MainLayout'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -11,14 +11,16 @@ import Synthesis from './pages/Synthesis'
 import Monitoring from './pages/Monitoring'
 import Settings from './pages/Settings'
 import Admin from './pages/Admin'
+import Achievements from './pages/Achievements'
 import OnboardingWizard from './components/onboarding/OnboardingWizard'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
     <AuthProvider>
-      <OnboardingProvider>
-        <Routes>
+      <WebSocketProvider>
+        <OnboardingProvider>
+          <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -34,6 +36,7 @@ function App() {
             <Route path="agents" element={<Agents />} />
             <Route path="synthesis" element={<Synthesis />} />
             <Route path="monitoring" element={<Monitoring />} />
+            <Route path="achievements" element={<Achievements />} />
             <Route path="settings" element={<Settings />} />
             <Route path="admin" element={<Admin />} />
           </Route>
@@ -48,7 +51,8 @@ function App() {
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </OnboardingProvider>
+        </OnboardingProvider>
+      </WebSocketProvider>
     </AuthProvider>
   )
 }

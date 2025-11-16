@@ -62,10 +62,7 @@ struct ErrorResponse {
 ///     .route("/protected", get(protected_handler))
 ///     .layer(middleware::from_fn(jwt_auth));
 /// ```
-pub async fn jwt_auth(
-    mut request: Request,
-    next: Next,
-) -> Result<Response, AuthError> {
+pub async fn jwt_auth(mut request: Request, next: Next) -> Result<Response, AuthError> {
     // 1. Extract Authorization header
     let auth_header = request
         .headers()
@@ -95,8 +92,7 @@ pub async fn jwt_auth(
     })?;
 
     // 5. Extract user information from claims
-    let user_id = Uuid::parse_str(&token_data.claims.sub)
-        .map_err(|_| AuthError::InvalidToken)?;
+    let user_id = Uuid::parse_str(&token_data.claims.sub).map_err(|_| AuthError::InvalidToken)?;
 
     let authenticated_user = AuthenticatedUser {
         user_id,
@@ -105,7 +101,9 @@ pub async fn jwt_auth(
     };
 
     // 6. Insert authenticated user into request extensions
-    request.extensions_mut().insert(Arc::new(authenticated_user));
+    request
+        .extensions_mut()
+        .insert(Arc::new(authenticated_user));
 
     // 7. Continue to next middleware/handler
     Ok(next.run(request).await)
@@ -204,8 +202,8 @@ pub fn extract_user(extensions: &axum::http::Extensions) -> Option<Arc<Authentic
 #[cfg(test)]
 mod tests {
     use super::*;
-    use jsonwebtoken::{encode, EncodingKey, Header};
     use chrono::{Duration, Utc};
+    use jsonwebtoken::{encode, EncodingKey, Header};
 
     fn generate_test_token(secret: &str, expired: bool) -> String {
         let now = Utc::now();
@@ -252,7 +250,10 @@ mod tests {
             (AuthError::InvalidTokenFormat, StatusCode::UNAUTHORIZED),
             (AuthError::InvalidToken, StatusCode::UNAUTHORIZED),
             (AuthError::ExpiredToken, StatusCode::UNAUTHORIZED),
-            (AuthError::ServerError("Test error".to_string()), StatusCode::INTERNAL_SERVER_ERROR),
+            (
+                AuthError::ServerError("Test error".to_string()),
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
         ];
 
         for (error, expected_status) in errors {

@@ -308,7 +308,6 @@ pub static DB_QUERY_DURATION_SECONDS: Lazy<HistogramVec> = Lazy::new(|| {
 
 /// Total database operations by type
 pub static DB_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
-    
     let counter_vec = prometheus::register_int_counter_vec!(
         "bizra_db_operations_total",
         "Total number of database operations by type",
@@ -325,7 +324,6 @@ pub static DB_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
 
 /// Database errors by type
 pub static DB_ERRORS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
-    
     let counter_vec = prometheus::register_int_counter_vec!(
         "bizra_db_errors_total",
         "Total number of database errors by error type",
@@ -342,11 +340,8 @@ pub static DB_ERRORS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
 
 /// Redis cache hit rate
 pub static CACHE_HIT_RATE: Lazy<Gauge> = Lazy::new(|| {
-    let gauge = register_gauge!(
-        "bizra_cache_hit_rate",
-        "Redis cache hit rate (0.0-1.0)"
-    )
-    .expect("Failed to register cache_hit_rate gauge");
+    let gauge = register_gauge!("bizra_cache_hit_rate", "Redis cache hit rate (0.0-1.0)")
+        .expect("Failed to register cache_hit_rate gauge");
 
     METRICS_REGISTRY
         .register(Box::new(gauge.clone()))
@@ -357,7 +352,6 @@ pub static CACHE_HIT_RATE: Lazy<Gauge> = Lazy::new(|| {
 
 /// Cache operations (hits, misses, sets)
 pub static CACHE_OPERATIONS_TOTAL: Lazy<prometheus::IntCounterVec> = Lazy::new(|| {
-    
     let counter_vec = prometheus::register_int_counter_vec!(
         "bizra_cache_operations_total",
         "Total number of cache operations by type",
@@ -602,9 +596,7 @@ pub fn record_cache_operation(operation: &str, duration_seconds: f64) {
         .with_label_values(&[operation])
         .observe(duration_seconds);
 
-    CACHE_OPERATIONS_TOTAL
-        .with_label_values(&[operation])
-        .inc();
+    CACHE_OPERATIONS_TOTAL.with_label_values(&[operation]).inc();
 }
 
 /// Record database migration execution

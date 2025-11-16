@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use blake3::Hash;
+use std::sync::Arc;
 
 /// Immutable task definition for 1000+ parallel execution
 #[derive(Debug, Clone)]
@@ -39,11 +39,7 @@ pub enum Capability {
 
 impl Task {
     /// Create new task with Φ-optimization defaults
-    pub fn new(
-        payload: serde_json::Value,
-        timeout_ms: u64,
-        impact_weight: f64,
-    ) -> Self {
+    pub fn new(payload: serde_json::Value, timeout_ms: u64, impact_weight: f64) -> Self {
         let payload_arc = Arc::new(payload);
         let task_hash = blake3::hash(&serde_json::to_vec(&*payload_arc).unwrap());
 

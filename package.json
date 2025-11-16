@@ -1,0 +1,34 @@
+{
+  "name": "bizra-genesis-node",
+  "version": "1.0.0",
+  "description": "BIZRA Genesis Node - Professional Elite multi-agent consensus system",
+  "type": "module",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "echo \"No tests configured\" && exit 0",
+    "build:dashboard": "cd apps/dashboard && npm install && npm run build",
+    "build:landing": "echo \"Landing page is static HTML, no build needed\"",
+    "build": "npm run build:dashboard && npm run build:landing",
+    "dev:dashboard": "cd apps/dashboard && npm run dev",
+    "preview:dashboard": "cd apps/dashboard && npm run preview"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "bizra",
+    "genesis-node",
+    "multi-agent",
+    "consensus",
+    "ai"
+  ],
+  "author": "BIZRA Lab",
+  "license": "MIT"
+}

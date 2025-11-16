@@ -30,11 +30,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("📦 Step 1: Initializing Persistence Layer");
     println!("------------------------------------------");
 
-    let database_url = std::env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://bizra_user:bizra_password@localhost:5432/bizra_genesis".to_string());
+    let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
+        "postgres://bizra_user:bizra_password@localhost:5432/bizra_genesis".to_string()
+    });
 
-    let redis_url = std::env::var("REDIS_URL")
-        .unwrap_or_else(|_| "redis://localhost:6379/0".to_string());
+    let redis_url =
+        std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://localhost:6379/0".to_string());
 
     println!("📍 Database URL: {}", mask_password(&database_url));
     println!("📍 Redis URL: {}", mask_password(&redis_url));
@@ -73,7 +74,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     for (model, model_type) in &models {
-        persistence.initialize_model(model, Some(model_type)).await?;
+        persistence
+            .initialize_model(model, Some(model_type))
+            .await?;
         println!("✅ Model initialized: {} (type: {})", model, model_type);
     }
     println!();
@@ -129,7 +132,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let success = candidate.scores.ihsan >= contract.ihsan_floor;
         let status = if success { "✅ SUCCESS" } else { "❌ FAILED" };
-        println!("   ✓ Candidate generated (ihsan: {:.2}) - {}", candidate.scores.ihsan, status);
+        println!(
+            "   ✓ Candidate generated (ihsan: {:.2}) - {}",
+            candidate.scores.ihsan, status
+        );
 
         // PHASE 3: Create trust receipt
         let run_id = format!("demo-run-{:03}", iteration);
@@ -151,16 +157,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // PHASE 6: Persist to database
         persistence.save_receipt(&signed_receipt).await?;
-        persistence.save_proof_of_impact(&run_id, &selected_model, &poi).await?;
+        persistence
+            .save_proof_of_impact(&run_id, &selected_model, &poi)
+            .await?;
         println!("   ✓ Receipt persisted to PostgreSQL");
 
         // PHASE 7: Update router state
         if success {
-            persistence.increment_router_success(&selected_model).await?;
+            persistence
+                .increment_router_success(&selected_model)
+                .await?;
             router.update(&selected_model, true);
             println!("   ✓ Router state updated (SUCCESS) - α incremented");
         } else {
-            persistence.increment_router_failure(&selected_model).await?;
+            persistence
+                .increment_router_failure(&selected_model)
+                .await?;
             router.update(&selected_model, false);
             println!("   ✓ Router state updated (FAILURE) - β incremented");
         }

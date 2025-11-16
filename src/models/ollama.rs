@@ -238,11 +238,11 @@ impl OllamaProvider {
     fn convert_model_info(&self, ollama_model: &OllamaModelInfo) -> ModelInfo {
         // Parse context length from model family (best effort)
         let context_length = match ollama_model.details.family.as_str() {
-            "llama" => 4096,  // Llama 3 default
-            "mistral" => 8192, // Mistral default
-            "phi3" => 4096,    // Phi-3 default
+            "llama" => 4096,      // Llama 3 default
+            "mistral" => 8192,    // Mistral default
+            "phi3" => 4096,       // Phi-3 default
             "codellama" => 16384, // CodeLlama default
-            _ => 2048,         // Conservative default
+            _ => 2048,            // Conservative default
         };
 
         // Determine capabilities based on model family
@@ -323,15 +323,12 @@ impl ModelProvider for OllamaProvider {
                 return Err(self.handle_error_response(response).await);
             }
 
-            let ollama_response = response
-                .json::<OllamaListResponse>()
-                .await
-                .map_err(|e| {
-                    ModelError::ParseError {
-                        message: format!("Failed to parse model list: {}", e),
-                        raw_response: None,
-                    }
-                })?;
+            let ollama_response = response.json::<OllamaListResponse>().await.map_err(|e| {
+                ModelError::ParseError {
+                    message: format!("Failed to parse model list: {}", e),
+                    raw_response: None,
+                }
+            })?;
 
             Ok(ollama_response
                 .models
@@ -380,21 +377,25 @@ impl ModelProvider for OllamaProvider {
             let ollama_response = response
                 .json::<OllamaGenerateResponse>()
                 .await
-                .map_err(|e| {
-                    ModelError::ParseError {
-                        message: format!("Failed to parse response: {}", e),
-                        raw_response: None,
-                    }
+                .map_err(|e| ModelError::ParseError {
+                    message: format!("Failed to parse response: {}", e),
+                    raw_response: None,
                 })?;
 
             let latency_ms = start.elapsed().as_millis() as u64;
 
             let mut metadata = HashMap::new();
             if let Some(total_duration) = ollama_response.total_duration {
-                metadata.insert("total_duration_ns".to_string(), serde_json::json!(total_duration));
+                metadata.insert(
+                    "total_duration_ns".to_string(),
+                    serde_json::json!(total_duration),
+                );
             }
             if let Some(load_duration) = ollama_response.load_duration {
-                metadata.insert("load_duration_ns".to_string(), serde_json::json!(load_duration));
+                metadata.insert(
+                    "load_duration_ns".to_string(),
+                    serde_json::json!(load_duration),
+                );
             }
 
             Ok(CompletionResponse {
@@ -452,45 +453,41 @@ impl ModelProvider for OllamaProvider {
         }
 
         let mut chunk_index = 0;
-        let stream = response
-            .bytes_stream()
-            .map(move |chunk_result| {
-                let chunk = chunk_result?;
+        let stream = response.bytes_stream().map(move |chunk_result| {
+            let chunk = chunk_result?;
 
-                let ollama_chunk: OllamaGenerateResponse =
-                    serde_json::from_slice(&chunk).map_err(|e| {
-                        ModelError::ParseError {
-                            message: format!("Failed to parse stream chunk: {}", e),
-                            raw_response: None,
-                        }
-                    })?;
+            let ollama_chunk: OllamaGenerateResponse =
+                serde_json::from_slice(&chunk).map_err(|e| ModelError::ParseError {
+                    message: format!("Failed to parse stream chunk: {}", e),
+                    raw_response: None,
+                })?;
 
-                let current_index = chunk_index;
-                chunk_index += 1;
+            let current_index = chunk_index;
+            chunk_index += 1;
 
-                if ollama_chunk.done {
-                    Ok(StreamChunk {
-                        delta: String::new(),
-                        model: ollama_chunk.model.clone(),
-                        finish_reason: Some(FinishReason::Stop),
-                        usage: Some(TokenUsage {
-                            input_tokens: ollama_chunk.prompt_eval_count.unwrap_or(0),
-                            output_tokens: ollama_chunk.eval_count.unwrap_or(0),
-                            total_tokens: ollama_chunk.prompt_eval_count.unwrap_or(0)
-                                + ollama_chunk.eval_count.unwrap_or(0),
-                        }),
-                        index: current_index,
-                    })
-                } else {
-                    Ok(StreamChunk {
-                        delta: ollama_chunk.response,
-                        model: ollama_chunk.model.clone(),
-                        finish_reason: None,
-                        usage: None,
-                        index: current_index,
-                    })
-                }
-            });
+            if ollama_chunk.done {
+                Ok(StreamChunk {
+                    delta: String::new(),
+                    model: ollama_chunk.model.clone(),
+                    finish_reason: Some(FinishReason::Stop),
+                    usage: Some(TokenUsage {
+                        input_tokens: ollama_chunk.prompt_eval_count.unwrap_or(0),
+                        output_tokens: ollama_chunk.eval_count.unwrap_or(0),
+                        total_tokens: ollama_chunk.prompt_eval_count.unwrap_or(0)
+                            + ollama_chunk.eval_count.unwrap_or(0),
+                    }),
+                    index: current_index,
+                })
+            } else {
+                Ok(StreamChunk {
+                    delta: ollama_chunk.response,
+                    model: ollama_chunk.model.clone(),
+                    finish_reason: None,
+                    usage: None,
+                    index: current_index,
+                })
+            }
+        });
 
         Ok(Box::pin(stream))
     }
@@ -530,7 +527,10 @@ impl ModelProvider for OllamaProvider {
         match models_result {
             Ok(models) => {
                 let mut details = HashMap::new();
-                details.insert("endpoint".to_string(), serde_json::json!(self.config.endpoint));
+                details.insert(
+                    "endpoint".to_string(),
+                    serde_json::json!(self.config.endpoint),
+                );
                 details.insert("model_count".to_string(), serde_json::json!(models.len()));
 
                 Ok(ProviderHealth {
@@ -544,8 +544,14 @@ impl ModelProvider for OllamaProvider {
             }
             Err(err) => {
                 let mut details = HashMap::new();
-                details.insert("endpoint".to_string(), serde_json::json!(self.config.endpoint));
-                details.insert("error_details".to_string(), serde_json::json!(err.to_string()));
+                details.insert(
+                    "endpoint".to_string(),
+                    serde_json::json!(self.config.endpoint),
+                );
+                details.insert(
+                    "error_details".to_string(),
+                    serde_json::json!(err.to_string()),
+                );
 
                 Ok(ProviderHealth {
                     status: HealthStatus::Unhealthy,
@@ -569,11 +575,7 @@ impl ModelProvider for OllamaProvider {
         Ok(models.iter().any(|m| m.name == model))
     }
 
-    async fn validate_options(
-        &self,
-        model: &str,
-        options: &CompletionOptions,
-    ) -> ModelResult<()> {
+    async fn validate_options(&self, model: &str, options: &CompletionOptions) -> ModelResult<()> {
         // Get model info to check constraints
         let info = self.model_info(model).await?;
 
@@ -725,6 +727,9 @@ mod tests {
         let tokens = rt.block_on(provider.estimate_tokens(text, None)).unwrap();
 
         // ~4 chars per token, so 30 chars / 4 = 7.5 -> 8 tokens
-        assert!(tokens >= 7 && tokens <= 10, "Token estimate should be reasonable");
+        assert!(
+            tokens >= 7 && tokens <= 10,
+            "Token estimate should be reasonable"
+        );
     }
 }

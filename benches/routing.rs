@@ -1,17 +1,15 @@
 // benches/routing.rs
 // Benchmark suite for Thompson Sampling routing
 
+use bizra_genesis_node::routing::ThompsonRouter;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use synthesis_orchestrator::routing::ThompsonRouter;
 
 fn routing_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("thompson_routing");
 
     // Route selection with varying number of routes
     for num_routes in [2, 5, 10, 20, 50].iter() {
-        let routes: Vec<String> = (0..*num_routes)
-            .map(|i| format!("route-{}", i))
-            .collect();
+        let routes: Vec<String> = (0..*num_routes).map(|i| format!("route-{}", i)).collect();
 
         group.bench_with_input(
             BenchmarkId::new("select_route", num_routes),

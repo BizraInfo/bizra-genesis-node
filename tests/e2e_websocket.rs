@@ -22,11 +22,7 @@ async fn e2e_websocket_connect() {
     let ws_url = websocket_url();
 
     // Attempt to connect
-    let connect_result = timeout(
-        Duration::from_secs(10),
-        connect_async(ws_url.clone())
-    )
-    .await;
+    let connect_result = timeout(Duration::from_secs(10), connect_async(ws_url.clone())).await;
 
     match connect_result {
         Ok(Ok((ws_stream, _response))) => {
@@ -193,8 +189,11 @@ async fn e2e_websocket_multiple_messages() {
             .expect("WebSocket error");
 
         // Validate we got a response
-        assert!(matches!(response, Message::Text(_) | Message::Binary(_)),
-            "Expected text or binary response for message {}", i);
+        assert!(
+            matches!(response, Message::Text(_) | Message::Binary(_)),
+            "Expected text or binary response for message {}",
+            i
+        );
     }
 
     println!("✅ E2E WebSocket Multiple Messages: PASSED");
@@ -240,8 +239,14 @@ async fn e2e_websocket_connection_persistence() {
             .expect("WebSocket error");
 
         // Validate we got a response
-        assert!(matches!(response, Message::Text(_) | Message::Pong(_) | Message::Binary(_)),
-            "Connection dropped after {} iterations", i);
+        assert!(
+            matches!(
+                response,
+                Message::Text(_) | Message::Pong(_) | Message::Binary(_)
+            ),
+            "Connection dropped after {} iterations",
+            i
+        );
     }
 
     println!("✅ E2E WebSocket Connection Persistence: PASSED (30s sustained)");
@@ -299,8 +304,10 @@ async fn e2e_websocket_reconnection() {
         .expect("WebSocket error");
 
     // Validate we got a response
-    assert!(matches!(response, Message::Text(_) | Message::Binary(_)),
-        "Expected response on reconnection");
+    assert!(
+        matches!(response, Message::Text(_) | Message::Binary(_)),
+        "Expected response on reconnection"
+    );
 
     println!("✅ E2E WebSocket Reconnection: PASSED");
 
@@ -337,8 +344,10 @@ async fn e2e_websocket_binary_message() {
         .expect("WebSocket error");
 
     // Validate we got a response (may be binary or text acknowledgment)
-    assert!(matches!(response, Message::Text(_) | Message::Binary(_)),
-        "Expected response to binary message");
+    assert!(
+        matches!(response, Message::Text(_) | Message::Binary(_)),
+        "Expected response to binary message"
+    );
 
     println!("✅ E2E WebSocket Binary Message: PASSED");
 

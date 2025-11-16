@@ -48,9 +48,9 @@ impl Default for ExperimentConfig {
     fn default() -> Self {
         Self {
             name: "Unnamed Experiment".to_string(),
-            min_sample_size: 30, // Statistical minimum
-            confidence_level: 0.95, // 95% confidence
-            min_effect_size: 0.1, // 10% minimum difference
+            min_sample_size: 30,     // Statistical minimum
+            confidence_level: 0.95,  // 95% confidence
+            min_effect_size: 0.1,    // 10% minimum difference
             max_duration_secs: 3600, // 1 hour
             primary_metric: MetricType::Quality,
             cost_threshold: Some(10.0), // $10 limit
@@ -95,7 +95,11 @@ pub struct Variant {
 
 impl Variant {
     /// Create a new variant
-    pub fn new(id: impl Into<String>, provider: impl Into<String>, model: impl Into<String>) -> Self {
+    pub fn new(
+        id: impl Into<String>,
+        provider: impl Into<String>,
+        model: impl Into<String>,
+    ) -> Self {
         Self {
             id: id.into(),
             provider: provider.into(),
@@ -457,15 +461,9 @@ impl Experiment {
         let cost_values: Vec<f64> = obs.iter().map(|o| o.cost).collect();
         let throughput_values: Vec<f64> = obs.iter().map(|o| o.throughput()).collect();
 
-        let quality_values: Vec<f64> = obs
-            .iter()
-            .filter_map(|o| o.quality_score)
-            .collect();
+        let quality_values: Vec<f64> = obs.iter().filter_map(|o| o.quality_score).collect();
 
-        let efficiency_values: Vec<f64> = obs
-            .iter()
-            .filter_map(|o| o.efficiency())
-            .collect();
+        let efficiency_values: Vec<f64> = obs.iter().filter_map(|o| o.efficiency()).collect();
 
         Some(VariantStats {
             variant_id: variant_id.to_string(),
@@ -589,8 +587,7 @@ impl Experiment {
                 self.config.primary_metric,
             ) {
                 // Stop if significant and effect size is large enough
-                return result.is_significant
-                    && result.effect_size >= self.config.min_effect_size;
+                return result.is_significant && result.effect_size >= self.config.min_effect_size;
             }
         }
 

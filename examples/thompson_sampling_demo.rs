@@ -126,7 +126,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Model A: High quality, slow, expensive (GPT-4 profile)
     let provider_a = Arc::new(MockProvider::new("gpt-4", 0.92, 1800));
-    router.register_model("gpt-4".to_string(), provider_a).await?;
+    router
+        .register_model("gpt-4".to_string(), provider_a)
+        .await?;
     info!("✅ Registered: gpt-4 (high quality, slower)");
 
     // Model B: Medium quality, fast, cheap (GPT-3.5 profile)
@@ -189,11 +191,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         info!("  • Avg cost: ${:.4}", perf.avg_cost);
 
         let (lower, upper) = perf.confidence_interval();
-        info!(
-            "  • 95% CI: ({:.3}, {:.3})",
-            lower.max(0.0),
-            upper.min(1.0)
-        );
+        info!("  • 95% CI: ({:.3}, {:.3})", lower.max(0.0), upper.min(1.0));
     }
 
     // Step 5: Exploitation phase
@@ -243,10 +241,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         info!("\nModel: {}", model_id);
         info!("  • Total requests: {}", perf.total_requests);
         info!("  • Success rate: {:.2}%", perf.success_rate() * 100.0);
-        info!(
-            "  • Alpha: {:.1}, Beta: {:.1}",
-            perf.alpha, perf.beta
-        );
+        info!("  • Alpha: {:.1}, Beta: {:.1}", perf.alpha, perf.beta);
         info!("  • Avg quality: {:.3}", perf.avg_quality);
         info!("  • Avg latency: {:.0}ms", perf.avg_latency);
         info!("  • Avg cost: ${:.4}", perf.avg_cost);
@@ -289,10 +284,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Ok(response) => {
                 info!(
                     "  Request {}: {} ({}ms, {} tokens)",
-                    i,
-                    response.model,
-                    response.latency_ms,
-                    response.usage.total_tokens
+                    i, response.model, response.latency_ms, response.usage.total_tokens
                 );
             }
             Err(e) => {

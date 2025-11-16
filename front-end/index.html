@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZRA Genesis Node - AI-Blockchain Ecosystem</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">⬢</div>
+                    <div class="logo-text">
+                        <div class="logo-title">BIZRA</div>
+                        <div class="logo-subtitle">Genesis Node</div>
+                    </div>
+                </div>
+                <div class="node-id">BIZRA-GENESIS-001</div>
+            </div>
+            
+            <div class="nav-menu">
+                <button class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">◈</span>
+                    <span class="nav-label">Dashboard</span>
+                </button>
+                <button class="nav-item" data-view="personal-agents">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Personal Agents</span>
+                    <span class="nav-badge">7</span>
+                </button>
+                <button class="nav-item" data-view="system-agents">
+                    <span class="nav-icon">⚙</span>
+                    <span class="nav-label">System Agents</span>
+                    <span class="nav-badge">6</span>
+                </button>
+                <button class="nav-item" data-view="proof-of-impact">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">Proof-of-Impact</span>
+                </button>
+                <button class="nav-item" data-view="blockchain">
+                    <span class="nav-icon">⛓</span>
+                    <span class="nav-label">Blockchain</span>
+                </button>
+                <button class="nav-item" data-view="ai-system">
+                    <span class="nav-icon">🧠</span>
+                    <span class="nav-label">AI System</span>
+                </button>
+                <button class="nav-item" data-view="resource-sharing">
+                    <span class="nav-icon">🔄</span>
+                    <span class="nav-label">Resource Sharing</span>
+                </button>
+                <button class="nav-item" data-view="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot active"></span>
+                    <span class="status-text">Node Active</span>
+                </div>
+                <div class="version">v2.2.0-rc1</div>
+            </div>
+        </nav>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view active">
+                <div class="view-header">
+                    <h1>Genesis Node Dashboard</h1>
+                    <div class="header-actions">
+                        <span class="uptime">Uptime: <strong>99.97%</strong></span>
+                        <span class="live-indicator">● LIVE</span>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon gpu">🎮</div>
+                        <div class="metric-content">
+                            <div class="metric-label">GPU</div>
+                            <div class="metric-value">78%</div>
+                            <div class="metric-detail">RTX 4090 • 24GB VRAM • 65°C</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="gpuChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon cpu">⚡</div>
+                        <div class="metric-content">
+                            <div class="metric-label">CPU</div>
+                            <div class="metric-value">45%</div>
+                            <div class="metric-detail">Intel i9-14900 • 32 Cores • 58°C</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="cpuChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon ram">💾</div>
+                        <div class="metric-content">
+                            <div class="metric-label">RAM</div>
+                            <div class="metric-value">52%</div>
+                            <div class="metric-detail">67GB / 128GB Used</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="ramChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon storage">💿</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Storage</div>
+                            <div class="metric-value">42%</div>
+                            <div class="metric-detail">847GB / 2TB • NVMe SSD</div>
+                        </div>
+                        <div class="metric-chart">
+                            <canvas id="storageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="card blockchain-status">
+                        <div class="card-header">
+                            <h3>Blockchain Status</h3>
+                            <span class="status-badge active">Active</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="stat-row">
+                                <span class="stat-label">Current Block</span>
+                                <span class="stat-value">1,847,392</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Transactions/Sec</span>
+                                <span class="stat-value">127,439 TPS</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Consensus</span>
+                                <span class="stat-value">Proof-of-Impact</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Network Peers</span>
+                                <span class="stat-value">23 Connected</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Finality Time</span>
+                                <span class="stat-value">0.8s</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card agentflow-status">
+                        <div class="card-header">
+                            <h3>AgentFlow 7B Status</h3>
+                            <span class="status-badge optimized">Optimized</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="stat-row">
+                                <span class="stat-label">Model</span>
+                                <span class="stat-value">Qwen2.5-7B-Instruct</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Inference Speed</span>
+                                <span class="stat-value">1,247 tokens/sec</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Search Tasks</span>
+                                <span class="stat-value improvement">+14.9%</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Agentic Reasoning</span>
+                                <span class="stat-value improvement">+14.0%</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Math Reasoning</span>
+                                <span class="stat-value improvement">+14.5%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card impact-score">
+                        <div class="card-header">
+                            <h3>Proof-of-Impact Score</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="impact-score-display">
+                                <div class="score-value">8,947</div>
+                                <div class="score-label">Total Impact</div>
+                            </div>
+                            <div class="token-earnings">
+                                <div class="token-item">
+                                    <span class="token-icon seed">🌱</span>
+                                    <div class="token-info">
+                                        <div class="token-amount">2,847.32 SEED</div>
+                                        <div class="token-rate">+127.45/day</div>
+                                    </div>
+                                </div>
+                                <div class="token-item">
+                                    <span class="token-icon bloom">🌸</span>
+                                    <div class="token-info">
+                                        <div class="token-amount">456.78 BLOOM</div>
+                                        <div class="token-rate">0.12% Governance</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="architecture-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>BIZRA Ecosystem Architecture</h3>
+                        </div>
+                        <div class="card-content">
+                            <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/814dbe8688df1ecc967af0da17ec5fa7/04b49123-6fae-4624-bc3e-c7668a6a2376/5a58683a.png" alt="BIZRA Architecture" class="architecture-diagram">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personal Agents View -->
+            <div id="personal-agents" class="view">
+                <div class="view-header">
+                    <h1>Personal Agentic Team</h1>
+                    <div class="header-actions">
+                        <span class="agent-count">7 Active Agents</span>
+                    </div>
+                </div>
+                
+                <div class="agents-grid" id="personalAgentsGrid"></div>
+            </div>
+            
+            <!-- System Agents View -->
+            <div id="system-agents" class="view">
+                <div class="view-header">
+                    <h1>System Agentic Team</h1>
+                    <div class="header-actions">
+                        <span class="agent-count">6 Active Agents</span>
+                    </div>
+                </div>
+                
+                <div class="agents-grid" id="systemAgentsGrid"></div>
+            </div>
+            
+            <!-- Proof of Impact View -->
+            <div id="proof-of-impact" class="view">
+                <div class="view-header">
+                    <h1>Proof-of-Impact Dashboard</h1>
+                    <div class="header-actions">
+                        <span class="impact-multiplier">Impact Multiplier: <strong>2.3x</strong></span>
+                    </div>
+                </div>
+                
+                <div class="impact-overview">
+                    <div class="impact-card primary">
+                        <div class="impact-icon">⚡</div>
+                        <div class="impact-content">
+                            <div class="impact-value">8,947</div>
+                            <div class="impact-label">Total Impact Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon seed">🌱</div>
+                        <div class="impact-content">
+                            <div class="impact-value">2,847.32</div>
+                            <div class="impact-label">SEED Tokens (Utility)</div>
+                            <div class="impact-detail">+127.45 SEED/day</div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon bloom">🌸</div>
+                        <div class="impact-content">
+                            <div class="impact-value">456.78</div>
+                            <div class="impact-label">BLOOM Tokens (Governance)</div>
+                            <div class="impact-detail">0.12% Network Power</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="impact-details-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Contribution Metrics</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="contribution-item">
+                                <div class="contribution-label">Compute Hours</div>
+                                <div class="contribution-bar">
+                                    <div class="contribution-fill" style="width: 85%"></div>
+                                </div>
+                                <div class="contribution-value">2,847 hours</div>
+                            </div>
+                            <div class="contribution-item">
+                                <div class="contribution-label">Data Processed</div>
+                                <div class="contribution-bar">
+                                    <div class="contribution-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="contribution-value">1.2 TB</div>
+                            </div>
+                            <div class="contribution-item">
+                                <div class="contribution-label">Validations</div>
+                                <div class="contribution-bar">
+                                    <div class="contribution-fill" style="width: 75%"></div>
+                                </div>
+                                <div class="contribution-value">847 validations</div>
+                            </div>
+                            <div class="contribution-item">
+                                <div class="contribution-label">Peer Attestations</div>
+                                <div class="contribution-bar">
+                                    <div class="contribution-fill" style="width: 94%"></div>
+                                </div>
+                                <div class="contribution-value">94 attestations</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Economic Model</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="economic-chart">
+                                <canvas id="economicChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Blockchain View -->
+            <div id="blockchain" class="view">
+                <div class="view-header">
+                    <h1>Blockchain Network</h1>
+                    <div class="header-actions">
+                        <span class="status-badge active">Consensus Active</span>
+                    </div>
+                </div>
+                
+                <div class="blockchain-overview">
+                    <div class="blockchain-card">
+                        <div class="blockchain-stat">
+                            <div class="stat-value">1,847,392</div>
+                            <div class="stat-label">Current Block Height</div>
+                        </div>
+                    </div>
+                    <div class="blockchain-card">
+                        <div class="blockchain-stat">
+                            <div class="stat-value">127,439</div>
+                            <div class="stat-label">Transactions Per Second</div>
+                        </div>
+                    </div>
+                    <div class="blockchain-card">
+                        <div class="blockchain-stat">
+                            <div class="stat-value">0.8s</div>
+                            <div class="stat-label">Finality Time</div>
+                        </div>
+                    </div>
+                    <div class="blockchain-card">
+                        <div class="blockchain-stat">
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">Network Peers</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="blockchain-details">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Blocks</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="block-list" id="blockList"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Network Topology</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="network-chart">
+                                <canvas id="networkChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI System View -->
+            <div id="ai-system" class="view">
+                <div class="view-header">
+                    <h1>AI &amp; LLM System</h1>
+                    <div class="header-actions">
+                        <span class="status-badge optimized">System Optimized</span>
+                    </div>
+                </div>
+                
+                <div class="ai-overview">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AgentFlow 7B Performance</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="performance-chart">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Model Information</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Model Name</div>
+                                    <div class="info-value">Qwen2.5-7B-Instruct</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Status</div>
+                                    <div class="info-value">OPTIMIZED</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Inference Speed</div>
+                                    <div class="info-value">1,247 tokens/sec</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Deployment</div>
+                                    <div class="info-value">Local Node</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="knowledge-base-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>HyperGraph RAG Knowledge Base</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="kb-stats">
+                                <div class="kb-stat">
+                                    <div class="kb-value">500,000</div>
+                                    <div class="kb-label">Total Documents</div>
+                                </div>
+                                <div class="kb-stat">
+                                    <div class="kb-value">15,000</div>
+                                    <div class="kb-label">Hours Processed</div>
+                                </div>
+                                <div class="kb-stat">
+                                    <div class="kb-value">2,847,392</div>
+                                    <div class="kb-label">Graph Nodes</div>
+                                </div>
+                                <div class="kb-stat">
+                                    <div class="kb-value">99.6%</div>
+                                    <div class="kb-label">Retrieval Accuracy</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resource Sharing View -->
+            <div id="resource-sharing" class="view">
+                <div class="view-header">
+                    <h1>Resource Sharing Configuration</h1>
+                    <div class="header-actions">
+                        <span class="earnings-rate">Earning: <strong>127.45 SEED/day</strong></span>
+                    </div>
+                </div>
+                
+                <div class="resource-config">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Compute Allocation</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="slider-control">
+                                <label for="computeSlider">GPU &amp; CPU Power: <span id="computeValue">70%</span></label>
+                                <input type="range" id="computeSlider" min="0" max="100" value="70" class="slider">
+                                <div class="slider-labels">
+                                    <span>0%</span>
+                                    <span>25%</span>
+                                    <span>50%</span>
+                                    <span>75%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div class="allocation-info">
+                                <p>Current allocation provides approximately <strong>127.45 SEED</strong> tokens per day based on network demand and your hardware capabilities.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Data Contribution</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="toggle-control">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="dataSharing" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Enable Data Sharing</span>
+                                </label>
+                            </div>
+                            <div class="privacy-level">
+                                <label for="privacySelect">Privacy Level:</label>
+                                <select id="privacySelect" class="form-control">
+                                    <option value="low">Low - Maximum Sharing</option>
+                                    <option value="medium">Medium - Balanced</option>
+                                    <option value="high" selected>High - Minimal Sharing</option>
+                                    <option value="maximum">Maximum - Encrypted Only</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="earnings-calculator">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Earnings Calculator</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="calculator-grid">
+                                <div class="calc-item">
+                                    <div class="calc-label">Daily Earnings</div>
+                                    <div class="calc-value">127.45 SEED</div>
+                                </div>
+                                <div class="calc-item">
+                                    <div class="calc-label">Weekly Earnings</div>
+                                    <div class="calc-value">892.15 SEED</div>
+                                </div>
+                                <div class="calc-item">
+                                    <div class="calc-label">Monthly Earnings</div>
+                                    <div class="calc-value">3,823.50 SEED</div>
+                                </div>
+                                <div class="calc-item">
+                                    <div class="calc-label">Impact Multiplier</div>
+                                    <div class="calc-value">2.3x</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings View -->
+            <div id="settings" class="view">
+                <div class="view-header">
+                    <h1>System Configuration</h1>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Node Settings</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">Node Name</label>
+                                <input type="text" class="form-control" value="BIZRA-GENESIS-001" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Version</label>
+                                <input type="text" class="form-control" value="v2.2.0-rc1" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Network Mode</label>
+                                <select class="form-control">
+                                    <option value="mainnet" selected>Mainnet</option>
+                                    <option value="testnet">Testnet</option>
+                                    <option value="devnet">Devnet</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Security Configuration</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="toggle-control">
+                                <label class="toggle-label">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Enable 2FA Authentication</span>
+                                </label>
+                            </div>
+                            <div class="toggle-control">
+                                <label class="toggle-label">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Encrypted Communications</span>
+                                </label>
+                            </div>
+                            <div class="toggle-control">
+                                <label class="toggle-label">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-text">Auto Security Updates</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Performance Optimization</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label class="form-label">GPU Priority</label>
+                                <select class="form-control">
+                                    <option value="inference">AI Inference</option>
+                                    <option value="mining" selected>Blockchain Mining</option>
+                                    <option value="balanced">Balanced</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Agent Update Frequency</label>
+                                <select class="form-control">
+                                    <option value="realtime" selected>Real-time</option>
+                                    <option value="5min">Every 5 minutes</option>
+                                    <option value="15min">Every 15 minutes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Agent Team Customization</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="agent-customization">
+                                <p>Configure which personal agents are active and their priority levels.</p>
+                                <button class="btn btn--primary">Customize Agent Team</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

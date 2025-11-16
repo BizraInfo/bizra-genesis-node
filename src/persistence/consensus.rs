@@ -4,7 +4,6 @@
 use crate::persistence::traits::{ConsensusRepositoryTrait, ConsensusRun};
 use crate::persistence::{DbError, DbResult};
 use async_trait::async_trait;
-use chrono::Utc;
 use sqlx::PgPool;
 
 /// Consensus run repository

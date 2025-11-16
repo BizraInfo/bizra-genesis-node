@@ -4,11 +4,7 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use async_trait::async_trait;
-use axum::{
-    extract::Extension,
-    http::StatusCode,
-    response::IntoResponse,
-};
+use axum::{extract::Extension, http::StatusCode, response::IntoResponse};
 use sqlx::PgPool;
 use std::sync::Arc;
 

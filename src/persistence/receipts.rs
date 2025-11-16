@@ -3,7 +3,7 @@
 
 use crate::persistence::traits::ReceiptRepositoryTrait;
 use crate::persistence::{DbError, DbResult};
-use crate::trust::{ProofOfImpact, RunReceipt};
+use crate::trust::RunReceipt;
 use async_trait::async_trait;
 use sqlx::PgPool;
 

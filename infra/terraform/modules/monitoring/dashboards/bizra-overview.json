@@ -1,0 +1,104 @@
+{
+  "dashboard": {
+    "title": "BIZRA Genesis Node - Overview",
+    "tags": ["bizra", "overview"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "title": "Synthesis Requests",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(synthesis_requests_total[5m])",
+            "legendFormat": "Requests/s"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Average Synthesis Latency",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(synthesis_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(synthesis_duration_seconds_bucket[5m]))",
+            "legendFormat": "P99"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Ihsan Score",
+        "type": "gauge",
+        "gridPos": {"x": 0, "y": 8, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "avg(ihsan_score)",
+            "legendFormat": "Avg Ihsan"
+          }
+        ],
+        "options": {
+          "min": 0,
+          "max": 1,
+          "thresholds": [
+            {"value": 0, "color": "red"},
+            {"value": 0.7, "color": "yellow"},
+            {"value": 0.9, "color": "green"}
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Error Rate",
+        "type": "stat",
+        "gridPos": {"x": 6, "y": 8, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "rate(synthesis_errors_total[5m]) / rate(synthesis_requests_total[5m])",
+            "legendFormat": "Error Rate"
+          }
+        ],
+        "options": {
+          "graphMode": "area",
+          "colorMode": "value"
+        }
+      },
+      {
+        "id": 5,
+        "title": "Active Agents",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 8, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "count(agent_status{status=\"active\"})",
+            "legendFormat": "Active Agents"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Database Connections",
+        "type": "graph",
+        "gridPos": {"x": 18, "y": 8, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "db_pool_connections_active",
+            "legendFormat": "Active"
+          },
+          {
+            "expr": "db_pool_connections_idle",
+            "legendFormat": "Idle"
+          }
+        ]
+      }
+    ]
+  }
+}

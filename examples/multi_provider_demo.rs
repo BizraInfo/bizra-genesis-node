@@ -65,7 +65,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let providers = registry.list_providers().await;
-    info!("✅ Registered {} provider(s): {:?}", providers.len(), providers);
+    info!(
+        "✅ Registered {} provider(s): {:?}",
+        providers.len(),
+        providers
+    );
 
     // Step 2: Health check all providers
     info!("\n📊 Step 2: Provider Health Check");
@@ -84,7 +88,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("-".repeat(70));
 
     let all_models = registry.list_all_models().await?;
-    info!("Found {} total models across all providers", all_models.len());
+    info!(
+        "Found {} total models across all providers",
+        all_models.len()
+    );
 
     // Group by provider
     let mut by_provider: std::collections::HashMap<String, Vec<String>> =
@@ -142,10 +149,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 "  Selected: {} from {}",
                 selected.model_name, selected.provider_name
             );
-            info!(
-                "  Context: {} tokens",
-                selected.model_info.context_length
-            );
+            info!("  Context: {} tokens", selected.model_info.context_length);
         }
         Err(e) => info!("  Failed: {}", e),
     }
@@ -189,7 +193,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     match registry.select_model(&constrained_req).await {
         Ok(selected) => {
-            info!("  ✅ Found: {} from {}", selected.model_name, selected.provider_name);
+            info!(
+                "  ✅ Found: {} from {}",
+                selected.model_name, selected.provider_name
+            );
             info!(
                 "  Context: {} tokens, Cost: ${:.6}/1K",
                 selected.model_info.context_length,
@@ -278,10 +285,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .calculate_cost(provider, &model.name, test_tokens.0, test_tokens.1)
                     .await
                 {
-                    info!(
-                        "  {} ({}): ${:.6}",
-                        provider, model.name, cost
-                    );
+                    info!("  {} ({}): ${:.6}", provider, model.name, cost);
                 }
             }
         }

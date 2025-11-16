@@ -415,13 +415,12 @@ impl ModelProvider for OpenAIProvider {
                 return Err(self.handle_error_response(response).await);
             }
 
-            let models_response = response
-                .json::<OpenAIModelsResponse>()
-                .await
-                .map_err(|e| ModelError::ParseError {
+            let models_response = response.json::<OpenAIModelsResponse>().await.map_err(|e| {
+                ModelError::ParseError {
                     message: format!("Failed to parse models list: {}", e),
                     raw_response: None,
-                })?;
+                }
+            })?;
 
             // Filter for GPT models only
             let models: Vec<ModelInfo> = models_response
@@ -481,88 +480,95 @@ impl ModelProvider for OpenAIProvider {
 
         let start = Instant::now();
 
-        let operation = || async {
-            let request_body = OpenAIRequest {
-                model: model.to_string(),
-                messages: vec![
-                    OpenAIMessage {
-                        role: if options.system_message.is_some() {
-                            "system".to_string()
-                        } else {
-                            "user".to_string()
+        let operation =
+            || async {
+                let request_body = OpenAIRequest {
+                    model: model.to_string(),
+                    messages: vec![
+                        OpenAIMessage {
+                            role: if options.system_message.is_some() {
+                                "system".to_string()
+                            } else {
+                                "user".to_string()
+                            },
+                            content: options.system_message.clone().unwrap_or_default(),
                         },
-                        content: options.system_message.clone().unwrap_or_default(),
+                        OpenAIMessage {
+                            role: "user".to_string(),
+                            content: prompt.to_string(),
+                        },
+                    ],
+                    temperature: Some(options.temperature),
+                    max_tokens: Some(options.max_tokens),
+                    top_p: Some(options.top_p),
+                    frequency_penalty: Some(options.frequency_penalty),
+                    presence_penalty: Some(options.presence_penalty),
+                    stop: if options.stop_sequences.is_empty() {
+                        None
+                    } else {
+                        Some(options.stop_sequences.clone())
                     },
-                    OpenAIMessage {
-                        role: "user".to_string(),
-                        content: prompt.to_string(),
-                    },
-                ],
-                temperature: Some(options.temperature),
-                max_tokens: Some(options.max_tokens),
-                top_p: Some(options.top_p),
-                frequency_penalty: Some(options.frequency_penalty),
-                presence_penalty: Some(options.presence_penalty),
-                stop: if options.stop_sequences.is_empty() {
-                    None
-                } else {
-                    Some(options.stop_sequences.clone())
-                },
-                stream: false,
-            };
+                    stream: false,
+                };
 
-            let response = self
-                .client
-                .post(format!("{}/chat/completions", self.config.endpoint))
-                .json(&request_body)
-                .send()
-                .await?;
+                let response = self
+                    .client
+                    .post(format!("{}/chat/completions", self.config.endpoint))
+                    .json(&request_body)
+                    .send()
+                    .await?;
 
-            if !response.status().is_success() {
-                return Err(self.handle_error_response(response).await);
-            }
+                if !response.status().is_success() {
+                    return Err(self.handle_error_response(response).await);
+                }
 
-            let openai_response = response
-                .json::<OpenAIResponse>()
-                .await
-                .map_err(|e| ModelError::ParseError {
-                    message: format!("Failed to parse response: {}", e),
-                    raw_response: None,
+                let openai_response = response.json::<OpenAIResponse>().await.map_err(|e| {
+                    ModelError::ParseError {
+                        message: format!("Failed to parse response: {}", e),
+                        raw_response: None,
+                    }
                 })?;
 
-            let latency_ms = start.elapsed().as_millis() as u64;
+                let latency_ms = start.elapsed().as_millis() as u64;
 
-            let choice = openai_response
-                .choices
-                .first()
-                .ok_or_else(|| ModelError::ProviderError {
+                let choice =
+                    openai_response
+                        .choices
+                        .first()
+                        .ok_or_else(|| ModelError::ProviderError {
+                            provider: "openai".to_string(),
+                            code: None,
+                            message: "No choices returned".to_string(),
+                        })?;
+
+                let mut metadata = HashMap::new();
+                metadata.insert(
+                    "response_id".to_string(),
+                    serde_json::json!(openai_response.id),
+                );
+                metadata.insert(
+                    "created".to_string(),
+                    serde_json::json!(openai_response.created),
+                );
+
+                Ok(CompletionResponse {
+                    content: choice.message.content.clone(),
+                    model: openai_response.model.clone(),
                     provider: "openai".to_string(),
-                    code: None,
-                    message: "No choices returned".to_string(),
-                })?;
-
-            let mut metadata = HashMap::new();
-            metadata.insert("response_id".to_string(), serde_json::json!(openai_response.id));
-            metadata.insert("created".to_string(), serde_json::json!(openai_response.created));
-
-            Ok(CompletionResponse {
-                content: choice.message.content.clone(),
-                model: openai_response.model.clone(),
-                provider: "openai".to_string(),
-                usage: TokenUsage {
-                    input_tokens: openai_response.usage.prompt_tokens,
-                    output_tokens: openai_response.usage.completion_tokens,
-                    total_tokens: openai_response.usage.total_tokens,
-                },
-                finish_reason: Self::convert_finish_reason(choice.finish_reason.as_deref()),
-                latency_ms,
-                timestamp_ms: std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .unwrap()
-                    .as_millis() as u64,
-                metadata,
-            })
-        };
+                    usage: TokenUsage {
+                        input_tokens: openai_response.usage.prompt_tokens,
+                        output_tokens: openai_response.usage.completion_tokens,
+                        total_tokens: openai_response.usage.total_tokens,
+                    },
+                    finish_reason: Self::convert_finish_reason(choice.finish_reason.as_deref()),
+                    latency_ms,
+                    timestamp_ms: std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .unwrap()
+                        .as_millis() as u64,
+                    metadata,
+                })
+            };
 
         self.execute_with_retry(operation).await
     }
@@ -621,64 +627,68 @@ impl ModelProvider for OpenAIProvider {
         }
 
         let mut chunk_index = 0;
-        let stream = response.bytes_stream().filter_map(move |chunk_result| async move {
-            let chunk = match chunk_result {
-                Ok(c) => c,
-                Err(e) => return Some(Err(ModelError::from(e))),
-            };
+        let stream = response
+            .bytes_stream()
+            .filter_map(move |chunk_result| async move {
+                let chunk = match chunk_result {
+                    Ok(c) => c,
+                    Err(e) => return Some(Err(ModelError::from(e))),
+                };
 
-            // Parse SSE format: "data: {...}\n\n"
-            let chunk_str = String::from_utf8_lossy(&chunk);
+                // Parse SSE format: "data: {...}\n\n"
+                let chunk_str = String::from_utf8_lossy(&chunk);
 
-            for line in chunk_str.lines() {
-                if line.starts_with("data: ") {
-                    let json_str = &line[6..]; // Skip "data: "
+                for line in chunk_str.lines() {
+                    if line.starts_with("data: ") {
+                        let json_str = &line[6..]; // Skip "data: "
 
-                    if json_str.trim() == "[DONE]" {
-                        // Stream complete
-                        return None;
-                    }
+                        if json_str.trim() == "[DONE]" {
+                            // Stream complete
+                            return None;
+                        }
 
-                    match serde_json::from_str::<OpenAIStreamResponse>(json_str) {
-                        Ok(stream_response) => {
-                            if let Some(choice) = stream_response.choices.first() {
-                                let current_index = chunk_index;
-                                chunk_index += 1;
+                        match serde_json::from_str::<OpenAIStreamResponse>(json_str) {
+                            Ok(stream_response) => {
+                                if let Some(choice) = stream_response.choices.first() {
+                                    let current_index = chunk_index;
+                                    chunk_index += 1;
 
-                                if let Some(finish_reason) = &choice.finish_reason {
-                                    // Final chunk
-                                    return Some(Ok(StreamChunk {
-                                        delta: String::new(),
-                                        model: stream_response.model.clone(),
-                                        finish_reason: Some(Self::convert_finish_reason(Some(finish_reason))),
-                                        usage: None, // OpenAI doesn't provide usage in stream
-                                        index: current_index,
-                                    }));
-                                }
+                                    if let Some(finish_reason) = &choice.finish_reason {
+                                        // Final chunk
+                                        return Some(Ok(StreamChunk {
+                                            delta: String::new(),
+                                            model: stream_response.model.clone(),
+                                            finish_reason: Some(Self::convert_finish_reason(Some(
+                                                finish_reason,
+                                            ))),
+                                            usage: None, // OpenAI doesn't provide usage in stream
+                                            index: current_index,
+                                        }));
+                                    }
 
-                                if let Some(content) = &choice.delta.content {
-                                    return Some(Ok(StreamChunk {
-                                        delta: content.clone(),
-                                        model: stream_response.model.clone(),
-                                        finish_reason: None,
-                                        usage: None,
-                                        index: current_index,
-                                    }));
+                                    if let Some(content) = &choice.delta.content {
+                                        return Some(Ok(StreamChunk {
+                                            delta: content.clone(),
+                                            model: stream_response.model.clone(),
+                                            finish_reason: None,
+                                            usage: None,
+                                            index: current_index,
+                                        }));
+                                    }
                                 }
                             }
-                        }
-                        Err(e) => {
-                            return Some(Err(ModelError::ParseError {
-                                message: format!("Failed to parse stream chunk: {}", e),
-                                raw_response: Some(json_str.to_string()),
-                            }));
+                            Err(e) => {
+                                return Some(Err(ModelError::ParseError {
+                                    message: format!("Failed to parse stream chunk: {}", e),
+                                    raw_response: Some(json_str.to_string()),
+                                }));
+                            }
                         }
                     }
                 }
-            }
 
-            None
-        });
+                None
+            });
 
         Ok(Box::pin(stream))
     }
@@ -737,9 +747,15 @@ impl ModelProvider for OpenAIProvider {
         match models_result {
             Ok(models) => {
                 let mut details = HashMap::new();
-                details.insert("endpoint".to_string(), serde_json::json!(self.config.endpoint));
+                details.insert(
+                    "endpoint".to_string(),
+                    serde_json::json!(self.config.endpoint),
+                );
                 details.insert("model_count".to_string(), serde_json::json!(models.len()));
-                details.insert("has_org".to_string(), serde_json::json!(self.config.organization.is_some()));
+                details.insert(
+                    "has_org".to_string(),
+                    serde_json::json!(self.config.organization.is_some()),
+                );
 
                 Ok(ProviderHealth {
                     status: HealthStatus::Healthy,
@@ -752,8 +768,14 @@ impl ModelProvider for OpenAIProvider {
             }
             Err(err) => {
                 let mut details = HashMap::new();
-                details.insert("endpoint".to_string(), serde_json::json!(self.config.endpoint));
-                details.insert("error_details".to_string(), serde_json::json!(err.to_string()));
+                details.insert(
+                    "endpoint".to_string(),
+                    serde_json::json!(self.config.endpoint),
+                );
+                details.insert(
+                    "error_details".to_string(),
+                    serde_json::json!(err.to_string()),
+                );
 
                 Ok(ProviderHealth {
                     status: HealthStatus::Unhealthy,
@@ -792,11 +814,7 @@ impl ModelProvider for OpenAIProvider {
         Ok(known_models.iter().any(|&m| model.starts_with(m)))
     }
 
-    async fn validate_options(
-        &self,
-        model: &str,
-        options: &CompletionOptions,
-    ) -> ModelResult<()> {
+    async fn validate_options(&self, model: &str, options: &CompletionOptions) -> ModelResult<()> {
         let context_length = get_model_context_length(model);
 
         // Validate max_tokens
@@ -907,10 +925,16 @@ mod tests {
 
         assert!(!response.content.is_empty());
         println!("Response: {}", response.content);
-        println!("Cost: ${:.6}", provider.calculate_cost(
-            "gpt-3.5-turbo",
-            response.usage.input_tokens,
-            response.usage.output_tokens
-        ).await.unwrap());
+        println!(
+            "Cost: ${:.6}",
+            provider
+                .calculate_cost(
+                    "gpt-3.5-turbo",
+                    response.usage.input_tokens,
+                    response.usage.output_tokens
+                )
+                .await
+                .unwrap()
+        );
     }
 }

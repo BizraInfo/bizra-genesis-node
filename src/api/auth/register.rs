@@ -82,8 +82,8 @@ pub struct ErrorResponse {
 // CUSTOM VALIDATORS
 // ═══════════════════════════════════════════════════════════════════════════
 
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 
 lazy_static! {
     static ref USERNAME_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9_]+$").unwrap();
@@ -183,11 +183,9 @@ impl IntoResponse for RegistrationError {
                 "WEAK_PASSWORD",
                 "Password does not meet security requirements",
             ),
-            RegistrationError::ValidationFailed(ref msg) => (
-                StatusCode::BAD_REQUEST,
-                "VALIDATION_ERROR",
-                msg.as_str(),
-            ),
+            RegistrationError::ValidationFailed(ref msg) => {
+                (StatusCode::BAD_REQUEST, "VALIDATION_ERROR", msg.as_str())
+            }
             RegistrationError::DatabaseError(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "DATABASE_ERROR",
@@ -308,24 +306,22 @@ pub async fn register_handler(
     let username = payload.username.trim().to_lowercase();
 
     // 4. Check if email already exists
-    let existing_email = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)",
-    )
-    .bind(&email)
-    .fetch_one(pool.as_ref())
-    .await?;
+    let existing_email =
+        sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)")
+            .bind(&email)
+            .fetch_one(pool.as_ref())
+            .await?;
 
     if existing_email {
         return Err(RegistrationError::EmailTaken);
     }
 
     // 5. Check if username already exists
-    let existing_username = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)",
-    )
-    .bind(&username)
-    .fetch_one(pool.as_ref())
-    .await?;
+    let existing_username =
+        sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)")
+            .bind(&username)
+            .fetch_one(pool.as_ref())
+            .await?;
 
     if existing_username {
         return Err(RegistrationError::UsernameTaken);
@@ -434,12 +430,12 @@ mod tests {
         // Weak passwords - score < 65 (SHOULD FAIL)
         assert!(validate_password_strength("alllowercase").is_err()); // 12 chars, lowercase: 25+10+25 = 60 ✗
         assert!(validate_password_strength("ALLUPPERCASE").is_err()); // 12 chars, uppercase: 25+10+25 = 60 ✗
-        assert!(validate_password_strength("12345678").is_err());     // 8 chars, numeric: 25+15 = 40 ✗
-        assert!(validate_password_strength("!@#$%^&*").is_err());     // 8 chars, special: 25+10 = 35 ✗
+        assert!(validate_password_strength("12345678").is_err()); // 8 chars, numeric: 25+15 = 40 ✗
+        assert!(validate_password_strength("!@#$%^&*").is_err()); // 8 chars, special: 25+10 = 35 ✗
 
         // Borderline passwords - score = 65 (SHOULD PASS)
-        assert!(validate_password_strength("lower123").is_ok());      // 8 chars, lowercase, numeric: 25+25+15 = 65 ✓
-        assert!(validate_password_strength("UPPER123").is_ok());      // 8 chars, uppercase, numeric: 25+25+15 = 65 ✓
+        assert!(validate_password_strength("lower123").is_ok()); // 8 chars, lowercase, numeric: 25+25+15 = 65 ✓
+        assert!(validate_password_strength("UPPER123").is_ok()); // 8 chars, uppercase, numeric: 25+25+15 = 65 ✓
 
         // Good passwords - score >= 70 (SHOULD PASS)
         assert!(validate_password_strength("lowercase12345").is_ok()); // 14 chars, lowercase, numeric: 25+10+25+15 = 75 ✓
@@ -447,8 +443,8 @@ mod tests {
 
         // Strong passwords - score >= 80 (SHOULD PASS)
         assert!(validate_password_strength("SecurePass123!").is_ok()); // 14 chars, all 4 classes: 25+10+25+25+15+10 = 110 ✓
-        assert!(validate_password_strength("MyP@ssw0rd").is_ok());     // 10 chars, all 4 classes: 25+25+25+15+10 = 100 ✓
-        assert!(validate_password_strength("C0mpl3x!Pass").is_ok());   // 12 chars, all 4 classes: 25+10+25+25+15+10 = 110 ✓
+        assert!(validate_password_strength("MyP@ssw0rd").is_ok()); // 10 chars, all 4 classes: 25+25+25+15+10 = 100 ✓
+        assert!(validate_password_strength("C0mpl3x!Pass").is_ok()); // 12 chars, all 4 classes: 25+10+25+25+15+10 = 110 ✓
     }
 
     #[test]

@@ -1,1 +1,0 @@
-import { runSynapticPipeline } from '../../synaptic-construction-engine/orchestrator/SynapticOrchestrator.js';\nconst out = await runSynapticPipeline({objective:'Test', tokensTopP:[0.5,0.001]});\nconsole.log(!!out.compiledPrompt);\n

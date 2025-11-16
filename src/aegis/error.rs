@@ -1,6 +1,6 @@
+use crate::aegis::types::AgentId;
 use std::sync::Arc;
 use thiserror::Error;
-use crate::aegis::types::AgentId;
 
 #[derive(Error, Debug, Clone)]
 pub enum AegisError {
@@ -8,9 +8,10 @@ pub enum AegisError {
     ConsensusFailure { agent_id: AgentId, attempts: u32 },
 
     #[error("Agent {agent_id}: Byzantine fault detected from {faulty_agents:?}")]
-    ByzantineFault { agent_id: AgentId, faulty_agents: Vec<AgentId> },
-
-
+    ByzantineFault {
+        agent_id: AgentId,
+        faulty_agents: Vec<AgentId>,
+    },
 
     #[error("Ihsan Gate violation: {violation_type} - Score: {score:.2}%")]
     IhsanViolation { violation_type: String, score: f64 },
@@ -44,7 +45,7 @@ pub enum AegisError {
 // --- NEW: Phantom-optimized error conversions ---
 impl<T> From<tokio::sync::mpsc::error::SendError<T>> for AegisError
 where
-    T: std::fmt::Debug + Send + Sync + 'static
+    T: std::fmt::Debug + Send + Sync + 'static,
 {
     fn from(err: tokio::sync::mpsc::error::SendError<T>) -> Self {
         AegisError::CommunicationError(format!("{}", err))

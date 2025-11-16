@@ -23,14 +23,14 @@ use serde_json::json;
 
 /// Helper to get test database URL
 fn test_database_url() -> String {
-    std::env::var("TEST_DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://bizra_user:bizra_password@localhost:5432/bizra_genesis_test".to_string())
+    std::env::var("TEST_DATABASE_URL").unwrap_or_else(|_| {
+        "postgres://bizra_user:bizra_password@localhost:5432/bizra_genesis_test".to_string()
+    })
 }
 
 /// Helper to get test Redis URL
 fn test_redis_url() -> String {
-    std::env::var("TEST_REDIS_URL")
-        .unwrap_or_else(|_| "redis://localhost:6379/1".to_string())
+    std::env::var("TEST_REDIS_URL").unwrap_or_else(|_| "redis://localhost:6379/1".to_string())
 }
 
 /// Helper to create test candidate
@@ -136,11 +136,7 @@ async fn test_trust_receipt_persistence() {
 
     // Persist receipt
     let result = manager.save_receipt(&signed_receipt).await;
-    assert!(
-        result.is_ok(),
-        "Failed to save receipt: {:?}",
-        result.err()
-    );
+    assert!(result.is_ok(), "Failed to save receipt: {:?}", result.err());
 
     // Retrieve receipt
     let repo = manager.database().receipts();
@@ -236,7 +232,11 @@ async fn test_router_state_success_increment() {
     }
 
     // Verify state
-    let state = manager.get_router_state(&model_name).await.unwrap().unwrap();
+    let state = manager
+        .get_router_state(&model_name)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(state.alpha, 4.0); // 1.0 + 3.0
     assert_eq!(state.beta, 1.0);
     assert_eq!(state.total_trials, 3);
@@ -268,7 +268,11 @@ async fn test_router_state_failure_increment() {
     }
 
     // Verify state
-    let state = manager.get_router_state(&model_name).await.unwrap().unwrap();
+    let state = manager
+        .get_router_state(&model_name)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(state.alpha, 1.0);
     assert_eq!(state.beta, 3.0); // 1.0 + 2.0
     assert_eq!(state.total_trials, 2);
@@ -296,14 +300,22 @@ async fn test_router_state_caching() {
     manager.initialize_model(&model_name, None).await.unwrap();
 
     // First get - should hit database
-    let state1 = manager.get_router_state(&model_name).await.unwrap().unwrap();
+    let state1 = manager
+        .get_router_state(&model_name)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(state1.alpha, 1.0);
 
     // Update state directly in database (bypass cache)
     manager.increment_router_success(&model_name).await.unwrap();
 
     // Second get - cache should have been invalidated
-    let state2 = manager.get_router_state(&model_name).await.unwrap().unwrap();
+    let state2 = manager
+        .get_router_state(&model_name)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(state2.alpha, 2.0);
 
     println!("✅ Router state caching test passed");
@@ -375,7 +387,10 @@ async fn test_complete_synthesis_workflow() {
     let model_name = format!("workflow-test-{}", Utc::now().timestamp_millis());
 
     // STEP 1: Initialize model
-    manager.initialize_model(&model_name, Some("ollama")).await.unwrap();
+    manager
+        .initialize_model(&model_name, Some("ollama"))
+        .await
+        .unwrap();
 
     // STEP 2: Run synthesis (simulated)
     let candidate = create_test_candidate(&model_name);
@@ -415,7 +430,11 @@ async fn test_complete_synthesis_workflow() {
     let retrieved_poi = poi_repo.get_by_receipt(&run_id).await.unwrap();
     assert_eq!(retrieved_poi.len(), 1);
 
-    let state = manager.get_router_state(&model_name).await.unwrap().unwrap();
+    let state = manager
+        .get_router_state(&model_name)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(state.alpha, 2.0); // Incremented from 1.0
 
     println!("✅ Complete synthesis workflow test passed");
@@ -438,7 +457,11 @@ async fn test_receipt_persistence_performance() {
     let iterations = 10;
 
     for i in 0..iterations {
-        let run_id = format!("perf-test-{}-{}", Utc::now().timestamp_nanos_opt().unwrap(), i);
+        let run_id = format!(
+            "perf-test-{}-{}",
+            Utc::now().timestamp_nanos_opt().unwrap(),
+            i
+        );
         let receipt = RunReceipt::new(run_id, &candidate);
         let signed = trust_bridge.sign_receipt(receipt);
         manager.save_receipt(&signed).await.unwrap();

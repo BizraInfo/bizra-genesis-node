@@ -50,7 +50,8 @@ impl ConsensusEngine for WeightedSelectiveConsensus {
             return Err(AegisError::ConsensusFailure {
                 agent_id: agents.first().map(|a| a.id).unwrap_or_default(),
                 attempts: 0,
-            }.into());
+            }
+            .into());
         }
 
         let _quorum_needed = self.quorum_size(agents.len());
@@ -91,7 +92,8 @@ impl ConsensusEngine for WeightedSelectiveConsensus {
             Err(AegisError::ByzantineFault {
                 agent_id: agents[0].id,
                 faulty_agents,
-            }.into())
+            }
+            .into())
         } else {
             Ok(ConsensusResult::Success)
         }
@@ -118,10 +120,7 @@ impl ConsensusEngine for WeightedSelectiveConsensus {
 
     fn calculate_phi(&self, agents: &[Arc<Agent>]) -> f64 {
         // Φ-optimization: harmonic mean of agent routing weights
-        let weights: Vec<f64> = agents
-            .iter()
-            .map(|a| a.id.routing_weight())
-            .collect();
+        let weights: Vec<f64> = agents.iter().map(|a| a.id.routing_weight()).collect();
 
         let sum_inv: f64 = weights.iter().map(|w| 1.0 / w).sum();
         agents.len() as f64 / sum_inv
@@ -140,12 +139,10 @@ impl Default for WeightedSelectiveConsensus {
 
 // Placeholder types - these need to be properly imported or defined
 use crate::aegis::error::{AegisError, AegisResult};
-use crate::aegis::types::{Agent, AgentId, ConsensusResult};
 use crate::aegis::types::Task;
-use crate::scoring::IhsanGate;
+use crate::aegis::types::{Agent, AgentId, ConsensusResult};
 use crate::routing::ThompsonRouter;
-
-
+use crate::scoring::IhsanGate;
 
 // Placeholder for AgentResponse - needs to be defined
 #[derive(Debug)]

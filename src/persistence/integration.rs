@@ -1,10 +1,9 @@
 // synthesis_orchestrator/src/persistence/integration.rs
 // Integration layer for connecting database persistence to the orchestrator
 
-use crate::persistence::{DatabasePool, DbResult, RedisCache};
 use crate::persistence::traits::*;
-use crate::trust::{RunReceipt, ProofOfImpact};
-use crate::{Candidate, ThompsonRouter};
+use crate::persistence::{DatabasePool, DbResult, RedisCache};
+use crate::trust::{ProofOfImpact, RunReceipt};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -149,7 +148,11 @@ impl PersistenceManager {
         let repo = self.db.receipts();
         repo.insert(receipt).await?;
 
-        tracing::info!("Receipt persisted: {} (model: {})", receipt.run_id, receipt.winner_model);
+        tracing::info!(
+            "Receipt persisted: {} (model: {})",
+            receipt.run_id,
+            receipt.winner_model
+        );
         Ok(())
     }
 
@@ -179,7 +182,8 @@ impl PersistenceManager {
 
         repo.insert(&record).await?;
 
-        let normalized = (poi.quality + poi.utility + poi.trust + poi.fairness + poi.diversity) / 100.0;
+        let normalized =
+            (poi.quality + poi.utility + poi.trust + poi.fairness + poi.diversity) / 100.0;
         tracing::info!(
             "PoI persisted: {} (model: {}, score: {:.2})",
             receipt_id,
@@ -215,7 +219,12 @@ impl PersistenceManager {
             let _ = cache_guard.set_router_beta(model, beta, 300).await;
         }
 
-        tracing::debug!("Router state updated: {} (α={:.2}, β={:.2})", model, alpha, beta);
+        tracing::debug!(
+            "Router state updated: {} (α={:.2}, β={:.2})",
+            model,
+            alpha,
+            beta
+        );
         Ok(())
     }
 
@@ -234,7 +243,11 @@ impl PersistenceManager {
         let repo = self.db.router();
         repo.initialize_model(model, model_type).await?;
 
-        tracing::info!("Model initialized in router state: {} (type: {:?})", model, model_type);
+        tracing::info!(
+            "Model initialized in router state: {} (type: {:?})",
+            model,
+            model_type
+        );
         Ok(())
     }
 
@@ -324,8 +337,12 @@ impl PersistenceManager {
         if let Some(state_ref) = &state {
             if let Some(cache) = &self.cache {
                 let mut cache_guard = cache.write().await;
-                let _ = cache_guard.set_router_alpha(model, state_ref.alpha, 300).await;
-                let _ = cache_guard.set_router_beta(model, state_ref.beta, 300).await;
+                let _ = cache_guard
+                    .set_router_alpha(model, state_ref.alpha, 300)
+                    .await;
+                let _ = cache_guard
+                    .set_router_beta(model, state_ref.beta, 300)
+                    .await;
             }
         }
 
@@ -382,7 +399,11 @@ impl std::fmt::Display for HealthStatus {
             if self.overall { "✅" } else { "❌" },
             if self.database { "✅" } else { "❌" },
             if self.cache { "✅" } else { "❌" },
-            if self.cache_enabled { "enabled" } else { "disabled" }
+            if self.cache_enabled {
+                "enabled"
+            } else {
+                "disabled"
+            }
         )
     }
 }
@@ -409,13 +430,21 @@ mod tests {
         let redis_url = std::env::var("TEST_REDIS_URL")
             .unwrap_or_else(|_| "redis://localhost:6379/1".to_string());
 
-        let manager = PersistenceManager::new(&database_url, &redis_url).await.unwrap();
+        let manager = PersistenceManager::new(&database_url, &redis_url)
+            .await
+            .unwrap();
 
         // Initialize model
-        manager.initialize_model("test-model", Some("ollama")).await.unwrap();
+        manager
+            .initialize_model("test-model", Some("ollama"))
+            .await
+            .unwrap();
 
         // Update state
-        manager.update_router_state("test-model", 10.0, 5.0).await.unwrap();
+        manager
+            .update_router_state("test-model", 10.0, 5.0)
+            .await
+            .unwrap();
 
         // Retrieve (should hit cache)
         let state = manager.get_router_state("test-model").await.unwrap();
@@ -429,7 +458,9 @@ mod tests {
         let database_url = std::env::var("TEST_DATABASE_URL")
             .unwrap_or_else(|_| "postgres://localhost/bizra_test".to_string());
 
-        let manager = PersistenceManager::database_only(&database_url).await.unwrap();
+        let manager = PersistenceManager::database_only(&database_url)
+            .await
+            .unwrap();
         let health = manager.health_check().await.unwrap();
 
         assert!(health.database);

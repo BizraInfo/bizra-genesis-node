@@ -1,0 +1,108 @@
+# Chaos Engineering Experiment: Network Latency
+# Tests system resilience under network latency conditions
+# A+ Quality Assurance for BIZRA Genesis Node
+
+version: 1.0.0
+kind: ChaosExperiment
+
+metadata:
+  name: network-latency-test
+  namespace: bizra-chaos
+  description: "Test system behavior under network latency conditions"
+  tags:
+    - network
+    - latency
+    - resilience
+    - a-plus-quality
+
+spec:
+  selector:
+    namespaces:
+      - production
+    labelSelectors:
+      app: bizra-genesis-node
+
+  mode: all
+  value: "1"
+
+  duration: 5m
+
+  networkChaos:
+    action: delay
+    mode: all
+    delay:
+      latency: "100ms"
+      correlation: "100"
+      jitter: "0ms"
+    direction: to
+    target:
+      selector:
+        namespaces:
+          - production
+        labelSelectors:
+          app: bizra-backend
+      mode: all
+
+  metricsCollector:
+    - type: prometheus
+      interval: 10s
+      metrics:
+        - name: http_request_duration_seconds
+          query: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+        - name: error_rate
+          query: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+        - name: throughput
+          query: rate(http_requests_total[5m])
+
+  steadyStateHypothesis:
+    title: "System maintains acceptable performance under network latency"
+    probes:
+      - name: http-response-time
+        type: probe
+        tolerance:
+          - mean: "< 200ms"
+          - p95: "< 500ms"
+        provider:
+          type: http
+          url: "http://bizra-genesis-node.production.svc.cluster.local/health"
+          timeout: 10s
+          interval: 5s
+
+      - name: error-rate
+        type: probe
+        tolerance: "< 1%"
+        provider:
+          type: prometheus
+          query: rate(http_requests_total{status=~"5.."}[1m]) / rate(http_requests_total[1m])
+
+      - name: service-availability
+        type: probe
+        tolerance: "> 99.9%"
+        provider:
+          type: http
+          url: "http://bizra-genesis-node.production.svc.cluster.local/api/health"
+          timeout: 5s
+          interval: 10s
+
+  rollbacks:
+    - trigger: "error_rate > 5%"
+      action: "scale_to_zero"
+      duration: 30s
+
+    - trigger: "latency_p95 > 1000ms"
+      action: "rollback_deployment"
+      version: "previous"
+
+  notifications:
+    slack:
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channels:
+        - "#chaos-experiments"
+        - "#production-alerts"
+
+  reports:
+    - type: json
+      path: "/tmp/chaos-reports/network-latency-$(date +%Y%m%d-%H%M%S).json"
+    - type: html
+      path: "/tmp/chaos-reports/network-latency-$(date +%Y%m%d-%H%M%S).html"
+      template: "chaos-report-template.html"

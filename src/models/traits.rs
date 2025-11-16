@@ -415,8 +415,7 @@ mod tests {
 
         async fn list_models(&self) -> ModelResult<Vec<ModelInfo>> {
             Ok(vec![
-                ModelInfo::new("mock-model", "mock", 8192)
-                    .with_cost(0.01, 0.02),
+                ModelInfo::new("mock-model", "mock", 8192).with_cost(0.01, 0.02)
             ])
         }
 
@@ -450,7 +449,10 @@ mod tests {
     #[tokio::test]
     async fn test_default_calculate_cost() {
         let provider = MockProvider;
-        let cost = provider.calculate_cost("mock-model", 1000, 500).await.unwrap();
+        let cost = provider
+            .calculate_cost("mock-model", 1000, 500)
+            .await
+            .unwrap();
         assert!((cost - 0.02).abs() < 0.001); // 0.01 + 0.01 = 0.02
     }
 
@@ -467,27 +469,39 @@ mod tests {
 
         // Valid options
         let valid_options = CompletionOptions::default();
-        assert!(provider.validate_options("mock-model", &valid_options).await.is_ok());
+        assert!(provider
+            .validate_options("mock-model", &valid_options)
+            .await
+            .is_ok());
 
         // Invalid: max_tokens too high
         let invalid_options = CompletionOptions {
             max_tokens: 100000,
             ..Default::default()
         };
-        assert!(provider.validate_options("mock-model", &invalid_options).await.is_err());
+        assert!(provider
+            .validate_options("mock-model", &invalid_options)
+            .await
+            .is_err());
 
         // Invalid: temperature out of range
         let invalid_temp = CompletionOptions {
             temperature: 3.0,
             ..Default::default()
         };
-        assert!(provider.validate_options("mock-model", &invalid_temp).await.is_err());
+        assert!(provider
+            .validate_options("mock-model", &invalid_temp)
+            .await
+            .is_err());
     }
 
     #[tokio::test]
     async fn test_default_estimate_tokens() {
         let provider = MockProvider;
-        let tokens = provider.estimate_tokens("Hello, world!", None).await.unwrap();
+        let tokens = provider
+            .estimate_tokens("Hello, world!", None)
+            .await
+            .unwrap();
         assert!(tokens >= 3 && tokens <= 4); // ~4 chars per token
     }
 }

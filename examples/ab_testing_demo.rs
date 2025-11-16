@@ -47,9 +47,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     info!("Experiment Configuration:");
     info!("  • Name: {}", config.name);
-    info!("  • Minimum sample size: {} per variant", config.min_sample_size);
+    info!(
+        "  • Minimum sample size: {} per variant",
+        config.min_sample_size
+    );
     info!("  • Confidence level: {}%", config.confidence_level * 100.0);
-    info!("  • Minimum effect size: {}%", config.min_effect_size * 100.0);
+    info!(
+        "  • Minimum effect size: {}%",
+        config.min_effect_size * 100.0
+    );
     info!("  • Cost threshold: ${:.2}", config.cost_threshold.unwrap());
     info!("  • Primary metric: {:?}", config.primary_metric);
 
@@ -73,10 +79,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("  • Traffic weight: {}", variant_b.weight);
 
     let variants = vec![variant_a.clone(), variant_b.clone()];
-    let mut experiment = bizra_genesis_node::models::ab_testing::Experiment::new(
-        config.clone(),
-        variants,
-    );
+    let mut experiment =
+        bizra_genesis_node::models::ab_testing::Experiment::new(config.clone(), variants);
 
     // Step 3: Simulate experiment data
     info!("\n🎲 Step 3: Simulating Experiment Data");
@@ -99,12 +103,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let quality_score = 0.85 + (i as f64 * 0.005); // 0.85 - 0.95
 
-        let observation = Observation::from_response(
-            variant_a.id.clone(),
-            &response,
-            cost,
-            Some(quality_score),
-        );
+        let observation =
+            Observation::from_response(variant_a.id.clone(), &response, cost, Some(quality_score));
 
         experiment.record_observation(observation);
 
@@ -138,12 +138,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let quality_score = 0.92 + (i as f64 * 0.003); // 0.92 - 0.98
 
-        let observation = Observation::from_response(
-            variant_b.id.clone(),
-            &response,
-            cost,
-            Some(quality_score),
-        );
+        let observation =
+            Observation::from_response(variant_b.id.clone(), &response, cost, Some(quality_score));
 
         experiment.record_observation(observation);
 
@@ -223,7 +219,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             info!("  • Statistical significance: {}", result.is_significant);
             info!("  • P-value: {:.4}", result.p_value);
             info!("  • Effect size (Cohen's d): {:.3}", result.effect_size);
-            info!("  • Confidence interval: ({:.3}, {:.3})", result.confidence_interval.0, result.confidence_interval.1);
+            info!(
+                "  • Confidence interval: ({:.3}, {:.3})",
+                result.confidence_interval.0, result.confidence_interval.1
+            );
 
             if result.is_significant {
                 if let Some(winner) = &result.winner {
@@ -303,10 +302,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("\nRecommendation:");
     if variant_a_wins > variant_b_wins {
         info!("  ✅ Deploy {} as primary model", variant_a.id);
-        info!("  Reasoning: Superior performance on {} metrics", variant_a_wins);
+        info!(
+            "  Reasoning: Superior performance on {} metrics",
+            variant_a_wins
+        );
     } else if variant_b_wins > variant_a_wins {
         info!("  ✅ Deploy {} as primary model", variant_b.id);
-        info!("  Reasoning: Superior performance on {} metrics", variant_b_wins);
+        info!(
+            "  Reasoning: Superior performance on {} metrics",
+            variant_b_wins
+        );
     } else {
         info!("  ⚖️  No clear winner - consider use case requirements:");
         info!("  • Use {} for latency-critical applications", variant_a.id);
@@ -324,15 +329,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let quality_per_dollar_a = quality_a.mean / stats_a.cost.mean;
             let quality_per_dollar_b = quality_b.mean / stats_b.cost.mean;
 
-            info!("  • {} efficiency: {:.1} quality points per $", variant_a.id, quality_per_dollar_a);
-            info!("  • {} efficiency: {:.1} quality points per $", variant_b.id, quality_per_dollar_b);
+            info!(
+                "  • {} efficiency: {:.1} quality points per $",
+                variant_a.id, quality_per_dollar_a
+            );
+            info!(
+                "  • {} efficiency: {:.1} quality points per $",
+                variant_b.id, quality_per_dollar_b
+            );
 
             if quality_per_dollar_a > quality_per_dollar_b {
-                let improvement = ((quality_per_dollar_a - quality_per_dollar_b) / quality_per_dollar_b) * 100.0;
-                info!("  • {} is {:.1}% more cost-efficient", variant_a.id, improvement);
+                let improvement =
+                    ((quality_per_dollar_a - quality_per_dollar_b) / quality_per_dollar_b) * 100.0;
+                info!(
+                    "  • {} is {:.1}% more cost-efficient",
+                    variant_a.id, improvement
+                );
             } else {
-                let improvement = ((quality_per_dollar_b - quality_per_dollar_a) / quality_per_dollar_a) * 100.0;
-                info!("  • {} is {:.1}% more cost-efficient", variant_b.id, improvement);
+                let improvement =
+                    ((quality_per_dollar_b - quality_per_dollar_a) / quality_per_dollar_a) * 100.0;
+                info!(
+                    "  • {} is {:.1}% more cost-efficient",
+                    variant_b.id, improvement
+                );
             }
         }
     }

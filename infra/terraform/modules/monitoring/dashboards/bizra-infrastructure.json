@@ -1,0 +1,91 @@
+{
+  "dashboard": {
+    "title": "BIZRA Genesis Node - Infrastructure",
+    "tags": ["bizra", "infrastructure", "kubernetes"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "title": "Pod CPU Usage",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{namespace=\"bizra-production\"}[5m])",
+            "legendFormat": "{{pod}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Pod Memory Usage",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{namespace=\"bizra-production\"}",
+            "legendFormat": "{{pod}}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Database Connection Pool",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "db_pool_connections_active",
+            "legendFormat": "Active"
+          },
+          {
+            "expr": "db_pool_connections_idle",
+            "legendFormat": "Idle"
+          },
+          {
+            "expr": "db_pool_connections_max",
+            "legendFormat": "Max"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Redis Cache Hit Rate",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 8, "w": 6, "h": 4},
+        "targets": [
+          {
+            "expr": "rate(redis_cache_hits_total[5m]) / (rate(redis_cache_hits_total[5m]) + rate(redis_cache_misses_total[5m]))",
+            "legendFormat": "Hit Rate"
+          }
+        ],
+        "options": {
+          "unit": "percentunit",
+          "thresholds": [
+            {"value": 0, "color": "red"},
+            {"value": 0.8, "color": "yellow"},
+            {"value": 0.95, "color": "green"}
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "title": "Network I/O",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 12, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(container_network_receive_bytes_total{namespace=\"bizra-production\"}[5m])",
+            "legendFormat": "RX {{pod}}"
+          },
+          {
+            "expr": "rate(container_network_transmit_bytes_total{namespace=\"bizra-production\"}[5m])",
+            "legendFormat": "TX {{pod}}"
+          }
+        ]
+      }
+    ]
+  }
+}

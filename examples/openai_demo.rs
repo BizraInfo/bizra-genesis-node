@@ -11,9 +11,7 @@
 // OPENAI_API_KEY=sk-... cargo run --example openai_demo
 // ```
 
-use bizra_genesis_node::models::{
-    CompletionOptions, ModelProvider, OpenAIConfig, OpenAIProvider,
-};
+use bizra_genesis_node::models::{CompletionOptions, ModelProvider, OpenAIConfig, OpenAIProvider};
 use std::error::Error;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
@@ -76,8 +74,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for (i, model) in models.iter().take(10).enumerate() {
         info!("  {}. {}", i + 1, model.name);
         info!("     Context: {} tokens", model.context_length);
-        info!("     Cost: ${:.4}/1K in, ${:.4}/1K out",
-              model.cost_per_1k_input, model.cost_per_1k_output);
+        info!(
+            "     Cost: ${:.4}/1K in, ${:.4}/1K out",
+            model.cost_per_1k_input, model.cost_per_1k_output
+        );
         if let Some(ref family) = model.family {
             info!("     Family: {}", family);
         }
@@ -182,7 +182,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let test_tokens = (1000, 500); // (input, output)
     let models_to_compare = vec!["gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"];
 
-    info!("For {} input tokens and {} output tokens:", test_tokens.0, test_tokens.1);
+    info!(
+        "For {} input tokens and {} output tokens:",
+        test_tokens.0, test_tokens.1
+    );
     for model in models_to_compare {
         let cost = provider
             .calculate_cost(model, test_tokens.0, test_tokens.1)
@@ -225,12 +228,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("\n🔢 Step 8: Token Estimation");
     info!("-".repeat(60));
 
-    let sample_text = "The quick brown fox jumps over the lazy dog. This is a sample text for token estimation.";
-    let estimated_tokens = provider.estimate_tokens(sample_text, Some(model_name)).await?;
+    let sample_text =
+        "The quick brown fox jumps over the lazy dog. This is a sample text for token estimation.";
+    let estimated_tokens = provider
+        .estimate_tokens(sample_text, Some(model_name))
+        .await?;
     info!("Text: \"{}\"", sample_text);
     info!("Estimated Tokens: {}", estimated_tokens);
     info!("Characters: {}", sample_text.len());
-    info!("Ratio: ~{:.2} chars/token", sample_text.len() as f64 / estimated_tokens as f64);
+    info!(
+        "Ratio: ~{:.2} chars/token",
+        sample_text.len() as f64 / estimated_tokens as f64
+    );
 
     // Step 9: Model availability check
     info!("\n✅ Step 9: Model Availability Check");

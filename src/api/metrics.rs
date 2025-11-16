@@ -12,8 +12,8 @@ use axum::{
     Router,
 };
 use prometheus::{
-    Counter, CounterVec, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec, Opts, Registry,
-    TextEncoder,
+    Counter, CounterVec, Encoder, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec, Opts,
+    Registry, TextEncoder,
 };
 use std::sync::Arc;
 use tracing::{error, info};
@@ -62,10 +62,7 @@ impl MetricsCollector {
 
         // HTTP Metrics
         let http_requests_total = CounterVec::new(
-            Opts::new(
-                "bizra_http_requests_total",
-                "Total number of HTTP requests",
-            ),
+            Opts::new("bizra_http_requests_total", "Total number of HTTP requests"),
             &["method", "route", "status"],
         )?;
 
@@ -82,10 +79,7 @@ impl MetricsCollector {
 
         // Auth Metrics
         let auth_logins_total = CounterVec::new(
-            Opts::new(
-                "bizra_auth_logins_total",
-                "Total number of login attempts",
-            ),
+            Opts::new("bizra_auth_logins_total", "Total number of login attempts"),
             &["result"],
         )?;
 
@@ -225,15 +219,11 @@ impl MetricsCollector {
     /// Initialize default metric values
     pub fn initialize_defaults(&self) {
         // Initialize health status for all components
-        self.node_health_status
-            .with_label_values(&["db"])
-            .set(0.0);
+        self.node_health_status.with_label_values(&["db"]).set(0.0);
         self.node_health_status
             .with_label_values(&["redis"])
             .set(0.0);
-        self.node_health_status
-            .with_label_values(&["jwt"])
-            .set(1.0);
+        self.node_health_status.with_label_values(&["jwt"]).set(1.0);
         self.node_health_status
             .with_label_values(&["nginx"])
             .set(1.0);
@@ -280,9 +270,7 @@ impl MetricsCollector {
 }
 
 /// Handler for /metrics endpoint
-pub async fn metrics_handler(
-    State(metrics): State<Arc<MetricsCollector>>,
-) -> Response {
+pub async fn metrics_handler(State(metrics): State<Arc<MetricsCollector>>) -> Response {
     match metrics.export() {
         Ok(body) => (
             StatusCode::OK,

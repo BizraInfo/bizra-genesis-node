@@ -1,6 +1,6 @@
-use std::sync::Arc;
-use serde::{Deserialize, Serialize};
 use crate::aegis::error::{AegisError, AegisResult};
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 /// AgentId now supports Clone for parallel distribution
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -21,7 +21,11 @@ impl Default for AgentId {
 
 impl std::fmt::Display for AgentId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Agent({}, {}, {:x})", self.level, self.agent_type as u8, self.hash[0])
+        write!(
+            f,
+            "Agent({}, {}, {:x})",
+            self.level, self.agent_type as u8, self.hash[0]
+        )
     }
 }
 
@@ -68,8 +72,8 @@ pub enum AgentType {
 impl AgentType {
     fn base_weight(&self) -> f64 {
         match self {
-            AgentType::Guardian => 2.0,      // Highest priority for Ihsan Gate
-            AgentType::Architect => 1.5,     // Design decisions are critical
+            AgentType::Guardian => 2.0,  // Highest priority for Ihsan Gate
+            AgentType::Architect => 1.5, // Design decisions are critical
             AgentType::Planner => 1.3,
             AgentType::Optimizer => 1.2,
             AgentType::Coder => 1.0,
@@ -112,7 +116,8 @@ impl Agent {
         // AgentId is now Copy-safe for 1000+ parallel spawns
         let result = tokio::spawn(async move {
             Self::execute_with_phi_optimization(agent_id, state, task, phi_threshold, tx).await
-        }).await;
+        })
+        .await;
 
         match result {
             Ok(task_result) => task_result,

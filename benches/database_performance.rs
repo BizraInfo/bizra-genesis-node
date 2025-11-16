@@ -9,10 +9,10 @@
 // - Cache GET: <1ms (target: <1ms)
 // - Query SELECT: <5ms (target: 2-3ms)
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use bizra_genesis_node::{
     Candidate, CandidateScores, PersistenceManager, ProofOfImpact, RunReceipt, TrustBridge,
 };
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use serde_json::json;
 use std::time::Duration;
 

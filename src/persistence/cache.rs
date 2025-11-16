@@ -5,7 +5,6 @@ use crate::persistence::{DbError, DbResult};
 use redis::aio::ConnectionManager;
 use redis::{AsyncCommands, Client};
 use serde::{de::DeserializeOwned, Serialize};
-use std::time::Duration;
 
 /// Redis cache manager for hot data caching
 ///
@@ -72,17 +71,15 @@ impl RedisCache {
     /// ```
     pub async fn new(redis_url: &str) -> DbResult<Self> {
         let client = Client::open(redis_url).map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!(
-                "Redis connection failed: {}",
-                e
-            ).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis connection failed: {}", e).into(),
+            ))
         })?;
 
         let conn = ConnectionManager::new(client).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!(
-                "Redis connection manager failed: {}",
-                e
-            ).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis connection manager failed: {}", e).into(),
+            ))
         })?;
 
         tracing::info!("Redis cache initialized: {}", redis_url);
@@ -97,7 +94,9 @@ impl RedisCache {
     /// * `Err(DbError)` - Redis is unreachable
     pub async fn health_check(&mut self) -> DbResult<()> {
         let _: String = self.conn.get("__health_check__").await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis health check failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis health check failed: {}", e).into(),
+            ))
         })?;
 
         Ok(())
@@ -121,7 +120,9 @@ impl RedisCache {
     pub async fn get_router_alpha(&mut self, model_name: &str) -> DbResult<Option<f64>> {
         let key = format!("router:alpha:{}", model_name);
         let value: Option<f64> = self.conn.get(&key).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis GET failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis GET failed: {}", e).into(),
+            ))
         })?;
 
         if value.is_some() {
@@ -152,14 +153,14 @@ impl RedisCache {
         ttl_seconds: u64,
     ) -> DbResult<()> {
         let key = format!("router:alpha:{}", model_name);
-        self.conn
-            .set_ex(&key, alpha, ttl_seconds)
-            .await
-            .map_err(|e| {
-                DbError::Connection(sqlx::Error::Configuration(format!("Redis SET failed: {}", e).into()))
-            })?;
 
-        tracing::debug!("Cache SET: {} = {}", key, alpha);
+        redis::cmd("SETEX")
+            .arg(&key)
+            .arg(alpha)
+            .arg(ttl_seconds)
+            .query_async::<_, ()>(&mut self.conn)
+            .await?;
+
         Ok(())
     }
 
@@ -177,7 +178,9 @@ impl RedisCache {
     pub async fn get_router_beta(&mut self, model_name: &str) -> DbResult<Option<f64>> {
         let key = format!("router:beta:{}", model_name);
         let value: Option<f64> = self.conn.get(&key).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis GET failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis GET failed: {}", e).into(),
+            ))
         })?;
 
         if value.is_some() {
@@ -207,10 +210,12 @@ impl RedisCache {
     ) -> DbResult<()> {
         let key = format!("router:beta:{}", model_name);
         self.conn
-            .set_ex(&key, beta, ttl_seconds)
+            .set_ex::<_, _, ()>(&key, beta, ttl_seconds)
             .await
             .map_err(|e| {
-                DbError::Connection(sqlx::Error::Configuration(format!("Redis SET failed: {}", e).into()))
+                DbError::Connection(sqlx::Error::Configuration(
+                    format!("Redis SET failed: {}", e).into(),
+                ))
             })?;
 
         tracing::debug!("Cache SET: {} = {}", key, beta);
@@ -232,7 +237,9 @@ impl RedisCache {
         let beta_key = format!("router:beta:{}", model_name);
 
         let _: () = self.conn.del(&[&alpha_key, &beta_key]).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis DEL failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis DEL failed: {}", e).into(),
+            ))
         })?;
 
         tracing::debug!("Cache INVALIDATED: router:{}", model_name);
@@ -257,7 +264,9 @@ impl RedisCache {
     pub async fn get_agent_health(&mut self, agent_id: &str) -> DbResult<Option<String>> {
         let key = format!("agent:health:{}", agent_id);
         let value: Option<String> = self.conn.get(&key).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis GET failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis GET failed: {}", e).into(),
+            ))
         })?;
 
         Ok(value)
@@ -283,10 +292,12 @@ impl RedisCache {
     ) -> DbResult<()> {
         let key = format!("agent:health:{}", agent_id);
         self.conn
-            .set_ex(&key, health_status, ttl_seconds)
+            .set_ex::<_, _, ()>(&key, health_status, ttl_seconds)
             .await
             .map_err(|e| {
-                DbError::Connection(sqlx::Error::Configuration(format!("Redis SET failed: {}", e).into()))
+                DbError::Connection(sqlx::Error::Configuration(
+                    format!("Redis SET failed: {}", e).into(),
+                ))
             })?;
 
         tracing::debug!("Cache SET: {} = {}", key, health_status);
@@ -310,7 +321,9 @@ impl RedisCache {
     /// * `Err(DbError)` - Redis or deserialization error
     pub async fn get_json<T: DeserializeOwned>(&mut self, key: &str) -> DbResult<Option<T>> {
         let value: Option<String> = self.conn.get(key).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis GET failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis GET failed: {}", e).into(),
+            ))
         })?;
 
         match value {
@@ -346,10 +359,12 @@ impl RedisCache {
     ) -> DbResult<()> {
         let json_str = serde_json::to_string(value)?;
         self.conn
-            .set_ex(key, json_str, ttl_seconds)
+            .set_ex::<_, _, ()>(key, json_str, ttl_seconds)
             .await
             .map_err(|e| {
-                DbError::Connection(sqlx::Error::Configuration(format!("Redis SET failed: {}", e).into()))
+                DbError::Connection(sqlx::Error::Configuration(
+                    format!("Redis SET failed: {}", e).into(),
+                ))
             })?;
 
         tracing::debug!("Cache SET: {} (JSON)", key);
@@ -368,7 +383,9 @@ impl RedisCache {
     /// * `Err(DbError)` - Redis error
     pub async fn delete(&mut self, key: &str) -> DbResult<()> {
         let _: () = self.conn.del(key).await.map_err(|e| {
-            DbError::Connection(sqlx::Error::Configuration(format!("Redis DEL failed: {}", e).into()))
+            DbError::Connection(sqlx::Error::Configuration(
+                format!("Redis DEL failed: {}", e).into(),
+            ))
         })?;
 
         tracing::debug!("Cache DEL: {}", key);
@@ -383,11 +400,8 @@ impl RedisCache {
     /// * `Err(DbError)` - Redis error
     pub async fn flush_all(&mut self) -> DbResult<()> {
         redis::cmd("FLUSHDB")
-            .query_async(&mut self.conn)
-            .await
-            .map_err(|e| {
-                DbError::Connection(sqlx::Error::Configuration(format!("Redis FLUSHDB failed: {}", e).into()))
-            })?;
+            .query_async::<_, ()>(&mut self.conn)
+            .await?;
 
         tracing::warn!("Cache FLUSHED: all keys deleted");
         Ok(())
@@ -407,7 +421,10 @@ mod tests {
         let mut cache = RedisCache::new(&redis_url).await.unwrap();
 
         // Test router alpha/beta
-        cache.set_router_alpha("test-model", 10.0, 60).await.unwrap();
+        cache
+            .set_router_alpha("test-model", 10.0, 60)
+            .await
+            .unwrap();
         cache.set_router_beta("test-model", 5.0, 60).await.unwrap();
 
         let alpha = cache.get_router_alpha("test-model").await.unwrap();

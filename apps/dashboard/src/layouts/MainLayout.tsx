@@ -1,176 +1,446 @@
-// BIZRA Genesis Node - Main Layout
-// Elite-grade responsive layout with navigation
+// ╔═══════════════════════════════════════════════════════════════════════╗
+// ║  BIZRA GENESIS NODE - MAIN LAYOUT                                    ║
+// ║  Enterprise-grade responsive application shell with navigation       ║
+// ╚═══════════════════════════════════════════════════════════════════════╝
 
-import React, { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
-  LayoutDashboard,
-  Bot,
-  GitMerge,
-  Activity,
+  Home,
+  Users,
+  Zap,
+  BarChart3,
+  Trophy,
   Settings,
   Shield,
   Menu,
   X,
-  LogOut,
+  Bell,
+  Search,
   User,
-} from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+  LogOut,
+  Moon,
+  Sun,
+  Monitor
+} from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { useOnboarding } from '../contexts/OnboardingContext'
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'AI Models', href: '/agents', icon: Bot },
-  { name: 'Synthesis', href: '/synthesis', icon: GitMerge },
-  { name: 'Monitoring', href: '/monitoring', icon: Activity },
-  { name: 'Settings', href: '/settings', icon: Settings },
-];
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════
 
-const adminNav = [
-  { name: 'Admin', href: '/admin', icon: Shield },
-];
+const NAVIGATION_ITEMS = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    path: '/dashboard',
+    icon: Home,
+    description: 'Overview and key metrics'
+  },
+  {
+    id: 'agents',
+    label: 'Agents',
+    path: '/agents',
+    icon: Users,
+    description: 'Manage AI agents and interactions'
+  },
+  {
+    id: 'synthesis',
+    label: 'Synthesis',
+    path: '/synthesis',
+    icon: Zap,
+    description: 'AI-powered content synthesis'
+  },
+  {
+    id: 'monitoring',
+    label: 'Monitoring',
+    path: '/monitoring',
+    icon: BarChart3,
+    description: 'System performance and analytics'
+  },
+  {
+    id: 'achievements',
+    label: 'Achievements',
+    path: '/achievements',
+    icon: Trophy,
+    description: 'Track your progress and rewards'
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    path: '/settings',
+    icon: Settings,
+    description: 'Application preferences'
+  },
+  {
+    id: 'admin',
+    label: 'Admin',
+    path: '/admin',
+    icon: Shield,
+    description: 'System administration',
+    adminOnly: true
+  }
+]
 
-export default function MainLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+// ═══════════════════════════════════════════════════════════════════════════
+// THEME MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'auto', label: 'Auto', icon: Monitor }
+]
+
+const useTheme = () => {
+  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>(() => {
+    const saved = localStorage.getItem('bizra_theme')
+    return (saved as 'light' | 'dark' | 'auto') || 'auto'
+  })
+
+  const getEffectiveTheme = (): 'light' | 'dark' => {
+    if (theme === 'auto') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return theme
+  }
+
+  useEffect(() => {
+    const effectiveTheme = getEffectiveTheme()
+    document.documentElement.setAttribute('data-theme', effectiveTheme)
+    localStorage.setItem('bizra_theme', theme)
+  }, [theme])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      if (theme === 'auto') {
+        const effectiveTheme = mediaQuery.matches ? 'dark' : 'light'
+        document.documentElement.setAttribute('data-theme', effectiveTheme)
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [theme])
+
+  return { theme, setTheme, effectiveTheme: getEffectiveTheme() }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN LAYOUT COMPONENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MainLayout: React.FC = () => {
+  const { user, logout, isAuthenticated } = useAuth()
+  const { isComplete: onboardingComplete } = useOnboarding()
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const { theme, setTheme, effectiveTheme } = useTheme()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [notifications] = useState(3) // Mock notification count
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RESPONSIVE BEHAVIOR
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true)
+      } else {
+        setSidebarOpen(false)
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // NAVIGATION HELPERS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const filteredNavItems = NAVIGATION_ITEMS.filter(item => {
+    if (item.adminOnly && user?.role !== 'admin' && user?.role !== 'super_admin') {
+      return false
+    }
+    return true
+  })
+
+  const isActiveRoute = (path: string): boolean => {
+    return location.pathname === path
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EVENT HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+    try {
+      await logout()
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
+
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
+    setTheme(newTheme)
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RENDER METHODS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const renderNavigationItem = (item: typeof NAVIGATION_ITEMS[0]) => {
+    const Icon = item.icon
+    const isActive = isActiveRoute(item.path)
+
+    return (
+      <motion.button
+        key={item.id}
+        onClick={() => {
+          navigate(item.path)
+          if (window.innerWidth < 1024) {
+            setSidebarOpen(false)
+          }
+        }}
+        className={`nav-item ${isActive ? 'active' : ''}`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        title={item.description}
+      >
+        <Icon className="nav-icon" size={20} />
+        <span className="nav-label">{item.label}</span>
+        {item.adminOnly && (
+          <span className="nav-badge admin">Admin</span>
+        )}
+      </motion.button>
+    )
+  }
+
+  const renderUserMenu = () => (
+    <div className="user-menu">
+      <div className="user-info">
+        <div className="user-avatar">
+          {user?.avatar ? (
+            <img src={user.avatar} alt={user.username} />
+          ) : (
+            <User size={20} />
+          )}
+        </div>
+        <div className="user-details">
+          <div className="user-name">
+            {user?.firstName} {user?.lastName}
+          </div>
+          <div className="user-role">
+            {user?.role?.replace('_', ' ').toUpperCase()}
+          </div>
+        </div>
+      </div>
+
+      <div className="user-actions">
+        <button
+          className="user-action"
+          onClick={() => navigate('/settings')}
+        >
+          <Settings size={16} />
+          Settings
+        </button>
+        <button
+          className="user-action logout"
+          onClick={handleLogout}
+        >
+          <LogOut size={16} />
+          Logout
+        </button>
+      </div>
+    </div>
+  )
+
+  const renderThemeSelector = () => (
+    <div className="theme-selector">
+      {THEME_OPTIONS.map((option) => {
+        const Icon = option.icon
+        return (
+          <button
+            key={option.value}
+            className={`theme-option ${theme === option.value ? 'active' : ''}`}
+            onClick={() => handleThemeChange(option.value as 'light' | 'dark' | 'auto')}
+            title={`Switch to ${option.label} theme`}
+          >
+            <Icon size={16} />
+            <span>{option.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MAIN RENDER
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  if (!isAuthenticated) {
+    return <Outlet />
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar backdrop */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+    <div className={`main-layout theme-${effectiveTheme}`}>
+      {/* Sidebar Overlay (Mobile) */}
+      <AnimatePresence>
+        {sidebarOpen && window.innerWidth < 1024 && (
+          <motion.div
+            className="sidebar-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar */}
-      <aside
-        className={`
-          fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200
-          transform transition-transform duration-200 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0
-        `}
+      <motion.aside
+        className={`sidebar ${sidebarOpen ? 'open' : ''}`}
+        initial={false}
+        animate={{
+          x: sidebarOpen ? 0 : window.innerWidth >= 1024 ? 0 : -280
+        }}
+        transition={{ type: 'tween', duration: 0.3 }}
       >
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">B</span>
+        {/* Logo/Brand */}
+        <div className="sidebar-header">
+          <div className="brand">
+            <div className="brand-icon">⚡</div>
+            <div className="brand-text">
+              <div className="brand-name">BIZRA</div>
+              <div className="brand-subtitle">Genesis Node</div>
             </div>
-            <span className="ml-2 text-lg font-bold text-gray-900">BIZRA</span>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
-          >
-            <X className="w-6 h-6" />
-          </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              className={({ isActive }) =>
-                `flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`
-              }
-              onClick={() => setSidebarOpen(false)}
-            >
-              <item.icon className="w-5 h-5 mr-3" />
-              {item.name}
-            </NavLink>
-          ))}
-
-          {user?.role === 'admin' && (
-            <>
-              <div className="border-t border-gray-200 my-4" />
-              {adminNav.map((item) => (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  className={({ isActive }) =>
-                    `flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`
-                  }
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  {item.name}
-                </NavLink>
-              ))}
-            </>
-          )}
+        <nav className="sidebar-nav">
+          {filteredNavItems.map(renderNavigationItem)}
         </nav>
 
-        {/* User info */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex items-center mb-3">
-            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-gray-600" />
-            </div>
-            <div className="ml-3 flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {user?.name}
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                {user?.email}
-              </p>
+        {/* User Section */}
+        <div className="sidebar-footer">
+          {renderUserMenu()}
+          {renderThemeSelector()}
+        </div>
+      </motion.aside>
+
+      {/* Main Content */}
+      <div className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        {/* Top Bar */}
+        <header className="top-bar">
+          <div className="top-bar-left">
+            <button
+              className="menu-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle sidebar"
+            >
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
+            <div className="page-title">
+              {filteredNavItems.find(item => isActiveRoute(item.path))?.label || 'Dashboard'}
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </button>
-        </div>
-      </aside>
 
-      {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top bar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          <div className="top-bar-right">
+            {/* Search */}
+            <button
+              className="top-bar-btn"
+              onClick={() => setSearchOpen(!searchOpen)}
+              aria-label="Search"
+            >
+              <Search size={20} />
+            </button>
 
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
+            {/* Notifications */}
+            <button className="top-bar-btn notification-btn" aria-label="Notifications">
+              <Bell size={20} />
+              {notifications > 0 && (
+                <span className="notification-badge">{notifications}</span>
+              )}
+            </button>
+
+            {/* User Menu Trigger */}
+            <button
+              className="user-menu-trigger"
+              onClick={() => {/* Toggle user dropdown */}}
+              aria-label="User menu"
+            >
+              <div className="user-avatar-small">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt={user.username} />
+                ) : (
+                  <User size={20} />
+                )}
+              </div>
+            </button>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="p-6">
+        {/* Search Bar (Collapsible) */}
+        <AnimatePresence>
+          {searchOpen && (
+            <motion.div
+              className="search-bar"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 60, opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="search-input-container">
+                <Search size={20} />
+                <input
+                  type="text"
+                  placeholder="Search agents, syntheses, settings..."
+                  className="search-input"
+                  autoFocus
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Page Content */}
+        <main className="page-content">
           <Outlet />
         </main>
+
+        {/* Onboarding Reminder */}
+        {!onboardingComplete && (
+          <motion.div
+            className="onboarding-reminder"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 1, duration: 0.5 }}
+          >
+            <div className="reminder-content">
+              <span>Complete your onboarding to unlock all features</span>
+              <button
+                className="reminder-btn"
+                onClick={() => navigate('/onboarding')}
+              >
+                Continue Setup
+              </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
-  );
+  )
 }
+
+export default MainLayout

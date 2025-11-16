@@ -3,10 +3,11 @@
 // ║  REST API routes and handlers for BIZRA Genesis Node                     ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
+pub mod alpha_invites;
 pub mod auth;
 pub mod health;
-pub mod middleware;
 pub mod metrics;
+pub mod middleware;
 
 use axum::{
     middleware as axum_middleware,
@@ -40,12 +41,19 @@ pub fn create_router(pool: Arc<PgPool>, metrics: Arc<metrics::MetricsCollector>)
         .layer(ServiceBuilder::new().layer(governor_limiter));
 
     // Create health check backend
-    let health_backend: Arc<dyn health::HealthCheckBackend> = Arc::new(health::DbHealthCheck::new(pool.clone()));
+    let health_backend: Arc<dyn health::HealthCheckBackend> =
+        Arc::new(health::DbHealthCheck::new(pool.clone()));
 
     // Combine all route groups with metrics
     Router::new()
         .nest("/auth", auth_routes)
-        .route("/health", get(health::health_check::<dyn health::HealthCheckBackend>))
+        .route("/alpha/request", post(alpha_invites::request_alpha_access))
+        .route("/alpha/accept/:invite_code", post(alpha_invites::accept_alpha_invite))
+        .route("/alpha/requests", get(alpha_invites::list_alpha_requests))
+        .route(
+            "/health",
+            get(health::health_check::<dyn health::HealthCheckBackend>),
+        )
         .route("/metrics", get(metrics::metrics_handler))
         // Add metrics middleware to all routes (except /metrics itself to avoid recursion)
         .layer(axum_middleware::from_fn_with_state(
@@ -60,17 +68,21 @@ pub fn create_router(pool: Arc<PgPool>, metrics: Arc<metrics::MetricsCollector>)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use axum::http::{Request, StatusCode};
     use axum::body::Body;
+    use axum::http::{Request, StatusCode};
     use tower::ServiceExt;
 
     #[tokio::test]
     async fn test_health_check_healthy() {
         // Use mock healthy backend instead of real database
-        let health_backend: Arc<dyn health::HealthCheckBackend> = Arc::new(health::MockHealthyBackend);
+        let health_backend: Arc<dyn health::HealthCheckBackend> =
+            Arc::new(health::MockHealthyBackend);
 
         let app = Router::new()
-            .route("/health", get(health::health_check::<dyn health::HealthCheckBackend>))
+            .route(
+                "/health",
+                get(health::health_check::<dyn health::HealthCheckBackend>),
+            )
             .layer(Extension(health_backend));
 
         let response = app
@@ -89,10 +101,14 @@ mod tests {
     #[tokio::test]
     async fn test_health_check_unhealthy() {
         // Use mock unhealthy backend to test failure case
-        let health_backend: Arc<dyn health::HealthCheckBackend> = Arc::new(health::MockUnhealthyBackend);
+        let health_backend: Arc<dyn health::HealthCheckBackend> =
+            Arc::new(health::MockUnhealthyBackend);
 
         let app = Router::new()
-            .route("/health", get(health::health_check::<dyn health::HealthCheckBackend>))
+            .route(
+                "/health",
+                get(health::health_check::<dyn health::HealthCheckBackend>),
+            )
             .layer(Extension(health_backend));
 
         let response = app

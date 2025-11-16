@@ -2,9 +2,9 @@
 // BIZRA CLI Demonstration
 // Shows complete CLI functionality with all 12 agents
 
+use bizra_genesis_node::cli::{CLIConfig, Command, CommandExecutor, Display, WorkflowType};
+use bizra_genesis_node::{agents::AgentRole, Task};
 use std::error::Error;
-use synthesis_orchestrator::cli::{CLIConfig, Command, CommandExecutor, Display, WorkflowType};
-use synthesis_orchestrator::{agents::AgentRole, Task};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -43,6 +43,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "AI-Powered Task Manager development".to_string(),
+        priority: bizra_genesis_node::types::Priority::High,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "project": "AI-Powered Task Manager",
             "domain": "productivity",
@@ -116,6 +121,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let full_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Real-Time Analytics Platform development".to_string(),
+        priority: bizra_genesis_node::types::Priority::High,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "project": "Real-Time Analytics Platform",
             "description": "Build a high-performance analytics platform with real-time data processing",

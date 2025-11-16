@@ -63,7 +63,12 @@ impl RouterRepositoryTrait for RouterRepository {
             DbError::Connection(e)
         })?;
 
-        tracing::debug!("Router state updated: {} (α={:.1}, β={:.1})", model, alpha, beta);
+        tracing::debug!(
+            "Router state updated: {} (α={:.1}, β={:.1})",
+            model,
+            alpha,
+            beta
+        );
         Ok(())
     }
 

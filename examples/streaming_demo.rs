@@ -39,7 +39,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("Buffer Configuration:");
     info!("  • Max size: {}", buffer_config.max_size);
     info!("  • Flush interval: {}ms", buffer_config.flush_interval_ms);
-    info!("  • Auto-flush newlines: {}", buffer_config.auto_flush_newlines);
+    info!(
+        "  • Auto-flush newlines: {}",
+        buffer_config.auto_flush_newlines
+    );
 
     let mut buffer = BufferedStream::new(buffer_config);
 
@@ -114,10 +117,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("  • Chunk count: {}", aggregator.chunk_count());
 
     let usage = aggregator.get_usage();
-    info!("  • Token usage: {} input + {} output = {} total",
-        usage.input_tokens,
-        usage.output_tokens,
-        usage.total_tokens
+    info!(
+        "  • Token usage: {} input + {} output = {} total",
+        usage.input_tokens, usage.output_tokens, usage.total_tokens
     );
 
     if let Some(finish_reason) = aggregator.get_finish_reason() {
@@ -185,7 +187,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let high_throughput = BufferConfig::high_throughput();
     info!("\n  High Throughput (Batch processing):");
     info!("    • Max size: {}", high_throughput.max_size);
-    info!("    • Flush interval: {}ms", high_throughput.flush_interval_ms);
+    info!(
+        "    • Flush interval: {}ms",
+        high_throughput.flush_interval_ms
+    );
     info!("    • Use case: Bulk processing, analytics");
 
     // Step 5: Real-world streaming simulation
@@ -238,7 +243,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("\n  ✅ Streaming complete!");
 
     info!("\nFinal Results:");
-    info!("  • Complete response: \"{}...\"",
+    info!(
+        "  • Complete response: \"{}...\"",
         &real_aggregator.get_text()[..100]
     );
 
@@ -246,8 +252,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("  • Token usage: {} total", final_usage.total_tokens);
 
     let final_metrics = real_monitor.metrics();
-    info!("  • Streaming duration: {}ms", final_metrics.total_duration_ms);
-    info!("  • Average throughput: {:.2} chunks/sec", final_metrics.chunks_per_second);
+    info!(
+        "  • Streaming duration: {}ms",
+        final_metrics.total_duration_ms
+    );
+    info!(
+        "  • Average throughput: {:.2} chunks/sec",
+        final_metrics.chunks_per_second
+    );
 
     // Step 6: Performance comparison
     info!("\n⚡ Step 6: Buffer Performance Comparison");

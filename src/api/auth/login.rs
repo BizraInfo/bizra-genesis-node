@@ -63,20 +63,20 @@ pub struct ErrorResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: String,        // Subject (user ID)
-    pub email: String,      // User email
-    pub program: String,    // User program (alpha-100, general)
-    pub exp: i64,           // Expiration time (Unix timestamp)
-    pub iat: i64,           // Issued at (Unix timestamp)
-    pub jti: String,        // JWT ID (unique token identifier)
+    pub sub: String,     // Subject (user ID)
+    pub email: String,   // User email
+    pub program: String, // User program (alpha-100, general)
+    pub exp: i64,        // Expiration time (Unix timestamp)
+    pub iat: i64,        // Issued at (Unix timestamp)
+    pub jti: String,     // JWT ID (unique token identifier)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RefreshClaims {
-    pub sub: String,        // Subject (user ID)
+    pub sub: String,          // Subject (user ID)
     pub token_family: String, // Token family for refresh rotation
-    pub exp: i64,           // Expiration time (Unix timestamp)
-    pub iat: i64,           // Issued at (Unix timestamp)
+    pub exp: i64,             // Expiration time (Unix timestamp)
+    pub iat: i64,             // Issued at (Unix timestamp)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -198,10 +198,7 @@ fn generate_access_token(
 }
 
 /// Generate refresh token (7 day expiration for Alpha-100)
-fn generate_refresh_token(
-    user_id: Uuid,
-    jwt_secret: &str,
-) -> Result<String, LoginError> {
+fn generate_refresh_token(user_id: Uuid, jwt_secret: &str) -> Result<String, LoginError> {
     let now = Utc::now();
     let expiration = now + Duration::days(7); // 7 day expiration for Alpha-100
 
@@ -252,17 +249,11 @@ pub async fn login_handler(
     }
 
     // 4. Get JWT secret from environment
-    let jwt_secret = std::env::var("JWT_SECRET").map_err(|_| {
-        LoginError::Internal("JWT_SECRET not configured".to_string())
-    })?;
+    let jwt_secret = std::env::var("JWT_SECRET")
+        .map_err(|_| LoginError::Internal("JWT_SECRET not configured".to_string()))?;
 
     // 5. Generate access token
-    let access_token = generate_access_token(
-        user.id,
-        &user.email,
-        &user.program,
-        &jwt_secret,
-    )?;
+    let access_token = generate_access_token(user.id, &user.email, &user.program, &jwt_secret)?;
 
     // 6. Generate refresh token
     let refresh_token = generate_refresh_token(user.id, &jwt_secret)?;

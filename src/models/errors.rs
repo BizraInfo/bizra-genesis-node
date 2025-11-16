@@ -1,8 +1,8 @@
 // src/models/errors.rs
 // Error types for AI model providers
 
-use std::fmt;
 use std::error::Error as StdError;
+use std::fmt;
 
 /// Result type for model operations
 pub type ModelResult<T> = Result<T, ModelError>;
@@ -17,10 +17,7 @@ pub enum ModelError {
     },
 
     /// Authentication or authorization failure
-    Authentication {
-        provider: String,
-        message: String,
-    },
+    Authentication { provider: String, message: String },
 
     /// Rate limit exceeded
     RateLimit {
@@ -30,10 +27,7 @@ pub enum ModelError {
     },
 
     /// Requested model not found or not available
-    ModelNotFound {
-        provider: String,
-        model: String,
-    },
+    ModelNotFound { provider: String, model: String },
 
     /// Invalid request parameters
     InvalidRequest {
@@ -49,22 +43,13 @@ pub enum ModelError {
     },
 
     /// Request timeout
-    Timeout {
-        duration_ms: u64,
-        operation: String,
-    },
+    Timeout { duration_ms: u64, operation: String },
 
     /// Insufficient quota or credits
-    QuotaExceeded {
-        provider: String,
-        message: String,
-    },
+    QuotaExceeded { provider: String, message: String },
 
     /// Model output was filtered by safety systems
-    ContentFiltered {
-        model: String,
-        reason: String,
-    },
+    ContentFiltered { model: String, reason: String },
 
     /// Token limit exceeded
     TokenLimitExceeded {
@@ -80,14 +65,13 @@ pub enum ModelError {
     },
 
     /// Configuration error
-    ConfigurationError {
-        message: String,
-    },
+    ConfigurationError { message: String },
+
+    /// Invalid provider specified
+    InvalidProvider { message: String },
 
     /// Internal error
-    Internal {
-        message: String,
-    },
+    Internal { message: String },
 }
 
 impl ModelError {
@@ -123,8 +107,10 @@ impl ModelError {
             ModelError::RateLimit {
                 retry_after_secs, ..
             } => retry_after_secs.map(|s| s * 1000),
-            ModelError::Network { retryable: true, .. } => Some(1000), // 1 second
-            ModelError::Timeout { .. } => Some(2000),                  // 2 seconds
+            ModelError::Network {
+                retryable: true, ..
+            } => Some(1000), // 1 second
+            ModelError::Timeout { .. } => Some(2000), // 2 seconds
             _ => None,
         }
     }
@@ -134,11 +120,7 @@ impl fmt::Display for ModelError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ModelError::Network { source, retryable } => {
-                write!(
-                    f,
-                    "Network error: {} (retryable: {})",
-                    source, retryable
-                )
+                write!(f, "Network error: {} (retryable: {})", source, retryable)
             }
             ModelError::Authentication { provider, message } => {
                 write!(f, "Authentication failed for {}: {}", provider, message)
@@ -223,6 +205,9 @@ impl fmt::Display for ModelError {
             ModelError::ConfigurationError { message } => {
                 write!(f, "Configuration error: {}", message)
             }
+            ModelError::InvalidProvider { message } => {
+                write!(f, "Invalid provider: {}", message)
+            }
             ModelError::Internal { message } => {
                 write!(f, "Internal error: {}", message)
             }
@@ -242,9 +227,11 @@ impl StdError for ModelError {
 // Convenience implementations for common error conversions
 impl From<reqwest::Error> for ModelError {
     fn from(err: reqwest::Error) -> Self {
-        let retryable = err.is_timeout() || err.is_connect() || err.status().map_or(false, |s| {
-            s.is_server_error() || s == reqwest::StatusCode::TOO_MANY_REQUESTS
-        });
+        let retryable = err.is_timeout()
+            || err.is_connect()
+            || err.status().map_or(false, |s| {
+                s.is_server_error() || s == reqwest::StatusCode::TOO_MANY_REQUESTS
+            });
 
         ModelError::Network {
             source: Box::new(err),

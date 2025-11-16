@@ -25,6 +25,7 @@ pub mod aegis;
 pub mod agentfold;
 pub mod agents;
 mod ai_backend;
+pub mod api;
 pub mod cli;
 pub mod consensus;
 pub mod genesis_validation;
@@ -32,12 +33,14 @@ pub mod metrics;
 pub mod models;
 pub mod parser;
 pub mod performance;
+#[cfg(feature = "database")]
 pub mod persistence;
 pub mod replay;
 pub mod routing;
 pub mod scoring;
 pub mod trust;
 pub mod types;
+pub mod websocket;
 
 // Re-export public API
 pub use aegis::{AegisError, AegisResult, Agent, AgentId};
@@ -48,18 +51,19 @@ pub use consensus::*;
 pub use genesis_validation::*;
 pub use metrics::*;
 pub use models::{
-    AnthropicConfig, AnthropicProvider, BackpressureHandler, BufferConfig, BufferStats,
-    BufferedStream, ComparisonResult, CompletionOptions, CompletionResponse, ExperimentConfig,
-    ExperimentReport, MetricType, ModelError, ModelPerformance, ModelProvider, ModelRequirements,
-    ModelResult, Observation, OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider,
-    ProviderRegistry, RateLimitConfig, RateLimiter, SelectedModel, SelectionStrategy,
-    StreamAggregator, StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler,
-    SummaryStats, ThompsonConfig, ThompsonSamplingRouter, UsageStats, Variant, VariantStats,
-    collect_stream, collect_stream_with_metrics,
+    collect_stream, collect_stream_with_metrics, AnthropicConfig, AnthropicProvider,
+    BackpressureHandler, BufferConfig, BufferStats, BufferedStream, ComparisonResult,
+    CompletionOptions, CompletionResponse, ExperimentConfig, ExperimentReport, MetricType,
+    ModelError, ModelPerformance, ModelProvider, ModelRequirements, ModelResult, Observation,
+    OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider, ProviderRegistry, RateLimitConfig,
+    RateLimiter, SelectedModel, SelectionStrategy, StreamAggregator, StreamCombiner, StreamMetrics,
+    StreamMonitor, StreamRetryHandler, SummaryStats, ThompsonConfig, ThompsonSamplingRouter,
+    UsageStats, Variant, VariantStats,
 };
 pub use parser::*;
 pub use performance::*;
-pub use persistence::{DatabasePool, DbError, DbResult, PersistenceManager, HealthStatus};
+#[cfg(feature = "database")]
+pub use persistence::{DatabasePool, DbError, DbResult, HealthStatus, PersistenceManager};
 pub use replay::*;
 pub use routing::*;
 pub use scoring::*;

@@ -12,9 +12,7 @@
 // cargo run --example ollama_demo
 // ```
 
-use bizra_genesis_node::models::{
-    CompletionOptions, ModelProvider, OllamaConfig, OllamaProvider,
-};
+use bizra_genesis_node::models::{CompletionOptions, ModelProvider, OllamaConfig, OllamaProvider};
 use std::error::Error;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
@@ -207,12 +205,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     info!("\n🔢 Step 7: Token Estimation");
     info!("-".repeat(60));
 
-    let sample_text = "The quick brown fox jumps over the lazy dog. This is a sample text for token estimation.";
+    let sample_text =
+        "The quick brown fox jumps over the lazy dog. This is a sample text for token estimation.";
     let estimated_tokens = provider.estimate_tokens(sample_text, None).await?;
     info!("Text: \"{}\"", sample_text);
     info!("Estimated Tokens: {}", estimated_tokens);
     info!("Characters: {}", sample_text.len());
-    info!("Ratio: ~{:.2} chars/token", sample_text.len() as f64 / estimated_tokens as f64);
+    info!(
+        "Ratio: ~{:.2} chars/token",
+        sample_text.len() as f64 / estimated_tokens as f64
+    );
 
     // Step 8: Model availability check
     info!("\n✅ Step 8: Model Availability Check");

@@ -3,9 +3,9 @@
 // Prerequisites: Install Ollama and pull models (see OLLAMA_SETUP.md)
 // Run with: cargo run --example moe_real
 
+use bizra_genesis_node::{Contract, SynthesisOrchestrator, Task};
 use bizra_moe::OllamaConfig;
 use std::time::Duration;
-use synthesis_orchestrator::{Contract, SynthesisOrchestrator, Task};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -49,6 +49,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create a real-world task
     let task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Answer geography question".to_string(),
+        priority: bizra_genesis_node::types::Priority::Medium,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "input": "What is the capital of France?",
             "expected_format": "JSON with answer and reasoning"

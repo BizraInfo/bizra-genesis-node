@@ -5,7 +5,7 @@
 // with compile-time query verification via SQLx and connection pooling.
 
 use sqlx::postgres::PgPoolOptions;
-use sqlx::{PgPool, Pool, Postgres};
+use sqlx::PgPool;
 use std::time::Duration;
 
 pub mod agents;
@@ -21,7 +21,7 @@ pub mod traits;
 pub use agents::AgentRepository;
 pub use cache::RedisCache;
 pub use consensus::ConsensusRepository;
-pub use integration::{PersistenceManager, HealthStatus};
+pub use integration::{HealthStatus, PersistenceManager};
 pub use poi::ProofOfImpactRepository;
 pub use receipts::ReceiptRepository;
 pub use router::RouterRepository;
@@ -43,6 +43,9 @@ pub enum DbError {
 
     #[error("Serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
+
+    #[error("Redis error: {0}")]
+    Redis(#[from] redis::RedisError),
 
     #[error("Pool error: {0}")]
     Pool(String),

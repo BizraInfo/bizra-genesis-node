@@ -1,0 +1,437 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BIZRA GENESIS NODE - REALTIME STATUS PANEL STYLES
+   Sacred Gold themed real-time monitoring interface
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bizra-gold: #d4af37;
+  --bizra-gold-light: #f4d03f;
+  --bizra-gold-dark: #b8941f;
+  --bizra-navy: #1a1a2e;
+  --bizra-navy-light: #2a2a4e;
+  --bizra-blue: #3b82f6;
+  --bizra-green: #10b981;
+  --bizra-red: #ef4444;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN CONTAINER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.realtime-status-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONNECTION STATUS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.connection-status {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(42, 42, 78, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-indicator.connected .status-dot {
+  background: var(--bizra-green);
+  box-shadow: 0 0 10px var(--bizra-green);
+}
+
+.status-indicator.disconnected .status-dot {
+  background: var(--bizra-red);
+  box-shadow: 0 0 10px var(--bizra-red);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STATUS CARDS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(42, 42, 78, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  transition: all 0.3s ease;
+}
+
+.status-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--bizra-gold);
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONSENSUS PROGRESS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.consensus-progress {
+  padding: 1.5rem;
+  background: rgba(42, 42, 78, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.consensus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.consensus-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bizra-gold);
+  margin: 0;
+}
+
+.consensus-status {
+  padding: 0.25rem 0.75rem;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--bizra-blue);
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bizra-gold-dark), var(--bizra-gold-light));
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px var(--bizra-gold);
+}
+
+.consensus-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.confidence-score {
+  color: var(--bizra-gold);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AGENT STATUS LIST
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.agent-status-list {
+  padding: 1.5rem;
+  background: rgba(42, 42, 78, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.agent-status-list h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bizra-gold);
+  margin: 0 0 1rem 0;
+}
+
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.agent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.agent-item:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  background: rgba(26, 26, 46, 0.8);
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.status-icon {
+  flex-shrink: 0;
+}
+
+.status-icon.processing {
+  animation: spin 2s linear infinite;
+}
+
+.status-icon.streaming {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.agent-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.agent-name {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+
+.agent-task {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.agent-status-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.agent-time {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.empty-state p {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.empty-hint {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONSENSUS HISTORY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.consensus-history {
+  padding: 1.5rem;
+  background: rgba(42, 42, 78, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.consensus-history h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bizra-gold);
+  margin: 0 0 1rem 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-item {
+  padding: 1rem;
+  background: rgba(26, 26, 46, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.history-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.history-status.completed {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: var(--bizra-green);
+}
+
+.history-status.failed {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: var(--bizra-red);
+}
+
+.history-time {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.history-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.history-details .confidence {
+  color: var(--bizra-gold);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .status-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .agent-meta {
+    align-self: flex-end;
+  }
+}

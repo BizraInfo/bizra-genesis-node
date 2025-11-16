@@ -100,10 +100,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await;
     info!("  Request 1: $0.50 (GPT-4, 5K tokens) - Recorded");
 
-    if budget_limiter
-        .check_request("openai", "gpt-4")
-        .await?
-    {
+    if budget_limiter.check_request("openai", "gpt-4").await? {
         info!("  Request 2: ✅ Allowed (budget: $0.50/$1.00)");
     }
 
@@ -113,10 +110,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await;
     info!("  Request 2: $0.60 (GPT-4, 6K tokens) - Recorded");
 
-    if !budget_limiter
-        .check_request("openai", "gpt-4")
-        .await?
-    {
+    if !budget_limiter.check_request("openai", "gpt-4").await? {
         warn!("  Request 3: ❌ Denied (budget exceeded: $1.10/$1.00 per minute)");
     }
 
@@ -196,9 +190,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Consume burst capacity
     for i in 1..=3 {
-        wait_limiter
-            .check_request("test", "model")
-            .await?;
+        wait_limiter.check_request("test", "model").await?;
         info!("  Request {}: ✅ Immediate (burst)", i);
     }
 
@@ -303,7 +295,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let conservative = RateLimitConfig::conservative();
     info!("\n  Conservative (low budget):");
     info!("    • {} requests/second", conservative.requests_per_second);
-    info!("    • ${:.2}/hour limit", conservative.cost_per_hour.unwrap());
+    info!(
+        "    • ${:.2}/hour limit",
+        conservative.cost_per_hour.unwrap()
+    );
     info!("    • ${:.2}/day limit", conservative.cost_per_day.unwrap());
 
     let aggressive = RateLimitConfig::aggressive();

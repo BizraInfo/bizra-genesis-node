@@ -7,5 +7,5 @@ pub mod jwt;
 pub mod metrics_middleware;
 
 // Re-export commonly used middleware
-pub use jwt::{jwt_auth, AuthenticatedUser, AuthError, Claims};
+pub use jwt::{jwt_auth, AuthError, AuthenticatedUser, Claims};
 pub use metrics_middleware::metrics_middleware;

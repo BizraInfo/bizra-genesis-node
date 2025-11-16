@@ -16,8 +16,7 @@ fn base_url() -> String {
 /// Get test user credentials from environment
 fn test_credentials() -> (String, String) {
     let email = env::var("E2E_CANARY_EMAIL").unwrap_or_else(|_| "canary@bizra.ai".to_string());
-    let password =
-        env::var("E2E_CANARY_PASSWORD").unwrap_or_else(|_| "ChangeMe123!".to_string());
+    let password = env::var("E2E_CANARY_PASSWORD").unwrap_or_else(|_| "ChangeMe123!".to_string());
     (email, password)
 }
 
@@ -96,9 +95,7 @@ async fn e2e_auth_login_and_protected_endpoint() {
     assert_eq!(login_res.status(), StatusCode::OK, "Login failed");
 
     let body: serde_json::Value = login_res.json().await.expect("Invalid login JSON");
-    let access_token = body["access_token"]
-        .as_str()
-        .expect("Missing access_token");
+    let access_token = body["access_token"].as_str().expect("Missing access_token");
 
     // 2. Access protected endpoint with token
     // Note: This assumes a /me or /user endpoint exists
@@ -316,6 +313,8 @@ async fn e2e_auth_rate_limiting() {
     if rate_limited {
         println!("✅ E2E Auth Rate Limiting: PASSED (rate limit triggered)");
     } else {
-        println!("⚠️  E2E Auth Rate Limiting: SKIPPED (rate limit not triggered - limits may be high)");
+        println!(
+            "⚠️  E2E Auth Rate Limiting: SKIPPED (rate limit not triggered - limits may be high)"
+        );
     }
 }

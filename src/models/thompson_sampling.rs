@@ -541,7 +541,7 @@ mod tests {
 
     #[test]
     fn test_success_rate() {
-        let mut perf = ModelPerformance::new("test".to_string(), 10.0, 5.0);
+        let perf = ModelPerformance::new("test".to_string(), 10.0, 5.0);
 
         let success_rate = perf.success_rate();
         assert!((success_rate - 0.666).abs() < 0.01);
@@ -549,7 +549,7 @@ mod tests {
 
     #[test]
     fn test_beta_sampling() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         // Sample multiple times and verify range
         for _ in 0..100 {

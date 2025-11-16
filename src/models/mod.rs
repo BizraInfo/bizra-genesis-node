@@ -52,13 +52,13 @@ pub mod traits;
 pub mod types;
 
 // Provider implementations
+pub mod ab_testing;
+pub mod anthropic;
 pub mod ollama;
 pub mod openai;
-pub mod anthropic;
-pub mod registry;
 pub mod rate_limit;
+pub mod registry;
 pub mod streaming;
-pub mod ab_testing;
 pub mod thompson_sampling;
 
 // Re-exports for convenience
@@ -70,19 +70,19 @@ pub use types::{
 };
 
 // Provider re-exports
+pub use ab_testing::{
+    ComparisonResult, ExperimentConfig, ExperimentReport, MetricType, Observation, SummaryStats,
+    Variant, VariantStats,
+};
 pub use anthropic::{AnthropicConfig, AnthropicProvider};
 pub use ollama::{OllamaConfig, OllamaProvider};
 pub use openai::{OpenAIConfig, OpenAIProvider};
 pub use rate_limit::{RateLimitConfig, RateLimiter, UsageStats};
 pub use registry::{ModelRequirements, ProviderRegistry, SelectedModel, SelectionStrategy};
 pub use streaming::{
-    BackpressureHandler, BufferConfig, BufferStats, BufferedStream, StreamAggregator,
-    StreamCombiner, StreamMetrics, StreamMonitor, StreamRetryHandler, collect_stream,
-    collect_stream_with_metrics,
-};
-pub use ab_testing::{
-    ComparisonResult, ExperimentConfig, ExperimentReport, MetricType, Observation, SummaryStats,
-    Variant, VariantStats,
+    collect_stream, collect_stream_with_metrics, BackpressureHandler, BufferConfig, BufferStats,
+    BufferedStream, StreamAggregator, StreamCombiner, StreamMetrics, StreamMonitor,
+    StreamRetryHandler,
 };
 pub use thompson_sampling::{ModelPerformance, ThompsonConfig, ThompsonSamplingRouter};
 

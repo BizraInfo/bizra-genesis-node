@@ -38,7 +38,11 @@ pub struct ModelInfo {
 
 impl ModelInfo {
     /// Creates a new ModelInfo with required fields
-    pub fn new(name: impl Into<String>, provider: impl Into<String>, context_length: usize) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        provider: impl Into<String>,
+        context_length: usize,
+    ) -> Self {
         Self {
             name: name.into(),
             provider: provider.into(),
@@ -365,8 +369,8 @@ impl Default for RetryConfig {
 impl RetryConfig {
     /// Calculates backoff duration for a given attempt
     pub fn backoff_duration(&self, attempt: u32) -> Duration {
-        let base = self.initial_backoff.as_millis() as f64
-            * self.backoff_multiplier.powi(attempt as i32);
+        let base =
+            self.initial_backoff.as_millis() as f64 * self.backoff_multiplier.powi(attempt as i32);
         let max_ms = self.max_backoff.as_millis() as f64;
         let clamped_ms = base.min(max_ms);
 
@@ -385,8 +389,7 @@ mod tests {
 
     #[test]
     fn test_model_info_cost_calculation() {
-        let model = ModelInfo::new("gpt-4", "openai", 8192)
-            .with_cost(0.03, 0.06); // $0.03 input, $0.06 output per 1K tokens
+        let model = ModelInfo::new("gpt-4", "openai", 8192).with_cost(0.03, 0.06); // $0.03 input, $0.06 output per 1K tokens
 
         // 1000 input, 500 output
         let cost = model.calculate_cost(1000, 500);

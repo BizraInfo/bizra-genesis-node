@@ -1,0 +1,234 @@
+name: Test Coverage
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Minimum coverage thresholds
+  RUST_COVERAGE_THRESHOLD: 95
+  FRONTEND_COVERAGE_THRESHOLD: 90
+
+jobs:
+  rust-coverage:
+    name: Rust Test Coverage
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bizra_test
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: bizra_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: llvm-tools-preview
+
+      - name: Install cargo-tarpaulin
+        run: |
+          cargo install cargo-tarpaulin
+
+      - name: Setup test environment
+        run: |
+          cp .env.example .env
+          echo "DATABASE_URL=postgresql://bizra_test:test_password@localhost:5432/bizra_test" >> .env
+          echo "REDIS_URL=redis://localhost:6379" >> .env
+
+      - name: Run tests with coverage
+        run: |
+          cargo tarpaulin \
+            --verbose \
+            --all-features \
+            --workspace \
+            --timeout 300 \
+            --out Xml \
+            --out Html \
+            --out Lcov \
+            --output-dir coverage/ \
+            --exclude-files 'target/*' \
+            --exclude-files 'tests/*' \
+            --exclude-files 'benches/*' \
+            --engine llvm
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(grep -oP '(?<=line-rate=")[0-9.]+' coverage/cobertura.xml | head -1)
+          COVERAGE_PERCENT=$(echo "$COVERAGE * 100" | bc)
+          echo "Current coverage: ${COVERAGE_PERCENT}%"
+          echo "Required coverage: ${RUST_COVERAGE_THRESHOLD}%"
+
+          if (( $(echo "$COVERAGE_PERCENT < $RUST_COVERAGE_THRESHOLD" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE_PERCENT}% is below threshold ${RUST_COVERAGE_THRESHOLD}%"
+            exit 1
+          else
+            echo "✅ Coverage ${COVERAGE_PERCENT}% meets threshold ${RUST_COVERAGE_THRESHOLD}%"
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          flags: rust
+          name: rust-coverage
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const xml = fs.readFileSync('coverage/cobertura.xml', 'utf8');
+            const coverage = parseFloat(xml.match(/line-rate="([0-9.]+)"/)[1]) * 100;
+
+            const comment = `## 📊 Rust Test Coverage Report
+
+            **Coverage:** ${coverage.toFixed(2)}%
+            **Threshold:** ${process.env.RUST_COVERAGE_THRESHOLD}%
+            **Status:** ${coverage >= process.env.RUST_COVERAGE_THRESHOLD ? '✅ PASS' : '❌ FAIL'}
+
+            [View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  frontend-coverage:
+    name: Frontend Test Coverage
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/dashboard
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: apps/dashboard/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Check coverage threshold
+        run: |
+          # Parse coverage from Jest output
+          COVERAGE=$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')
+          echo "Current coverage: ${COVERAGE}%"
+          echo "Required coverage: ${FRONTEND_COVERAGE_THRESHOLD}%"
+
+          if (( $(echo "$COVERAGE < $FRONTEND_COVERAGE_THRESHOLD" | bc -l) )); then
+            echo "❌ Coverage ${COVERAGE}% is below threshold ${FRONTEND_COVERAGE_THRESHOLD}%"
+            exit 1
+          else
+            echo "✅ Coverage ${COVERAGE}% meets threshold ${FRONTEND_COVERAGE_THRESHOLD}%"
+          fi
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/dashboard/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-report
+          path: apps/dashboard/coverage/
+          retention-days: 30
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('apps/dashboard/coverage/coverage-summary.json', 'utf8'));
+            const coverage = summary.total.lines.pct;
+
+            const comment = `## 📊 Frontend Test Coverage Report
+
+            **Line Coverage:** ${coverage.toFixed(2)}%
+            **Branch Coverage:** ${summary.total.branches.pct.toFixed(2)}%
+            **Function Coverage:** ${summary.total.functions.pct.toFixed(2)}%
+            **Statement Coverage:** ${summary.total.statements.pct.toFixed(2)}%
+
+            **Threshold:** ${process.env.FRONTEND_COVERAGE_THRESHOLD}%
+            **Status:** ${coverage >= process.env.FRONTEND_COVERAGE_THRESHOLD ? '✅ PASS' : '❌ FAIL'}
+
+            [View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  coverage-summary:
+    name: Coverage Summary
+    needs: [rust-coverage, frontend-coverage]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check all coverage jobs
+        run: |
+          if [[ "${{ needs.rust-coverage.result }}" != "success" ]] || [[ "${{ needs.frontend-coverage.result }}" != "success" ]]; then
+            echo "❌ One or more coverage checks failed"
+            exit 1
+          fi
+          echo "✅ All coverage checks passed!"

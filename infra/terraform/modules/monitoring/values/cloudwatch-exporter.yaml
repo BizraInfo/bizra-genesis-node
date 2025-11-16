@@ -1,0 +1,181 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# BIZRA GENESIS NODE - CLOUDWATCH EXPORTER HELM VALUES
+# Export AWS CloudWatch metrics to Prometheus
+# ═══════════════════════════════════════════════════════════════════════════
+
+# AWS region
+aws:
+  region: ${aws_region}
+  role: ""  # Use IRSA (IAM Roles for Service Accounts)
+
+# Service account for IRSA
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: ""  # Injected by Terraform
+
+# Resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# CloudWatch metrics configuration
+config: |-
+  # ─────────────────────────────────────────────────────────────────────────────
+  # RDS METRICS
+  # ─────────────────────────────────────────────────────────────────────────────
+  - aws_namespace: AWS/RDS
+    aws_metric_name: CPUUtilization
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: DatabaseConnections
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: FreeStorageSpace
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: FreeableMemory
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: ReadLatency
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: WriteLatency
+    aws_dimensions: [DBInstanceIdentifier]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # ELASTICACHE (REDIS) METRICS
+  # ─────────────────────────────────────────────────────────────────────────────
+  - aws_namespace: AWS/ElastiCache
+    aws_metric_name: CPUUtilization
+    aws_dimensions: [ReplicationGroupId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ElastiCache
+    aws_metric_name: DatabaseMemoryUsagePercentage
+    aws_dimensions: [ReplicationGroupId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ElastiCache
+    aws_metric_name: CurrConnections
+    aws_dimensions: [ReplicationGroupId]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ElastiCache
+    aws_metric_name: Evictions
+    aws_dimensions: [ReplicationGroupId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ElastiCache
+    aws_metric_name: CacheHits
+    aws_dimensions: [ReplicationGroupId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ElastiCache
+    aws_metric_name: CacheMisses
+    aws_dimensions: [ReplicationGroupId]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # EKS METRICS
+  # ─────────────────────────────────────────────────────────────────────────────
+  - aws_namespace: AWS/EKS
+    aws_metric_name: cluster_failed_node_count
+    aws_dimensions: [ClusterName]
+    aws_statistics: [Average]
+    period_seconds: 300
+    range_seconds: 600
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # APPLICATION LOAD BALANCER METRICS
+  # ─────────────────────────────────────────────────────────────────────────────
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: TargetResponseTime
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Average, p95, p99]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: RequestCount
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HTTPCode_Target_2XX_Count
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HTTPCode_Target_4XX_Count
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/ApplicationELB
+    aws_metric_name: HTTPCode_Target_5XX_Count
+    aws_dimensions: [LoadBalancer]
+    aws_statistics: [Sum]
+    period_seconds: 300
+    range_seconds: 600
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # S3 METRICS
+  # ─────────────────────────────────────────────────────────────────────────────
+  - aws_namespace: AWS/S3
+    aws_metric_name: BucketSizeBytes
+    aws_dimensions: [BucketName, StorageType]
+    aws_statistics: [Average]
+    period_seconds: 86400  # Daily
+    range_seconds: 172800
+
+  - aws_namespace: AWS/S3
+    aws_metric_name: NumberOfObjects
+    aws_dimensions: [BucketName, StorageType]
+    aws_statistics: [Average]
+    period_seconds: 86400  # Daily
+    range_seconds: 172800

@@ -5,11 +5,10 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use axum::{
-    body::Body,
     extract::{Request, State},
     http::StatusCode,
     middleware::Next,
-    response::{IntoResponse, Response},
+    response::Response,
 };
 use std::sync::Arc;
 use std::time::Instant;
@@ -65,10 +64,7 @@ pub async fn metrics_middleware(
         } else {
             "failure"
         };
-        metrics
-            .auth_logins_total
-            .with_label_values(&[result])
-            .inc();
+        metrics.auth_logins_total.with_label_values(&[result]).inc();
     } else if route == "/auth/refresh" {
         let result = if status.is_success() {
             "success"
