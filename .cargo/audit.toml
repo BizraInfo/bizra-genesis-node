@@ -1,0 +1,21 @@
+# Cargo Audit Configuration
+# Manages accepted risks for dependency vulnerabilities
+# See: evidence/SEC-01.1-DEPENDENCY-AUDIT.md
+
+[advisories]
+# Vulnerabilities with accepted risk:
+# RUSTSEC-2023-0071: rsa — Marvin Attack timing side-channel
+# Status: Appears in Cargo.lock via sqlx-mysql but NOT in runtime dependency tree
+# Evidence: `cargo tree -i sqlx-mysql` returns empty (not used in our binary)
+# Justification:
+#   - We use sqlx with "postgres" feature only, not "mysql"
+#   - sqlx-mysql appears in lock file but is not compiled into binary
+#   - No MySQL TLS usage in runtime = no attack surface
+#   - Severity: Medium (5.9/10)
+# Review: Monthly until cargo-audit can distinguish lock vs runtime deps
+ignore = [
+  "RUSTSEC-2023-0071",
+]
+
+# Remediated vulnerabilities:
+# - RUSTSEC-2024-0421 (idna): Fixed via validator 0.18 → 0.19 upgrade ✅

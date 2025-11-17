@@ -1,0 +1,95 @@
+# BIZRA Genesis Node - Security Scorecard
+# Version: 1.0
+# Date: November 17, 2025
+# Status: Baseline establishment in progress
+#
+# This scorecard tracks security posture across three pillars:
+# 1. Supply Chain Security (dependencies, vulnerabilities)
+# 2. Secrets & Configuration Hygiene (leak prevention)
+# 3. API Security Baseline (OWASP Top 10 coverage)
+#
+# Scoring: Each pillar scored 0-100, total averaged for overall score
+# A+ Threshold: 90/100 overall score required
+
+security_score:
+  # Pillar 1: Supply Chain Security (SEC-01.1)
+  supply_chain:
+    cargo_audit: pass                 # Status: pending|pass|fail
+    cargo_deny: pass
+    known_vulnerabilities: 0          # Count from Dependabot/RustSec (idna fixed, rsa not applicable)
+    policy_defined: yes               # deny.toml exists with policies
+    ci_gate_blocking: yes             # CI fails on vulnerabilities
+    last_audit: "2025-11-17T22:30:00+04:00"  # ISO 8601 timestamp
+    score: 100                        # 0-100 scale
+
+  # Pillar 2: Secrets & Configuration Hygiene (SEC-01.2)
+  secrets:
+    scanner: pending                  # Tool: gitleaks|trufflehog|detect-secrets
+    pre_commit_hook: no               # Installed and active
+    ci_gate_blocking: no              # CI fails on detected secrets
+    violations: 0                     # Count of secrets found
+    policy_documented: no             # SECRETS_POLICY.md exists
+    last_scan: null                   # ISO 8601 timestamp
+    score: 0                          # 0-100 scale
+
+  # Pillar 3: API Security Baseline (SEC-01.3)
+  api_baseline:
+    owasp_coverage: 0                 # Count: 0-10 (OWASP Top 10)
+    security_tests: 0                 # Count of security tests
+    audit_module_integrated: no       # src/security/audit/mod.rs in use
+    security_headers: no              # CSP, HSTS, etc.
+    input_validation: partial         # none|partial|complete
+    auth_tested: no                   # Auth bypass tests exist
+    last_assessment: null             # ISO 8601 timestamp
+    score: 0                          # 0-100 scale
+
+  # Overall Score
+  total_score: 33                     # Average of three pillars (100+0+0)/3
+  aplus_threshold: 90                 # Required for A+ certification
+  grade: D                            # F|D|C|B|A|A+
+
+# Historical Tracking (for trend analysis)
+history:
+  - date: "2025-11-17T22:30:00+04:00"
+    total_score: 33
+    supply_chain: 100
+    secrets: 0
+    api_baseline: 0
+    notes: "SEC-01.1 COMPLETE: Dependency audit clean, policies enforced, CI gates active"
+  - date: "2025-11-17T10:00:00+04:00"
+    total_score: 0
+    notes: "Baseline establishment started post-QW-1"
+
+# Quick Win Progress
+quick_wins:
+  SEC-01.1:
+    status: complete                  # pending|in_progress|complete
+    started: "2025-11-17T22:00:00+04:00"
+    completed: "2025-11-17T22:30:00+04:00"
+    evidence: "evidence/SEC-01.1-DEPENDENCY-AUDIT.md"
+    achievements:
+      - "Fixed RUSTSEC-2024-0421 (idna) via validator upgrade 0.18→0.19"
+      - "Documented RUSTSEC-2023-0071 (rsa) as not applicable (postgres-only)"
+      - "Configured deny.toml with 11 OSI-approved licenses"
+      - "Added CI security gates (cargo audit + deny)"
+      - "Zero runtime vulnerabilities, 100% supply chain score"
+
+  SEC-01.2:
+    status: pending
+    started: null
+    completed: null
+    evidence: "evidence/SEC-01.2-SECRETS-GUARDRAILS.md"
+
+  SEC-01.3:
+    status: pending
+    started: null
+    completed: null
+    evidence: "evidence/SEC-01.3-API-SECURITY.md"
+
+# Target Goals (post-SEC-01 completion)
+targets:
+  supply_chain_score: 100            # Clean audit + enforced policies
+  secrets_score: 100                 # Zero violations + automated prevention
+  api_baseline_score: 80             # 8/10 OWASP + core tests
+  total_score: 93                    # Target: A+ grade (>90)
+  timeline: "2025-11-17 EOD"         # Complete within 3.5 hours

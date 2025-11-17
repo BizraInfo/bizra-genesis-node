@@ -115,7 +115,44 @@ jobs:
           name: k6-results
           path: performance/reports/k6-output.txt
 
-  # Gate 4: Build & Lint
+  # Gate 4: Dependency Security (SEC-01.1)
+  dependency-security:
+    name: Dependency Security (cargo audit + deny)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+
+      - name: Run cargo audit
+        run: |
+          echo "🔍 Scanning for known vulnerabilities..."
+          cargo audit
+          echo "✅ cargo audit passed"
+
+      - name: Run cargo deny
+        run: |
+          echo "🔍 Checking licenses, advisories, bans, and sources..."
+          cargo deny check
+          echo "✅ cargo deny check passed"
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-audit
+          path: |
+            .cargo/audit.toml
+            deny.toml
+
+  # Gate 5: Build & Lint
   build:
     name: Build & Lint
     runs-on: ubuntu-latest
@@ -143,7 +180,7 @@ jobs:
   quality-gates-summary:
     name: Quality Gates Summary
     runs-on: ubuntu-latest
-    needs: [coverage, smoke-benchmark, load-test, build]
+    needs: [coverage, smoke-benchmark, load-test, dependency-security, build]
     if: always()
     steps:
       - name: Check results
@@ -152,10 +189,12 @@ jobs:
           echo "  Coverage: ${{ needs.coverage.result }}"
           echo "  Benchmark: ${{ needs.smoke-benchmark.result }}"
           echo "  Load Test: ${{ needs.load-test.result }} (warning only)"
+          echo "  Security: ${{ needs.dependency-security.result }}"
           echo "  Build: ${{ needs.build.result }}"
 
           if [[ "${{ needs.coverage.result }}" != "success" ]] || \
              [[ "${{ needs.smoke-benchmark.result }}" != "success" ]] || \
+             [[ "${{ needs.dependency-security.result }}" != "success" ]] || \
              [[ "${{ needs.build.result }}" != "success" ]]; then
             echo "❌ Quality gates failed"
             exit 1

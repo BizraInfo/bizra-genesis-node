@@ -63,7 +63,7 @@ redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
 # Auth & Security
 bcrypt = "0.15"
 jsonwebtoken = "9.2"
-validator = { version = "0.18", features = ["derive"] }
+validator = { version = "0.19", features = ["derive"] }
 regex = "1.10"
 lazy_static = "1.4"
 tower_governor = "0.3"
@@ -116,3 +116,9 @@ strip = true
 
 [profile.bench]
 inherits = "release"
+
+# Criterion benchmark configuration
+[[bench]]
+name = "moe_benchmarks"
+harness = false
+path = "bizra-moe/benches/moe_benchmarks.rs"
