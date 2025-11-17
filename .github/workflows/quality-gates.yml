@@ -1,0 +1,164 @@
+name: Quality Gates
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Gate 1: Test Coverage (>80%)
+  coverage:
+    name: Test Coverage (>80%)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Run tests with coverage
+        run: cargo tarpaulin --out Xml --output-dir coverage
+
+      - name: Check coverage threshold
+        run: |
+          python .github/scripts/check_coverage.py coverage/cobertura.xml 80.0
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: coverage/cobertura.xml
+          flags: rust
+          fail_ci_if_error: false
+
+  # Gate 2: Smoke Benchmark (<5μs)
+  smoke-benchmark:
+    name: Smoke Benchmark (<5μs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run smoke benchmarks
+        run: |
+          mkdir -p performance/reports
+          cargo bench --bench moe_benchmarks 2>&1 | tee performance/reports/criterion-bench-output.txt
+
+      - name: Check benchmark thresholds
+        run: |
+          python .github/scripts/check_bench.py performance/reports/criterion-bench-output.txt 5.0
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: benchmark-results
+          path: performance/reports/criterion-bench-output.txt
+
+  # Gate 3: Load Test (P95<50ms - Warning Only)
+  load-test:
+    name: Load Test (P95<50ms - Warning)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start server in background
+        run: |
+          node backend/server.js &
+          echo $! > server.pid
+          sleep 5
+
+      - name: Install k6
+        run: |
+          wget -q https://github.com/grafana/k6/releases/download/v0.48.0/k6-v0.48.0-linux-amd64.tar.gz
+          tar -xzf k6-v0.48.0-linux-amd64.tar.gz
+          sudo mv k6-v0.48.0-linux-amd64/k6 /usr/local/bin/
+
+      - name: Run quick load test
+        run: |
+          mkdir -p performance/reports
+          k6 run --vus 10 --duration 30s k6/scenarios/quick-validation-test.js 2>&1 | tee performance/reports/k6-output.txt
+
+      - name: Check load test P95
+        run: |
+          python .github/scripts/check_k6_p95.py performance/reports/k6-output.txt 50.0
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+          fi
+
+      - name: Upload load test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: k6-results
+          path: performance/reports/k6-output.txt
+
+  # Gate 4: Build & Lint
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Tests
+        run: cargo test --all-features
+
+  # Summary
+  quality-gates-summary:
+    name: Quality Gates Summary
+    runs-on: ubuntu-latest
+    needs: [coverage, smoke-benchmark, load-test, build]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          echo "📊 Quality Gates Results:"
+          echo "  Coverage: ${{ needs.coverage.result }}"
+          echo "  Benchmark: ${{ needs.smoke-benchmark.result }}"
+          echo "  Load Test: ${{ needs.load-test.result }} (warning only)"
+          echo "  Build: ${{ needs.build.result }}"
+
+          if [[ "${{ needs.coverage.result }}" != "success" ]] || \
+             [[ "${{ needs.smoke-benchmark.result }}" != "success" ]] || \
+             [[ "${{ needs.build.result }}" != "success" ]]; then
+            echo "❌ Quality gates failed"
+            exit 1
+          fi
+
+          echo "✅ Quality gates passed"

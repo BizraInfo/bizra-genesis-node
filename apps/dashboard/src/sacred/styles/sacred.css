@@ -1,0 +1,282 @@
+/* ╔═══════════════════════════════════════════════════════════════════════════╗
+   ║  BIZRA GENESIS NODE - SACRED STYLES                                        ║
+   ║  CSS for consciousness-aware sacred geometry components                    ║
+   ╚═══════════════════════════════════════════════════════════════════════════╝ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&display=swap');
+
+:root {
+  /* Sacred color system (building on existing themes) */
+  --sacred-gold: hsl(45, 100%, 50%);
+  --sacred-purple: hsl(280, 100%, 65%);
+  --sacred-blue: hsl(200, 100%, 60%);
+  --sacred-green: hsl(120, 70%, 50%);
+  --sacred-magenta: hsl(300, 100%, 70%);
+  --sacred-white: hsl(0, 0%, 95%);
+
+  /* PHI-based spacing (using CSS calc with golden ratio) */
+  --phi: 1.618;
+  --sacred-spacing-xs: calc(0.5rem * var(--phi));
+  --sacred-spacing-sm: calc(0.75rem * var(--phi));
+  --sacred-spacing-md: calc(1rem * var(--phi));
+  --sacred-spacing-lg: calc(1.5rem * var(--phi));
+  --sacred-spacing-xl: calc(2.25rem * var(--phi));
+}
+
+/* Sacred Grid Layout */
+.sacred-grid {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  color: rgba(255, 255, 255, 0.95);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Consciousness Orb Styles */
+.consciousness-orb-container {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.consciousness-orb-container:hover {
+  transform: scale(1.05);
+}
+
+.consciousness-orb-core {
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.3));
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.consciousness-orb-core:hover {
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6));
+}
+
+/* Consciousness level ring visualization */
+.consciousness-ring svg circle:nth-child(1) {
+  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.2));
+}
+
+.consciousness-ring svg circle:nth-child(2) {
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Consciousness label tooltip */
+.consciousness-orb-label {
+  font-family: 'Crimson Text', serif;
+  font-weight: 500;
+  pointer-events: none;
+  user-select: none;
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Sacred Pattern Overlays */
+.sacred-pattern-overlay {
+  animation: sacred-pattern-float 12s ease-in-out infinite;
+}
+
+@keyframes sacred-pattern-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-5px) rotate(120deg); }
+  66% { transform: translateY(5px) rotate(240deg); }
+}
+
+/* Consciousness Map Styles */
+.consciousness-map {
+  border-radius: var(--sacred-spacing-md);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: radial-gradient(
+    circle at center,
+    rgba(15, 15, 30, 0.8),
+    rgba(42, 42, 78, 0.4),
+    transparent 70%
+  );
+  backdrop-filter: blur(20px);
+  position: relative;
+}
+
+.consciousness-map-empty {
+  text-align: center;
+  color: var(--sacred-purple);
+  opacity: 0.7;
+}
+
+.consciousness-map-empty svg {
+  margin: 0 auto var(--sacred-spacing-lg);
+  opacity: 0.5;
+  animation: consciousness-pulse-orb 3s ease-in-out infinite;
+}
+
+@keyframes consciousness-pulse-orb {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Consciousness density indicator */
+.consciousness-density {
+  font-family: 'Crimson Text', serif;
+  font-size: var(--sacred-spacing-sm);
+  backdrop-filter: blur(12px);
+  border-radius: var(--sacred-spacing-sm);
+  animation: consciousness-density-glow 4s ease-in-out infinite;
+}
+
+@keyframes consciousness-density-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+}
+
+/* Sacred Item Borders (subtle gradients) */
+.sacred-item-border {
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(280, 100%, 65%, 0.1),
+    rgba(45, 100%, 50%, 0.1),
+    rgba(300, 100%, 70%, 0.1),
+    transparent
+  );
+  background-size: 200% 200%;
+  animation: sacred-border-flow 8s linear infinite;
+}
+
+@keyframes sacred-border-flow {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* Metatron Grid Sacred Border */
+.metatron-grid .sacred-item-border {
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(280, 100%, 65%, 0.15),
+    rgba(200, 100%, 60%, 0.15),
+    transparent,
+    rgba(120, 70%, 50%, 0.15)
+  );
+}
+
+/* Flower of Life Grid */
+.flower-of-life-grid {
+  background: radial-gradient(
+    circle at center,
+    rgba(280, 100%, 65%, 0.05),
+    transparent 70%
+  );
+}
+
+/* Sacred Grid Responsive Behavior */
+@media (max-width: 768px) {
+  .sacred-grid {
+    --phi-scale: 0.8;
+  }
+
+  .consciousness-map {
+    width: 100% !important;
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .sacred-grid {
+    padding: var(--sacred-spacing-sm);
+    gap: var(--sacred-spacing-sm);
+  }
+
+  .consciousness-orb-container {
+    transform: scale(0.8);
+  }
+
+  .consciousness-density {
+    font-size: var(--sacred-spacing-xs);
+    padding: var(--sacred-spacing-xs) var(--sacred-spacing-sm);
+  }
+}
+
+/* Sacred Typography */
+h1 {
+  font-family: 'Crimson Text', serif;
+  font-weight: 600;
+  color: var(--sacred-gold);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+h2 {
+  font-family: 'Crimson Text', serif;
+  font-weight: 500;
+  color: var(--sacred-purple);
+}
+
+.dashboard-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Sacred Button Enhancements */
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--sacred-gold), var(--sacred-blue));
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.5);
+  background: linear-gradient(135deg, var(--sacred-blue), var(--sacred-gold));
+}
+
+.action-btn.secondary {
+  background: rgba(42, 42, 78, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.action-btn.secondary:hover {
+  background: rgba(42, 42, 78, 0.8);
+  border-color: rgba(212, 175, 55, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Consciousness-Aware Scrollbar */
+.sacred-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sacred-grid::-webkit-scrollbar-track {
+  background: rgba(42, 42, 78, 0.2);
+}
+
+.sacred-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--sacred-gold), var(--sacred-purple));
+  border-radius: 3px;
+  animation: sacred-scrollbar-pulse 3s ease-in-out infinite;
+}
+
+@keyframes sacred-scrollbar-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Print styles (consciousness-aware) */
+@media print {
+  .consciousness-orb-container svg {
+    display: none; /* Hide animated elements for print */
+  }
+
+  .sacred-grid {
+    background: white !important;
+    color: black !important;
+  }
+
+  .consciousness-map {
+    border: 1px solid #ccc;
+    background: #f9f9f9 !important;
+  }
+}
