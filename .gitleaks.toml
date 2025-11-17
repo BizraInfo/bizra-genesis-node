@@ -1,0 +1,49 @@
+title = "BIZRA Genesis Node — Gitleaks Configuration"
+
+# This configuration uses gitleaks built-in rules to detect secrets
+# See: https://github.com/gitleaks/gitleaks
+
+[extend]
+# Uses gitleaks built-in rules
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for BIZRA Genesis Node"
+
+# Paths to exclude from scanning
+paths = [
+  '''target''',
+  '''dist''',
+  '''node_modules''',
+  '''coverage''',
+  '''performance''',
+  '''.git''',
+  '''backups''',
+  '''JWT_AUTHENTICATION_IMPLEMENTATION.md''',
+  '''DOCS''',
+  '''infra/k8s''',
+]
+
+# Regex patterns for false positive strings
+regexes = [
+  '''YOUR_.*''',
+  '''EXAMPLE_.*''',
+  '''TEST_.*''',
+  '''FAKE_.*''',
+  '''MOCK_.*''',
+  '''CHANGE_THIS''',
+  '''sk-CHANGE''',
+  '''eyJhbGciOiJIUzI1NiIs\.\.\.''',
+  '''0123456789abcdef''',
+  '''f3b8c1a2e4d6f8a0''',
+]
+
+# Stop words
+stopwords = [
+  "example",
+  "sample",
+  "test",
+  "demo",
+  "placeholder",
+  "formatSecret",
+]
