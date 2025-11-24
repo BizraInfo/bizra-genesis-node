@@ -3,6 +3,7 @@
 // ║  REST API routes and handlers for BIZRA Genesis Node                     ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
+#[cfg(feature = "database")]
 pub mod alpha_invites;
 pub mod auth;
 pub mod health;
@@ -44,25 +45,33 @@ pub fn create_router(pool: Arc<PgPool>, metrics: Arc<metrics::MetricsCollector>)
     let health_backend: Arc<dyn health::HealthCheckBackend> =
         Arc::new(health::DbHealthCheck::new(pool.clone()));
 
-    // Combine all route groups with metrics
-    Router::new()
+    // Combine all route groups
+    // Note: We use Extension for metrics and pool access in handlers
+    // The metrics endpoint is stateless and accesses metrics via Extension
+    #[allow(unused_mut)]
+    let mut router = Router::new()
         .nest("/auth", auth_routes)
-        .route("/alpha/request", post(alpha_invites::request_alpha_access))
-        .route("/alpha/accept/:invite_code", post(alpha_invites::accept_alpha_invite))
-        .route("/alpha/requests", get(alpha_invites::list_alpha_requests))
         .route(
             "/health",
             get(health::health_check::<dyn health::HealthCheckBackend>),
         )
-        .route("/metrics", get(metrics::metrics_handler))
+        .route("/metrics", get(metrics::metrics_handler));
+
+    // Add alpha invites routes if database feature is enabled
+    #[cfg(feature = "database")]
+    {
+        router = router
+            .route("/alpha/request", post(alpha_invites::request_alpha_access))
+            .route("/alpha/accept/:invite_code", post(alpha_invites::accept_alpha_invite))
+            .route("/alpha/requests", get(alpha_invites::list_alpha_requests));
+    }
+
+    router
         // Add metrics middleware to all routes (except /metrics itself to avoid recursion)
-        .layer(axum_middleware::from_fn_with_state(
-            metrics.clone(),
-            middleware::metrics_middleware,
-        ))
+        .layer(axum_middleware::from_fn(middleware::metrics_middleware))
+        .layer(Extension(metrics))
         .layer(Extension(pool))
         .layer(Extension(health_backend))
-        .with_state(metrics)
 }
 
 #[cfg(test)]

@@ -5,10 +5,10 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use axum::{
-    extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
     routing::get,
+    Extension,
     Router,
 };
 use prometheus::{
@@ -270,7 +270,7 @@ impl MetricsCollector {
 }
 
 /// Handler for /metrics endpoint
-pub async fn metrics_handler(State(metrics): State<Arc<MetricsCollector>>) -> Response {
+pub async fn metrics_handler(Extension(metrics): Extension<Arc<MetricsCollector>>) -> Response {
     match metrics.export() {
         Ok(body) => (
             StatusCode::OK,

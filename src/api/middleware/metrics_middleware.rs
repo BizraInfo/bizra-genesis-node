@@ -5,10 +5,11 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use axum::{
-    extract::{Request, State},
+    extract::Request,
     http::StatusCode,
     middleware::Next,
     response::Response,
+    Extension,
 };
 use std::sync::Arc;
 use std::time::Instant;
@@ -22,7 +23,7 @@ use crate::api::metrics::MetricsCollector;
 /// - Request latency distribution by route
 /// - Auth-specific metrics (login, refresh)
 pub async fn metrics_middleware(
-    State(metrics): State<Arc<MetricsCollector>>,
+    Extension(metrics): Extension<Arc<MetricsCollector>>,
     request: Request,
     next: Next,
 ) -> Response {

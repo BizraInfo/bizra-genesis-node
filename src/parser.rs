@@ -1,15 +1,26 @@
 // synthesis_orchestrator/src/parser.rs
 // Safe JSON parsing with simd-json
 
+#[cfg(feature = "simd")]
+use simd_json;
+#[cfg(not(feature = "simd"))]
+use serde_json;
+
 /// Errors that can occur during JSON parsing.
 ///
 /// Provides detailed error information for JSON parsing failures,
 /// including SIMD-specific errors and structural issues.
 #[derive(thiserror::Error, Debug)]
 pub enum ParseError {
-    /// SIMD-JSON parsing error with detailed message
-    #[error("simd-json error: {0}")]
+    /// JSON parsing error with detailed message
+    #[error("json parsing error: {0}")]
+    #[cfg(feature = "simd")]
     SimdJson(#[from] simd_json::Error),
+
+    /// JSON parsing error (standard)
+    #[error("json parsing error: {0}")]
+    #[cfg(not(feature = "simd"))]
+    SerdeJson(#[from] serde_json::Error),
 
     /// JSON structure is unbalanced (mismatched brackets/braces)
     #[error("unbalanced json")]
@@ -79,10 +90,19 @@ impl EarlyCloseJsonParser {
     /// let str = br#""hello""#;
     /// let value = EarlyCloseJsonParser::parse_balanced_json(str).unwrap();
     /// ```
+    #[cfg(feature = "simd")]
     pub fn parse_balanced_json(bytes: &[u8]) -> Result<simd_json::OwnedValue, ParseError> {
         let mut buf = bytes.to_vec();
         Self::strip_bom(&mut buf);
         simd_json::to_owned_value(&mut buf).map_err(ParseError::SimdJson)
+    }
+
+    /// Parses balanced JSON from byte slice using standard serde_json.
+    #[cfg(not(feature = "simd"))]
+    pub fn parse_balanced_json(bytes: &[u8]) -> Result<serde_json::Value, ParseError> {
+        let mut buf = bytes.to_vec();
+        Self::strip_bom(&mut buf);
+        serde_json::from_slice(&buf).map_err(ParseError::SerdeJson)
     }
 
     #[inline]
@@ -97,6 +117,7 @@ impl EarlyCloseJsonParser {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "simd")]
     use simd_json::prelude::*;
 
     #[test]

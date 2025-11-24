@@ -1,7 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // BIZRA GENESIS NODE - ALPHA INVITE SYSTEM
 // User onboarding and invitation management
+// Requires 'database' feature to be enabled
 // ═══════════════════════════════════════════════════════════════════════════
+
+#![cfg(feature = "database")]
 
 use axum::{
     extract::{Path, State},
@@ -397,11 +400,11 @@ pub async fn list_alpha_requests(
 fn generate_invite_code() -> String {
     use rand::Rng;
     const CHARSET: &[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Excluding ambiguous chars
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     (0..12)
         .map(|_| {
-            let idx = rng.gen_range(0..CHARSET.len());
+            let idx = rng.random_range(0..CHARSET.len());
             CHARSET[idx] as char
         })
         .collect::<String>()
