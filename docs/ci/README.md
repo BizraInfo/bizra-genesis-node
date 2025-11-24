@@ -264,7 +264,7 @@ aws s3 cp s3://your-bucket/baselines/criterion/ baseline/criterion/ --recursive
 
 The default regression threshold is **10%** (0.10). To change it:
 
-1. **In the workflow file** (`.github/workflows/ci-new.yml`):
+1. **In the workflow file** (`.github/workflows/ci.yml`):
    ```yaml
    - name: 📊 Compare benchmarks
      run: |
