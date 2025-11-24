@@ -2,12 +2,12 @@
 // Complete BIZRA Agent Ecosystem Demonstration
 // Shows PAT (7 agents) + SAT (5 agents) = 12 agents working together
 
-use std::error::Error;
-use std::sync::Arc;
-use synthesis_orchestrator::{
+use bizra_genesis_node::{
     agents::pat::PATManager, agents::sat::SATManager, agents::AgentRole, AIBackend, MoeBackend,
     SimulatedBackend, Task,
 };
+use std::error::Error;
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -58,6 +58,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Scenario Task: Complete web application development
     let app_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "E-commerce Platform development".to_string(),
+        priority: bizra_genesis_node::types::Priority::High,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "project": "E-commerce Platform",
             "description": "Build a scalable e-commerce platform with modern architecture",

@@ -1,8 +1,8 @@
 // benches/routing.rs
 // Benchmark suite for Thompson Sampling routing
 
+use bizra_genesis_node::routing::ThompsonRouter;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use synthesis_orchestrator::routing::ThompsonRouter;
 
 fn routing_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("thompson_routing");

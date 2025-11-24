@@ -1,0 +1,141 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# BIZRA GENESIS NODE - ALERTMANAGER CONFIGURATION
+# Alert routing, grouping, and notification channels
+# ═══════════════════════════════════════════════════════════════════════════
+
+global:
+  # Resolve timeout for alerts
+  resolve_timeout: 5m
+
+  # Slack webhook URL (injected via Terraform)
+  slack_api_url: '${slack_webhook_url}'
+
+# Alert routing tree
+route:
+  # Default receiver for all alerts
+  receiver: 'default'
+
+  # Group alerts by these labels
+  group_by: ['alertname', 'cluster', 'service']
+
+  # Wait before sending initial notification
+  group_wait: 10s
+
+  # Wait before sending batch of new alerts for same group
+  group_interval: 10s
+
+  # Wait before re-sending resolved alerts
+  repeat_interval: 12h
+
+  # Child routes for specific alert types
+  routes:
+    # Critical alerts go to PagerDuty and Slack
+    - match:
+        severity: critical
+      receiver: 'pagerduty-critical'
+      continue: true  # Also send to default receiver
+
+    # Warning alerts go to Slack only
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+
+    # Infrastructure alerts
+    - match:
+        category: infrastructure
+      receiver: 'slack-infrastructure'
+
+    # Application alerts
+    - match:
+        category: application
+      receiver: 'slack-application'
+
+# Inhibition rules (suppress alerts based on other alerts)
+inhibit_rules:
+  # Inhibit warning if critical is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+  # Inhibit node alerts if cluster is down
+  - source_match:
+      alertname: 'ClusterDown'
+    target_match_re:
+      alertname: 'Node.*'
+    equal: ['cluster']
+
+# Notification receivers
+receivers:
+  # Default receiver (Slack general channel)
+  - name: 'default'
+    slack_configs:
+      - api_url: '${slack_webhook_url}'
+        channel: '#bizra-alerts'
+        title: '{{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Environment:* ${environment}
+          {{ end }}
+        send_resolved: true
+
+  # PagerDuty for critical alerts
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: '${pagerduty_service_key}'
+        severity: '{{ .Labels.severity }}'
+        description: '{{ .Annotations.summary }}'
+        details:
+          firing: '{{ .Alerts.Firing | len }}'
+          resolved: '{{ .Alerts.Resolved | len }}'
+          environment: '${environment}'
+
+  # Slack for warnings
+  - name: 'slack-warnings'
+    slack_configs:
+      - api_url: '${slack_webhook_url}'
+        channel: '#bizra-warnings'
+        title: '⚠️ Warning: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        send_resolved: true
+        color: 'warning'
+
+  # Slack for infrastructure alerts
+  - name: 'slack-infrastructure'
+    slack_configs:
+      - api_url: '${slack_webhook_url}'
+        channel: '#bizra-infrastructure'
+        title: '🏗️ Infrastructure: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Cluster:* {{ .Labels.cluster }}
+          {{ end }}
+        send_resolved: true
+
+  # Slack for application alerts
+  - name: 'slack-application'
+    slack_configs:
+      - api_url: '${slack_webhook_url}'
+        channel: '#bizra-application'
+        title: '🚀 Application: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Service:* {{ .Labels.service }}
+          {{ end }}
+        send_resolved: true
+
+# Templates for custom alert messages
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

@@ -1,0 +1,555 @@
+name: Phase 0 • Core Verification & Quality Gates
+
+on:
+  push:
+    branches: [main, develop, 'feature/**', 'release/**']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      skip_docker:
+        description: 'Skip Docker build and Trivy scan'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Run daily at 03:00 UTC (07:00 Dubai time)
+    - cron: '0 3 * * *'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: '-D warnings'
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  # ============================================================================
+  # Job 1: Environment Setup & Toolchain Verification
+  # ============================================================================
+  setup:
+    name: Setup & Toolchain Verification
+    runs-on: ubuntu-latest
+    outputs:
+      rust-version: ${{ steps.toolchain.outputs.rust-version }}
+      cargo-version: ${{ steps.toolchain.outputs.cargo-version }}
+      cache-key: ${{ steps.cache-key.outputs.key }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for change detection
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            llvm \
+            libssl-dev \
+            pkg-config \
+            build-essential
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Verify toolchain versions
+        id: toolchain
+        run: |
+          RUST_VER=$(rustc --version | cut -d' ' -f2)
+          CARGO_VER=$(cargo --version | cut -d' ' -f2)
+          echo "rust-version=${RUST_VER}" >> $GITHUB_OUTPUT
+          echo "cargo-version=${CARGO_VER}" >> $GITHUB_OUTPUT
+          echo "## Toolchain Versions" >> $GITHUB_STEP_SUMMARY
+          echo "- Rust: ${RUST_VER}" >> $GITHUB_STEP_SUMMARY
+          echo "- Cargo: ${CARGO_VER}" >> $GITHUB_STEP_SUMMARY
+          echo "- Clang: $(clang --version | head -n1)" >> $GITHUB_STEP_SUMMARY
+          echo "- LLVM: $(llvm-config --version)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate cache key
+        id: cache-key
+        run: |
+          HASH=$(sha256sum Cargo.lock | cut -d' ' -f1)
+          echo "key=cargo-${{ runner.os }}-${HASH}" >> $GITHUB_OUTPUT
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: build-${{ runner.os }}-${{ steps.cache-key.outputs.key }}
+          restore-keys: |
+            build-${{ runner.os }}-
+
+  # ============================================================================
+  # Job 2: Code Quality & Formatting
+  # ============================================================================
+  quality:
+    name: Code Quality (Format + Lint)
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Restore cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Check code formatting
+        run: |
+          echo "## 📝 Code Formatting" >> $GITHUB_STEP_SUMMARY
+          if cargo fmt --all -- --check; then
+            echo "✅ All code properly formatted" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Formatting issues found. Run: cargo fmt --all" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Run Clippy linter
+        run: |
+          echo "## 🔍 Clippy Linting" >> $GITHUB_STEP_SUMMARY
+          cargo clippy --workspace --all-features --all-targets -- -D warnings 2>&1 | tee clippy-output.txt
+          if [ ${PIPESTATUS[0]} -eq 0 ]; then
+            echo "✅ No clippy warnings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Clippy warnings found" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -n 50 clippy-output.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: Upload quality report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-report
+          path: clippy-output.txt
+          retention-days: 30
+
+  # ============================================================================
+  # Job 3: Build & Unit Tests
+  # ============================================================================
+  test:
+    name: Build & Test Suite
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        features:
+          - default
+          - all-features
+          - no-default-features
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Build workspace
+        run: |
+          echo "## 🔨 Build (${{ matrix.features }})" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ matrix.features }}" = "all-features" ]; then
+            cargo build --workspace --all-features --locked
+          elif [ "${{ matrix.features }}" = "no-default-features" ]; then
+            cargo build --workspace --no-default-features --locked
+          else
+            cargo build --workspace --locked
+          fi
+          echo "✅ Build successful" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run test suite
+        run: |
+          echo "## 🧪 Test Suite (${{ matrix.features }})" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ matrix.features }}" = "all-features" ]; then
+            cargo test --workspace --all-features --locked -- --nocapture 2>&1 | tee test-output.txt
+          elif [ "${{ matrix.features }}" = "no-default-features" ]; then
+            cargo test --workspace --no-default-features --locked -- --nocapture 2>&1 | tee test-output.txt
+          else
+            cargo test --workspace --locked -- --nocapture 2>&1 | tee test-output.txt
+          fi
+
+          # Extract test summary
+          PASSED=$(grep -oP '\d+(?= passed)' test-output.txt | tail -1)
+          FAILED=$(grep -oP '\d+(?= failed)' test-output.txt | tail -1 || echo "0")
+
+          echo "- Passed: ${PASSED}" >> $GITHUB_STEP_SUMMARY
+          echo "- Failed: ${FAILED}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${FAILED}" != "0" ]; then
+            exit 1
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.features }}
+          path: test-output.txt
+          retention-days: 30
+
+  # ============================================================================
+  # Job 4: Security Audit & Dependency Check
+  # ============================================================================
+  security:
+    name: Security Audit & CVE Scan
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install security tools
+        run: |
+          cargo install cargo-audit --locked || true
+          cargo install cargo-deny --locked || true
+
+      - name: Run cargo-audit (vulnerability scan)
+        continue-on-error: true
+        run: |
+          echo "## 🔒 Security Audit (cargo-audit)" >> $GITHUB_STEP_SUMMARY
+          cargo audit --json > audit-report.json
+
+          if [ $? -eq 0 ]; then
+            echo "✅ No vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Vulnerabilities detected:" >> $GITHUB_STEP_SUMMARY
+            cargo audit 2>&1 | tee audit-output.txt
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            head -n 30 audit-output.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Run cargo-deny (policy check)
+        run: |
+          echo "## 📋 Dependency Policy Check (cargo-deny)" >> $GITHUB_STEP_SUMMARY
+          if cargo deny check 2>&1 | tee deny-output.txt; then
+            echo "✅ All dependency policies satisfied" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Policy violations found" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -n 30 deny-output.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            audit-report.json
+            audit-output.txt
+            deny-output.txt
+          retention-days: 90
+
+  # ============================================================================
+  # Job 5: SBOM Generation (Supply Chain)
+  # ============================================================================
+  sbom:
+    name: SBOM Generation
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install SBOM tools
+        run: |
+          cargo install cargo-about --locked || true
+          cargo install cargo-cyclonedx --locked || true
+
+      - name: Generate license SBOM
+        run: |
+          echo "## 📦 License SBOM" >> $GITHUB_STEP_SUMMARY
+          if cargo about generate --format json > target/SBOM.licenses.json; then
+            echo "✅ License SBOM generated: $(wc -c < target/SBOM.licenses.json) bytes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ License SBOM generation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          echo "## 🔄 CycloneDX SBOM" >> $GITHUB_STEP_SUMMARY
+          mkdir -p target
+          if cargo cyclonedx --all --output target/SBOM.cyclonedx.json; then
+            echo "✅ CycloneDX SBOM generated: $(wc -c < target/SBOM.cyclonedx.json) bytes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ CycloneDX SBOM generation failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-artifacts
+          path: target/SBOM.*.json
+          retention-days: 365  # Keep for 1 year for compliance
+
+  # ============================================================================
+  # Job 6: Container Build & Security Scan
+  # ============================================================================
+  container:
+    name: Container Build & Trivy Scan
+    runs-on: ubuntu-latest
+    needs: [setup, test, quality]
+    if: ${{ !inputs.skip_docker }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: bizra/orchestrator:verify
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/image.tar
+
+      - name: Load image for scanning
+        run: docker load --input /tmp/image.tar
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: bizra/orchestrator:verify
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Generate Trivy report
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: bizra/orchestrator:verify
+          format: 'table'
+          output: 'trivy-report.txt'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Add scan summary
+        if: always()
+        run: |
+          echo "## 🐳 Container Security Scan" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat trivy-report.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Trivy reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-reports
+          path: |
+            trivy-results.sarif
+            trivy-report.txt
+          retention-days: 90
+
+  # ============================================================================
+  # Job 7: Performance Benchmarks
+  # ============================================================================
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: [setup, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Restore caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            target
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Run benchmarks
+        run: |
+          echo "## ⚡ Performance Benchmarks" >> $GITHUB_STEP_SUMMARY
+          cargo bench --all-features 2>&1 | tee bench-output.txt
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          grep -A5 "time:" bench-output.txt | head -n 50 >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            bench-output.txt
+            target/criterion
+          retention-days: 90
+
+  # ============================================================================
+  # Job 8: Phase 0 Report Generation
+  # ============================================================================
+  report:
+    name: Generate Phase 0 Report
+    runs-on: ubuntu-latest
+    needs: [setup, quality, test, security, sbom]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Generate comprehensive report
+        run: |
+          mkdir -p docs/verification/artifacts
+
+          cat > docs/verification/phase0-ci-report.md <<EOF
+          # Phase 0 CI/CD Verification Report
+          **Generated:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Run ID:** ${{ github.run_id }}
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          **Triggered by:** ${{ github.event_name }}
+
+          ## Summary
+
+          | Check | Status |
+          |-------|--------|
+          | Toolchain | ${{ needs.setup.result }} |
+          | Code Quality | ${{ needs.quality.result }} |
+          | Tests | ${{ needs.test.result }} |
+          | Security | ${{ needs.security.result }} |
+          | SBOM | ${{ needs.sbom.result }} |
+          | Container | ${{ needs.container.result || 'skipped' }} |
+
+          ## Artifacts
+
+          All verification artifacts are available in the workflow run:
+          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          ## Toolchain
+
+          - Rust: ${{ needs.setup.outputs.rust-version }}
+          - Cargo: ${{ needs.setup.outputs.cargo-version }}
+
+          ## Next Steps
+
+          EOF
+
+          if [ "${{ needs.quality.result }}" = "success" ] && \
+             [ "${{ needs.test.result }}" = "success" ] && \
+             [ "${{ needs.security.result }}" = "success" ]; then
+            echo "✅ All critical gates passed. Ready for Phase 1 (SDLC Documentation)." >> docs/verification/phase0-ci-report.md
+          else
+            echo "❌ Some checks failed. Review artifacts and resolve issues before proceeding." >> docs/verification/phase0-ci-report.md
+          fi
+
+          cat docs/verification/phase0-ci-report.md
+
+      - name: Upload final report
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase0-comprehensive-report
+          path: docs/verification/
+          retention-days: 365
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('docs/verification/phase0-ci-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+  # ============================================================================
+  # Job 9: Final Gate & Status Check
+  # ============================================================================
+  final-gate:
+    name: Final Quality Gate
+    runs-on: ubuntu-latest
+    needs: [quality, test, security]
+    if: always()
+    steps:
+      - name: Check all required jobs
+        run: |
+          echo "## 🎯 Phase 0 Final Gate" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.quality.result }}" != "success" ]; then
+            echo "❌ Code quality checks failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "❌ Test suite failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          if [ "${{ needs.security.result }}" != "success" ]; then
+            echo "⚠️ Security checks found issues (non-blocking)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "✅ All critical Phase 0 gates passed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Phase:** SDLC Documentation (SRS, SAD, ADRs, PMP)" >> $GITHUB_STEP_SUMMARY

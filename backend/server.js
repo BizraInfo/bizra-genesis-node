@@ -137,7 +137,7 @@ const __dirname = dirname(__filename);
 // ═══════════════════════════════════════════════════════════════════════════
 
 const CONFIG = {
-  port: process.env.PORT || 3001,  // Changed to 3001 temporarily to test
+  port: process.env.PORT || 3002,  // Changed to 3002 to avoid conflicts
   env: process.env.NODE_ENV || 'development',
   corsOrigins: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3001', 'http://localhost:3002'],
   rateLimit: {
@@ -347,9 +347,45 @@ class BizraAPIServer {
       });
     });
 
-    // Metrics endpoint
+    // Metrics endpoint (JSON format - legacy)
     this.app.get('/metrics', (req, res) => {
       res.json(this.metrics.getMetrics());
+    });
+
+    // Prometheus metrics endpoint (text exposition format)
+    const { prometheusMetricsHandler } = require('./prometheus-adapter.js');
+    this.app.get('/metrics/prometheus', prometheusMetricsHandler(this.metrics));
+
+    // Ω Consciousness Monitor endpoint
+    this.app.get('/api/consciousness/state', async (req, res) => {
+      try {
+        // Import Ω monitor dynamically
+        const { getGlobalOmegaMonitor, initializeOmegaMonitor } = await import('../src/consciousness/omega-monitor.js');
+
+        // Initialize if needed
+        const monitor = initializeOmegaMonitor();
+
+        // Get current Ω state
+        const omegaState = monitor.getHealthSummary();
+
+        res.json({
+          Ω: omegaState.omega,
+          health_status: omegaState.health_status,
+          autonomy: omegaState.breakdown.autonomy,
+          cooperation: omegaState.breakdown.cooperation,
+          ethics: omegaState.breakdown.ethics,
+          temporal_coherence: omegaState.breakdown.temporal_coherence,
+          timestamp: omegaState.last_updated,
+          is_ihsan_coherent: monitor.isIhsanCoherent()
+        });
+      } catch (error) {
+        console.error('[Ω Monitor] Error:', error);
+        res.status(500).json({
+          error: 'Ω monitor unavailable',
+          Ω: 0.5, // Neutral fallback
+          timestamp: Date.now()
+        });
+      }
     });
 
     // API v1 routes
@@ -828,58 +864,65 @@ class BizraAPIServer {
   /**
    * Start the server
    */
-  start() {
+  async start() {
     console.log(`[Server] 🚀 Attempting to start server on port ${this.config.port}...`);
 
-    try {
-      // Start HTTP server synchronously
-      this.server = this.app.listen(this.config.port, (err) => {
-        if (err) {
-          console.error('[Server] ❌ Failed to start HTTP server:', err);
-          return;
-        }
+    return new Promise((resolve, reject) => {
+      try {
+        // Start HTTP server
+        this.server = this.app.listen(this.config.port, (err) => {
+          if (err) {
+            console.error('[Server] ❌ Failed to start HTTP server:', err);
+            reject(err);
+            return;
+          }
 
-        console.log(`[Server] ✅ HTTP server started on port ${this.config.port}`);
+          console.log(`[Server] ✅ HTTP server started on port ${this.config.port}`);
 
-        // Skip WebSocket server for now - will add back after HTTP server is stable
-        console.log('[Server] ⏭️  Skipping WebSocket server integration for now');
+          // Skip WebSocket server for now - will add back after HTTP server is stable
+          console.log('[Server] ⏭️  Skipping WebSocket server integration for now');
 
-        // Display startup banner
-        console.log('╔═══════════════════════════════════════════════════════════════╗');
-        console.log('║                                                               ║');
-        console.log('║  🚀 BIZRA API Server Started                                  ║');
-        console.log('║                                                               ║');
-        console.log('╚═══════════════════════════════════════════════════════════════╝');
-        console.log('');
-        console.log(`   Environment: ${this.config.env}`);
-        console.log(`   Port: ${this.config.port}`);
-        console.log(`   URL: http://localhost:${this.config.port}`);
-        console.log('');
-        console.log('   Endpoints:');
-        console.log(`   • Root:       http://localhost:${this.config.port}/`);
-        console.log(`   • Health:     http://localhost:${this.config.port}/health`);
-        console.log(`   • Metrics:    http://localhost:${this.config.port}/metrics`);
-        console.log(`   • API v1:     http://localhost:${this.config.port}/api/v1`);
-        console.log('');
-        console.log('   Static Files:');
-        console.log(`   • Installer:  http://localhost:${this.config.port}/installer`);
-        console.log(`   • Dashboard:  http://localhost:${this.config.port}/dashboard`);
-        console.log(`   • Sacred:     http://localhost:${this.config.port}/sacred`);
-        console.log('');
-        console.log('   Real-time:');
-        console.log(`   • WebSocket:  ws://localhost:${this.config.port}`);
-        console.log('');
-        console.log('[Server] ✅ Server started successfully');
-      });
+          // Display startup banner
+          console.log('╔═══════════════════════════════════════════════════════════════╗');
+          console.log('║                                                               ║');
+          console.log('║  🚀 BIZRA API Server Started                                  ║');
+          console.log('║                                                               ║');
+          console.log('╚═══════════════════════════════════════════════════════════════╝');
+          console.log('');
+          console.log(`   Environment: ${this.config.env}`);
+          console.log(`   Port: ${this.config.port}`);
+          console.log(`   URL: http://localhost:${this.config.port}`);
+          console.log('');
+          console.log('   Endpoints:');
+          console.log(`   • Root:       http://localhost:${this.config.port}/`);
+          console.log(`   • Health:     http://localhost:${this.config.port}/health`);
+          console.log(`   • Metrics:    http://localhost:${this.config.port}/metrics`);
+          console.log(`   • API v1:     http://localhost:${this.config.port}/api/v1`);
+          console.log(`   • Ω Monitor:  http://localhost:${this.config.port}/api/consciousness/state`);
+          console.log('');
+          console.log('   Static Files:');
+          console.log(`   • Installer:  http://localhost:${this.config.port}/installer`);
+          console.log(`   • Dashboard:  http://localhost:${this.config.port}/dashboard`);
+          console.log(`   • Sacred:     http://localhost:${this.config.port}/sacred`);
+          console.log('');
+          console.log('   Real-time:');
+          console.log(`   • WebSocket:  ws://localhost:${this.config.port}`);
+          console.log('');
+          console.log('[Server] ✅ Server started successfully');
+          resolve();
+        });
 
-      // Add error handler for the server
-      this.server.on('error', (err) => {
-        console.error('[Server] ❌ Server error:', err);
-      });
+        // Add error handler for the server
+        this.server.on('error', (err) => {
+          console.error('[Server] ❌ Server error:', err);
+          reject(err);
+        });
 
-    } catch (error) {
-      console.error('[Server] ❌ Exception during server start:', error);
-    }
+      } catch (error) {
+        console.error('[Server] ❌ Exception during server start:', error);
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -956,25 +999,32 @@ async function loadRealInvitationCodes() {
 
 // Start server if run directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const server = new BizraAPIServer();
+  (async () => {
+    const server = new BizraAPIServer();
 
-  // Skip invitation code loading for now - will add back after server is stable
-  // loadRealInvitationCodes().then(() => {
+    // Skip invitation code loading for now - will add back after server is stable
+    // await loadRealInvitationCodes();
+
     console.log('[Server] 🚀 Starting server...');
-    server.start();
-    console.log('[Server] ✅ Server startup initiated');
-  // });
+    try {
+      await server.start();
+      console.log('[Server] ✅ Server startup completed - process will keep running');
+    } catch (error) {
+      console.error('[Server] ❌ Server startup failed:', error);
+      process.exit(1);
+    }
 
-  // Graceful shutdown
-  process.on('SIGTERM', async () => {
-    await server.stop();
-    process.exit(0);
-  });
+    // Graceful shutdown
+    process.on('SIGTERM', async () => {
+      await server.stop();
+      process.exit(0);
+    });
 
-  process.on('SIGINT', async () => {
-    await server.stop();
-    process.exit(0);
-  });
+    process.on('SIGINT', async () => {
+      await server.stop();
+      process.exit(0);
+    });
+  })();
 }
 
 export default BizraAPIServer;

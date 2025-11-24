@@ -1,0 +1,287 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# BIZRA GENESIS NODE - ARGOCD APPLICATION DEFINITION
+# GitOps Declarative Deployment Configuration
+# ═══════════════════════════════════════════════════════════════════════════
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-genesis-node
+  namespace: argocd
+  # Finalizer ensures cascade delete when application is deleted
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    project: bizra-genesis-node
+    environment: production
+    tier: application
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: "deployments"
+    notifications.argoproj.io/subscribe.on-health-degraded.pagerduty: "production-alerts"
+spec:
+  # Project reference
+  project: bizra
+
+  # Source repository
+  source:
+    # Git repository
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node.git
+    targetRevision: main
+    path: infra/k8s/helm/bizra
+
+    # Helm specific configuration
+    helm:
+      # Values files to use
+      valueFiles:
+        - values-production.yaml
+
+      # Helm parameters (override specific values)
+      parameters:
+        - name: image.tag
+          value: "1.0.0"
+        - name: replicaCount
+          value: "3"
+        - name: autoscaling.enabled
+          value: "true"
+
+      # Release name
+      releaseName: bizra-genesis-node
+
+      # Skip CRDs (if they're managed separately)
+      skipCrds: false
+
+  # Destination cluster and namespace
+  destination:
+    # Cluster URL (in-cluster is https://kubernetes.default.svc)
+    server: https://kubernetes.default.svc
+    namespace: bizra-production
+
+  # Sync policy
+  syncPolicy:
+    # Automatic sync configuration
+    automated:
+      # Automatically sync when repo changes detected
+      prune: true
+      # Automatically sync when app is out of sync
+      selfHeal: true
+      # Allow empty resources
+      allowEmpty: false
+
+    # Sync options
+    syncOptions:
+      # Create namespace if it doesn't exist
+      - CreateNamespace=true
+      # Use server-side apply
+      - ServerSideApply=true
+      # Validate resources before applying
+      - Validate=true
+      # Prune resources that are no longer in git
+      - PrunePropagationPolicy=foreground
+      # Replace resources instead of patch
+      - ReplaceResource=false
+
+    # Retry strategy
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Ignore differences for specific fields
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignore HPA-managed replicas
+
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data  # Ignore secret data changes
+
+  # Health assessment
+  revisionHistoryLimit: 10
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-monitoring
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    project: bizra-genesis-node
+    environment: production
+    tier: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"  # Deploy before main application
+spec:
+  project: bizra
+
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node.git
+    targetRevision: main
+    path: infra/k8s/monitoring
+
+    helm:
+      valueFiles:
+        - values-production.yaml
+      parameters:
+        - name: prometheus.retention
+          value: "15d"
+        - name: grafana.adminPassword
+          value: "$GRAFANA_ADMIN_PASSWORD"  # Loaded from ArgoCD secret
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bizra-monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-database
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    project: bizra-genesis-node
+    environment: production
+    tier: data
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"  # Deploy first
+spec:
+  project: bizra
+
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node.git
+    targetRevision: main
+    path: infra/k8s/database
+
+    helm:
+      valueFiles:
+        - values-production.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bizra-data
+
+  syncPolicy:
+    automated:
+      prune: false  # Never auto-prune database resources
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m
+
+  # Ignore differences for StatefulSets (volume claims)
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-infrastructure
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    project: bizra-genesis-node
+    environment: production
+    tier: infrastructure
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # Deploy before everything
+spec:
+  project: bizra
+
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node.git
+    targetRevision: main
+    path: infra/k8s/infrastructure
+
+    # Kustomize configuration (if using kustomize instead of helm)
+    kustomize:
+      namePrefix: bizra-
+      commonLabels:
+        app.kubernetes.io/part-of: bizra-genesis-node
+      images:
+        - name: cert-manager
+          newTag: v1.13.2
+        - name: nginx-ingress
+          newTag: 1.9.5
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bizra-infrastructure
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+---
+# App of Apps Pattern - Manages all applications
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    project: bizra-genesis-node
+    tier: meta
+spec:
+  project: bizra
+
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node.git
+    targetRevision: main
+    path: infra/gitops/argocd/apps
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

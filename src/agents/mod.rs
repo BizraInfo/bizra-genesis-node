@@ -265,6 +265,11 @@ impl BaseAgent {
 
         // Generate agent-specific prompt
         let prompt_task = Task {
+            id: uuid::Uuid::new_v4(),
+            description: format!("Agent processing task for {}", self.role.name()),
+            priority: task.priority.clone(),
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
             examples: Some(vec![serde_json::json!({
                 "prompt": self.generate_prompt(task),
                 "role": self.role.name(),

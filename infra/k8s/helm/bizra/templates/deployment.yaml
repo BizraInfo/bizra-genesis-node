@@ -1,0 +1,200 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bizra-genesis-node.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "bizra-genesis-node.labels" . | nindent 4 }}
+    {{- with .Values.extraLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.extraAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.application.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "bizra-genesis-node.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bizra-genesis-node.selectorLabels" . | nindent 8 }}
+        version: {{ .Values.global.image.tag | quote }}
+        security-context: restricted
+        {{- with .Values.extraLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        kubectl.kubernetes.io/default-container: {{ include "bizra-genesis-node.fullname" . }}
+        kubectl.kubernetes.io/default-logs-container: {{ include "bizra-genesis-node.fullname" . }}
+        prometheus.io/scrape: {{ .Values.monitoring.prometheus.scrape | quote }}
+        prometheus.io/port: {{ .Values.monitoring.prometheus.port | quote }}
+        prometheus.io/path: {{ .Values.monitoring.prometheus.path | quote }}
+        {{- if .Values.istio.enabled }}
+        traffic.sidecar.istio.io/includeOutboundIPRanges: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+        traffic.sidecar.istio.io/excludeOutboundIPRanges: ""
+        {{- end }}
+        {{- with .Values.extraAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.global.serviceAccount.create }}
+      serviceAccountName: {{ include "bizra-genesis-node.serviceAccountName" . }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.application.securityContext | nindent 8 }}
+      containers:
+      - name: {{ include "bizra-genesis-node.fullname" . }}
+        image: "{{ .Values.global.image.registry }}/{{ .Values.global.image.repository }}:{{ .Values.global.image.tag }}"
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        - containerPort: {{ .Values.application.env.METRICS_PORT | default 9090 }}
+          name: metrics
+          protocol: TCP
+        - containerPort: {{ .Values.application.env.HEALTH_CHECK_PORT | default 8080 }}
+          name: health
+          protocol: TCP
+        {{- with .Values.extraPorts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        env:
+        # Database configuration
+        {{- if .Values.database.enabled }}
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "bizra-genesis-node.fullname" . }}-secrets
+              key: database-url
+        {{- end }}
+
+        # Redis configuration
+        {{- if .Values.redis.enabled }}
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "bizra-genesis-node.fullname" . }}-secrets
+              key: redis-url
+        {{- end }}
+
+        # API Keys
+        {{- if .Values.apis.anthropic.apiKey }}
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "bizra-genesis-node.fullname" . }}-secrets
+              key: anthropic-api-key
+        {{- end }}
+
+        {{- if .Values.apis.openai.apiKey }}
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "bizra-genesis-node.fullname" . }}-secrets
+              key: openai-api-key
+        {{- end }}
+
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "bizra-genesis-node.fullname" . }}-secrets
+              key: jwt-secret
+
+        # Application environment variables
+        {{- range $key, $value := .Values.application.env }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+
+        # Extra environment variables
+        {{- with .Values.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
+        resources:
+          {{- toYaml .Values.application.resources | nindent 10 }}
+
+        securityContext:
+          {{- toYaml .Values.application.containerSecurityContext | nindent 10 }}
+
+        {{- if .Values.application.healthCheck.enabled }}
+        livenessProbe:
+          {{- toYaml .Values.application.healthCheck.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.application.healthCheck.readinessProbe | nindent 10 }}
+        startupProbe:
+          {{- toYaml .Values.application.healthCheck.startupProbe | nindent 10 }}
+        {{- end }}
+
+        volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp
+        - name: cache-volume
+          mountPath: /app/cache
+        - name: logs-volume
+          mountPath: /app/logs
+        {{- if .Values.persistence.enabled }}
+        - name: data-volume
+          mountPath: {{ .Values.persistence.mountPath }}
+        {{- end }}
+        {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+
+      {{- with .Values.extraContainers }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
+      - name: cache-volume
+        emptyDir: {}
+      - name: logs-volume
+        emptyDir: {}
+      {{- if .Values.persistence.enabled }}
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: {{ include "bizra-genesis-node.fullname" . }}-pvc
+      {{- end }}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
+
+      {{- if .Values.runtimeClassName }}
+      runtimeClassName: {{ .Values.runtimeClassName }}
+      {{- end }}
+
+      {{- with .Values.global.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6 }}
+      {{- end }}

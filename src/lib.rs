@@ -3,6 +3,7 @@
 // All Weeks 1-4 unified into working system
 
 #![forbid(unsafe_code)]
+#![allow(ambiguous_glob_reexports)]
 // AVX512 target features are now stable in Rust 1.89.0+, no feature flag needed
 
 //! # BIZRA Synthesis Orchestrator
@@ -10,6 +11,7 @@
 //! Professional Elite multi-agent consensus system implementing:
 //! - Thompson Sampling routing (Week 2)
 //! - Weighted-Score Consensus with Ihsan gates (Week 1, 2)
+//! - Genesis Validation Layer (Ramadan 2023 spiritual principles)
 //! - SIMD/AVX2/AVX512 performance optimization (Week 3)
 //! - Cryptographic receipts with Ed25519 + BLAKE3 (Week 4)
 
@@ -17,23 +19,52 @@
 // MODULE DECLARATIONS
 // ═══════════════════════════════════════════════════════════════════════
 
+// AEGIS multi-agent consensus system
+#[path = "aegis/mod.rs"]
+pub mod aegis;
+pub mod agentfold;
 pub mod agents;
 mod ai_backend;
+pub mod api;
 pub mod cli;
 pub mod consensus;
+pub mod genesis_validation;
+pub mod metrics;
+pub mod models;
 pub mod parser;
 pub mod performance;
+#[cfg(feature = "database")]
+pub mod persistence;
+pub mod replay;
 pub mod routing;
 pub mod scoring;
 pub mod trust;
 pub mod types;
+pub mod websocket;
 
 // Re-export public API
+pub use aegis::{AegisError, AegisResult, Agent, AgentId};
+pub use agentfold::*;
 pub use agents::*;
 pub use ai_backend::*;
 pub use consensus::*;
+pub use genesis_validation::*;
+pub use metrics::*;
+pub use models::{
+    collect_stream, collect_stream_with_metrics, AnthropicConfig, AnthropicProvider,
+    BackpressureHandler, BufferConfig, BufferStats, BufferedStream, ComparisonResult,
+    CompletionOptions, CompletionResponse, ExperimentConfig, ExperimentReport, MetricType,
+    ModelError, ModelPerformance, ModelProvider, ModelRequirements, ModelResult, Observation,
+    OllamaConfig, OllamaProvider, OpenAIConfig, OpenAIProvider, ProviderRegistry, RateLimitConfig,
+    RateLimiter, SelectedModel, SelectionStrategy, StreamAggregator, StreamCombiner, StreamMetrics,
+    StreamMonitor, StreamRetryHandler, SummaryStats, ThompsonConfig, ThompsonSamplingRouter,
+    UsageStats, Variant, VariantStats,
+};
 pub use parser::*;
 pub use performance::*;
+#[cfg(feature = "database")]
+pub use persistence::{DatabasePool, DbError, DbResult, HealthStatus, PersistenceManager};
+pub use replay::*;
 pub use routing::*;
 pub use scoring::*;
 pub use trust::*;
@@ -53,6 +84,9 @@ pub struct SynthesisOrchestrator {
 
     /// WSC for consensus
     consensus: WeightedScoreConsensus,
+
+    /// Genesis validator for spiritual alignment (Ramadan 2023 principles)
+    genesis_validator: GenesisValidator,
 
     /// Trust bridge for signing
     trust_bridge: TrustBridge,
@@ -91,6 +125,7 @@ impl SynthesisOrchestrator {
             router: ThompsonRouter::new(),
             ihsan_gate: IhsanGate::new(0.85),
             consensus: WeightedScoreConsensus::new(ConsensusConfig::default()),
+            genesis_validator: GenesisValidator::default(),
             trust_bridge: TrustBridge::new()?,
             impact_tracker: ImpactTracker::new(),
             ai_backend,
@@ -119,6 +154,23 @@ impl SynthesisOrchestrator {
         // PHASE 4: CONSENSUS (WSC with Pareto)
         let winner = self.consensus.select_winner(&scored_candidates)?;
         tracing::info!("Consensus reached: {}", winner.model);
+
+        // PHASE 4.5: GENESIS VALIDATION (Ramadan 2023 Spiritual Principles)
+        let (spiritual_dims, genesis_passed) = self.genesis_validator.validate_candidate(
+            &winner.model,
+            &winner.scores,
+            &serde_json::to_string(&winner.json).unwrap_or_default(),
+        )?;
+        tracing::info!(
+            "Genesis validation: {:.2} spiritual score",
+            spiritual_dims.overall_alignment()
+        );
+
+        if !genesis_passed {
+            tracing::warn!("Candidate failed genesis validation - spiritual principles not met");
+            // Could implement fallback logic here, but for now we proceed
+            // The spiritual score is recorded for transparency
+        }
 
         // PHASE 5: PROOF-OF-IMPACT
         let impact = self.calculate_impact(&winner, &scored_candidates);

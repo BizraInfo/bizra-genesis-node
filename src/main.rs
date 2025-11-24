@@ -2,9 +2,9 @@
 // BIZRA Synthesis Orchestrator - Main Entry Point
 // Supports both CLI mode (agent orchestration) and legacy mode (synthesis demo)
 
+use bizra_genesis_node::cli::{CLIConfig, CommandExecutor, Display};
+use bizra_genesis_node::*;
 use std::env;
-use synthesis_orchestrator::cli::{CLIConfig, CommandExecutor, Display};
-use synthesis_orchestrator::*;
 use tracing_subscriber::{fmt, EnvFilter};
 
 #[tokio::main]
@@ -12,7 +12,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize tracing
     fmt()
         .with_env_filter(
-            EnvFilter::from_default_env().add_directive("synthesis_orchestrator=info".parse()?),
+            EnvFilter::from_default_env().add_directive("bizra_genesis_node=info".parse()?),
         )
         .init();
 
@@ -40,7 +40,7 @@ async fn run_cli_mode() -> Result<(), Box<dyn std::error::Error>> {
     let mut executor = CommandExecutor::new(config)?;
 
     // Start interactive mode
-    use synthesis_orchestrator::cli::Command;
+    use bizra_genesis_node::cli::Command;
     executor.execute(Command::Interactive).await?;
 
     Ok(())

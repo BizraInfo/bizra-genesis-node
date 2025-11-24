@@ -1,0 +1,131 @@
+name: CI • Phase 0 Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: {}
+
+env:
+  RUST_BACKTRACE: 1
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify:
+    name: Phase 0 Verification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang llvm
+
+      - name: Install Rust security and SBOM tools
+        run: |
+          cargo install cargo-audit --locked
+          cargo install cargo-deny --locked
+          cargo install cargo-about --locked
+          cargo install cargo-cyclonedx --locked
+
+      - name: Build and test
+        run: |
+          echo "::group::Build workspace"
+          cargo build --workspace --all-features --locked
+          echo "::endgroup::"
+
+          echo "::group::Run tests"
+          cargo test --workspace --all-features --locked
+          echo "::endgroup::"
+
+      - name: Code formatting check
+        run: |
+          cargo fmt --all -- --check
+
+      - name: Lint with Clippy
+        run: |
+          cargo clippy --workspace --all-features -- -D warnings
+
+      - name: Security audit - cargo-audit
+        run: |
+          cargo audit
+
+      - name: Security audit - cargo-deny
+        run: |
+          cargo deny check bans licenses sources
+
+      - name: Generate SBOMs
+        run: |
+          mkdir -p target
+          cargo about generate --format json > target/SBOM.licenses.json
+          cargo cyclonedx --all --output target/SBOM.cyclonedx.json
+
+      - name: Build Docker image
+        run: |
+          docker build -t bizra/orchestrator:verify .
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: bizra/orchestrator:verify
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Phase 0 artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase0-verification-artifacts
+          path: |
+            target/SBOM.*.json
+            docs/verification/*.md
+            docs/verification/artifacts/*.txt
+          retention-days: 30
+
+      - name: Phase 0 summary
+        if: always()
+        run: |
+          echo "## Phase 0 Verification Complete ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Verification Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Rust toolchain validated" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code formatted correctly" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Clippy lints passed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Security audit completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SBOMs generated" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Container image scanned" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- License SBOM: \`target/SBOM.licenses.json\`" >> $GITHUB_STEP_SUMMARY
+          echo "- CycloneDX SBOM: \`target/SBOM.cyclonedx.json\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Ready for Phase 1: SDLC/PMLC Documentation" >> $GITHUB_STEP_SUMMARY

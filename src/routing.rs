@@ -155,7 +155,7 @@ impl ThompsonRouter {
         let beta = ((wr.samples - wr.wins) as f64) + 1.0;
 
         let dist = Beta::new(alpha, beta).expect("valid beta");
-        dist.sample(&mut rand::thread_rng()) as f32
+        dist.sample(&mut rand::rng()) as f32
     }
 
     /// Updates route statistics with outcome feedback.

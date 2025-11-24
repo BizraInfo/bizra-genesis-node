@@ -2,7 +2,7 @@
 // Basic MOE integration example
 // Run with: cargo run --example moe_basic
 
-use synthesis_orchestrator::{Contract, SynthesisOrchestrator, Task};
+use bizra_genesis_node::{Contract, SynthesisOrchestrator, Task};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

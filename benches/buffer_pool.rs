@@ -1,8 +1,8 @@
 // benches/buffer_pool.rs
 // Benchmark suite for BufferPool zero-copy operations
 
+use bizra_genesis_node::performance::BufferPool;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use synthesis_orchestrator::performance::BufferPool;
 use tokio::runtime::Runtime;
 
 fn buffer_pool_benchmarks(c: &mut Criterion) {

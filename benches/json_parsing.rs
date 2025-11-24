@@ -1,8 +1,8 @@
 // benches/json_parsing.rs
 // Benchmark suite for SIMD-accelerated JSON parsing
 
+use bizra_genesis_node::parser::EarlyCloseJsonParser;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use synthesis_orchestrator::parser::EarlyCloseJsonParser;
 
 fn json_parsing_benchmarks(c: &mut Criterion) {
     let mut group = c.benchmark_group("json_parsing");

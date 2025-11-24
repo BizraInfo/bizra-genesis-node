@@ -1,0 +1,50 @@
+{
+  "dashboard": {
+    "title": "BIZRA Genesis Node - Consensus",
+    "tags": ["bizra", "consensus"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "title": "Consensus Latency (P95)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(consensus_duration_ms_bucket[5m]))",
+            "legendFormat": "P95 Latency (ms)"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Consensus Timeouts",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(consensus_timeouts_total[5m])",
+            "legendFormat": "Timeouts/s"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Consensus Success Rate",
+        "type": "stat",
+        "gridPos": {"x": 0, "y": 8, "w": 8, "h": 4},
+        "targets": [
+          {
+            "expr": "rate(consensus_success_total[5m]) / rate(consensus_attempts_total[5m])",
+            "legendFormat": "Success Rate"
+          }
+        ],
+        "options": {
+          "unit": "percentunit"
+        }
+      }
+    ]
+  }
+}

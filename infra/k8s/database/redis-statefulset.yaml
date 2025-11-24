@@ -1,0 +1,454 @@
+# infra/k8s/database/redis-statefulset.yaml
+# Production-grade Redis StatefulSet with Sentinel for BIZRA Genesis Node
+#
+# Features:
+# - StatefulSet for stable network identity and persistent storage
+# - Redis Sentinel for automatic failover and high availability
+# - Resource limits and requests for predictable performance
+# - Liveness and readiness probes for health monitoring
+# - ConfigMaps for Redis configuration
+# - Secrets for authentication
+# - Anti-affinity for high availability
+# - AOF + RDB persistence for data durability
+# - Redis Exporter for Prometheus metrics
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: bizra-genesis
+data:
+  redis.conf: |
+    # BIZRA Genesis Node Redis Configuration
+    # High-performance caching with persistence
+
+    # Network
+    bind 0.0.0.0
+    port 6379
+    tcp-backlog 511
+    timeout 0
+    tcp-keepalive 300
+
+    # General
+    daemonize no
+    supervised no
+    pidfile /var/run/redis_6379.pid
+    loglevel notice
+    logfile ""
+    databases 16
+
+    # Persistence - AOF (Append Only File)
+    appendonly yes
+    appendfilename "appendonly.aof"
+    appendfsync everysec
+    no-appendfsync-on-rewrite no
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+
+    # Persistence - RDB (Snapshot)
+    save 900 1
+    save 300 10
+    save 60 10000
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+
+    # Memory Management
+    maxmemory 2gb
+    maxmemory-policy allkeys-lru
+    maxmemory-samples 5
+
+    # Lazy Freeing
+    lazyfree-lazy-eviction yes
+    lazyfree-lazy-expire yes
+    lazyfree-lazy-server-del yes
+    replica-lazy-flush yes
+
+    # Performance
+    slowlog-log-slower-than 10000
+    slowlog-max-len 128
+    latency-monitor-threshold 100
+
+    # Security (password set via environment)
+    # requirepass will be set via command line
+
+    # Clients
+    maxclients 10000
+
+  sentinel.conf: |
+    # Redis Sentinel Configuration
+    port 26379
+    dir /data
+    sentinel monitor bizra-redis redis-0.redis.bizra-genesis.svc.cluster.local 6379 2
+    sentinel down-after-milliseconds bizra-redis 5000
+    sentinel parallel-syncs bizra-redis 1
+    sentinel failover-timeout bizra-redis 10000
+    # sentinel auth-pass set via environment
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+  namespace: bizra-genesis
+type: Opaque
+stringData:
+  REDIS_PASSWORD: CHANGE_ME_IN_PRODUCTION  # Use external secret management
+
+---
+# Headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: bizra-genesis
+  labels:
+    app: redis
+    component: cache
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+    - name: sentinel
+      port: 26379
+      targetPort: 26379
+      protocol: TCP
+  selector:
+    app: redis
+    component: cache
+
+---
+# LoadBalancer service for external access (dev/staging only)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-lb
+  namespace: bizra-genesis
+  labels:
+    app: redis
+    component: cache
+spec:
+  type: LoadBalancer
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: redis
+    component: cache
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: bizra-genesis
+  labels:
+    app: redis
+    component: cache
+    version: "7"
+spec:
+  serviceName: redis
+  replicas: 3  # Master + 2 replicas for HA
+  selector:
+    matchLabels:
+      app: redis
+      component: cache
+
+  template:
+    metadata:
+      labels:
+        app: redis
+        component: cache
+        version: "7"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"  # redis_exporter
+
+    spec:
+      # Security context
+      securityContext:
+        fsGroup: 999  # redis group
+        runAsUser: 999  # redis user
+        runAsNonRoot: true
+
+      # Anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - redis
+                topologyKey: kubernetes.io/hostname
+
+      # Init containers
+      initContainers:
+        - name: init-permissions
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 999:999 /data
+              chmod 770 /data
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          securityContext:
+            runAsUser: 0  # Run as root for permission setup
+
+      # Main containers
+      containers:
+        # Redis
+        - name: redis
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - redis-server
+          args:
+            - /etc/redis/redis.conf
+            - --requirepass
+            - $(REDIS_PASSWORD)
+
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+
+          # Resource limits
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "3Gi"
+
+          # Health checks
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - --raw
+                - incr
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Volumes
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+            - name: redis-config
+              mountPath: /etc/redis/redis.conf
+              subPath: redis.conf
+
+        # Redis Exporter (Prometheus metrics)
+        - name: redis-exporter
+          image: oliver006/redis_exporter:v1.55.0-alpine
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: REDIS_ADDR
+              value: "localhost:6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+
+          ports:
+            - name: metrics
+              containerPort: 9121
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9121
+            initialDelaySeconds: 15
+            periodSeconds: 30
+
+        # Redis Sentinel (for automatic failover)
+        - name: sentinel
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - redis-sentinel
+            - /etc/redis/sentinel.conf
+
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
+
+          ports:
+            - name: sentinel
+              containerPort: 26379
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - -p
+                - "26379"
+                - ping
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+            - name: redis-config
+              mountPath: /etc/redis/sentinel.conf
+              subPath: sentinel.conf
+
+      # Volumes
+      volumes:
+        - name: redis-config
+          configMap:
+            name: redis-config
+
+  # Volume claim templates
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app: redis
+          component: cache
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: fast-ssd  # Use your storage class
+        resources:
+          requests:
+            storage: 20Gi  # Adjust based on cache needs
+
+---
+# PersistentVolumeClaim for backups
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-backup
+  namespace: bizra-genesis
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+# CronJob for automated backups
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: bizra-genesis
+spec:
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: redis:7-alpine
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: redis-secret
+                      key: REDIS_PASSWORD
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  BACKUP_FILE="/backup/redis-$(date +%Y%m%d-%H%M%S).rdb"
+                  redis-cli -h redis-0.redis.bizra-genesis.svc.cluster.local -a $REDIS_PASSWORD --rdb $BACKUP_FILE
+                  echo "Backup created: $BACKUP_FILE"
+                  # Delete backups older than 30 days
+                  find /backup -name "*.rdb" -mtime +30 -delete
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: redis-backup
+
+---
+# ServiceMonitor for Prometheus Operator (optional)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: redis-metrics
+  namespace: bizra-genesis
+  labels:
+    app: redis
+    component: cache
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      component: cache
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

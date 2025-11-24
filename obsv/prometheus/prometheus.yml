@@ -1,0 +1,52 @@
+# BIZRA Genesis Node - Prometheus Configuration
+# Observability test stack configuration
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'bizra-obsv-test'
+    environment: 'test'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # Add alertmanager:9093 when needed
+
+# Load rules
+rule_files:
+  - "rules/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # BIZRA Genesis Node (when running)
+  - job_name: 'bizra-genesis'
+    static_configs:
+      - targets: ['host.docker.internal:3006']
+    metrics_path: '/metrics/prometheus'
+    scrape_interval: 5s
+    scrape_timeout: 5s
+
+  # Grafana metrics
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: '/metrics'
+
+  # Renderer metrics
+  - job_name: 'renderer'
+    static_configs:
+      - targets: ['renderer:8081']
+    metrics_path: '/metrics'

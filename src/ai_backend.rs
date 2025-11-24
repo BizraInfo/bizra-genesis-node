@@ -648,6 +648,11 @@ mod tests {
     #[test]
     fn test_moe_backend_task_to_prompt_with_examples() {
         let task = Task {
+            id: uuid::Uuid::new_v4(),
+            description: "Test task for MOE backend".to_string(),
+            priority: crate::types::Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
             examples: Some(vec![serde_json::json!({"test": "value"})]),
         };
 
@@ -658,7 +663,14 @@ mod tests {
 
     #[test]
     fn test_moe_backend_task_to_prompt_without_examples() {
-        let task = Task { examples: None };
+        let task = Task {
+            id: uuid::Uuid::new_v4(),
+            description: "Test task for MOE backend without examples".to_string(),
+            priority: crate::types::Priority::Medium,
+            created_at: chrono::Utc::now(),
+            metadata: std::collections::HashMap::new(),
+            examples: None,
+        };
 
         let prompt = MoeBackend::task_to_prompt(&task);
         assert!(prompt.contains("Complete the given task"));

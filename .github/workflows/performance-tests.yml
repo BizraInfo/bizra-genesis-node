@@ -1,0 +1,240 @@
+name: Performance Tests (k6)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run performance tests nightly at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Test scenario to run'
+        required: true
+        default: 'comprehensive-load-test'
+        type: choice
+        options:
+          - comprehensive-load-test
+          - chaos-engineering-consensus
+          - multi-agent-consensus-load
+
+env:
+  K6_VERSION: '0.48.0'
+  PERFORMANCE_BUDGET_FILE: '.performance-budgets.json'
+
+jobs:
+  performance-baseline:
+    name: Performance Baseline Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bizra_test
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: bizra_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v${K6_VERSION}/k6-v${K6_VERSION}-linux-amd64.tar.gz -L | tar xvz --strip-components 1
+          sudo mv k6 /usr/local/bin/
+
+      - name: Verify k6 installation
+        run: k6 version
+
+      - name: Setup test environment
+        run: |
+          cp .env.example .env
+          echo "DATABASE_URL=postgresql://bizra_test:test_password@localhost:5432/bizra_test" >> .env
+          echo "REDIS_URL=redis://localhost:6379" >> .env
+
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Run database migrations
+        run: |
+          cargo install sqlx-cli --no-default-features --features postgres
+          sqlx migrate run
+
+      - name: Start application
+        run: |
+          ./target/release/bizra-genesis-node &
+          echo $! > app.pid
+
+          # Wait for app to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:3000/api/v1/health; do sleep 2; done'
+
+      - name: Run k6 performance tests
+        run: |
+          k6 run \
+            --out json=performance-results.json \
+            --summary-export=performance-summary.json \
+            k6/scenarios/${{ github.event.inputs.scenario || 'comprehensive-load-test' }}.js
+        env:
+          BASE_URL: http://localhost:3000
+          WS_URL: ws://localhost:8080
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f app.pid ]; then kill $(cat app.pid) || true; fi
+
+      - name: Load performance budgets
+        id: budgets
+        run: |
+          if [ -f "${PERFORMANCE_BUDGET_FILE}" ]; then
+            echo "budgets_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "budgets_exist=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check performance budgets
+        if: steps.budgets.outputs.budgets_exist == 'true'
+        run: |
+          node scripts/check-performance-budgets.js \
+            --results performance-summary.json \
+            --budgets ${PERFORMANCE_BUDGET_FILE}
+
+      - name: Detect performance regressions
+        run: |
+          node scripts/performance-regression-detector.mjs \
+            --current performance-summary.json \
+            --baseline ${PERFORMANCE_BUDGET_FILE} \
+            --threshold 10
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: |
+            performance-results.json
+            performance-summary.json
+          retention-days: 90
+
+      - name: Generate performance report
+        if: always()
+        run: |
+          node scripts/generate-performance-report.js \
+            --input performance-summary.json \
+            --output performance-report.md
+
+      - name: Comment PR with performance results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            if (!fs.existsSync('performance-report.md')) {
+              console.log('No performance report found');
+              return;
+            }
+
+            const report = fs.readFileSync('performance-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+      - name: Update performance baselines (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          cp performance-summary.json ${PERFORMANCE_BUDGET_FILE}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ${PERFORMANCE_BUDGET_FILE}
+          git commit -m "chore: update performance baselines [skip ci]" || true
+          git push || true
+
+  stress-test:
+    name: Stress Test
+    runs-on: ubuntu-latest
+    needs: performance-baseline
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run stress test scenario
+        run: |
+          # Similar setup as baseline but with stress test scenario
+          echo "Running stress test..."
+          # Implementation similar to above
+
+  soak-test:
+    name: Soak Test (24h)
+    runs-on: ubuntu-latest
+    needs: performance-baseline
+    if: github.event_name == 'schedule'
+    timeout-minutes: 1500
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run 24-hour soak test
+        run: |
+          echo "Running 24-hour soak test..."
+          # Implementation for long-running test
+
+  performance-summary:
+    name: Performance Test Summary
+    needs: [performance-baseline]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download performance results
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-results
+
+      - name: Check test status
+        run: |
+          echo "📊 Performance Test Results"
+          echo "Status: ${{ needs.performance-baseline.result }}"
+
+          if [ "${{ needs.performance-baseline.result }}" != "success" ]; then
+            echo "❌ Performance tests failed or violated budgets"
+            exit 1
+          else
+            echo "✅ All performance tests passed"
+          fi

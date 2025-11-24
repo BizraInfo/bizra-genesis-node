@@ -2,13 +2,13 @@
 // Demonstration of Personal Agentic Team (PAT) with MOE integration
 // Shows how 7 specialized agents collaborate using real AI models
 
-use std::error::Error;
-use std::sync::Arc;
-use synthesis_orchestrator::{
+use bizra_genesis_node::{
     agents::pat::PATManager,
     agents::{a2a::WorkflowOrchestrator, AgentRole},
     AIBackend, MoeBackend, SimulatedBackend, Task,
 };
+use std::error::Error;
+use std::sync::Arc;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -59,6 +59,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let business_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Business strategy planning".to_string(),
+        priority: bizra_genesis_node::types::Priority::High,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "domain": "business",
             "objective": "Create a go-to-market strategy for a new AI-powered productivity tool",
@@ -103,6 +108,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let creative_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Creative content creation".to_string(),
+        priority: bizra_genesis_node::types::Priority::Medium,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "domain": "creative",
             "objective": "Write an educational blog post about climate change",
@@ -149,6 +159,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let software_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Software development project".to_string(),
+        priority: bizra_genesis_node::types::Priority::High,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "domain": "software",
             "objective": "Design a Rust library for secure password management",
@@ -184,6 +199,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("═══════════════════════════════════════════════════════════════\n");
 
     let research_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Research project analysis".to_string(),
+        priority: bizra_genesis_node::types::Priority::High,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "domain": "research",
             "objective": "Analyze the impact of AI on healthcare delivery",
@@ -238,6 +258,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let sequential_agents = vec![AgentRole::Planner, AgentRole::Researcher, AgentRole::Coder];
 
     let coordination_task = Task {
+        id: uuid::Uuid::new_v4(),
+        description: "Personal trip planning".to_string(),
+        priority: bizra_genesis_node::types::Priority::Medium,
+        created_at: chrono::Utc::now(),
+        metadata: std::collections::HashMap::new(),
         examples: Some(vec![serde_json::json!({
             "domain": "personal",
             "objective": "Plan a 2-week trip to Japan",

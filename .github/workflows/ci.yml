@@ -12,115 +12,10 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  # Stage 1: Build
-  build:
-    name: Build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        rust: [stable]
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@master
-      with:
-        toolchain: ${{ matrix.rust }}
-        components: rustfmt, clippy
-
-    - name: Cache cargo registry
-      uses: actions/cache@v4
-      with:
-        path: ~/.cargo/registry
-        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-registry-
-
-    - name: Cache cargo index
-      uses: actions/cache@v4
-      with:
-        path: ~/.cargo/git
-        key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-cargo-git-
-
-    - name: Cache target directory
-      uses: actions/cache@v4
-      with:
-        path: target
-        key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-target-
-
-    - name: Build workspace (debug)
-      run: cargo build --workspace --verbose
-
-    - name: Build workspace (release)
-      run: cargo build --workspace --release --verbose
-
-    - name: Upload release artifacts
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: synthesis-orchestrator-linux
-        path: target/release/synthesis_orchestrator
-        retention-days: 7
-
-  # Stage 2: Test
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-      with:
-        toolchain: stable
-
-    - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-test-${{ hashFiles('**/Cargo.lock') }}
-
-    - name: Run unit tests
-      run: cargo test --workspace --lib --verbose
-
-    - name: Run integration tests
-      run: |
-        # Skip integration test step if no integration tests exist in workspace
-        if git ls-files -- "**/tests/*.rs" "**/tests/**/*.rs" | grep -q .; then
-          echo "Integration tests found — running integration tests"
-          cargo test --package bizra-moe --test integration_tests --verbose
-        else
-          echo "No integration tests found — skipping integration test step"
-        fi
-
-    - name: Run doc tests
-      run: cargo test --workspace --doc --verbose
-
-    - name: Generate test report
-      if: always()
-      run: |
-        echo "## Test Results" >> $GITHUB_STEP_SUMMARY
-        echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
-
-  # Stage 3: Quality Checks
+  # 🔍 Code Quality & Security Analysis
   quality:
-    name: Code Quality
+    name: Code Quality & Security
     runs-on: ubuntu-latest
-    needs: build
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -128,160 +23,260 @@ jobs:
     - name: Install Rust toolchain
       uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
         components: rustfmt, clippy
 
     - name: Cache dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-quality-${{ hashFiles('**/Cargo.lock') }}
+      uses: Swatinem/rust-cache@v2
 
     - name: Check formatting
       run: cargo fmt --all -- --check
 
-    - name: Run Clippy
-      run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
 
-    - name: Check documentation
-      run: cargo doc --workspace --no-deps --document-private-items
-      env:
-        RUSTDOCFLAGS: "-D warnings"
+    - name: Security audit
+      uses: actions-rust-lang/audit@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-  # Stage 4: Security Audit
-  security:
-    name: Security Audit
+    - name: Run cargo check
+      run: cargo check --all-features
+
+  # 🧪 Comprehensive Testing
+  test:
+    name: Test Suite
     runs-on: ubuntu-latest
-    needs: build
-
+    strategy:
+      matrix:
+        rust: [stable, beta]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
+    - name: Install Rust ${{ matrix.rust }}
+      uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: stable
+        toolchain: ${{ matrix.rust }}
 
-    - name: Cache cargo-audit
-      uses: actions/cache@v4
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install cargo-llvm-cov
+      uses: taiki-e/install-action@cargo-llvm-cov
+
+    - name: Run tests with coverage
+      run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
       with:
-        path: ~/.cargo/bin/cargo-audit
-        key: ${{ runner.os }}-cargo-audit
+        file: lcov.info
+        fail_ci_if_error: false
 
-    - name: Install cargo-audit
-      run: cargo install cargo-audit --locked || true
+    - name: Run integration tests
+      run: cargo test --all-features -- --test-threads=1
 
-    - name: Run security audit
-      run: cargo audit --deny warnings || true
-      continue-on-error: true
+    - name: Run performance benchmarks
+      run: cargo bench --all-features
 
-    - name: Check for known vulnerabilities
-      run: |
-        echo "## Security Audit" >> $GITHUB_STEP_SUMMARY
-        cargo audit 2>&1 | tee audit.txt || true
-        if [ -s audit.txt ]; then
-          echo "⚠️ Security issues found - review required" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "✅ No known vulnerabilities" >> $GITHUB_STEP_SUMMARY
-        fi
-
-  # Stage 5: Performance Benchmarks (optional, runs on main only)
-  benchmarks:
-    name: Performance Benchmarks
+  # 🐳 Container Build & Security Scan
+  container:
+    name: Container Build & Security
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: [build, test, quality]
-
+    needs: [quality, test]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Rust toolchain
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: bizra/genesis-node
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        scan-ref: 'bizra/genesis-node:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # 🚀 Performance Testing
+  performance:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: [quality]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust stable
       uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: stable
 
     - name: Cache dependencies
-      uses: actions/cache@v4
+      uses: Swatinem/rust-cache@v2
+
+    - name: Run performance benchmarks
+      run: cargo bench --all-features
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
       with:
-        path: |
-          ~/.cargo/registry
-          ~/.cargo/git
-          target
-        key: ${{ runner.os }}-bench-${{ hashFiles('**/Cargo.lock') }}
+        name: Rust Benchmark
+        tool: 'cargo'
+        output-file-path: output.txt
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
 
-    - name: Run benchmarks
-      run: cargo bench --workspace || echo "No benchmarks configured yet"
-
-    - name: Upload benchmark results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: benchmark-results
-        path: target/criterion
-        retention-days: 30
-
-  # Stage 6: Code Coverage (optional)
-  coverage:
-    name: Code Coverage
+  # 📊 Load Testing
+  load-test:
+    name: Load Testing
     runs-on: ubuntu-latest
-    needs: test
-
+    needs: [container]
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Rust toolchain
+    - name: Set up k6
+      run: |
+        curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-amd64.tar.gz -L | tar xvz
+        sudo mv k6-v0.45.0-linux-amd64/k6 /usr/local/bin/
+
+    - name: Run k6 load tests
+      run: |
+        cd k6
+        k6 run --out json=results.json scenarios/api-slo.js
+        k6 run --out json=consensus-results.json scenarios/multi-agent-consensus-load.js
+
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: k6-results
+        path: |
+          k6/results.json
+          k6/consensus-results.json
+
+  # 🔒 Security Testing
+  security:
+    name: Security Testing
+    runs-on: ubuntu-latest
+    needs: [quality]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run cargo audit
+      uses: actions-rust-lang/audit@v1
+
+    - name: Check for outdated dependencies
+      run: |
+        cargo install cargo-outdated
+        cargo outdated --exit-code 1 || echo "Some dependencies are outdated but not critical"
+
+  # 📦 Release Management
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [quality, test, container, performance, load-test, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Rust stable
       uses: dtolnay/rust-toolchain@stable
       with:
         toolchain: stable
 
-    - name: Install tarpaulin
-      run: cargo install cargo-tarpaulin || true
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
 
-    - name: Generate coverage report
-      run: cargo tarpaulin --workspace --timeout 300 --out Xml --output-dir coverage || true
-      continue-on-error: true
+    - name: Run cargo publish (dry run)
+      run: cargo publish --dry-run --all-features
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      if: always()
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/v')
       with:
-        files: ./coverage/cobertura.xml
-        fail_ci_if_error: false
-        verbose: true
-      continue-on-error: true
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Generate coverage summary
-      if: always()
-      run: |
-        echo "## Code Coverage" >> $GITHUB_STEP_SUMMARY
-        echo "📊 Coverage report generated" >> $GITHUB_STEP_SUMMARY
-        echo "Target: 95% by Phase 4" >> $GITHUB_STEP_SUMMARY
-
-  # Stage 7: Build Summary
-  summary:
-    name: Build Summary
+  # 📈 Quality Gate
+  quality-gate:
+    name: Quality Gate
     runs-on: ubuntu-latest
-    needs: [build, test, quality, security]
+    needs: [quality, test, security]
     if: always()
-
     steps:
-    - name: Generate summary
+    - name: Quality Gate Check
       run: |
-        echo "# 🏷️ BIZRA Genesis Node - Build Report" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## Pipeline Status" >> $GITHUB_STEP_SUMMARY
-        echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Quality: ${{ needs.quality.result }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Security: ${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
-        echo "- Phase 1.1: Multi-Model Ensemble Integration" >> $GITHUB_STEP_SUMMARY
-        echo "- Phase 1.2: Personal Agent Team Implementation" >> $GITHUB_STEP_SUMMARY
-        echo "- Phase 1.3: System Agent Team Implementation" >> $GITHUB_STEP_SUMMARY
+        if [[ "${{ needs.quality.result }}" != "success" ]]; then
+          echo "❌ Code quality checks failed"
+          exit 1
+        fi
+        if [[ "${{ needs.test.result }}" != "success" ]]; then
+          echo "❌ Tests failed"
+          exit 1
+        fi
+        if [[ "${{ needs.security.result }}" != "success" ]]; then
+          echo "❌ Security checks failed"
+          exit 1
+        fi
+        echo "✅ All quality gates passed"
+
+  # 🚨 Notification
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [quality-gate]
+    if: always()
+    steps:
+    - name: Notify on failure
+      if: needs.quality-gate.result == 'failure'
+      run: |
+        echo "Pipeline failed - check logs for details"
+        # Add webhook notifications here for Slack/Discord/etc
+
+    - name: Notify on success
+      if: needs.quality-gate.result == 'success'
+      run: |
+        echo "✅ Pipeline completed successfully"
+        # Add success notifications here

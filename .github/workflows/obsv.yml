@@ -1,0 +1,301 @@
+# BIZRA Genesis Node - Observability Coverage CI
+# Validates Grafana dashboards, Prometheus rules, and panel data coverage
+# Security: Viewer tokens, signed plugins only, no anonymous access
+
+name: Observability Checks
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'obsv/**'
+      - 'k6/**'
+      - 'scripts/validate-dashboards.mjs'
+      - 'scripts/assert-grafana.mjs'
+      - 'scripts/coverage-report.mjs'
+      - '.github/workflows/obsv.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'obsv/**'
+      - 'k6/**'
+      - 'scripts/validate-dashboards.mjs'
+      - 'scripts/assert-grafana.mjs'
+      - 'scripts/coverage-report.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: obsv-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GF_URL: http://localhost:3000
+  GF_ADMIN_PASS: ${{ secrets.GF_ADMIN_PASS || 'test-admin-pass-change-me' }}
+  DASH_UID: bizra-core-kpis
+  API_URL: http://localhost:3006
+
+jobs:
+  # ============================================================================
+  # Phase 1: Static Dashboard Validation (Spec Coverage)
+  # ============================================================================
+  dashboard-spec:
+    name: 📊 Dashboard Spec Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔍 Validate Dashboard Spec
+        run: |
+          node scripts/validate-dashboards.mjs > artifacts/spec-coverage.json
+          echo "✅ Dashboard spec validation complete"
+        continue-on-error: false
+
+      - name: 📤 Upload Spec Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec-coverage
+          path: artifacts/spec-coverage.json
+          retention-days: 30
+
+  # ============================================================================
+  # Phase 2: Prometheus Rule Tests (Semantic Coverage)
+  # ============================================================================
+  prometheus-rules:
+    name: 📋 Prometheus Rule Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Install promtool
+        run: |
+          PROM_VERSION="2.54.0"
+          wget -q https://github.com/prometheus/prometheus/releases/download/v${PROM_VERSION}/prometheus-${PROM_VERSION}.linux-amd64.tar.gz
+          tar xzf prometheus-${PROM_VERSION}.linux-amd64.tar.gz
+          sudo mv prometheus-${PROM_VERSION}.linux-amd64/promtool /usr/local/bin/
+          promtool --version
+
+      - name: ✅ Test Prometheus Rules
+        run: |
+          promtool test rules obsv/prometheus/rules_test.yml
+          echo "✅ Prometheus rule tests passed"
+
+      - name: 🔍 Lint Prometheus Rules
+        run: |
+          promtool check rules obsv/prometheus/rules/*.yml
+          echo "✅ Prometheus rules linting passed"
+
+  # ============================================================================
+  # Phase 3: Live System Tests (Scenario + Panel Coverage)
+  # ============================================================================
+  live-system-tests:
+    name: 🧪 Live System Tests
+    runs-on: ubuntu-latest
+    needs: [dashboard-spec, prometheus-rules]
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 📦 Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "obsv-test"
+
+      - name: 🏗️ Build BIZRA Genesis Node
+        run: |
+          cargo build --release --bin bizra-genesis-node
+          echo "✅ BIZRA Genesis Node built"
+
+      - name: 🐳 Start Observability Stack
+        env:
+          GF_ADMIN_PASS: ${{ env.GF_ADMIN_PASS }}
+        run: |
+          docker compose -f docker-compose.obsv.yml up -d
+          echo "⏳ Waiting for services to be ready..."
+          sleep 30
+
+          # Wait for Prometheus
+          for i in {1..30}; do
+            if curl -sf http://localhost:9090/-/ready; then
+              echo "✅ Prometheus ready"
+              break
+            fi
+            sleep 2
+          done
+
+          # Wait for Grafana
+          for i in {1..30}; do
+            if curl -sf http://localhost:3000/api/health; then
+              echo "✅ Grafana ready"
+              break
+            fi
+            sleep 2
+          done
+
+      - name: 🔑 Create Grafana Viewer Token
+        id: token
+        run: |
+          # Wait for Grafana to fully initialize
+          sleep 10
+
+          # Create API token (viewer role)
+          TOKEN_RESPONSE=$(curl -sS -X POST http://localhost:3000/api/auth/keys \
+            -H "Content-Type: application/json" \
+            -u "viewer:${GF_ADMIN_PASS}" \
+            -d '{"name":"ci-test-token","role":"Viewer","secondsToLive":600}')
+
+          TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.key // empty')
+
+          if [ -z "$TOKEN" ]; then
+            echo "❌ Failed to create Grafana token"
+            echo "Response: $TOKEN_RESPONSE"
+            exit 1
+          fi
+
+          echo "GF_TOKEN=$TOKEN" >> $GITHUB_ENV
+          echo "✅ Grafana viewer token created"
+
+      - name: 🚀 Start BIZRA Genesis Node
+        env:
+          GENESIS_ROOT: "0000000000000000000000000000000000000000000000000000000000000000"
+          VALIDATION_API_PORT: "3006"
+        run: |
+          cargo run --release --bin bizra-genesis-node -- validation-api &
+          BIZRA_PID=$!
+          echo "BIZRA_PID=$BIZRA_PID" >> $GITHUB_ENV
+          echo "⏳ Waiting for BIZRA Genesis Node..."
+
+          for i in {1..30}; do
+            if curl -sf http://localhost:3006/health; then
+              echo "✅ BIZRA Genesis Node ready"
+              break
+            fi
+            sleep 2
+          done
+
+      - name: 🧪 Run K6 Synthetic Scenario
+        run: |
+          # Install k6
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+            --keyserver hkp://keyserver.ubuntu.com:80 \
+            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | \
+            sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+          # Run synthetic scenario
+          k6 run k6/scenarios/api-slo.js
+          echo "✅ K6 synthetic scenario complete"
+
+      - name: 🔍 Assert Panel Data (Scenario Coverage)
+        env:
+          GF_URL: ${{ env.GF_URL }}
+          DASH_UID: ${{ env.DASH_UID }}
+        run: |
+          # Wait for Prometheus to scrape metrics
+          sleep 15
+
+          # Assert panels have data
+          node scripts/assert-grafana.mjs > artifacts/scenario-coverage.json
+          echo "✅ Panel assertions complete"
+        continue-on-error: false
+
+      - name: 📤 Upload Scenario Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenario-coverage
+          path: artifacts/scenario-coverage.json
+          retention-days: 30
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          if [ -n "$BIZRA_PID" ]; then
+            kill $BIZRA_PID || true
+          fi
+          docker compose -f docker-compose.obsv.yml down -v
+
+  # ============================================================================
+  # Phase 4: Generate Unified Coverage Report
+  # ============================================================================
+  coverage-report:
+    name: 📊 Coverage Report
+    runs-on: ubuntu-latest
+    needs: [dashboard-spec, prometheus-rules, live-system-tests]
+    if: always()
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📥 Download All Coverage Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+        continue-on-error: true
+
+      - name: 📊 Generate Unified Report
+        run: |
+          # Move artifacts to expected location
+          if [ -d "artifacts/spec-coverage" ]; then
+            mv artifacts/spec-coverage/spec-coverage.json artifacts/ || true
+          fi
+          if [ -d "artifacts/scenario-coverage" ]; then
+            mv artifacts/scenario-coverage/scenario-coverage.json artifacts/ || true
+          fi
+
+          # Generate report
+          node scripts/coverage-report.mjs > artifacts/obsv-coverage.json
+          echo "✅ Unified coverage report generated"
+        continue-on-error: true
+
+      - name: 📤 Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: obsv-coverage-report
+          path: artifacts/obsv-coverage.json
+          retention-days: 90
+
+      - name: 📊 Check Coverage Thresholds
+        run: |
+          if [ ! -f "artifacts/obsv-coverage.json" ]; then
+            echo "⚠️  Coverage report not found, skipping threshold check"
+            exit 0
+          fi
+
+          OVERALL=$(jq -r '.summary.overall.percentage' artifacts/obsv-coverage.json)
+          PASSED=$(jq -r '.summary.overall.passed' artifacts/obsv-coverage.json)
+
+          echo "Overall Observability Coverage: ${OVERALL}%"
+
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ Coverage thresholds met"
+            exit 0
+          else
+            echo "❌ Coverage thresholds NOT met"
+            echo "Review artifacts/obsv-coverage.json for details"
+            exit 1
+          fi

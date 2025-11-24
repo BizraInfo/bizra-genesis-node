@@ -1,0 +1,481 @@
+# infra/k8s/app/bizra-deployment.yaml
+# Production-grade BIZRA Genesis Node application deployment
+#
+# Features:
+# - Deployment for stateless application pods
+# - Horizontal Pod Autoscaler for auto-scaling
+# - ConfigMap for application configuration
+# - Secrets for sensitive data
+# - Resource limits and requests
+# - Health checks (liveness, readiness, startup)
+# - Service mesh ready (Istio annotations)
+# - Prometheus metrics endpoint
+# - Rolling updates with zero downtime
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bizra-config
+  namespace: bizra-genesis
+data:
+  # Application Configuration
+  RUST_LOG: "info,bizra_genesis_node=debug,sqlx=warn"
+  RUST_BACKTRACE: "1"
+
+  # Performance Settings
+  DATABASE_MAX_CONNECTIONS: "100"
+  DATABASE_MIN_CONNECTIONS: "10"
+  DATABASE_ACQUIRE_TIMEOUT: "30"
+  CACHE_TTL_ROUTER_STATE: "300"
+  CACHE_TTL_AGENT_METRICS: "60"
+
+  # Thompson Sampling Router
+  THOMPSON_SAMPLE_COUNT: "1000"
+  THOMPSON_EXPLORATION_RATE: "0.1"
+
+  # Consensus Parameters
+  IHSAN_FLOOR: "0.85"
+  ACCURACY_THRESHOLD: "0.85"
+  SAFETY_THRESHOLD: "0.90"
+
+  # Server Settings
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8080"
+  METRICS_PORT: "9090"
+
+  # Service URLs (internal Kubernetes DNS)
+  POSTGRES_HOST: "postgres.bizra-genesis.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  REDIS_HOST: "redis-0.redis.bizra-genesis.svc.cluster.local"
+  REDIS_PORT: "6379"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bizra-secrets
+  namespace: bizra-genesis
+type: Opaque
+stringData:
+  # Database credentials (must match postgres-secret)
+  POSTGRES_USER: bizra_user
+  POSTGRES_PASSWORD: CHANGE_ME_IN_PRODUCTION
+  POSTGRES_DB: bizra_genesis
+
+  # Redis password (must match redis-secret)
+  REDIS_PASSWORD: CHANGE_ME_IN_PRODUCTION
+
+  # Constructed connection strings
+  DATABASE_URL: "postgres://bizra_user:CHANGE_ME_IN_PRODUCTION@postgres.bizra-genesis.svc.cluster.local:5432/bizra_genesis"
+  REDIS_URL: "redis://:CHANGE_ME_IN_PRODUCTION@redis-0.redis.bizra-genesis.svc.cluster.local:6379/0"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-genesis
+  labels:
+    app: bizra-genesis-node
+    component: application
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  selector:
+    app: bizra-genesis-node
+    component: application
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bizra-genesis-node-lb
+  namespace: bizra-genesis
+  labels:
+    app: bizra-genesis-node
+    component: application
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: bizra-genesis-node
+    component: application
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-genesis
+  labels:
+    app: bizra-genesis-node
+    component: application
+    version: "1.0.0"
+spec:
+  replicas: 3  # Start with 3 replicas, HPA will adjust
+  revisionHistoryLimit: 10
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # Zero downtime deployments
+
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: application
+
+  template:
+    metadata:
+      labels:
+        app: bizra-genesis-node
+        component: application
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        # Istio sidecar injection (if using service mesh)
+        sidecar.istio.io/inject: "true"
+
+    spec:
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Service account for RBAC
+      serviceAccountName: bizra-genesis-node
+
+      # Anti-affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - bizra-genesis-node
+                topologyKey: kubernetes.io/hostname
+
+      # Init containers
+      initContainers:
+        # Wait for PostgreSQL to be ready
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z postgres.bizra-genesis.svc.cluster.local 5432; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready!"
+
+        # Wait for Redis to be ready
+        - name: wait-for-redis
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z redis-0.redis.bizra-genesis.svc.cluster.local 6379; do
+                echo "Waiting for Redis..."
+                sleep 2
+              done
+              echo "Redis is ready!"
+
+      # Main application container
+      containers:
+        - name: bizra-genesis-node
+          image: bizra/genesis-node:latest  # Replace with your registry
+          imagePullPolicy: Always
+
+          # Environment variables from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: bizra-config
+
+          # Environment variables from Secret
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: REDIS_URL
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: POSTGRES_DB
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: REDIS_PASSWORD
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          # Resource limits (adjust based on load testing)
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+
+          # Startup probe (for slow-starting applications)
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30  # 150 seconds max startup time
+
+          # Liveness probe (restart if unhealthy)
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe (remove from load balancer if not ready)
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # Security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+
+          # Volume mounts
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/cache
+
+      # Volumes
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+
+---
+# ServiceAccount for RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-genesis
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bizra-genesis-node-hpa
+  namespace: bizra-genesis
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bizra-genesis-node
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+    # Custom metrics (if using Prometheus Adapter)
+    # - type: Pods
+    #   pods:
+    #     metric:
+    #       name: bizra_synthesis_requests_per_second
+    #     target:
+    #       type: AverageValue
+    #       averageValue: "100"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 minutes before scaling down
+      policies:
+        - type: Percent
+          value: 50  # Scale down max 50% at a time
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0  # Scale up immediately
+      policies:
+        - type: Percent
+          value: 100  # Can double pods at a time
+          periodSeconds: 60
+        - type: Pods
+          value: 4  # Or add 4 pods at a time
+          periodSeconds: 60
+      selectPolicy: Max  # Use the most aggressive policy
+
+---
+# PodDisruptionBudget for high availability during updates
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: bizra-genesis-node-pdb
+  namespace: bizra-genesis
+spec:
+  minAvailable: 2  # Always keep at least 2 pods available
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: application
+
+---
+# ServiceMonitor for Prometheus Operator (optional)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bizra-genesis-node-metrics
+  namespace: bizra-genesis
+  labels:
+    app: bizra-genesis-node
+    component: application
+spec:
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: application
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+
+---
+# NetworkPolicy for security (optional)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bizra-genesis-node-netpol
+  namespace: bizra-genesis
+spec:
+  podSelector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: application
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+    # Allow Prometheus scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow Redis
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow external HTTPS (for AI model APIs)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443

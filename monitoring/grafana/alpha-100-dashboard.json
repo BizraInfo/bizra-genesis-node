@@ -1,0 +1,567 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "bizra-alpha-100",
+    "title": "BIZRA Genesis Alpha-100 Launch Dashboard",
+    "tags": ["alpha-100", "production", "genesis"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "5s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m"],
+      "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d"]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "🎯 SLO Overview - Availability & Performance",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 24, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(bizra_http_requests_total{status=~\"2..\"}[5m])) / sum(rate(bizra_http_requests_total[5m])) * 100",
+            "legendFormat": "Availability %",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(bizra_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(bizra_http_requests_total[5m])) * 100",
+            "legendFormat": "Error Rate %",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(bizra_http_request_duration_seconds_bucket[5m])) by (le)) * 1000",
+            "legendFormat": "P95 Latency (ms)",
+            "refId": "C"
+          },
+          {
+            "expr": "sum(rate(bizra_http_requests_total[5m]))",
+            "legendFormat": "Request Rate (req/s)",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 80, "color": "yellow"},
+                {"value": 90, "color": "red"}
+              ]
+            },
+            "unit": "short",
+            "decimals": 2
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "textMode": "value_and_name",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        }
+      },
+      {
+        "id": 2,
+        "title": "👥 Alpha-100 Onboarding Funnel",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 6},
+        "targets": [
+          {
+            "expr": "sum(bizra_alpha_users_total{status=\"invited\"})",
+            "legendFormat": "Invites Sent",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(increase(bizra_alpha_users_total{status=\"registered\"}[24h]))",
+            "legendFormat": "Registered (24h)",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(bizra_alpha_users_total{status=\"active\"})",
+            "legendFormat": "Active Users",
+            "refId": "C"
+          },
+          {
+            "expr": "(sum(bizra_alpha_users_total{status=\"registered\"}) / sum(bizra_alpha_users_total{status=\"invited\"})) * 100",
+            "legendFormat": "Conversion Rate %",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "blue"},
+                {"value": 50, "color": "green"},
+                {"value": 75, "color": "yellow"}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "orientation": "vertical",
+          "textMode": "value_and_name",
+          "colorMode": "background"
+        }
+      },
+      {
+        "id": 3,
+        "title": "🔐 Authentication Activity",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6},
+        "targets": [
+          {
+            "expr": "sum(rate(bizra_auth_logins_total{result=\"success\"}[5m]))",
+            "legendFormat": "Successful Logins",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(bizra_auth_logins_total{result=\"failure\"}[5m]))",
+            "legendFormat": "Failed Logins",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(rate(bizra_auth_refresh_total{result=\"success\"}[5m]))",
+            "legendFormat": "Token Refreshes",
+            "refId": "C"
+          },
+          {
+            "expr": "sum(rate(bizra_auth_rate_limit_hits_total[5m]))",
+            "legendFormat": "Rate Limit Hits",
+            "refId": "D"
+          }
+        ],
+        "yaxes": [
+          {"format": "ops", "label": "Operations/sec", "show": true},
+          {"format": "short", "show": false}
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "avg": true,
+          "current": true,
+          "max": true,
+          "values": true
+        }
+      },
+      {
+        "id": 4,
+        "title": "📊 HTTP Traffic & Status Codes",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "sum by (status) (rate(bizra_http_requests_total[5m]))",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Requests/sec", "show": true},
+          {"format": "short", "show": false}
+        ],
+        "lines": true,
+        "fill": 2,
+        "linewidth": 2,
+        "stack": true,
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "avg": true,
+          "current": true,
+          "max": true,
+          "values": true
+        }
+      },
+      {
+        "id": 5,
+        "title": "⚡ P95 Latency by Endpoint",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum by (route, le) (rate(bizra_http_request_duration_seconds_bucket[5m]))) * 1000",
+            "legendFormat": "{{route}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "ms", "label": "Latency (ms)", "show": true, "min": 0},
+          {"format": "short", "show": false}
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "avg": true,
+          "current": true,
+          "max": true,
+          "values": true,
+          "sort": "current",
+          "sortDesc": true
+        },
+        "alert": {
+          "name": "High P95 Latency",
+          "conditions": [
+            {
+              "evaluator": {"params": [300], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "avg"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "1m",
+          "handler": 1,
+          "message": "P95 latency exceeded 300ms SLO threshold",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 6,
+        "title": "🛡️ System Health Components",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 8, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "bizra_node_health_status{component=\"db\"}",
+            "legendFormat": "PostgreSQL",
+            "refId": "A"
+          },
+          {
+            "expr": "bizra_node_health_status{component=\"redis\"}",
+            "legendFormat": "Redis",
+            "refId": "B"
+          },
+          {
+            "expr": "bizra_node_health_status{component=\"jwt\"}",
+            "legendFormat": "JWT Service",
+            "refId": "C"
+          },
+          {
+            "expr": "bizra_node_health_status{component=\"nginx\"}",
+            "legendFormat": "nginx",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 1, "color": "green"}
+              ]
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DOWN"},
+              {"type": "value", "value": "1", "text": "UP"}
+            ],
+            "unit": "none"
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "textMode": "value_and_name",
+          "colorMode": "background"
+        }
+      },
+      {
+        "id": 7,
+        "title": "🚨 Deployment Gates (Pre-flight & Canary)",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 8, "x": 8, "y": 20},
+        "targets": [
+          {
+            "expr": "increase(bizra_node_preflight_failures_total[1d])",
+            "legendFormat": "Pre-flight Failures (24h)",
+            "refId": "A"
+          },
+          {
+            "expr": "increase(bizra_node_canary_failures_total[1d])",
+            "legendFormat": "Canary Failures (24h)",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Failures", "show": true, "min": 0},
+          {"format": "short", "show": false}
+        ],
+        "lines": true,
+        "bars": false,
+        "fill": 2,
+        "linewidth": 2,
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "current": true,
+          "total": true,
+          "values": true
+        },
+        "alert": {
+          "name": "Deployment Gate Failures",
+          "conditions": [
+            {
+              "evaluator": {"params": [1], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "sum"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "5m",
+          "handler": 1,
+          "message": "Deployment gate failures detected in last 24h",
+          "noDataState": "no_data"
+        }
+      },
+      {
+        "id": 8,
+        "title": "🌐 Node Contributors (Alpha-100 Clients)",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 8, "x": 16, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(bizra_alpha_node_clients_total{status=\"online\"})",
+            "legendFormat": "Online",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(bizra_alpha_node_clients_total{status=\"offline\"})",
+            "legendFormat": "Offline",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(bizra_alpha_node_clients_total)",
+            "legendFormat": "Total",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "blue"},
+                {"value": 10, "color": "green"},
+                {"value": 50, "color": "yellow"}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "options": {
+          "orientation": "vertical",
+          "textMode": "value_and_name",
+          "colorMode": "background"
+        }
+      },
+      {
+        "id": 9,
+        "title": "💾 Database Performance",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 26},
+        "targets": [
+          {
+            "expr": "rate(bizra_db_queries_total[5m])",
+            "legendFormat": "Queries/sec",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(bizra_db_query_duration_seconds_bucket[5m])) * 1000",
+            "legendFormat": "P95 Query Time (ms)",
+            "refId": "B"
+          },
+          {
+            "expr": "bizra_db_connections_active",
+            "legendFormat": "Active Connections",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "show": true},
+          {"format": "short", "show": true}
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "avg": true,
+          "current": true,
+          "max": true,
+          "values": true
+        }
+      },
+      {
+        "id": 10,
+        "title": "🔄 WebSocket Connections",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 26},
+        "targets": [
+          {
+            "expr": "bizra_websocket_connections_active",
+            "legendFormat": "Active Connections",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(bizra_websocket_messages_sent_total[5m])",
+            "legendFormat": "Messages Sent/sec",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(bizra_websocket_messages_received_total[5m])",
+            "legendFormat": "Messages Received/sec",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "show": true},
+          {"format": "short", "show": true}
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "legend": {
+          "show": true,
+          "alignAsTable": true,
+          "avg": true,
+          "current": true,
+          "max": true,
+          "values": true
+        }
+      },
+      {
+        "id": 11,
+        "title": "📈 Error Rate Breakdown",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 32},
+        "targets": [
+          {
+            "expr": "sum by (status) (increase(bizra_http_requests_total{status=~\"4..|5..\"}[1h]))",
+            "legendFormat": "{{status}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          },
+          "pieType": "donut",
+          "displayLabels": ["name", "percent"]
+        }
+      },
+      {
+        "id": 12,
+        "title": "🎯 Top 10 Slowest Endpoints",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 16, "x": 8, "y": 32},
+        "targets": [
+          {
+            "expr": "topk(10, histogram_quantile(0.95, sum by (route, le) (rate(bizra_http_request_duration_seconds_bucket[5m]))) * 1000)",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "options": {
+          "showHeader": true,
+          "sortBy": [{"displayName": "Value", "desc": true}]
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "auto",
+              "displayMode": "auto"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 200, "color": "yellow"},
+                {"value": 300, "color": "red"}
+              ]
+            },
+            "unit": "ms"
+          },
+          "overrides": [
+            {
+              "matcher": {"id": "byName", "options": "route"},
+              "properties": [
+                {"id": "custom.width", "value": 400}
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Deployments",
+          "datasource": "Prometheus",
+          "enable": true,
+          "expr": "bizra_deployment_timestamp",
+          "iconColor": "blue",
+          "tagKeys": "version,environment"
+        },
+        {
+          "name": "Alerts",
+          "datasource": "Prometheus",
+          "enable": true,
+          "expr": "ALERTS{alertstate=\"firing\"}",
+          "iconColor": "red",
+          "tagKeys": "alertname,severity"
+        }
+      ]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(bizra_http_requests_total, environment)",
+          "current": {"text": "production", "value": "production"},
+          "hide": 0,
+          "includeAll": false,
+          "multi": false,
+          "refresh": 1
+        },
+        {
+          "name": "route",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(bizra_http_requests_total, route)",
+          "current": {"text": "All", "value": "$__all"},
+          "hide": 0,
+          "includeAll": true,
+          "multi": true,
+          "refresh": 1
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}

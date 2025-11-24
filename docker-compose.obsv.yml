@@ -1,0 +1,103 @@
+# BIZRA Genesis Node - Observability Test Stack
+# Lightweight stack for observability coverage verification
+# Security: Viewer tokens, signed plugins only, no anonymous access
+
+version: "3.8"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.54.0
+    container_name: bizra-prometheus-test
+    volumes:
+      - ./obsv/prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=2h'
+    ports:
+      - "9090:9090"
+    networks:
+      - bizra-obsv
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: bizra-grafana-test
+    environment:
+      # Security: Disable anonymous, require auth
+      - GF_SECURITY_ADMIN_USER=viewer
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASS:?set_GF_ADMIN_PASS_in_env}
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      # Features
+      - GF_FEATURE_TOGGLES_ENABLE=publicDashboards
+      # Security hardening
+      - GF_SECURITY_ALLOW_EMBEDDING=false
+      - GF_SECURITY_COOKIE_SECURE=true
+      - GF_SECURITY_COOKIE_SAMESITE=strict
+      - GF_SECURITY_STRICT_TRANSPORT_SECURITY=true
+      - GF_SECURITY_X_CONTENT_TYPE_OPTIONS=true
+      - GF_SECURITY_X_XSS_PROTECTION=true
+      # Plugins: signed only
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=false
+      # Renderer connection
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      # Datasource proxy timeout
+      - GF_DATAPROXY_TIMEOUT=30
+      - GF_DATAPROXY_DIAL_TIMEOUT=10
+    volumes:
+      - ./obsv/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - bizra-obsv
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  renderer:
+    image: grafana/grafana-image-renderer:3.10.2
+    container_name: bizra-renderer-test
+    environment:
+      - ENABLE_METRICS=true
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=8081
+      - LOG_LEVEL=info
+      # Security: limit resources
+      - BROWSER_TZ=UTC
+      - IGNORE_HTTPS_ERRORS=false
+    ports:
+      - "8081:8081"
+    networks:
+      - bizra-obsv
+    restart: unless-stopped
+
+  # Node exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: bizra-node-exporter
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /:/host:ro,rslave
+    ports:
+      - "9100:9100"
+    networks:
+      - bizra-obsv
+    restart: unless-stopped
+
+networks:
+  bizra-obsv:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  grafana-data:
+    driver: local
