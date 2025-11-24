@@ -1,3 +1,7 @@
+[workspace]
+members = ["bizra-moe"]
+resolver = "2"
+
 [package]
 name = "synthesis_orchestrator"
 version = "0.1.0"
