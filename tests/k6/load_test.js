@@ -18,7 +18,6 @@ import { Rate, Trend, Counter } from 'k6/metrics';
 const errorRate = new Rate('errors');
 const apiDuration = new Trend('api_duration');
 const requestCounter = new Counter('requests_total');
-const p95Latency = new Trend('p95_latency');
 
 // ============================================================================
 // Test Configuration
@@ -72,11 +71,10 @@ export const options = {
 };
 
 // ============================================================================
-// Test Configuration
+// Environment Configuration
 // ============================================================================
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3006';
-const API_KEY = __ENV.API_KEY || '';
 
 // ============================================================================
 // Test Scenarios

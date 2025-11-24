@@ -14,7 +14,6 @@ Usage:
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
@@ -165,7 +164,6 @@ def compare_benchmarks(
     
     for comp in comparisons:
         change_pct = comp.percent_change
-        threshold_pct = threshold * 100
         
         if comp.is_regression and abs(comp.relative_change) > threshold:
             has_regressions = True

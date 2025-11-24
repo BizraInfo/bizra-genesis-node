@@ -17,8 +17,6 @@ updates:
     commit-message:
       prefix: "cargo"
       include: "scope"
-    reviewers:
-      - "BizraInfo/core-team"
     ignore:
       # Ignore major version updates that may require code changes
       - dependency-name: "*"
@@ -39,8 +37,6 @@ updates:
     commit-message:
       prefix: "cargo(moe)"
       include: "scope"
-    reviewers:
-      - "BizraInfo/core-team"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -77,5 +73,3 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
-    reviewers:
-      - "BizraInfo/core-team"
