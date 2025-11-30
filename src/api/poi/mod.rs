@@ -13,12 +13,10 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use chrono::Utc;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::PgPool;
 use std::sync::Arc;
 use tracing::instrument;
-use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 

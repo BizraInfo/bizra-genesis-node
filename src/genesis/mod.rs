@@ -14,7 +14,7 @@
 //! - **Proof of Impact**: The consensus mechanism that validates value creation.
 
 use crate::trust::ProofOfImpact;
-use chrono::{Datelike, DateTime, TimeZone, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -140,6 +140,7 @@ impl HyperBlocktree {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Datelike;
 
     #[test]
     fn test_genesis_block_creation() {

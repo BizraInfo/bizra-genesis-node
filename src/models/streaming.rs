@@ -410,9 +410,9 @@ impl StreamRetryHandler {
                     if attempt < self.max_retries - 1 {
                         let backoff = self.calculate_backoff(attempt);
                         warn!(
-                            attempt = attempt + 1,
-                            backoff_ms = backoff.as_millis(),
-                            error = ?e,
+                            attempt_num = attempt + 1,
+                            backoff_ms = %backoff.as_millis(),
+                            error = %e,
                             "Retrying stream operation"
                         );
                         sleep(backoff).await;

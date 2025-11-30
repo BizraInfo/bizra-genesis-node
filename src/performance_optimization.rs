@@ -7,9 +7,9 @@
 use crate::types::*;
 use std::sync::{Arc, RwLock};
 use std::collections::HashMap;
-use parking_lot::{Mutex, RwLock as PLRwLock};
-use tokio::time::{Duration, Instant};
-use tracing::{info, warn, error};
+use parking_lot::RwLock as PLRwLock;
+use tokio::time::Instant;
+use tracing::error;
 
 /// APEX Performance Optimization Engine
 /// Revolutionary performance enhancement with nano-precision capabilities
@@ -850,6 +850,3 @@ impl From<CognitiveError> for PerformanceError {
         PerformanceError::CognitiveError { message }
     }
 }
-
-// Required trait import for async-trait
-use async_trait::async_trait;

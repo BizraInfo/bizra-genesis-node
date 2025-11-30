@@ -4,6 +4,7 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use async_trait::async_trait;
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use ring::signature::{UnparsedPublicKey, ED25519};
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -83,11 +84,11 @@ impl PoiSignatureVerifier for DatabasePoiVerifier {
             .ok_or(PoiVerificationError::InvalidPublicKey)?;
 
         // 2. Decode base64 signature
-        let signature_bytes = base64::decode(signature_b64)
+        let signature_bytes = BASE64_STANDARD.decode(signature_b64)
             .map_err(|_| PoiVerificationError::SignatureVerificationFailed)?;
 
         // 3. Decode base64 public key
-        let public_key_bytes = base64::decode(public_key_b64)
+        let public_key_bytes = BASE64_STANDARD.decode(public_key_b64)
             .map_err(|_| PoiVerificationError::InvalidPublicKey)?;
 
         // 4. Verify Ed25519 signature
@@ -174,7 +175,7 @@ mod tests {
     /// Test helper: Signs data and returns base64-encoded signature
     fn sign_payload(key_pair: &Ed25519KeyPair, payload: &[u8]) -> String {
         let signature = key_pair.sign(payload);
-        base64::encode(signature.as_ref())
+        BASE64_STANDARD.encode(signature.as_ref())
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -348,12 +349,12 @@ mod tests {
 
         // Sign and encode to base64
         let signature = key_pair.sign(payload);
-        let signature_b64 = base64::encode(signature.as_ref());
-        let public_key_b64 = base64::encode(&public_key_bytes);
+        let signature_b64 = BASE64_STANDARD.encode(signature.as_ref());
+        let public_key_b64 = BASE64_STANDARD.encode(&public_key_bytes);
 
         // Decode from base64
-        let decoded_sig = base64::decode(&signature_b64).unwrap();
-        let decoded_pk = base64::decode(&public_key_b64).unwrap();
+        let decoded_sig = BASE64_STANDARD.decode(&signature_b64).unwrap();
+        let decoded_pk = BASE64_STANDARD.decode(&public_key_b64).unwrap();
 
         // Verify with decoded values
         let public_key = UnparsedPublicKey::new(&ED25519, &decoded_pk);
@@ -371,7 +372,7 @@ mod tests {
 
         // This is what the old vulnerable code would have accepted
         let fake_signature_b64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-        let fake_signature = base64::decode(fake_signature_b64).unwrap();
+        let fake_signature = BASE64_STANDARD.decode(fake_signature_b64).unwrap();
 
         let public_key = UnparsedPublicKey::new(&ED25519, &public_key_bytes);
         let result = public_key.verify(payload, &fake_signature);
