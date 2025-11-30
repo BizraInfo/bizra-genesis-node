@@ -251,6 +251,7 @@ impl AIBackend for MoeBackend {
                     safety: cached.confidence,
                     efficiency: cached.confidence,
                     ihsan: cached.confidence,
+                    snr: None,
                 },
                 cost_usd: 0.0, // Cached = free
                 latency_ms: 0,
@@ -304,6 +305,7 @@ impl AIBackend for MoeBackend {
                         safety: ensemble_response.ihsan_score,
                         efficiency: ensemble_response.ihsan_score * 0.95,
                         ihsan: ensemble_response.ihsan_score,
+                        snr: None,
                     },
                     cost_usd: 0.001 * ensemble_response.contributors.len() as f32,
                     latency_ms: ensemble_response.total_latency_ms as u32,
@@ -333,6 +335,7 @@ impl AIBackend for MoeBackend {
                                 safety: contributor.confidence,
                                 efficiency: contributor.confidence * 0.9,
                                 ihsan: contributor.confidence,
+                                snr: None,
                             },
                             cost_usd: 0.001,
                             latency_ms: contributor.latency_ms as u32,

@@ -14,7 +14,9 @@ export enum MessageType {
   SystemMessage = 'system_message',
   Error = 'error',
   Ping = 'ping',
-  Pong = 'pong'
+  Pong = 'pong',
+  // Dashboard metrics updates
+  MetricsDashboardUpdate = 'metrics_dashboard_update'
 }
 
 export interface WebSocketMessage {

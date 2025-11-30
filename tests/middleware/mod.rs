@@ -72,7 +72,7 @@ pub mod test_jwt {
         pub sub: String,
         pub user_id: Uuid,
         pub email: String,
-        pub roles: Vec<String>,
+        pub program: String,
         pub exp: usize,
         pub iat: usize,
         pub jti: String,
@@ -80,7 +80,7 @@ pub mod test_jwt {
 
     impl TestClaims {
         /// Create valid test claims
-        pub fn valid(user_id: &str, email: &str, roles: Vec<String>) -> Self {
+        pub fn valid(user_id: &str, email: &str, program: &str) -> Self {
             let now = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
@@ -90,7 +90,7 @@ pub mod test_jwt {
                 sub: user_id.to_string(),
                 user_id: Uuid::new_v4(),
                 email: email.to_string(),
-                roles,
+                program: program.to_string(),
                 exp: now + 3600, // Valid for 1 hour
                 iat: now,
                 jti: Uuid::new_v4().to_string(),
@@ -108,7 +108,7 @@ pub mod test_jwt {
                 sub: user_id.to_string(),
                 user_id: Uuid::new_v4(),
                 email: "expired@test.com".to_string(),
-                roles: vec!["user".to_string()],
+                program: "alpha-100".to_string(),
                 exp: now - 3600, // Expired 1 hour ago
                 iat: now - 7200,
                 jti: Uuid::new_v4().to_string(),
@@ -126,7 +126,7 @@ pub mod test_jwt {
                 sub: user_id.to_string(),
                 user_id: Uuid::new_v4(),
                 email: "test@test.com".to_string(),
-                roles: vec!["user".to_string()],
+                program: "alpha-100".to_string(),
                 exp: (now + expires_in_secs) as usize,
                 iat: now as usize,
                 jti: Uuid::new_v4().to_string(),

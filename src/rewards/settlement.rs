@@ -107,16 +107,14 @@ impl SettlementService {
             r#"
             INSERT INTO settlement_batches (
                 batch_id, epoch_id, status, settlement_count, total_amount,
-                submitted_at, created_at, updated_at
+                created_at, updated_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            VALUES ($1, $2, 'pending'::poi_settlement_status, $3, $4, $5, $6)
             "#,
             batch_id,
             epoch_id,
-            "pending",
-            settlement_count,
+            settlement_count as i32,
             total_amount,
-            submitted_at,
             Utc::now(),
             Utc::now()
         )
@@ -140,7 +138,7 @@ impl SettlementService {
         // Query the settlement status from database
         let result = sqlx::query!(
             r#"
-            SELECT status
+            SELECT status::text
             FROM settlement_batches
             WHERE batch_id = $1
             "#,
@@ -151,11 +149,11 @@ impl SettlementService {
 
         match result {
             Some(record) => {
-                match record.status.as_str() {
-                    "pending" => Ok(SettlementStatus::Pending),
-                    "submitted" => Ok(SettlementStatus::Submitted),
-                    "confirmed" => Ok(SettlementStatus::Confirmed),
-                    "failed" => Ok(SettlementStatus::Failed),
+                match record.status.as_deref() {
+                    Some("pending") => Ok(SettlementStatus::Pending),
+                    Some("submitted") => Ok(SettlementStatus::Submitted),
+                    Some("confirmed") => Ok(SettlementStatus::Confirmed),
+                    Some("failed") => Ok(SettlementStatus::Failed),
                     _ => Ok(SettlementStatus::Pending), // Default fallback
                 }
             }
@@ -236,7 +234,7 @@ impl SettlementService {
         sqlx::query!(
             r#"
             UPDATE settlement_batches
-            SET status = 'submitted', submitted_to_ledger_at = $2, updated_at = $3
+            SET status = 'submitted', submitted_at = $2, updated_at = $3
             WHERE batch_id = $1
             "#,
             _batch_id,
@@ -285,7 +283,7 @@ impl SettlementService {
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(result.and_then(|r| r.batch_id.parse().ok().map(|_| epoch_id)))
+        Ok(result.map(|_| epoch_id))
     }
 
     /// Aggregate pending rewards for this epoch
@@ -321,7 +319,7 @@ impl SettlementService {
         sqlx::query!(
             r#"
             UPDATE poi_rewards
-            SET status = 'settled', settlement_batch_id = $2, updated_at = $3
+            SET status = 'settled', settlement_batch_id = $2, settled_at = $3
             WHERE epoch_id = $1 AND status = 'pending'
             "#,
             epoch_id,

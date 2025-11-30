@@ -338,6 +338,7 @@ impl ReplayEngine {
                     safety: 0.85 + (i as f32 * 0.03),
                     efficiency: 0.75 + (i as f32 * 0.04),
                     ihsan: 0.82 + (i as f32 * 0.02),
+                    snr: None,
                 },
                 cost_usd: 0.01 + (i as f32 * 0.005),
                 latency_ms: 500 + (i as u32 * 100),

@@ -95,8 +95,10 @@ async fn cleanup_test_data(pool: &PgPool) -> Result<(), sqlx::Error> {
 #[cfg(feature = "database")]
 mod tests {
     use super::*;
-    use axum::{extract::State, http::StatusCode, Json};
+    use axum::{extract::State, http::StatusCode, Json, Extension};
     use serde_json::json;
+    use std::sync::Arc;
+    use validator::Validate;
 
     #[tokio::test]
     async fn test_request_alpha_access_success() {
@@ -111,7 +113,7 @@ mod tests {
             experience: "Beginner".to_string(),
         };
 
-        let result = request_alpha_access(State(pool.clone()), Json(request)).await;
+        let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
 
         assert!(result.is_ok());
         let (status, Json(response)) = result.unwrap();
@@ -144,11 +146,11 @@ mod tests {
         };
 
         // First request should succeed
-        let result1 = request_alpha_access(State(pool.clone()), Json(request1)).await;
+        let result1 = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request1)).await;
         assert!(result1.is_ok());
 
         // Second request should fail
-        let result2 = request_alpha_access(State(pool.clone()), Json(request2)).await;
+        let result2 = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request2)).await;
         assert!(result2.is_err());
         let (status, _) = result2.unwrap_err();
         assert_eq!(status, StatusCode::CONFLICT);
@@ -168,7 +170,7 @@ mod tests {
             experience: "Beginner".to_string(),
         };
 
-        let result = request_alpha_access(State(pool.clone()), Json(request)).await;
+        let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
         assert!(result.is_err());
         let (status, _) = result.unwrap_err();
         assert_eq!(status, StatusCode::BAD_REQUEST);
@@ -191,7 +193,7 @@ mod tests {
                 experience: "Beginner".to_string(),
             };
 
-            let result = request_alpha_access(State(pool.clone()), Json(request)).await;
+            let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
             assert!(result.is_ok());
         }
 
@@ -204,7 +206,7 @@ mod tests {
             experience: "Advanced".to_string(),
         };
 
-        let result = request_alpha_access(State(pool.clone()), Json(request)).await;
+        let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
         assert!(result.is_ok());
         let (status, Json(response)) = result.unwrap();
         assert_eq!(status, StatusCode::CREATED);
@@ -247,7 +249,7 @@ mod tests {
         });
 
         let result = accept_alpha_invite(
-            State(pool.clone()),
+            Extension(Arc::new(pool.clone())),
             axum::extract::Path(invite_code),
             Json(payload),
         )
@@ -289,7 +291,7 @@ mod tests {
         });
 
         let result = accept_alpha_invite(
-            State(pool.clone()),
+            Extension(Arc::new(pool.clone())),
             axum::extract::Path("INVALID-CODE".to_string()),
             Json(payload),
         )
@@ -332,7 +334,7 @@ mod tests {
         });
 
         let result = accept_alpha_invite(
-            State(pool.clone()),
+            Extension(Arc::new(pool.clone())),
             axum::extract::Path(invite_code),
             Json(payload),
         )
@@ -376,7 +378,7 @@ mod tests {
         });
 
         let result = accept_alpha_invite(
-            State(pool.clone()),
+            Extension(Arc::new(pool.clone())),
             axum::extract::Path(invite_code),
             Json(payload),
         )
@@ -427,7 +429,7 @@ mod tests {
         let payload = json!({}); // Missing password
 
         let result = accept_alpha_invite(
-            State(pool.clone()),
+            Extension(Arc::new(pool.clone())),
             axum::extract::Path(invite_code),
             Json(payload),
         )
@@ -455,12 +457,12 @@ mod tests {
                 experience: "Beginner".to_string(),
             };
 
-            let result = request_alpha_access(State(pool.clone()), Json(request)).await;
+            let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
             assert!(result.is_ok());
         }
 
         // List pending requests
-        let result = list_alpha_requests(State(pool.clone())).await;
+        let result = list_alpha_requests(Extension(Arc::new(pool.clone()))).await;
 
         assert!(result.is_ok());
         let Json(requests) = result.unwrap();
@@ -531,11 +533,11 @@ mod tests {
     #[tokio::test]
     async fn test_invite_status_enum() {
         // Test enum variants
-        assert_eq!(InviteStatus::Pending.to_string(), "pending");
-        assert_eq!(InviteStatus::Sent.to_string(), "sent");
-        assert_eq!(InviteStatus::Accepted.to_string(), "accepted");
-        assert_eq!(InviteStatus::Expired.to_string(), "expired");
-        assert_eq!(InviteStatus::Revoked.to_string(), "revoked");
+        assert_eq!(serde_json::to_value(&InviteStatus::Pending).unwrap().as_str().unwrap(), "pending");
+        assert_eq!(serde_json::to_value(&InviteStatus::Sent).unwrap().as_str().unwrap(), "sent");
+        assert_eq!(serde_json::to_value(&InviteStatus::Accepted).unwrap().as_str().unwrap(), "accepted");
+        assert_eq!(serde_json::to_value(&InviteStatus::Expired).unwrap().as_str().unwrap(), "expired");
+        assert_eq!(serde_json::to_value(&InviteStatus::Revoked).unwrap().as_str().unwrap(), "revoked");
     }
 
     #[tokio::test]
@@ -623,7 +625,7 @@ mod tests {
                     experience: "Beginner".to_string(),
                 };
 
-                request_alpha_access(State(pool_clone), Json(request)).await
+                request_alpha_access(Extension(Arc::new(pool_clone)), Json(request)).await
             });
             handles.push(handle);
         }

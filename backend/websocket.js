@@ -62,6 +62,7 @@ const MessageType = {
   TelemetryUpdate: 'telemetry_update',
   ConsensusUpdate: 'consensus_update',
   MetricUpdate: 'metric_update',
+  MetricsDashboardUpdate: 'metrics_dashboard_update', // Formatted metrics for React dashboard
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -73,7 +74,9 @@ class TelemetryBridge {
     this.wss = null;
     this.clients = new Map(); // sessionId -> WebSocket
     this.pollInterval = null;
+    this.metricsInterval = null;
     this.lastTelemetry = null;
+    this.lastMetrics = null;
     this.isRustApiHealthy = false;
     this.reconnectAttempts = 0;
   }
@@ -117,11 +120,15 @@ class TelemetryBridge {
       console.log(`🔌 WebSocket server listening on ws://localhost:${CONFIG.WS_PORT}`);
       console.log(`📊 Health check: http://localhost:${CONFIG.WS_PORT}/health`);
       console.log(`🎯 Polling Rust API: ${CONFIG.RUST_API_URL}${CONFIG.TELEMETRY_ENDPOINT}`);
+      console.log(`📈 Polling Metrics API: http://localhost:3002/rust-metrics`);
       console.log('');
     });
 
     // Start polling Rust API for telemetry
     this.startTelemetryPolling();
+
+    // Start polling formatted metrics for dashboard
+    this.startMetricsPolling();
 
     // Start heartbeat
     this.startHeartbeat();
@@ -334,6 +341,41 @@ class TelemetryBridge {
       message: `Unable to reach Rust API: ${error.message}`,
       timestamp: Date.now(),
     });
+  }
+
+  /**
+   * Start polling formatted metrics for dashboard
+   */
+  startMetricsPolling() {
+    const pollMetrics = async () => {
+      try {
+        const response = await fetch('http://localhost:3002/rust-metrics');
+
+        if (!response.ok) {
+          throw new Error(`Metrics API returned ${response.status}: ${response.statusText}`);
+        }
+
+        const metricsData = await response.json();
+
+        // Store last metrics for new clients
+        this.lastMetrics = metricsData;
+
+        // Broadcast formatted metrics to all connected clients
+        this.broadcast(MessageType.MetricsDashboardUpdate, metricsData.formatted);
+
+        console.log(`📈 Broadcast metrics dashboard update (${Object.keys(metricsData.formatted.consensus || {}).length} metric groups)`);
+
+      } catch (error) {
+        console.warn(`⚠️ Metrics API poll failed:`, error.message);
+        // Don't fail loudly - this is secondary to telemetry
+      }
+    };
+
+    // Initial poll
+    pollMetrics();
+
+    // Start interval with longer poll time for metrics (less frequent than telemetry)
+    this.metricsInterval = setInterval(pollMetrics, CONFIG.POLL_INTERVAL * 2); // 2-second intervals for metrics
   }
 
   /**

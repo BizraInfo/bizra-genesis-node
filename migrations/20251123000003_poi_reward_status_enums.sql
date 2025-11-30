@@ -17,5 +17,6 @@ CREATE TYPE poi_reward_status AS ENUM (
     'pending',
     'distributed',
     'claimed',
-    'expired'
+    'expired',
+    'settled'
 );

@@ -297,18 +297,29 @@ mod tests {
             .unwrap_or_else(|_| "postgres://localhost/bizra_test".to_string());
 
         let pool = PgPool::connect(&database_url).await.unwrap();
-        let repo = RouterRepository::new(pool);
+        let repo = RouterRepository::new(pool.clone());
+
+        // Use unique test model name to avoid state leakage
+        let test_model = format!("test-increment-{}", std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos());
 
         // Initialize first
-        repo.initialize_model("test-model-2", None).await.unwrap();
+        repo.initialize_model(&test_model, None).await.unwrap();
 
         // Then increment
-        let result = repo.increment_success("test-model-2").await;
+        let result = repo.increment_success(&test_model).await;
         assert!(result.is_ok());
 
         // Verify state updated
-        let state = repo.get_state("test-model-2").await.unwrap().unwrap();
+        let state = repo.get_state(&test_model).await.unwrap().unwrap();
         assert_eq!(state.alpha, 2.0); // Started at 1.0, incremented by 1.0
+
+        // Cleanup: delete the test model
+        let _ = sqlx::query!("DELETE FROM router_state WHERE model_name = $1", test_model)
+            .execute(&pool)
+            .await;
     }
 
     #[tokio::test]

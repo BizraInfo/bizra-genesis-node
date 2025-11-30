@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                COUNT(*) as settlement_count,\n                COALESCE(SUM(amount), 0) as total_amount\n            FROM poi_rewards\n            WHERE epoch_id = $1 AND status = 'pending'\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "settlement_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "total_amount",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "74cb8caf1f6d022a7a61431ede766f13e816c3a0336d1e04322dee77cdf0f410"
+}

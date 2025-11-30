@@ -8,6 +8,8 @@ import '../styles/themes.css';
 import '../styles/index.css';
 import '../styles/auth.css';
 import '../styles/invite.css';
+import '../styles/apex-snr.css';
+import '../styles/performance-command-center.css';
 import type { AppProps } from 'next/app';
 import { AuthProvider } from '../contexts/AuthContext';
 import { WebSocketProvider } from '../contexts/WebSocketContext';

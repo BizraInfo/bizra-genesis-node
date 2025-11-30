@@ -48,6 +48,7 @@ fn create_test_candidate(model: &str) -> Candidate {
             safety: 0.95,
             efficiency: 0.88,
             ihsan: 0.90,
+            snr: None,
         },
     }
 }

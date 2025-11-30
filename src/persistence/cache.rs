@@ -156,8 +156,8 @@ impl RedisCache {
 
         redis::cmd("SETEX")
             .arg(&key)
-            .arg(alpha)
             .arg(ttl_seconds)
+            .arg(alpha)
             .query_async(&mut self.conn)
             .await?;
 

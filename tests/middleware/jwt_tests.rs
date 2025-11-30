@@ -9,7 +9,7 @@ use super::test_jwt::{
 };
 use super::{create_auth_request, create_request_with_headers};
 use axum::http::{header, Method, StatusCode};
-use bizra_genesis_node::middleware::jwt::{AuthError, AuthenticatedUser, Claims};
+use bizra_genesis_node::api::middleware::jwt::{AuthError, AuthenticatedUser, Claims};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Claims Unit Tests
@@ -20,60 +20,11 @@ mod claims_tests {
     use uuid::Uuid;
 
     #[test]
-    fn test_claims_has_role_positive() {
-        let claims = Claims {
-            sub: "user-123".to_string(),
-            user_id: Uuid::new_v4(),
-            email: "test@example.com".to_string(),
-            roles: vec!["admin".to_string(), "user".to_string()],
-            exp: 2000000000,
-            iat: 1000000000,
-            jti: "jti-123".to_string(),
-        };
-
-        assert!(claims.has_role("admin"));
-        assert!(claims.has_role("user"));
-    }
-
-    #[test]
-    fn test_claims_has_role_negative() {
-        let claims = Claims {
-            sub: "user-123".to_string(),
-            user_id: Uuid::new_v4(),
-            email: "test@example.com".to_string(),
-            roles: vec!["user".to_string()],
-            exp: 2000000000,
-            iat: 1000000000,
-            jti: "jti-123".to_string(),
-        };
-
-        assert!(!claims.has_role("admin"));
-        assert!(!claims.has_role("superuser"));
-    }
-
-    #[test]
-    fn test_claims_has_role_empty_roles() {
-        let claims = Claims {
-            sub: "user-123".to_string(),
-            user_id: Uuid::new_v4(),
-            email: "test@example.com".to_string(),
-            roles: vec![],
-            exp: 2000000000,
-            iat: 1000000000,
-            jti: "jti-123".to_string(),
-        };
-
-        assert!(!claims.has_role("admin"));
-        assert!(!claims.has_role("user"));
-    }
-
-    #[test]
     fn test_claims_serialization() {
         let claims = Claims {
             sub: "user-123".to_string(),
-            user_id: Uuid::new_v4(),
             email: "test@example.com".to_string(),
-            roles: vec!["user".to_string()],
+            program: "alpha-100".to_string(),
             exp: 2000000000,
             iat: 1000000000,
             jti: "jti-123".to_string(),
@@ -82,27 +33,12 @@ mod claims_tests {
         let json = serde_json::to_string(&claims).unwrap();
         assert!(json.contains("user-123"));
         assert!(json.contains("test@example.com"));
+        assert!(json.contains("alpha-100"));
 
         let deserialized: Claims = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.sub, claims.sub);
         assert_eq!(deserialized.email, claims.email);
-    }
-
-    #[test]
-    fn test_claims_case_sensitive_roles() {
-        let claims = Claims {
-            sub: "user-123".to_string(),
-            user_id: Uuid::new_v4(),
-            email: "test@example.com".to_string(),
-            roles: vec!["Admin".to_string()],
-            exp: 2000000000,
-            iat: 1000000000,
-            jti: "jti-123".to_string(),
-        };
-
-        assert!(claims.has_role("Admin"));
-        assert!(!claims.has_role("admin")); // Case sensitive
-        assert!(!claims.has_role("ADMIN"));
+        assert_eq!(deserialized.program, claims.program);
     }
 }
 
@@ -115,8 +51,8 @@ mod auth_error_tests {
     use axum::response::IntoResponse;
 
     #[test]
-    fn test_auth_error_missing_credentials_response() {
-        let error = AuthError::MissingCredentials;
+    fn test_auth_error_missing_token_response() {
+        let error = AuthError::MissingToken;
         let response = error.into_response();
 
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
@@ -125,14 +61,6 @@ mod auth_error_tests {
     #[test]
     fn test_auth_error_invalid_token_response() {
         let error = AuthError::InvalidToken;
-        let response = error.into_response();
-
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-    }
-
-    #[test]
-    fn test_auth_error_invalid_signature_response() {
-        let error = AuthError::InvalidSignature;
         let response = error.into_response();
 
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
@@ -149,22 +77,18 @@ mod auth_error_tests {
     #[test]
     fn test_auth_error_display() {
         assert_eq!(
-            format!("{}", AuthError::MissingCredentials),
-            "Missing credentials"
+            format!("{}", AuthError::MissingToken),
+            "Missing authentication token"
         );
-        assert_eq!(format!("{}", AuthError::InvalidToken), "Invalid token");
-        assert_eq!(
-            format!("{}", AuthError::InvalidSignature),
-            "Invalid signature"
-        );
-        assert_eq!(format!("{}", AuthError::ExpiredToken), "Token expired");
+        assert_eq!(format!("{}", AuthError::InvalidToken), "Invalid or malformed token");
+        assert_eq!(format!("{}", AuthError::ExpiredToken), "Token has expired");
     }
 
     #[test]
     fn test_auth_error_debug() {
-        let error = AuthError::MissingCredentials;
+        let error = AuthError::MissingToken;
         let debug_str = format!("{:?}", error);
-        assert!(debug_str.contains("MissingCredentials"));
+        assert!(debug_str.contains("MissingToken"));
     }
 }
 
@@ -225,12 +149,12 @@ mod test_jwt_generation_tests {
         let claims = TestClaims::valid(
             "user-123",
             "test@example.com",
-            vec!["admin".to_string(), "user".to_string()],
+            "alpha-100",
         );
 
         assert_eq!(claims.sub, "user-123");
         assert_eq!(claims.email, "test@example.com");
-        assert_eq!(claims.roles.len(), 2);
+        assert_eq!(claims.program, "alpha-100");
 
         // Should not be expired
         let now = std::time::SystemTime::now()
@@ -268,7 +192,7 @@ mod test_jwt_generation_tests {
 
     #[test]
     fn test_generate_test_token_format() {
-        let claims = TestClaims::valid("user-123", "test@example.com", vec![]);
+        let claims = TestClaims::valid("user-123", "test@example.com", "alpha-100");
         let token = generate_test_token(&claims);
 
         // JWT format: header.payload.signature
@@ -415,73 +339,6 @@ mod security_edge_cases {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Role-Based Access Control Tests
-// ═══════════════════════════════════════════════════════════════════════════
-
-mod rbac_tests {
-    use super::*;
-    use uuid::Uuid;
-
-    fn create_claims_with_roles(roles: Vec<&str>) -> Claims {
-        Claims {
-            sub: "user-123".to_string(),
-            user_id: Uuid::new_v4(),
-            email: "test@example.com".to_string(),
-            roles: roles.into_iter().map(String::from).collect(),
-            exp: 2000000000,
-            iat: 1000000000,
-            jti: "jti-123".to_string(),
-        }
-    }
-
-    #[test]
-    fn test_admin_role_access() {
-        let claims = create_claims_with_roles(vec!["admin"]);
-
-        assert!(claims.has_role("admin"));
-        assert!(!claims.has_role("superadmin"));
-    }
-
-    #[test]
-    fn test_multiple_roles() {
-        let claims = create_claims_with_roles(vec!["user", "moderator", "editor"]);
-
-        assert!(claims.has_role("user"));
-        assert!(claims.has_role("moderator"));
-        assert!(claims.has_role("editor"));
-        assert!(!claims.has_role("admin"));
-    }
-
-    #[test]
-    fn test_role_hierarchy_not_implied() {
-        // Admin should not automatically have user role unless explicitly granted
-        let admin_claims = create_claims_with_roles(vec!["admin"]);
-
-        assert!(admin_claims.has_role("admin"));
-        assert!(!admin_claims.has_role("user")); // Not implied
-    }
-
-    #[test]
-    fn test_special_characters_in_roles() {
-        let claims = create_claims_with_roles(vec!["role:admin", "scope:read", "permission.write"]);
-
-        assert!(claims.has_role("role:admin"));
-        assert!(claims.has_role("scope:read"));
-        assert!(claims.has_role("permission.write"));
-    }
-
-    #[test]
-    fn test_wildcard_not_supported() {
-        // Wildcards should not be interpreted
-        let claims = create_claims_with_roles(vec!["*"]);
-
-        assert!(claims.has_role("*"));
-        assert!(!claims.has_role("admin"));
-        assert!(!claims.has_role("user"));
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // Token Timing Tests
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -493,9 +350,8 @@ mod token_timing_tests {
         // iat in the future
         let claims = TestClaims {
             sub: "user-123".to_string(),
-            user_id: uuid::Uuid::new_v4(),
             email: "test@example.com".to_string(),
-            roles: vec!["user".to_string()],
+            program: "alpha-100".to_string(),
             exp: 3000000000,
             iat: 2500000000, // Future timestamp
             jti: "jti-123".to_string(),
@@ -561,9 +417,8 @@ mod property_tests {
         ) {
             let claims = Claims {
                 sub: sub.clone(),
-                user_id: uuid::Uuid::new_v4(),
                 email: email.clone(),
-                roles: vec!["user".to_string()],
+                program: "alpha-100".to_string(),
                 exp: 2000000000,
                 iat: 1000000000,
                 jti: "test-jti".to_string(),
@@ -574,22 +429,6 @@ mod property_tests {
 
             prop_assert_eq!(deserialized.sub, sub);
             prop_assert_eq!(deserialized.email, email);
-        }
-
-        #[test]
-        fn test_role_check_never_panics(role in ".*") {
-            let claims = Claims {
-                sub: "test".to_string(),
-                user_id: uuid::Uuid::new_v4(),
-                email: "test@test.com".to_string(),
-                roles: vec!["user".to_string()],
-                exp: 2000000000,
-                iat: 1000000000,
-                jti: "test-jti".to_string(),
-            };
-
-            // Should not panic regardless of input
-            let _ = claims.has_role(&role);
         }
     }
 }

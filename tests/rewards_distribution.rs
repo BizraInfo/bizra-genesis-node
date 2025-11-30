@@ -215,14 +215,9 @@ async fn reward_distribution_conservative_and_idempotent() {
     // Verify scores: 0.4 + 0.3 + 0.3 = 1.0 normalized-share sum
     let mut share_sum = BigDecimal::from(0);
     for row in &scores {
-        share_sum += &row
-            .normalized_share
-            .clone()
-            .unwrap_or_else(|| BigDecimal::from(0));
+        share_sum += &row.normalized_share.clone();
         assert_eq!(
-            &row.total_score
-                .clone()
-                .unwrap_or_else(|| BigDecimal::from(0)),
+            &row.total_score.clone(),
             &BigDecimal::from(1)
         );
     }
@@ -252,7 +247,7 @@ async fn reward_distribution_conservative_and_idempotent() {
 
     let mut total_distributed = BigDecimal::from(0);
     for row in &rewards {
-        total_distributed += &row.amount.clone().unwrap_or_else(|| BigDecimal::from(0));
+        total_distributed += &row.amount.clone();
     }
 
     let expected_pool = BigDecimal::from(1000);
@@ -266,15 +261,8 @@ async fn reward_distribution_conservative_and_idempotent() {
 
     // Individual rewards check: share * pool
     for (score_row, reward_row) in scores.iter().zip(rewards.iter()) {
-        let expected_amount = &score_row
-            .normalized_share
-            .clone()
-            .unwrap_or_else(|| BigDecimal::from(0))
-            * &expected_pool;
-        let actual_amount = &reward_row
-            .amount
-            .clone()
-            .unwrap_or_else(|| BigDecimal::from(0));
+        let expected_amount = &score_row.normalized_share.clone() * &expected_pool;
+        let actual_amount = &reward_row.amount.clone();
         let diff = (expected_amount - actual_amount).abs();
         assert!(
             diff < BigDecimal::try_from(0.0001).unwrap(),
@@ -527,7 +515,7 @@ async fn settlement_bridge_economic_to_token_flow() {
 
     // Step 2: Submit settlement (economic → ledger transition)
     let settlement_batch = settlement_svc
-        .submit_settlement(epoch_id)
+        .submit_batch(epoch_id)
         .await
         .expect("Settlement submission should succeed");
 
@@ -559,7 +547,7 @@ async fn settlement_bridge_economic_to_token_flow() {
 
     // Step 3: Confirm settlement (ledger acknowledgment)
     settlement_svc
-        .confirm_settlement(epoch_id)
+        .confirm_settlement(&settlement_batch.batch_id)
         .await
         .expect("Settlement confirmation should succeed");
 

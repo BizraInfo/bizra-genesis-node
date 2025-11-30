@@ -383,7 +383,7 @@ pub async fn list_alpha_requests(
 // HELPER FUNCTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 
-fn generate_invite_code() -> String {
+pub fn generate_invite_code() -> String {
     use rand::Rng;
     const CHARSET: &[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Excluding ambiguous chars
     let mut rng = rand::rng();
@@ -418,7 +418,7 @@ async fn send_alpha_invite_email(email: &str, name: &str, invite_code: &str) {
     println!("\n=========================");
 }
 
-fn generate_jwt_token(user_id: &str) -> Result<String, (StatusCode, Json<serde_json::Value>)> {
+pub fn generate_jwt_token(user_id: &str) -> Result<String, (StatusCode, Json<serde_json::Value>)> {
     use jsonwebtoken::{encode, EncodingKey, Header};
     use serde::{Deserialize, Serialize};
 

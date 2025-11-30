@@ -22,7 +22,8 @@ import {
   LogOut,
   Moon,
   Sun,
-  Monitor
+  Monitor,
+  Cpu
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useOnboarding } from '../contexts/OnboardingContext'
@@ -38,6 +39,13 @@ const NAVIGATION_ITEMS = [
     path: '/dashboard',
     icon: Home,
     description: 'Overview and key metrics'
+  },
+  {
+    id: 'performance',
+    label: 'Command Center',
+    path: '/PerformanceCommandCenter',
+    icon: Cpu,
+    description: 'APEX & SNR Performance Dashboard'
   },
   {
     id: 'agents',

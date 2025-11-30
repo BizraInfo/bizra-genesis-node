@@ -419,6 +419,7 @@ mod tests {
                     safety,
                     efficiency,
                     ihsan,
+                    snr: None,
                 },
             },
             scores: CandidateScores {
@@ -426,6 +427,7 @@ mod tests {
                 safety,
                 efficiency,
                 ihsan,
+                snr: None,
             },
         }
     }
@@ -501,6 +503,7 @@ mod tests {
             safety: 0.95,
             efficiency: 0.85,
             ihsan: 0.9,
+            snr: None,
         };
         // Manual calculation: 0.4*0.9 + 0.3*0.95 + 0.2*0.85 + 0.1*0.9 = 0.36 + 0.285 + 0.17 + 0.09 = 0.905
         let composite = consensus.composite_score(&scores);
@@ -526,6 +529,7 @@ mod tests {
                     safety: 0.5 + ((i + 1) as f32 * 0.1).min(0.5),
                     efficiency: 0.5 + ((i + 2) as f32 * 0.1).min(0.5),
                     ihsan: 0.5 + (i as f32 * 0.2).min(0.5),
+                    snr: None,
                 },
             })
             .collect()
@@ -550,6 +554,7 @@ mod tests {
                     safety: 0.85,
                     efficiency: 0.85,
                     ihsan: 0.85,
+                    snr: None,
                 },
             },
             ScoredCandidate {
@@ -565,6 +570,7 @@ mod tests {
                     safety: 0.70,
                     efficiency: 0.60,
                     ihsan: 0.70,
+                    snr: None,
                 },
             },
             ScoredCandidate {
@@ -580,6 +586,7 @@ mod tests {
                     safety: 0.99, // Very high safety
                     efficiency: 0.75,
                     ihsan: 0.80,
+                    snr: None,
                 },
             },
         ];
@@ -653,6 +660,7 @@ mod tests {
                             safety: 0.95,
                             efficiency: 0.87,
                             ihsan,
+                            snr: None,
                         },
                     },
                     scores: CandidateScores {
@@ -660,6 +668,7 @@ mod tests {
                         safety: 0.95,
                         efficiency: 0.87,
                         ihsan,
+                        snr: None,
                     },
                 })
                 .collect();
@@ -768,6 +777,7 @@ mod tests {
             safety: 0.912_345_67,
             efficiency: 0.898_765_43,
             ihsan: 0.823_456_78,
+            snr: None,
         };
 
         let consensus = WeightedScoreConsensus::new(ConsensusConfig::default());
@@ -853,6 +863,7 @@ mod tests {
                             safety: 0.99,
                             efficiency: 0.99,
                             ihsan,
+                            snr: None,
                         },
                     }
                 })
@@ -903,18 +914,21 @@ mod tests {
                 safety: 0.0,
                 efficiency: 0.0,
                 ihsan: 0.0,
+                snr: None,
             }, // Zero scores
             CandidateScores {
                 accuracy: 1.0,
                 safety: 1.0,
                 efficiency: 1.0,
                 ihsan: 1.0,
+                snr: None,
             }, // Perfect scores
             CandidateScores {
                 accuracy: 0.5,
                 safety: 0.5,
                 efficiency: 0.5,
                 ihsan: 0.5,
+                snr: None,
             }, // Neutral scores
         ];
 
@@ -962,6 +976,7 @@ mod tests {
                     safety: 0.97,
                     efficiency: 0.60, // Low efficiency due to cost
                     ihsan: 0.95,
+                    snr: None,
                 },
             },
             ScoredCandidate {
@@ -978,6 +993,7 @@ mod tests {
                     safety: 0.94,
                     efficiency: 0.85,
                     ihsan: 0.90,
+                    snr: None,
                 },
             },
             ScoredCandidate {
@@ -994,6 +1010,7 @@ mod tests {
                     safety: 0.80,
                     efficiency: 0.95, // High efficiency due to low cost/low latency
                     ihsan: 0.70,
+                    snr: None,
                 },
             },
         ];
@@ -1109,6 +1126,7 @@ mod tests {
                     safety: 0.95,
                     efficiency: 0.87,
                     ihsan: 0.85, // Exactly at floor
+                    snr: None,
                 },
             },
             ScoredCandidate {
@@ -1124,6 +1142,7 @@ mod tests {
                     safety: 0.92,
                     efficiency: 0.85,
                     ihsan: 0.85001, // Slightly above floor
+                    snr: None,
                 },
             },
         ];
@@ -1143,6 +1162,7 @@ mod tests {
             safety: 0.95,
             efficiency: 0.87,
             ihsan: 0.85,
+            snr: None,
         };
 
         // Test consensus with exactly equal Ihsan scores
@@ -1168,6 +1188,7 @@ mod tests {
                         safety: 0.95,
                         efficiency: 0.87,
                         ihsan: 0.85,
+                        snr: None,
                     },
                 },
                 scores: CandidateScores {
@@ -1175,6 +1196,7 @@ mod tests {
                     safety: 0.95,
                     efficiency: 0.87,
                     ihsan: 0.85,
+                    snr: None,
                 },
             },
         ];

@@ -16,6 +16,7 @@ import OnboardingWizard from './components/onboarding/OnboardingWizard'
 import ProtectedRoute from './components/ProtectedRoute'
 import TelemetryPlayground from './pages/TelemetryPlayground'
 import Landing from './pages/Landing'
+import PerformanceCommandCenter from './pages/PerformanceCommandCenter'
 
 function App() {
   return (
@@ -52,6 +53,10 @@ function App() {
 
           {/* Telemetry Playground - Public route for validation testing */}
           <Route path="/telemetry-playground" element={<TelemetryPlayground />} />
+
+          {/* Performance Command Center - APEX & SNR Dashboard */}
+          <Route path="/performance" element={<PerformanceCommandCenter />} />
+          <Route path="/command-center" element={<PerformanceCommandCenter />} />
 
           {/* Landing Page - Public showcase route */}
           <Route path="/landing" element={<Landing />} />

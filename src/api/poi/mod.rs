@@ -22,7 +22,7 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::middleware::rate_limit::{RateLimitError, RateLimiter};
+use crate::middleware::rate_limit::{AttestationRateLimitError, AttestationRateLimiter};
 
 // Re-export public types
 pub use types::{
@@ -38,7 +38,7 @@ pub use types::{
 pub struct PoiAppState {
     pub db: Arc<PgPool>,
     pub verifier: Arc<dyn verifier::PoiSignatureVerifier + Send + Sync>,
-    pub rate_limiter: Arc<dyn RateLimiter>,
+    pub rate_limiter: Arc<dyn AttestationRateLimiter>,
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════
@@ -119,14 +119,14 @@ pub async fn verify_poi(
         .check_contributor(&body.contributor_id)
         .await
         .map_err(|e| match e {
-            RateLimitError::Exceeded => (
+            AttestationRateLimitError::Exceeded => (
                 StatusCode::TOO_MANY_REQUESTS,
                 Json(serde_json::json!({
                     "error": "Rate limit exceeded",
                     "message": "Too many attestation requests"
                 }))
             ),
-            RateLimitError::BackendError(_) => (
+            AttestationRateLimitError::BackendError(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(serde_json::json!({
                     "error": "Rate limiter error"
@@ -198,23 +198,23 @@ pub async fn verify_poi(
         // Handle unique constraint violation for duplicate payload_hash
         if let sqlx::Error::Database(ref db_err) = e {
             if db_err.code().as_deref() == Some("23505") { // PostgreSQL unique_violation
-                return Err((
+                return (
                     StatusCode::CONFLICT,
                     Json(serde_json::json!({
                         "error": "Duplicate attestation",
                         "message": "This attestation has already been submitted"
                     })),
-                ));
+                );
             }
         }
 
-        Err((
+        (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({
                 "error": "Database error",
                 "details": e.to_string()
             })),
-        ))
+        )
     })?;
 
     // 7) Audit log successful verification

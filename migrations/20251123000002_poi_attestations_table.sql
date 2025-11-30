@@ -30,7 +30,7 @@ CREATE TABLE poi_attestations (
 -- Performance indexes
 CREATE INDEX idx_poi_contributor ON poi_attestations (contributor_id);
 CREATE INDEX idx_poi_domain_status ON poi_attestations (impact_domain, status);
-CREATE INDEX idx_poi_created_at ON poi_attestations (created_at DESC);
+CREATE INDEX idx_poi_attestations_created_at ON poi_attestations (created_at DESC);
 
 -- Add public_key column to users table for signature verification
 -- This might already exist from previous migrations

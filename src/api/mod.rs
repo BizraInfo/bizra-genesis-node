@@ -9,6 +9,7 @@ pub mod health;
 pub mod invites;
 pub mod metrics;
 pub mod middleware;
+pub mod poi;
 pub mod sape;
 pub mod sat;
 pub mod telemetry;

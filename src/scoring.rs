@@ -475,6 +475,7 @@ mod tests {
                 safety,
                 efficiency,
                 ihsan,
+                snr: None,
             },
             cost_usd,
             latency_ms,

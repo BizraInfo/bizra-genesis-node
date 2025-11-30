@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            contributor_id,\n            impact_domain,\n            normalized_score,\n            status as \"status: PoiStatus\",\n            created_at as \"timestamp\"\n        FROM poi_attestations\n        ORDER BY created_at DESC\n        LIMIT 20\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "contributor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "impact_domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "normalized_score",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 3,
+        "name": "status: PoiStatus",
+        "type_info": {
+          "Custom": {
+            "name": "poi_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "verified",
+                "rejected",
+                "revoked"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "timestamp",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "5b02eb3881f3eb6b3750141575ae80125c655764f9b7dfb98a345e9af3810c02"
+}

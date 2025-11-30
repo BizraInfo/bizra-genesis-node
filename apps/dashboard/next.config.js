@@ -84,6 +84,11 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/favicon.ico',
+        destination: '/favicon.svg',
+        permanent: true,
+      },
     ];
   },
 };

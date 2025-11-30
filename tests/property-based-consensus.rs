@@ -503,7 +503,7 @@ fn select_winner(candidates: &[(f32, f32, f32, f32)], ihsan_floor: f32) -> Optio
 fn regression_composite_score_perfect_candidate() {
     let composite = 0.4 * 1.0 + 0.3 * 1.0 + 0.2 * 1.0 + 0.1 * 1.0;
     assert!(
-        (composite - 1.0).abs() < 0.001,
+        (composite - 1.0f64).abs() < 0.001,
         "Perfect candidate should have composite = 1.0"
     );
 }
@@ -512,7 +512,7 @@ fn regression_composite_score_perfect_candidate() {
 fn regression_composite_score_zero_candidate() {
     let composite = 0.4 * 0.0 + 0.3 * 0.0 + 0.2 * 0.0 + 0.1 * 0.0;
     assert!(
-        (composite - 0.0).abs() < 0.001,
+        (composite - 0.0f64).abs() < 0.001,
         "Zero candidate should have composite = 0.0"
     );
 }

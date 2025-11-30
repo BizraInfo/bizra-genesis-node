@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT COUNT(*) as reward_count\n            FROM poi_rewards\n            WHERE epoch_id = $1 AND status = 'pending'\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reward_count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "85e533334c1ddc96b0a9bf3b2cb8f6d3065c0f081e13a3bcff1456f75835a8ef"
+}

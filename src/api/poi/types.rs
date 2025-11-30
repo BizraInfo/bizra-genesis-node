@@ -16,6 +16,7 @@ use sqlx::FromRow;
 
 #[derive(Debug, sqlx::Type, Serialize, Deserialize, ToSchema, Clone, Copy)]
 #[sqlx(type_name = "poi_status", rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum PoiStatus {
     Pending,
     Verified,
@@ -81,6 +82,7 @@ pub struct PoiVerifyRequest {
 // ╔══════════════════════════════════════════════════════════════════════════
 
 #[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct PoiVerifyResponse {
     pub id: Uuid,
     pub verified: bool,
@@ -90,6 +92,7 @@ pub struct PoiVerifyResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct PoiSummaryResponse {
     pub total_attestations: i64,
     pub verified_attestations: i64,
@@ -99,13 +102,15 @@ pub struct PoiSummaryResponse {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct PoiDomainAggregate {
     pub impact_domain: String,
-    pub count: i64,
-    pub avg_score: f32,
+    pub count: Option<i64>,
+    pub avg_score: Option<f64>,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct PoiRecentActivity {
     pub contributor_id: Uuid,
     pub impact_domain: String,
@@ -210,14 +215,14 @@ mod tests {
 
     #[test]
     fn test_poi_verify_request_validation() {
-        // Valid request
+        // Valid request - signature must be 44-200 chars (base64 encoded ed25519)
         let valid = PoiVerifyRequest {
             contributor_id: Uuid::new_v4(),
             impact_domain: "education".to_string(),
             raw_score: 85.0,
             weight: 1.2,
             payload_hash: "sha256:d9c9fa504add65a1be737f3fe3447bc056fd1aa".to_string(),
-            signature: "test_b64_signature_ABcdef1234567890".to_string(),
+            signature: "test_b64_signature_ABcdef1234567890ABCDEFghijklmnop".to_string(), // 50 chars
             attestation_id: None,
         };
         assert!(valid.validate().is_ok());
@@ -229,7 +234,7 @@ mod tests {
             raw_score: 85.0,
             weight: 1.2,
             payload_hash: "sha256:d9c9fa504add65a1be737f3fe3447bc056fd1aa".to_string(),
-            signature: "test_b64_signature_ABcdef1234567890".to_string(),
+            signature: "test_b64_signature_ABcdef1234567890ABCDEFghijklmnop".to_string(),
             attestation_id: None,
         };
         assert!(invalid.validate().is_err());
@@ -241,7 +246,7 @@ mod tests {
             raw_score: 150.0,  // > 100 max
             weight: 1.2,
             payload_hash: "sha256:d9c9fa504add65a1be737f3fe3447bc056fd1aa".to_string(),
-            signature: "test_b64_signature_ABcdef1234567890".to_string(),
+            signature: "test_b64_signature_ABcdef1234567890ABCDEFghijklmnop".to_string(),
             attestation_id: None,
         };
         assert!(invalid_score.validate().is_err());
@@ -272,8 +277,8 @@ mod tests {
             by_domain: vec![
                 PoiDomainAggregate {
                     impact_domain: "education".to_string(),
-                    count: 45,
-                    avg_score: 0.823,
+                    count: Some(45),
+                    avg_score: Some(0.823),
                 }
             ],
             recent_activity: vec![

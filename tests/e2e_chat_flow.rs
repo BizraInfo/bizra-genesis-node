@@ -99,11 +99,12 @@ async fn e2e_ai_provider_failure_path() {
 
     // Accept both success and controlled error response
     // The system should not panic, regardless of processing result
-    if !response.status().is_success() {
+    let status = response.status();
+    if !status.is_success() {
         let body_text = response.text().await.expect("read error response");
         println!(
             "⚠️ SAPE processed failure scenario with status: {}",
-            response.status()
+            status
         );
         println!("Error response: {}", body_text);
     } else {

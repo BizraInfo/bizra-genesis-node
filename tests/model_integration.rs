@@ -7,7 +7,7 @@ use anyhow::Result;
 use std::env;
 
 // Import the actual crate modules - adjust these paths as needed
-use bizra_genesis_node::ai_backend::SynthesisOrchestrator;
+use bizra_genesis_node::SynthesisOrchestrator;
 use bizra_genesis_node::models::{
     AnthropicProvider, CompletionOptions, ModelProvider, OllamaProvider, OpenAIProvider,
 };

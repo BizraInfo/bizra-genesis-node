@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO poi_attestations (\n            contributor_id,\n            impact_domain,\n            raw_score,\n            weight,\n            normalized_score,\n            payload_hash,\n            signature,\n            status,\n            attestation_id\n        )\n        VALUES ($1, $2, $3, $4, $5, $6, $7, 'verified', $8)\n        RETURNING\n            id,\n            contributor_id,\n            impact_domain,\n            raw_score,\n            weight,\n            normalized_score,\n            payload_hash,\n            status as \"status: _\",\n            created_at,\n            verified_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "contributor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "impact_domain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "raw_score",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 4,
+        "name": "weight",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 5,
+        "name": "normalized_score",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "payload_hash",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "status: _",
+        "type_info": {
+          "Custom": {
+            "name": "poi_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "verified",
+                "rejected",
+                "revoked"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "verified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Text",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "647de377b6c7031e9eae08155bccc53737abc6b3a4bee4f70086c92f24af4801"
+}

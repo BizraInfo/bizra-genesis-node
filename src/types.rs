@@ -314,6 +314,11 @@ impl Candidate {
 /// - **Efficiency**: Resource usage (tokens, time, cost)
 /// - **Ihsan**: Overall excellence and quality of execution
 ///
+/// # Signal-to-Noise Ratio
+///
+/// The SNR field measures signal clarity vs performance variability,
+/// providing reliability assessment for candidate evaluation.
+///
 /// # Examples
 ///
 /// ```
@@ -324,6 +329,7 @@ impl Candidate {
 ///     safety: 0.98,
 ///     efficiency: 0.85,
 ///     ihsan: 0.92,
+///     snr: Some(42.7), // High SNR = reliable performance
 /// };
 /// assert!(scores.accuracy >= 0.0 && scores.accuracy <= 1.0);
 /// ```
@@ -337,6 +343,12 @@ pub struct CandidateScores {
     pub efficiency: f32,
     /// Ihsan score (0.0-1.0): Overall excellence in execution
     pub ihsan: f32,
+
+    /// Signal-to-Noise Ratio (Optional): Reliability vs performance variability
+    /// Higher SNR = More consistent/reliable agent performance
+    /// Lower SNR = More variable/erratic performance
+    #[serde(default)]
+    pub snr: Option<f32>,
 }
 
 /// Candidate paired with its evaluated scores.
@@ -573,7 +585,13 @@ mod tests {
         let candidate = Candidate {
             model: "gpt-4".to_string(),
             json: serde_json::json!({"answer": 42}),
-            scores: CandidateScores::default(),
+            scores: CandidateScores {
+                accuracy: 0.0,
+                safety: 0.0,
+                efficiency: 0.0,
+                ihsan: 0.0,
+                snr: None,
+            },
             cost_usd: 0.03,
             latency_ms: 500,
         };
@@ -599,12 +617,14 @@ mod tests {
             safety: 0.98,
             efficiency: 0.85,
             ihsan: 0.92,
+            snr: Some(25.7),
         };
 
         assert_eq!(scores.accuracy, 0.95);
         assert_eq!(scores.safety, 0.98);
         assert_eq!(scores.efficiency, 0.85);
         assert_eq!(scores.ihsan, 0.92);
+        assert_eq!(scores.snr, Some(25.7));
     }
 
     #[test]
@@ -614,6 +634,7 @@ mod tests {
             safety: 0.95,
             efficiency: 0.85,
             ihsan: 0.9,
+            snr: None,
         };
 
         let json = serde_json::to_string(&scores).unwrap();
@@ -624,24 +645,25 @@ mod tests {
         assert_eq!(deserialized.accuracy, 0.9);
     }
 
-    #[test]
-    fn test_scored_candidate_creation() {
-        let candidate = Candidate::example();
-        let scores = CandidateScores {
-            accuracy: 0.9,
-            safety: 0.95,
-            efficiency: 0.85,
-            ihsan: 0.9,
-        };
+#[test]
+fn test_scored_candidate_creation() {
+    let candidate = Candidate::example();
+    let scores = CandidateScores {
+        accuracy: 0.9,
+        safety: 0.95,
+        efficiency: 0.85,
+        ihsan: 0.9,
+        snr: None,
+    };
 
-        let scored = ScoredCandidate {
-            candidate: candidate.clone(),
-            scores: scores.clone(),
-        };
+    let scored = ScoredCandidate {
+        candidate: candidate.clone(),
+        scores: scores.clone(),
+    };
 
-        assert_eq!(scored.candidate.model, "model-1");
-        assert_eq!(scored.scores.accuracy, 0.9);
-    }
+    assert_eq!(scored.candidate.model, "model-1");
+    assert_eq!(scored.scores.accuracy, 0.9);
+}
 
     #[test]
     fn test_consensus_config_default() {
@@ -751,6 +773,7 @@ mod tests {
             safety: 1.0,
             efficiency: 1.0,
             ihsan: 1.0,
+            snr: None,
         };
         assert_eq!(scores.accuracy, 1.0);
 
@@ -759,6 +782,7 @@ mod tests {
             safety: 0.0,
             efficiency: 0.0,
             ihsan: 0.0,
+            snr: None,
         };
         assert_eq!(scores_zero.accuracy, 0.0);
     }

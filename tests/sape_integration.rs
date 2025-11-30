@@ -7,13 +7,10 @@
 //!
 //! Tests for SAPE Engine integration with BIZRA Genesis Node.
 
-use axum::body::Body;
-use axum::http::{Request, StatusCode};
+use axum::http::StatusCode;
 use axum_test::TestServer;
 use bizra_genesis_node::{
-    api::{create_router, sape::sape_health},
-    observability::MetricsCollector,
-    AppState,
+    api::{create_router, metrics::MetricsCollector, telemetry::TelemetryCollector},
 };
 use serde_json::json;
 use sqlx::PgPool;
@@ -29,9 +26,9 @@ async fn test_sape_health_endpoint() {
                 panic!("Failed to connect to test database - ensure PostgreSQL is running")
             }),
     );
-    let redis_client = redis::Client::open("redis://localhost:6379").unwrap();
-    let metrics = Arc::new(MetricsCollector::new());
-    let telemetry_collector = Arc::new(crate::observability::TelemetryCollector::default());
+    let redis_client = Arc::new(redis::Client::open("redis://localhost:6379").unwrap());
+    let metrics = Arc::new(MetricsCollector::new().unwrap());
+    let telemetry_collector = Arc::new(TelemetryCollector::default());
 
     // Create router
     let app = create_router(pool, redis_client, metrics, telemetry_collector);
@@ -59,9 +56,9 @@ async fn test_sape_reason_endpoint() {
             .await
             .unwrap_or_else(|_| panic!("Database connection required for SAPE tests")),
     );
-    let redis_client = redis::Client::open("redis://localhost:6379").unwrap();
-    let metrics = Arc::new(MetricsCollector::new());
-    let telemetry_collector = Arc::new(crate::observability::TelemetryCollector::default());
+    let redis_client = Arc::new(redis::Client::open("redis://localhost:6379").unwrap());
+    let metrics = Arc::new(MetricsCollector::new().unwrap());
+    let telemetry_collector = Arc::new(TelemetryCollector::default());
 
     let app = create_router(pool, redis_client, metrics, telemetry_collector);
     let server = TestServer::new(app).unwrap();
@@ -92,9 +89,9 @@ async fn test_sape_with_context_placeholder() {
             .await
             .unwrap_or_else(|_| panic!("Database connection required")),
     );
-    let redis_client = redis::Client::open("redis://localhost:6379").unwrap();
-    let metrics = Arc::new(MetricsCollector::new());
-    let telemetry_collector = Arc::new(crate::observability::TelemetryCollector::default());
+    let redis_client = Arc::new(redis::Client::open("redis://localhost:6379").unwrap());
+    let metrics = Arc::new(MetricsCollector::new().unwrap());
+    let telemetry_collector = Arc::new(TelemetryCollector::default());
 
     let app = create_router(pool, redis_client, metrics, telemetry_collector);
     let server = TestServer::new(app).unwrap();

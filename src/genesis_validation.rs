@@ -386,6 +386,7 @@ mod tests {
             safety: 0.95,
             efficiency: 0.85,
             ihsan: 0.92,
+            snr: None,
         };
 
         validator
