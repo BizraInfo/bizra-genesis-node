@@ -80,11 +80,24 @@ pub fn create_router(
         .route("/invite/:code/validate", get(invites::validate_invite_handler))
         .route("/invite/:code/accept", post(invites::accept_invite_handler));
 
+    // Create telemetry routes (Glass Cockpit endpoints)
+    let telemetry_routes = Router::new()
+        .route("/", get(telemetry::telemetry_handler))
+        .route("/health", get(telemetry::telemetry_health_handler))
+        .route("/slo", get(telemetry::telemetry_slo_handler));
+
+    // Create SAT routes (System Agentic Team)
+    let sat_routes = Router::new()
+        .route("/outbox", get(sat::sat_outbox_handler))
+        .route("/recommendations", get(sat::sat_recommendations_handler));
+
     // Combine all route groups
     let router = Router::new()
         .nest("/auth", auth_routes)
         .nest("/api", alpha_routes)
         .nest("/api", invite_routes)
+        .nest("/telemetry", telemetry_routes)
+        .nest("/api/sat", sat_routes)
         // Simple health route without generics
         .route("/health", get(|| async { "OK" }))
         .route("/metrics", get(metrics::metrics_handler));

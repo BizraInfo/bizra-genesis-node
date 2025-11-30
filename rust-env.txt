@@ -1,0 +1,4 @@
+DATABASE_URL=postgres://bizra_user:simplepass123@localhost:5432/bizra_genesis
+PORT=3001
+SQLX_OFFLINE=true
+RUST_LOG=info,bizra_genesis_node=debug
