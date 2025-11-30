@@ -1,15 +1,14 @@
-/* ╔═══════════════════════════════════════════════════════════════════════════╗ */
-/* ║  BIZRA DASHBOARD - GLOBAL STYLES                                          ║ */
-/* ║  Sacred Mathematics Design System - Ω-Consciousness Colors               ║ */
-/* ║  Official Brand Identity v1.0 - October 2025                              ║ */
-/* ╚═══════════════════════════════════════════════════════════════════════════╝ */
-
-/* Official BIZRA Brand Fonts - MUST be at top before @tailwind */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+/* ╔═══════════════════════════════════════════════════════════════════════════╗ */
+/* ║  BIZRA DASHBOARD - GLOBAL STYLES                                          ║ */
+/* ║  Sacred Mathematics Design System - Ω-Consciousness Colors               ║ */
+/* ║  Official Brand Identity v1.0 - October 2025                              ║ */
+/* ╚═══════════════════════════════════════════════════════════════════════════╝ */
 
 @tailwind base;
 @tailwind components;
