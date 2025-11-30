@@ -118,3 +118,7 @@ out/
 
 # Bizra kernel (local)
 .bizra-kernel/
+
+bizra-moe/target/
+noise_folder/
+*/target/
