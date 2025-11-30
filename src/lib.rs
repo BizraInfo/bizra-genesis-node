@@ -114,7 +114,9 @@ pub struct SynthesisOrchestrator {
     impact_tracker: ImpactTracker,
 
     /// Ultra Thinking Protocol metrics - Advanced cognitive architecture
+    #[allow(dead_code)]
     ultra_thinking_enabled: bool,
+    #[allow(dead_code)]
     ultra_thinking_iterations: Arc<RwLock<u64>>,
 
     /// AI Backend for generating candidates (MOE, simulated, or hybrid)

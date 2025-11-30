@@ -14,7 +14,9 @@ pub mod sat;
 pub mod telemetry;
 
 use axum::{
-    routing::{get, post, put}, Router,
+    extract::Extension,
+    routing::{get, post, put},
+    Router,
 };
 use redis::Client as RedisClient;
 use sqlx::PgPool;
@@ -47,10 +49,15 @@ pub fn create_router(
         ip_whitelist: vec![], // No IP whitelisting by default
     };
 
-    let rate_limiter = Arc::new(crate::middleware::rate_limit::RateLimiter::new(
+    let _rate_limiter = Arc::new(crate::middleware::rate_limit::RateLimiter::new(
         (*redis_client).clone(),
         rate_limiter_config,
     ));
+
+    // Initialize Circuit Breaker Registry
+    let circuit_breaker_registry = Arc::new(
+        crate::middleware::circuit_breaker::CircuitBreakerRegistry::new(),
+    );
 
     // Create auth routes (these have their own rate limiting)
     let auth_routes = Router::new()
@@ -66,7 +73,7 @@ pub fn create_router(
         );
 
     // Create health check backend
-    let health_backend: Arc<dyn health::HealthCheckBackend> =
+    let _health_backend: Arc<dyn health::HealthCheckBackend> =
         Arc::new(health::DbHealthCheck::new(pool.clone()));
 
     // Create alpha invite routes (existing system)
@@ -89,7 +96,8 @@ pub fn create_router(
     // Create SAT routes (System Agentic Team)
     let sat_routes = Router::new()
         .route("/outbox", get(sat::sat_outbox_handler))
-        .route("/recommendations", get(sat::sat_recommendations_handler));
+        .route("/recommendations", get(sat::sat_recommendations_handler))
+        .layer(Extension(circuit_breaker_registry));
 
     // Combine all route groups
     let router = Router::new()

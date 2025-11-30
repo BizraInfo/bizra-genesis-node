@@ -5,7 +5,7 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+// use uuid::Uuid; // Removed unused import
 
 /// Invite status enumeration (matching existing DB enum)
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::Type)]
