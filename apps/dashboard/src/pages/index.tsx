@@ -1,127 +1,238 @@
-/**
- * BIZRA Genesis Node - Landing Page
- * Beautiful, performant, world-class landing experience
- */
-
 import { useEffect, useRef } from 'react';
 import Head from 'next/head';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement } from 'chart.js';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-export default function Home() {
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement);
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Network animation
   useEffect(() => {
+    // Particle Network Animation
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
-    let animationId: number;
-    let particles: Array<{
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
-      color: string;
-    }> = [];
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initParticles();
-    };
+    const particles: Array<{x: number, y: number, vx: number, vy: number, size: number}> = [];
+    const numParticles = 50;
 
-    const initParticles = () => {
-      particles = [];
-      for (let i = 0; i < 80; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          size: Math.random() * 2 + 0.5,
-          color: Math.random() > 0.5 ? '#C9A962' : '#2A9D8F',
-        });
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2 + 1
+      });
+    }
+
+    function animate() {
+      if (!ctx || !canvas) {
+        return;
       }
-    };
 
-    const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach((p, index) => {
-        p.x += p.vx;
-        p.y += p.vy;
+      particles.forEach((particle, i) => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
 
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        if (particle.x < 0 || particle.x > canvas.width) {
+          particle.vx *= -1;
+        }
+        if (particle.y < 0 || particle.y > canvas.height) {
+          particle.vy *= -1;
+        }
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(201, 169, 98, 0.3)';
         ctx.fill();
 
-        for (let j = index + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 120) {
+        // Draw connections
+        particles.slice(i + 1).forEach(otherParticle => {
+          const dx = particle.x - otherParticle.x;
+          const dy = particle.y - otherParticle.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 100) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(201, 169, 98, ${0.15 - dist / 800})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
+            ctx.moveTo(particle.x, particle.y);
+            ctx.lineTo(otherParticle.x, otherParticle.y);
+            ctx.strokeStyle = `rgba(201, 169, 98, ${0.1 * (1 - distance / 100)})`;
             ctx.stroke();
           }
-        }
+        });
       });
 
-      animationId = requestAnimationFrame(animate);
-    };
+      requestAnimationFrame(animate);
+    }
 
-    resize();
     animate();
 
-    window.addEventListener('resize', resize);
+    // GSAP Animations
+    gsap.from('.reveal-hero', {
+      opacity: 0,
+      y: 30,
+      duration: 1,
+      stagger: 0.2,
+      ease: 'power2.out'
+    });
 
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationId);
+    gsap.utils.toArray('.glass-panel').forEach((panel: any) => {
+      gsap.from(panel, {
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        scrollTrigger: {
+          trigger: panel,
+          start: 'top 80%',
+          end: 'bottom 20%',
+          toggleActions: 'play none none reverse'
+        }
+      });
+    });
+
+    // Resize handler
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Chart Data
+  const inflationData = {
+    labels: ['1971', '1980', '1990', '2000', '2010', '2020', '2024'],
+    datasets: [
+      {
+        label: 'Fiat USD Purchasing Power',
+        data: [100, 25, 15, 12, 8, 5, 4],
+        borderColor: 'rgba(138, 107, 46, 0.8)',
+        backgroundColor: 'rgba(138, 107, 46, 0.1)',
+        tension: 0.4,
+        fill: true
+      },
+      {
+        label: 'BIZRA Stable Value',
+        data: [100, 100, 100, 100, 100, 100, 100],
+        borderColor: 'rgba(201, 169, 98, 1)',
+        backgroundColor: 'rgba(201, 169, 98, 0.1)',
+        tension: 0.4,
+        fill: true
+      }
+    ]
+  };
+
+  const flowerData = {
+    labels: ['Treasury', 'Community', 'Liquidity'],
+    datasets: [{
+      data: [40, 35, 25],
+      backgroundColor: [
+        'rgba(201, 169, 98, 0.8)',
+        'rgba(42, 157, 143, 0.8)',
+        'rgba(248, 246, 241, 0.8)'
+      ],
+      borderWidth: 0
+    }]
+  };
+
+  const velocityData = {
+    labels: ['Visa', 'PayPal', 'Bitcoin', 'Ethereum', 'BIZRA'],
+    datasets: [{
+      label: 'Transactions Per Second',
+      data: [65000, 193, 7, 15, 1000000],
+      backgroundColor: [
+        'rgba(138, 107, 46, 0.6)',
+        'rgba(138, 107, 46, 0.6)',
+        'rgba(138, 107, 46, 0.6)',
+        'rgba(138, 107, 46, 0.6)',
+        'rgba(201, 169, 98, 0.9)'
+      ],
+      borderRadius: 4
+    }]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: 'rgba(248, 246, 241, 0.7)',
+          font: { size: 12 }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: 'rgba(248, 246, 241, 0.6)' },
+        grid: { color: 'rgba(248, 246, 241, 0.1)' }
+      },
+      y: {
+        ticks: { color: 'rgba(248, 246, 241, 0.6)' },
+        grid: { color: 'rgba(248, 246, 241, 0.1)' }
+      }
+    }
+  };
 
   return (
     <>
       <Head>
         <title>BIZRA | Sovereign Monetary System</title>
-        <meta name="description" content="BIZRA - The Golden Age of Digital Finance. Zero inflation, instant settlement, infinite scalability." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.svg" />
+        <meta name="description" content="The Golden Age of Digital Finance - Sovereign, Scarce, Instant" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@200;300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
       </Head>
 
       <style jsx global>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        body {
+        html, body {
           background-color: #050B14;
           color: #F8F6F1;
-          font-family: 'Inter', sans-serif;
           overflow-x: hidden;
+          overflow-y: auto;
+          font-family: 'Inter', sans-serif;
+          height: auto;
+          min-height: 100vh;
+          scroll-behavior: smooth;
         }
 
-        .font-serif {
-          font-family: 'Playfair Display', serif;
+        #__next {
+          min-height: 100vh;
+        }
+
+        /* Ensure sections stack properly */
+        section, header {
+          position: relative;
+          z-index: 10;
+        }
+
+        /* Smooth scrolling for anchor links */
+        html {
+          scroll-behavior: smooth;
         }
 
         .grid-bg {
-          background-image: 
+          background-image:
             linear-gradient(rgba(201, 169, 98, 0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(201, 169, 98, 0.03) 1px, transparent 1px);
           background-size: 40px 40px;
@@ -129,525 +240,241 @@ export default function Home() {
           inset: 0;
           z-index: -1;
           mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 100%);
-          -webkit-mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 100%);
+        }
+
+        .noise-overlay {
+          position: fixed;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz48L3N2Zz4=');
+          opacity: 0.4;
+          pointer-events: none;
+          z-index: 50;
         }
 
         .glass-panel {
           background: rgba(10, 22, 40, 0.6);
           backdrop-filter: blur(12px);
           border: 1px solid rgba(201, 169, 98, 0.1);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
-        .gold-gradient {
+        .gold-gradient-text {
           background: linear-gradient(to bottom, #F9F1D8, #C9A962);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          background-clip: text;
         }
 
-        .btn-primary {
-          background: linear-gradient(135deg, #C9A962 0%, #B08D45 100%);
-          transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-          box-shadow: 0 0 30px rgba(201, 169, 98, 0.5);
-          transform: translateY(-2px);
-        }
-
-        .btn-outline {
-          border: 1px solid rgba(201, 169, 98, 0.5);
-          transition: all 0.3s ease;
-        }
-
-        .btn-outline:hover {
-          border-color: #C9A962;
-          background: rgba(201, 169, 98, 0.1);
-        }
-
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-in {
-          animation: fadeInUp 1s ease forwards;
-        }
-
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
-        .delay-5 { animation-delay: 0.5s; }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        .animate-pulse {
-          animation: pulse 2s ease-in-out infinite;
+        .section-number {
+          font-family: 'Playfair Display', serif;
+          -webkit-text-stroke: 1px rgba(201, 169, 98, 0.3);
+          color: transparent;
         }
       `}</style>
 
-      <div className="grid-bg" />
+      <div className="grid-bg"></div>
+      <div className="noise-overlay"></div>
 
       {/* Navigation */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        width: '100%',
-        zIndex: 40,
-        padding: '1rem 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-        background: 'rgba(5, 11, 20, 0.8)',
-        backdropFilter: 'blur(12px)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <svg width="32" height="32" viewBox="0 0 100 100">
+      <nav className="fixed top-0 w-full z-40 px-8 py-6 flex justify-between items-center mix-blend-difference border-b border-white/5 bg-slate-900/50 backdrop-blur-md">
+        <div className="flex items-center gap-4">
+          <svg width="24" height="24" viewBox="0 0 100 100" className="opacity-80">
             <g stroke="#C9A962" strokeWidth="2" fill="none">
               <circle cx="50" cy="50" r="20" />
               <circle cx="50" cy="30" r="20" />
               <circle cx="67.3" cy="40" r="20" />
-              <circle cx="67.3" cy="60" r="20" />
               <circle cx="50" cy="70" r="20" />
-              <circle cx="32.7" cy="60" r="20" />
               <circle cx="32.7" cy="40" r="20" />
             </g>
           </svg>
-          <span style={{ fontSize: '0.75rem', letterSpacing: '0.3em', color: '#C9A962', textTransform: 'uppercase' }}>
-            BIZRA
-          </span>
+          <div className="text-xs uppercase tracking-[0.3em] text-yellow-500">BIZRA Sovereign Dashboard</div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <a href="/login" className="btn-outline" style={{
-            padding: '0.5rem 1rem',
-            borderRadius: '9999px',
-            fontSize: '0.75rem',
-            letterSpacing: '0.1em',
-            color: '#C9A962',
-            textDecoration: 'none',
-            textTransform: 'uppercase'
-          }}>
-            Login
-          </a>
-          <a href="/register" className="btn-primary" style={{
-            padding: '0.5rem 1rem',
-            borderRadius: '9999px',
-            fontSize: '0.75rem',
-            letterSpacing: '0.1em',
-            color: '#050B14',
-            textDecoration: 'none',
-            fontWeight: 500,
-            textTransform: 'uppercase'
-          }}>
-            Get Started
-          </a>
+        <div className="hidden md:flex gap-8 text-[10px] uppercase tracking-[0.2em] text-white/50">
+          <a href="#macro" className="hover:text-yellow-400 transition-colors cursor-pointer">Macro</a>
+          <a href="#allocation" className="hover:text-yellow-400 transition-colors cursor-pointer">Allocation</a>
+          <a href="#velocity" className="hover:text-yellow-400 transition-colors cursor-pointer">Velocity</a>
+          <a href="#invite" className="hover:text-yellow-400 transition-colors cursor-pointer">Join</a>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        padding: '6rem 1.5rem 3rem'
-      }}>
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            opacity: 0.4,
-            pointerEvents: 'none'
-          }}
-        />
+      {/* SECTION 1: HERO */}
+      <header className="min-h-screen flex flex-col justify-center items-center relative px-6">
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 opacity-40 pointer-events-none" />
 
-        <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', maxWidth: '64rem' }}>
-          {/* Status Badge */}
-          <div className="animate-in delay-1" style={{ marginBottom: '1.5rem', opacity: 0 }}>
-            <span style={{
-              padding: '0.5rem 1rem',
-              border: '1px solid rgba(201, 169, 98, 0.3)',
-              borderRadius: '9999px',
-              fontSize: '0.625rem',
-              letterSpacing: '0.3em',
-              color: '#D4B875',
-              background: 'rgba(5, 11, 20, 0.8)',
-              textTransform: 'uppercase',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <span style={{
-                width: '0.5rem',
-                height: '0.5rem',
-                background: '#2DD4BF',
-                borderRadius: '50%'
-              }} className="animate-pulse" />
-              Genesis Network Live
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-yellow-500/50 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-yellow-500 rounded-full mt-2 animate-pulse"></div>
+          </div>
+          <div className="text-yellow-500/70 text-xs mt-2 uppercase tracking-widest">Scroll</div>
+        </div>
+
+        <div className="relative z-10 text-center max-w-5xl">
+          <div className="mb-6 opacity-0 reveal-hero">
+            <span className="px-3 py-1 border border-yellow-500/30 rounded-full text-[10px] uppercase tracking-[0.3em] text-yellow-400 bg-slate-900/80">
+              System v2.0 Live
             </span>
           </div>
 
-          {/* Main Headline */}
-          <h1 className="font-serif animate-in delay-2" style={{
-            fontSize: 'clamp(2.5rem, 8vw, 6rem)',
-            color: 'white',
-            marginBottom: '1.5rem',
-            lineHeight: 1.1,
-            opacity: 0
-          }}>
-            The <span className="gold-gradient" style={{ fontStyle: 'italic' }}>Golden Age</span>
-            <br />
+          <h1 className="text-5xl md:text-8xl font-serif text-white mb-6 leading-[1.1] opacity-0 reveal-hero">
+            The <span className="gold-gradient-text italic">Golden Age</span><br />
             of Digital Finance
           </h1>
 
-          {/* Subtitle */}
-          <p className="animate-in delay-3" style={{
-            color: 'rgba(255,255,255,0.6)',
-            maxWidth: '36rem',
-            margin: '0 auto 3rem',
-            fontWeight: 300,
-            lineHeight: 1.7,
-            fontSize: 'clamp(0.875rem, 2vw, 1rem)',
-            opacity: 0
-          }}>
-            Experience the paradigm shift from debt-based fiat to equity-based prosperity.
-            BIZRA combines sacred mathematics with sovereign monetary principles.
+          <p className="text-white/60 max-w-xl mx-auto font-light leading-relaxed mb-12 opacity-0 reveal-hero">
+            We are visualizing the transition from debt-based fiat currency to the BIZRA equity-based ecosystem. Observe the data.
           </p>
 
-          {/* Key Metrics */}
-          <div className="animate-in delay-4" style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '2rem',
-            marginBottom: '3rem',
-            opacity: 0
-          }}>
-            {[
-              { value: '0.05s', label: 'Settlement' },
-              { value: 'Zero', label: 'Inflation' },
-              { value: '∞', label: 'Scalability' },
-              { value: '88%', label: 'Ihsan Score' },
-            ].map((metric, i) => (
-              <div key={i} style={{ textAlign: 'center' }}>
-                <div className="font-serif" style={{ fontSize: '1.875rem', color: '#C9A962' }}>
-                  {metric.value}
-                </div>
-                <div style={{
-                  fontSize: '0.625rem',
-                  letterSpacing: '0.2em',
-                  color: 'rgba(255,255,255,0.4)',
-                  marginTop: '0.25rem',
-                  textTransform: 'uppercase'
-                }}>
-                  {metric.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="animate-in delay-5" style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '1rem',
-            marginBottom: '3rem',
-            opacity: 0
-          }}>
-            <a href="/register" className="btn-primary" style={{
-              padding: '1rem 2rem',
-              borderRadius: '9999px',
-              fontSize: '0.875rem',
-              letterSpacing: '0.15em',
-              color: '#050B14',
-              textDecoration: 'none',
-              fontWeight: 500,
-              textTransform: 'uppercase'
-            }}>
-              Enter Genesis →
-            </a>
-            <a href="/dashboard" className="btn-outline" style={{
-              padding: '1rem 2rem',
-              borderRadius: '9999px',
-              fontSize: '0.875rem',
-              letterSpacing: '0.15em',
-              color: '#C9A962',
-              textDecoration: 'none',
-              textTransform: 'uppercase'
-            }}>
-              View Dashboard
-            </a>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="animate-in delay-5" style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '1.5rem',
-            fontSize: '0.75rem',
-            color: 'rgba(255,255,255,0.4)',
-            opacity: 0
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg width="16" height="16" fill="#2DD4BF" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>Mathematically Verified</span>
+          <div className="flex justify-center gap-12 opacity-0 reveal-hero">
+            <div className="text-center">
+              <div className="text-3xl text-yellow-500 font-serif">0.05s</div>
+              <div className="text-[10px] uppercase tracking-widest text-white/40 mt-1">Settlement</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg width="16" height="16" fill="#C9A962" viewBox="0 0 20 20">
-                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
-              </svg>
-              <span>15,000+ Sacred Hours</span>
+            <div className="w-px h-12 bg-white/10"></div>
+            <div className="text-center">
+              <div className="text-3xl text-yellow-500 font-serif">Zero</div>
+              <div className="text-[10px] uppercase tracking-widest text-white/40 mt-1">Inflation</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg width="16" height="16" fill="#2DD4BF" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-              </svg>
-              <span>Sovereign Architecture</span>
+            <div className="w-px h-12 bg-white/10"></div>
+            <div className="text-center">
+              <div className="text-3xl text-yellow-500 font-serif">∞</div>
+              <div className="text-[10px] uppercase tracking-widest text-white/40 mt-1">Scalability</div>
             </div>
           </div>
         </div>
-      </main>
+      </header>
 
-      {/* Features Section */}
-      <section style={{
-        padding: '6rem 1.5rem',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        background: '#02060a'
-      }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <div style={{
-              fontSize: '0.625rem',
-              letterSpacing: '0.4em',
-              color: '#C9A962',
-              textTransform: 'uppercase',
-              marginBottom: '1rem'
-            }}>
-              Core Features
+      {/* SECTION 2: MACRO ECONOMICS */}
+      <section id="macro" className="py-32 px-6 md:px-24 border-t border-white/5 relative">
+        <div className="absolute top-10 left-10 text-9xl section-number opacity-10 pointer-events-none">01</div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          <div className="lg:col-span-4">
+            <h2 className="text-yellow-500 text-xs tracking-[0.4em] uppercase mb-4">Macro Analysis</h2>
+            <h3 className="text-4xl md:text-5xl font-serif text-white mb-6">
+              The Erosion of <span className="italic text-yellow-400">Value</span>
+            </h3>
+            <p className="text-white/50 leading-relaxed mb-8">
+              Since the decoupling from gold in 1971, fiat currencies have lost over 96% of their purchasing power. BIZRA restores the "Gold Standard" through algorithmic scarcity.
+            </p>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <span className="text-white">BIZRA (Stable)</span>
             </div>
-            <h2 className="font-serif" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'white' }}>
-              Built for <span style={{ fontStyle: 'italic', color: '#2A9D8F' }}>Generations</span>
-            </h2>
+            <div className="flex items-center gap-4 text-sm mt-2">
+              <div className="w-3 h-3 bg-slate-800 border border-white/20 rounded-full"></div>
+              <span className="text-white/60">Fiat USD (Decaying)</span>
+            </div>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.5rem'
-          }}>
-            {[
-              {
-                icon: '⚡',
-                title: 'Instant Settlement',
-                desc: 'Atomic finality in 0.05 seconds. No T+2, no clearing houses, no intermediaries.',
-                color: '#C9A962'
-              },
-              {
-                icon: '🛡️',
-                title: 'Algorithmic Stability',
-                desc: 'Zero inflation through mathematical scarcity. Value preservation as a fundamental axiom.',
-                color: '#2A9D8F'
-              },
-              {
-                icon: '🌐',
-                title: 'Infinite Scalability',
-                desc: 'Sharded architecture designed for global adoption. No theoretical limits.',
-                color: '#C9A962'
-              },
-              {
-                icon: '🔐',
-                title: 'Sovereign Security',
-                desc: 'Self-custody by default. Your keys, your coins, your sovereignty.',
-                color: '#2A9D8F'
-              },
-              {
-                icon: '🤖',
-                title: 'AI-Native Design',
-                desc: 'Built from ground up for the AI economy. Autonomous agents and smart contracts unified.',
-                color: '#C9A962'
-              },
-              {
-                icon: '💎',
-                title: 'Ihsan-Driven Development',
-                desc: 'Excellence in every detail. 88% Ihsan Score reflects unwavering commitment.',
-                color: '#2A9D8F'
-              },
-            ].map((feature, i) => (
-              <div key={i} className="glass-panel" style={{
-                padding: '2rem',
-                borderRadius: '1rem',
-                transition: 'all 0.3s ease'
-              }}>
-                <div style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '50%',
-                  background: `${feature.color}20`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '1.5rem',
-                  fontSize: '1.25rem'
-                }}>
-                  {feature.icon}
-                </div>
-                <h3 className="font-serif" style={{ fontSize: '1.25rem', color: 'white', marginBottom: '0.75rem' }}>
-                  {feature.title}
-                </h3>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-                  {feature.desc}
-                </p>
+          <div className="lg:col-span-8 glass-panel p-8 rounded-2xl">
+            <div className="h-96">
+              <Line data={inflationData} options={chartOptions} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: TOKENOMICS */}
+      <section id="allocation" className="py-32 px-6 md:px-24 border-t border-white/5 bg-slate-950 relative overflow-hidden">
+        <div className="absolute top-10 right-10 text-9xl section-number opacity-10 pointer-events-none text-right">02</div>
+
+        <div className="text-center mb-20">
+          <h2 className="text-yellow-500 text-xs tracking-[0.4em] uppercase mb-4">Ecosystem Distribution</h2>
+          <h3 className="text-4xl md:text-5xl font-serif text-white">
+            The <span className="italic text-teal-400">Flower</span> of Allocation
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          <div className="glass-panel p-8 rounded-full aspect-square flex items-center justify-center relative shadow-[0_0_100px_rgba(201,169,98,0.1)]">
+            <div className="h-96 relative z-10">
+              <Doughnut
+                data={flowerData}
+                options={{
+                  ...chartOptions,
+                  cutout: '70%',
+                  plugins: {
+                    legend: { display: false }
+                  }
+                }}
+              />
+            </div>
+            <div className="absolute inset-0 border border-yellow-500/10 rounded-full scale-90"></div>
+            <div className="absolute inset-0 border border-yellow-500/5 rounded-full scale-75"></div>
+          </div>
+
+          <div className="space-y-8 pl-0 lg:pl-12">
+            <div className="group cursor-pointer">
+              <div className="text-yellow-400 text-3xl font-serif mb-1 group-hover:translate-x-2 transition-transform">40% Treasury</div>
+              <p className="text-white/40 text-sm">Locked in the algorithmic reserve to back value stability. The "Root" of the system.</p>
+            </div>
+            <div className="group cursor-pointer">
+              <div className="text-teal-400 text-3xl font-serif mb-1 group-hover:translate-x-2 transition-transform">35% Community</div>
+              <p className="text-white/40 text-sm">Distributed to validators, users, and developers. The "Petals" of the system.</p>
+            </div>
+            <div className="group cursor-pointer">
+              <div className="text-white text-3xl font-serif mb-1 group-hover:translate-x-2 transition-transform">25% Liquidity</div>
+              <p className="text-white/40 text-sm">Always available for instant settlement. The "Nectar" of the system.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: VELOCITY & EFFICIENCY */}
+      <section id="velocity" className="py-32 px-6 md:px-24 border-t border-white/5 relative">
+        <div className="absolute top-10 left-10 text-9xl section-number opacity-10 pointer-events-none">03</div>
+
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-yellow-500 text-xs tracking-[0.4em] uppercase mb-12">System Efficiency</h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div className="glass-panel p-8 rounded-2xl">
+              <h4 className="text-white font-serif text-xl mb-6">Transaction Velocity (TPS)</h4>
+              <div className="h-80">
+                <Bar data={velocityData} options={chartOptions} />
               </div>
-            ))}
+            </div>
+
+            <div className="flex flex-col justify-center">
+              <h3 className="text-4xl font-serif text-white mb-6">
+                Speed of <span className="italic text-yellow-400">Light</span>
+              </h3>
+              <p className="text-white/50 mb-8 leading-relaxed">
+                Legacy systems rely on batch processing and clearing houses (T+2 days). BIZRA utilizes atomic settlement on a sharded ledger, achieving finality in milliseconds.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 border border-white/10 rounded bg-white/5">
+                  <div className="text-yellow-500 text-2xl font-serif">1,000,000</div>
+                  <div className="text-white/60 text-sm">BIZRA TPS</div>
+                </div>
+                <div className="p-4 border border-white/10 rounded bg-white/5">
+                  <div className="text-yellow-500 text-2xl font-serif">0.05s</div>
+                  <div className="text-white/60 text-sm">Finality Time</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section style={{
-        padding: '6rem 1.5rem',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(201, 169, 98, 0.1) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }} />
-
-        <div style={{ maxWidth: '48rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 10 }}>
-          <h2 className="font-serif" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', color: 'white', marginBottom: '1.5rem' }}>
-            Join the <span className="gold-gradient" style={{ fontStyle: 'italic' }}>Genesis</span>
+      <section id="invite" className="py-32 px-6 md:px-24 border-t border-white/5 text-center">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-6xl font-serif text-white mb-8">
+            Join the <span className="gold-gradient-text">Genesis</span>
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.125rem', marginBottom: '3rem' }}>
-            Be among the first to experience the golden age of digital finance. Your sovereignty awaits.
+          <p className="text-white/50 text-xl mb-12 leading-relaxed">
+            Be among the first 100 sovereign users to experience the future of money.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
-            <a href="/register" className="btn-primary" style={{
-              padding: '1.25rem 2.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.875rem',
-              letterSpacing: '0.15em',
-              color: '#050B14',
-              textDecoration: 'none',
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              Create Account
-              <span>→</span>
-            </a>
-            <a href="/dashboard" className="btn-outline" style={{
-              padding: '1.25rem 2.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.875rem',
-              letterSpacing: '0.15em',
-              color: '#C9A962',
-              textDecoration: 'none',
-              textTransform: 'uppercase'
-            }}>
-              View Dashboard
-            </a>
-          </div>
+          <a
+            href="/invite"
+            className="inline-block px-8 py-4 bg-yellow-500 text-slate-900 font-semibold rounded-full hover:bg-yellow-400 transition-colors"
+          >
+            Request Invitation
+          </a>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer style={{
-        padding: '4rem 1.5rem',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        background: '#050B14'
-      }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '2rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <svg width="40" height="40" viewBox="0 0 100 100" style={{ opacity: 0.7 }}>
-                <g stroke="#C9A962" strokeWidth="1.5" fill="none">
-                  <circle cx="50" cy="50" r="20" />
-                  <circle cx="50" cy="30" r="20" />
-                  <circle cx="67.3" cy="40" r="20" />
-                  <circle cx="67.3" cy="60" r="20" />
-                  <circle cx="50" cy="70" r="20" />
-                  <circle cx="32.7" cy="60" r="20" />
-                  <circle cx="32.7" cy="40" r="20" />
-                </g>
-              </svg>
-              <div>
-                <div className="font-serif" style={{ fontSize: '1.25rem', color: '#C9A962' }}>BIZRA</div>
-                <div style={{ fontSize: '0.625rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
-                  The Sovereign Standard
-                </div>
-              </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              gap: '2rem',
-              fontSize: '0.75rem',
-              letterSpacing: '0.1em',
-              color: 'rgba(255,255,255,0.4)',
-              textTransform: 'uppercase'
-            }}>
-              <a href="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>Dashboard</a>
-              <a href="/login" style={{ color: 'inherit', textDecoration: 'none' }}>Login</a>
-              <a href="/register" style={{ color: 'inherit', textDecoration: 'none' }}>Register</a>
-            </div>
-          </div>
-
-          <div style={{
-            borderTop: '1px solid rgba(255,255,255,0.05)',
-            marginTop: '3rem',
-            paddingTop: '2rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            fontSize: '0.75rem',
-            color: 'rgba(255,255,255,0.3)'
-          }}>
-            <div>© 2025 BIZRA. All rights reserved.</div>
-            <div style={{ display: 'flex', gap: '1.5rem' }}>
-              <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</a>
-              <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }
