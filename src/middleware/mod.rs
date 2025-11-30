@@ -4,6 +4,7 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 pub mod audit;
+pub mod circuit_breaker;
 pub mod cors;
 pub mod csrf;
 pub mod jwt;
@@ -16,6 +17,10 @@ pub mod tracing_context;
 
 // Re-export commonly used items for convenience
 pub use audit::audit_middleware;
+pub use circuit_breaker::{
+    CircuitBreaker, CircuitBreakerConfig, CircuitBreakerError, CircuitBreakerRegistry,
+    CircuitBreakerStats, CircuitState,
+};
 pub use cors::{create_cors_layer, default_cors_layer, CorsConfig};
 pub use csrf::{csrf_middleware, get_csrf_token, CsrfConfig, CSRF_COOKIE, CSRF_HEADER};
 pub use jwt::jwt_auth_middleware;
