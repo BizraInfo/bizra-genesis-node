@@ -1,0 +1,176 @@
+# BIZRA Genesis Node - Professional Compilation Testing Infrastructure
+# Enterprise-grade build and test environment for SQLx validation
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # POSTGRESQL - SQLx Compilation Database
+  # ==========================================================================
+  postgres-compile:
+    image: postgres:15-alpine
+    container_name: bizra-postgres-compile
+    restart: no
+    profiles: ["compile"]
+
+    environment:
+      POSTGRES_DB: bizra_genesis
+      POSTGRES_USER: bizra_user
+      POSTGRES_PASSWORD: bizra_password
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+
+    ports:
+      - "15432:5432"
+
+    volumes:
+      # Persistence for compilation testing
+      - postgres_compile_data:/var/lib/postgresql/data
+      # Database schema initialization
+      - ./setup-db.sql:/docker-entrypoint-initdb.d/setup-db.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bizra_user -d bizra_genesis"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - compile-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # ==========================================================================
+  # COMPILATION BUILDER - SQLx Query Validation
+  # ==========================================================================
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.compile-test
+      target: compilation
+    container_name: bizra-compilation-builder
+    profiles: ["compile"]
+
+    environment:
+      DATABASE_URL: postgresql://bizra_user:bizra_password@postgres-compile:5432/bizra_genesis
+      RUST_BACKTRACE: 1
+      CARGO_INCREMENTAL: 0
+
+    depends_on:
+      postgres-compile:
+        condition: service_healthy
+
+    networks:
+      - compile-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "5"
+
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+
+# ==========================================================================
+# NETWORKS
+# ==========================================================================
+networks:
+  compile-network:
+    name: bizra-compile-network
+    driver: bridge
+    internal: false
+
+# ==========================================================================
+# VOLUMES
+# ==========================================================================
+volumes:
+  postgres_compile_data:
+    name: bizra_postgres_compile_data
+    driver: local
+
+# ==========================================================================
+# USAGE - PROFESSIONAL COMPILATION WORKFLOW
+# ==========================================================================
+#
+# Complete compilation verification with SQLx query validation:
+#   docker-compose -f docker-compose.compile.yml --profile compile up --build
+#
+# Offline compilation testing (after initial run):
+#   docker-compose -f docker-compose.compile.yml --profile compile run builder \
+#     cargo check --features database --offline
+#
+# Clean compilation environment:
+#   docker-compose -f docker-compose.compile.yml --profile compile down -v
+#
+# View compilation logs:
+#   docker logs bizra-compilation-builder -f
+#
+# ==========================================================================
+# PROFESSIONAL INTEGRATION WITH CI/CD
+# ==========================================================================
+#
+# GitHub Actions integration:
+#
+# jobs:
+#   compile-test:
+#     runs-on: ubuntu-latest
+#     services:
+#       postgres:
+#         image: postgres:15-alpine
+#         env:
+#           POSTGRES_DB: bizra_genesis
+#           POSTGRES_USER: bizra_user
+#           POSTGRES_PASSWORD: bizra_password
+#
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: dtolnay/rust-toolchain@stable
+#       - run: cargo sqlx prepare
+#       - run: cargo build --features database
+#       - run: cargo test --lib --features database
+#
+# ==========================================================================
+# SUCCESS METRICS
+# ==========================================================================
+#
+# ✅ Basic library compilation: cargo check --lib
+# ✅ JWT type safety verified
+# ✅ Database features compilation: cargo check --features database
+# ✅ SQLx query validation against schema
+# ✅ SQLx offline cache generation (.sqlx/sqlx-data.json)
+# ✅ Integration tests pass
+# ✅ Binary size optimization
+# ✅ Performance benchmarks
+# ✅ Security audit clean (cargo audit)
+# ✅ Linting passes (clippy)
+#
+# ==========================================================================
+# PRODUCTION DEPLOYMENT INTEGRATION
+# ==========================================================================
+#
+# After successful compilation testing:
+# 1. Push .sqlx/sqlx-data.json to repository
+# 2. CI/CD can use offline mode: SQLX_OFFLINE=true
+# 3. Eliminates database dependency for fast builds
+# 4. Maintains query integrity validation
+# 5. Enables confident production deployments
+#
+# ==========================================================================

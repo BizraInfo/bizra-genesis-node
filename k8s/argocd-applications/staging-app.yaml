@@ -1,0 +1,74 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-genesis-node-staging
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/manifest-generate-paths: "."
+  labels:
+    environment: staging
+    tier: application
+spec:
+  project: bizra-genesis-node
+
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node
+    path: k8s/base
+    targetRevision: HEAD
+
+    # Helm configuration for staging
+    helm:
+      releaseName: bizra-genesis-node-staging
+      valueFiles:
+        - values-staging.yaml
+        - values-secrets-staging.yaml
+      parameters:
+      - name: image.tag
+        value: $ARGOCD_APP_REVISION
+      - name: environment
+        value: staging
+      - name: ingress.host
+        value: staging.genesis-node.bizra.ai
+      - name: resources.requests.memory
+        value: "512Mi"
+      - name: resources.requests.cpu
+        value: "250m"
+      - name: resources.limits.memory
+        value: "1Gi"
+      - name: resources.limits.cpu
+        value: "500m"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bizra-staging
+
+  # Automated sync for staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Progressive deployment health checks
+  revisionHistoryLimit: 10
+
+  # Resource constraints for stability
+  ignoreDifferences:
+  - group: ""
+    kind: Service
+    jsonPointers:
+      - /spec/clusterIP
+  - group: "apps"
+    kind: Deployment
+    jsonPointers:
+      - /spec/template/spec/containers/0/image

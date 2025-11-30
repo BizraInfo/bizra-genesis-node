@@ -1,0 +1,350 @@
+---
+# Service Account for RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+
+---
+# ClusterIP Service - Internal Communication
+apiVersion: v1
+kind: Service
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours
+  selector:
+    app: bizra-genesis-node
+    component: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+    - name: websocket
+      port: 8081
+      targetPort: websocket
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+    - name: health
+      port: 8082
+      targetPort: health
+      protocol: TCP
+
+---
+# Headless Service - StatefulSet Communication
+apiVersion: v1
+kind: Service
+metadata:
+  name: bizra-genesis-node-headless
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: bizra-genesis-node
+    component: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+
+---
+# LoadBalancer Service - External Access
+apiVersion: v1
+kind: Service
+metadata:
+  name: bizra-genesis-node-external
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/health/ready"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "8082"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-interval: "10"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-timeout: "5"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-healthy-threshold: "2"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-unhealthy-threshold: "2"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local  # Preserve source IP
+  selector:
+    app: bizra-genesis-node
+    component: backend
+  ports:
+    - name: https
+      port: 443
+      targetPort: http
+      protocol: TCP
+    - name: websocket
+      port: 8081
+      targetPort: websocket
+      protocol: TCP
+
+---
+# Horizontal Pod Autoscaler - Elite Performance Scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bizra-genesis-node-hpa
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bizra-genesis-node
+  minReplicas: 3
+  maxReplicas: 20
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60  # Fast scale-up for traffic spikes
+      policies:
+        - type: Percent
+          value: 100  # Double replicas
+          periodSeconds: 60
+        - type: Pods
+          value: 4  # Or add 4 pods
+          periodSeconds: 60
+      selectPolicy: Max  # Most aggressive
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Gradual scale-down to avoid thrashing
+      policies:
+        - type: Percent
+          value: 50  # Halve replicas
+          periodSeconds: 120
+        - type: Pods
+          value: 2  # Or remove 2 pods
+          periodSeconds: 120
+      selectPolicy: Min  # Most conservative
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+    # Custom metric - Request rate
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "1000"
+    # Custom metric - WebSocket connections
+    - type: Pods
+      pods:
+        metric:
+          name: websocket_connections
+        target:
+          type: AverageValue
+          averageValue: "500"
+
+---
+# Pod Disruption Budget - High Availability Guarantee
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: bizra-genesis-node-pdb
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+spec:
+  minAvailable: 2  # Always maintain 2 healthy replicas
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: backend
+
+---
+# Network Policy - Zero Trust Security
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bizra-genesis-node-netpol
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+spec:
+  podSelector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: backend
+  policyTypes:
+    - Ingress
+    - Egress
+  
+  # Ingress Rules - Who can call us
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8081
+    
+    # Allow traffic from frontend pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app: bizra-dashboard
+              component: frontend
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8081
+    
+    # Allow Prometheus scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: observability
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
+    
+    # Allow health checks from kubelet
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8082
+  
+  # Egress Rules - Where we can connect
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+        - podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    
+    # Allow PostgreSQL connection
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+    
+    # Allow Redis connection
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    
+    # Allow OTEL Collector connection
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: observability
+        - podSelector:
+            matchLabels:
+              app: otel-collector
+      ports:
+        - protocol: TCP
+          port: 4317
+        - protocol: TCP
+          port: 4318
+    
+    # Allow external HTTPS (for LLM APIs, etc.)
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
+
+---
+# Service Monitor - Prometheus Integration
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: backend
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: namespace

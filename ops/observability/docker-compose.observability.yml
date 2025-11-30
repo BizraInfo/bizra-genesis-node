@@ -1,0 +1,121 @@
+version: "3.9"
+
+services:
+  # BIZRA Genesis Node API Server
+  app:
+    image: bizra/genesis-node:local
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    environment:
+      RUST_LOG: info
+      # Prometheus listens on /metrics endpoint
+      DATABASE_URL: ${DATABASE_URL:-postgres://bizra_test:bizra_test_pass@db:5432/bizra_test}
+      # AI provider keys (if available for integration testing)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "3000:3000"  # API server HTTP
+    command: ["./bizra-genesis-node"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # PostgreSQL Database (for P1.1 verification)
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: bizra_test
+      POSTGRES_USER: bizra_test
+      POSTGRES_PASSWORD: bizra_test_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../setup-db.sql:/docker-entrypoint-initdb.d/setup-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bizra_test -d bizra_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Prometheus Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--storage.tsdb.retention.time=200h"
+      - "--web.enable-lifecycle"
+      - "--enable-feature=exemplar-storage"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Grafana Dashboard & Visualization
+  grafana:
+    image: grafana/grafana:11.0.0
+    ports:
+      - "3001:3000"  # Avoid port conflict with API server on 3000
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: genesis_admin_2025
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel,grafana-worldmap-panel"
+      GF_LOG_LEVEL: info
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+      - ./dashboard_genesis_node.json:/etc/grafana/provisioning/dashboards/dashboard_genesis_node.json:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Pushgateway (Optional) for batch job metrics
+  pushgateway:
+    image: prom/pushgateway:latest
+    ports:
+      - "9091:9091"
+    command:
+      - "--persistence.file=/tmp/pushgateway.data"
+      - "--persistence.interval=1m"
+    volumes:
+      - pushgateway_data:/tmp
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+  pushgateway_data:
+
+networks:
+  default:
+    name: bizra_observability
+    driver: bridge

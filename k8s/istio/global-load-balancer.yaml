@@ -1,0 +1,127 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: bizra-global-gateway
+  namespace: istio-system
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
+    "external-dns.alpha.kubernetes.io/hostname": "genesis-node.bizra.ai"
+spec:
+  selector:
+    istio: ingressgateway-global  # Global ingress gateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "genesis-node.bizra.ai"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: bizra-genesis-tls  # Global TLS certificate
+    hosts:
+    - "genesis-node.bizra.ai"
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: bizra-global-routing
+  namespace: bizra-production
+  annotations:
+    "external-dns.alpha.kubernetes.io/target": "genesis-node.bizra.ai"
+spec:
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: bizra-genesis-node
+      weight: 70  # 70% to primary region (Dubai)
+    - destination:
+        host: bizra-genesis-node-secondary
+      weight: 30  # 30% to secondary region (London)
+    retry:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: "gateway-error,connect-failure,refused-stream"
+    timeout: 30s
+    fault:
+      abort:
+        percentage:
+          value: 0.1  # Fault injection for testing
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: bizra-multi-region-failover
+  namespace: bizra-production
+spec:
+  host: bizra-genesis-node
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    outlierDetection:
+      consecutiveGatewayErrors: 3  # Failover after 3 errors
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 30s
+      http:
+        http1MaxPendingRequests: 10
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: primary-region
+    labels:
+      region: dubai
+    trafficPolicy:
+      loadBalancer:
+        simple: LEAST_CONN
+  - name: dr-region
+    labels:
+      region: london
+    trafficPolicy:
+      loadBalancer:
+        simple: ROUND_ROBIN
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: regional-endpoints
+  namespace: bizra-production
+spec:
+  hosts:
+  - regional-dubai.bizra.internal
+  - regional-london.bizra.internal
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: DNS
+  endpoints:
+  - address: 10.0.0.1  # Primary region ingress IP
+    labels:
+      region: dubai
+      environment: production
+  - address: 10.0.0.2  # DR region ingress IP
+    labels:
+      region: london
+      environment: production
+    weight: 30  # Default traffic distribution

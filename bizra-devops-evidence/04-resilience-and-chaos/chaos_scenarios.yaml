@@ -1,0 +1,369 @@
+# BIZRA Chaos Engineering Scenarios
+# Evidence for: RES-001
+
+# 7-Layer Failure Simulation Framework
+# Each layer tests a specific failure domain
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: ChaosScenario
+metadata:
+  name: bizra-7-layer-chaos
+  namespace: chaos-testing
+spec:
+  description: "Comprehensive 7-layer failure simulation"
+
+# =============================================================================
+# LAYER 1: NETWORK CHAOS
+# =============================================================================
+scenarios:
+  - name: "L1-Network-Partition"
+    layer: network
+    description: "Simulate network partition between services"
+    experiments:
+      - name: "api-to-database-partition"
+        kind: NetworkChaos
+        spec:
+          action: partition
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          direction: both
+          target:
+            selector:
+              labelSelectors:
+                app: postgres
+          duration: "5m"
+        expected_behavior:
+          - "API returns 503 for database-dependent endpoints"
+          - "Circuit breaker opens within 30 seconds"
+          - "Cached responses continue serving"
+          - "Recovery within 60 seconds of partition heal"
+
+      - name: "high-latency-injection"
+        kind: NetworkChaos
+        spec:
+          action: delay
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          delay:
+            latency: "500ms"
+            correlation: "50"
+            jitter: "100ms"
+          duration: "10m"
+        expected_behavior:
+          - "P95 latency increases but stays under SLO"
+          - "Timeout handling works correctly"
+          - "No cascading failures"
+
+      - name: "packet-loss-simulation"
+        kind: NetworkChaos
+        spec:
+          action: loss
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          loss:
+            loss: "30"
+            correlation: "25"
+          duration: "5m"
+        expected_behavior:
+          - "Retries handle transient failures"
+          - "Error rate stays below 5%"
+
+# =============================================================================
+# LAYER 2: POD/CONTAINER CHAOS
+# =============================================================================
+  - name: "L2-Pod-Chaos"
+    layer: compute
+    description: "Test container and pod resilience"
+    experiments:
+      - name: "random-pod-kill"
+        kind: PodChaos
+        spec:
+          action: pod-kill
+          mode: one
+          selector:
+            labelSelectors:
+              app: bizra-api
+          gracePeriod: 0
+        expected_behavior:
+          - "Load balancer removes pod within 10 seconds"
+          - "No user-visible errors"
+          - "New pod starts within 30 seconds"
+
+      - name: "container-failure"
+        kind: PodChaos
+        spec:
+          action: container-kill
+          mode: one
+          selector:
+            labelSelectors:
+              app: bizra-api
+          containerNames:
+            - bizra-api
+        expected_behavior:
+          - "Pod restarts automatically"
+          - "Liveness probe detects failure"
+
+# =============================================================================
+# LAYER 3: CPU/MEMORY STRESS
+# =============================================================================
+  - name: "L3-Resource-Stress"
+    layer: resources
+    description: "Test behavior under resource pressure"
+    experiments:
+      - name: "cpu-stress"
+        kind: StressChaos
+        spec:
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          stressors:
+            cpu:
+              workers: 4
+              load: 80
+          duration: "10m"
+        expected_behavior:
+          - "HPA scales out pods"
+          - "Response time degrades gracefully"
+          - "No OOM kills"
+
+      - name: "memory-pressure"
+        kind: StressChaos
+        spec:
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          stressors:
+            memory:
+              workers: 2
+              size: "512MB"
+          duration: "5m"
+        expected_behavior:
+          - "Memory limits prevent node impact"
+          - "Graceful degradation"
+          - "Recovery after stress ends"
+
+# =============================================================================
+# LAYER 4: I/O CHAOS
+# =============================================================================
+  - name: "L4-IO-Chaos"
+    layer: storage
+    description: "Test storage and I/O resilience"
+    experiments:
+      - name: "io-latency"
+        kind: IOChaos
+        spec:
+          action: latency
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          volumePath: /data
+          path: "*"
+          delay: "100ms"
+          percent: 50
+          duration: "5m"
+        expected_behavior:
+          - "Database queries slow but succeed"
+          - "Write operations buffer appropriately"
+
+      - name: "io-fault"
+        kind: IOChaos
+        spec:
+          action: fault
+          mode: one
+          selector:
+            labelSelectors:
+              app: bizra-api
+          volumePath: /data
+          path: "*.log"
+          errno: 5  # EIO
+          percent: 20
+          duration: "5m"
+        expected_behavior:
+          - "Log write failures don't crash app"
+          - "Error handling catches I/O errors"
+
+# =============================================================================
+# LAYER 5: DNS CHAOS
+# =============================================================================
+  - name: "L5-DNS-Chaos"
+    layer: dns
+    description: "Test DNS resolution failures"
+    experiments:
+      - name: "dns-failure"
+        kind: DNSChaos
+        spec:
+          action: error
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          patterns:
+            - "postgres.*.svc.cluster.local"
+          duration: "3m"
+        expected_behavior:
+          - "Connection pooling uses cached connections"
+          - "Graceful degradation for new connections"
+          - "Recovery when DNS restored"
+
+      - name: "dns-random"
+        kind: DNSChaos
+        spec:
+          action: random
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          patterns:
+            - "*.external.com"
+          duration: "5m"
+        expected_behavior:
+          - "External service calls fail gracefully"
+          - "Fallback mechanisms activate"
+
+# =============================================================================
+# LAYER 6: TIME CHAOS
+# =============================================================================
+  - name: "L6-Time-Chaos"
+    layer: time
+    description: "Test clock drift and time sensitivity"
+    experiments:
+      - name: "clock-skew"
+        kind: TimeChaos
+        spec:
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          timeOffset: "-5m"
+          duration: "10m"
+        expected_behavior:
+          - "JWT validation handles clock skew"
+          - "Scheduled tasks handle time shift"
+          - "Distributed consensus remains stable"
+
+# =============================================================================
+# LAYER 7: HTTP/APPLICATION CHAOS
+# =============================================================================
+  - name: "L7-HTTP-Chaos"
+    layer: application
+    description: "Test application-level failure handling"
+    experiments:
+      - name: "http-abort"
+        kind: HTTPChaos
+        spec:
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          target: Request
+          port: 3000
+          method: GET
+          path: /api/*
+          abort: true
+          percent: "30"
+          duration: "5m"
+        expected_behavior:
+          - "Client retries succeed"
+          - "Error rate matches injection rate"
+          - "No cascading failures"
+
+      - name: "http-delay"
+        kind: HTTPChaos
+        spec:
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+          target: Response
+          port: 3000
+          delay: "2s"
+          percent: "50"
+          duration: "5m"
+        expected_behavior:
+          - "Timeouts trigger appropriately"
+          - "P95 latency increases predictably"
+
+# =============================================================================
+# COMPOSITE SCENARIOS
+# =============================================================================
+  - name: "Composite-Cascading-Failure"
+    layer: composite
+    description: "Simulate cascading failure across layers"
+    experiments:
+      - sequence:
+          - "L1-Network-Partition/high-latency-injection"
+          - wait: "2m"
+          - "L3-Resource-Stress/cpu-stress"
+          - wait: "3m"
+          - "L2-Pod-Chaos/random-pod-kill"
+    expected_behavior:
+      - "System degrades gracefully under compound stress"
+      - "Auto-recovery begins within 5 minutes"
+      - "No data loss"
+
+  - name: "Composite-Zone-Failure"
+    layer: composite
+    description: "Simulate availability zone failure"
+    experiments:
+      - name: "az-failure"
+        kind: PodChaos
+        spec:
+          action: pod-failure
+          mode: all
+          selector:
+            labelSelectors:
+              app: bizra-api
+            fieldSelectors:
+              "spec.nodeName": "node-zone-a-*"
+          duration: "10m"
+    expected_behavior:
+      - "Traffic routes to other AZs"
+      - "Availability stays above 99.9%"
+      - "Recovery when zone restored"
+
+# =============================================================================
+# BLAST RADIUS CONTROLS
+# =============================================================================
+blast_radius:
+  max_affected_pods_percent: 50
+  max_affected_nodes: 2
+  excluded_namespaces:
+    - kube-system
+    - monitoring
+    - istio-system
+  excluded_labels:
+    critical: "true"
+  abort_conditions:
+    - error_rate > 50%
+    - p99_latency > 5000ms
+    - availability < 95%
+
+# =============================================================================
+# SCHEDULE
+# =============================================================================
+schedule:
+  # Regular chaos runs
+  weekly:
+    - day: tuesday
+      time: "14:00"
+      timezone: "UTC"
+      scenarios:
+        - "L2-Pod-Chaos"
+        - "L1-Network-Partition"
+  # Game days
+  monthly:
+    - week: 2
+      day: thursday
+      time: "10:00"
+      timezone: "UTC"
+      scenarios:
+        - "Composite-Cascading-Failure"

@@ -1,0 +1,90 @@
+name: "P1.1 Database E2E Smoke Tests"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  db-e2e-smoke:
+    name: "Database Integration Smoke Tests"
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: bizra_test
+          POSTGRES_USER: bizra_test
+          POSTGRES_PASSWORD: bizra_test_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U bizra_test -d bizra_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: postgres://bizra_test:bizra_test_pass@localhost:5432/bizra_test
+      RUST_BACKTRACE: 1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U bizra_test -d bizra_test; then
+              echo "PostgreSQL is ready!"
+              exit 0
+            fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
+          done
+          echo "PostgreSQL failed to start"
+          exit 1
+
+      - name: Verify PostgreSQL connection
+        run: |
+          psql "${DATABASE_URL}" -c "SELECT version();"
+          psql "${DATABASE_URL}" -c "\dx"
+
+      - name: Run Database E2E smoke tests
+        run: cargo test db_e2e_smoke -- --nocapture --test-threads=1
+
+      - name: Test database state after tests
+        run: |
+          echo "=== Final database state ==="
+          psql "${DATABASE_URL}" -c "SELECT schemaname, tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;"
+          echo ""
+          echo "=== Row counts ==="
+          psql "${DATABASE_URL}" -c "SELECT 'consensus_runs' as table_name, count(*) as row_count FROM consensus_runs UNION ALL SELECT 'trust_receipts', count(*) FROM trust_receipts UNION ALL SELECT 'router_state', count(*) FROM router_state UNION ALL SELECT 'agent_state', count(*) FROM agent_state UNION ALL SELECT 'proof_of_impact', count(*) FROM proof_of_impact;"
+
+      - name: Generate test evidence
+        run: |
+          echo "=== Database Integration Evidence ===" > db_e2e_evidence.md
+          echo "Timestamp: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> db_e2e_evidence.md
+          echo "Status: ✅ PASSED" >> db_e2e_evidence.md
+          echo "" >> db_e2e_evidence.md
+          echo "## Migration Status" >> db_e2e_evidence.md
+          psql "${DATABASE_URL}" -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;" >> db_e2e_evidence.md
+          echo "" >> db_e2e_evidence.md
+          echo "## Final Schema State" >> db_e2e_evidence.md
+          psql "${DATABASE_URL}" -c "\d" >> db_e2e_evidence.md
+
+      - name: Upload evidence artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: db-e2e-evidence-${{ github.run_id }}
+          path: db_e2e_evidence.md
+          retention-days: 30

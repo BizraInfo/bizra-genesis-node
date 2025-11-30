@@ -1,0 +1,339 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║  BIZRA GENESIS NODE - SLO ALERT RULES                                     ║
+# ║  γ-12 Alerts & Autopilot Hooks                                            ║
+# ║  PrometheusRule for Kubernetes/Alertmanager                               ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# These alert rules implement the β-11 SLO Flight Rules specification.
+# See docs/SLO_FLIGHT_RULES_GENESIS_NODE.md for thresholds and rationale.
+#
+# Metrics used:
+#   - genesis_slo_overall_state: 0=HEALTHY, 1=WARNING, 2=CRITICAL
+#   - genesis_slo_check_state{check}: Individual SLO states
+#   - genesis_slo_check_actual{check}: Current values
+#   - genesis_slo_violation_total{check,state}: Violation counter
+#   - genesis_slo_transition_total{from_state,to_state}: State transitions
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: genesis-node-slo-alerts
+  namespace: bizra-genesis
+  labels:
+    app: bizra-genesis-node
+    component: monitoring
+    phase: gamma-12
+spec:
+  groups:
+    # ═══════════════════════════════════════════════════════════════════════
+    # OVERALL SLO ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-overall
+      interval: 30s
+      rules:
+        # CRITICAL: Overall SLO in CRITICAL state for 3+ minutes
+        - alert: GenesisSloCritical
+          expr: genesis_slo_overall_state == 2
+          for: 3m
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+            team: platform
+            runbook: "https://docs.bizra.info/runbooks/slo-critical"
+          annotations:
+            summary: "Genesis Node SLO CRITICAL"
+            description: |
+              Genesis Node SLO has been in CRITICAL state for more than 3 minutes.
+              Immediate intervention required.
+
+              Current state: CRITICAL
+              Duration: {{ $value }}
+
+              Check the following SLOs:
+              - IHSAN (ethical health): target ≥ 0.90
+              - LATENCY: target ≤ 200ms
+              - ERROR_RATE: target < 1%
+              - CONSENSUS: target = STABLE/CONVERGING
+              - AGENT_CAPACITY: target ≥ 10 agents
+            dashboard: "https://grafana.bizra.info/d/genesis-slo"
+            runbook_url: "https://docs.bizra.info/runbooks/slo-critical"
+
+        # WARNING: Overall SLO in WARNING state for 10+ minutes
+        - alert: GenesisSloWarning
+          expr: genesis_slo_overall_state == 1
+          for: 10m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+            team: platform
+          annotations:
+            summary: "Genesis Node SLO WARNING"
+            description: |
+              Genesis Node SLO has been in WARNING band for more than 10 minutes.
+              Investigate potential performance degradation.
+
+              Current state: WARNING
+
+              Review individual SLO checks to identify the issue.
+            dashboard: "https://grafana.bizra.info/d/genesis-slo"
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # IHSAN SLO ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-ihsan
+      interval: 30s
+      rules:
+        # CRITICAL: Ihsan score below 0.80
+        - alert: GenesisIhsanCritical
+          expr: genesis_slo_check_state{check="IHSAN"} == 2
+          for: 5m
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+            slo: ihsan
+          annotations:
+            summary: "IHSAN SLO CRITICAL - Ethical health degraded"
+            description: |
+              Ihsan score has dropped below critical threshold (0.80).
+
+              Current score: {{ printf "%.2f" (query "genesis_slo_check_actual{check='IHSAN'}") }}
+              Target: ≥ 0.90
+              Critical threshold: < 0.80
+
+              Consider entering safe-mode to protect system integrity.
+              Review error rates, latency, and model health.
+
+        # WARNING: Ihsan score between 0.80 and 0.90
+        - alert: GenesisIhsanWarning
+          expr: genesis_slo_check_state{check="IHSAN"} == 1
+          for: 15m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+            slo: ihsan
+          annotations:
+            summary: "IHSAN SLO WARNING - Below target"
+            description: |
+              Ihsan score is below target but above critical threshold.
+
+              Current score: {{ printf "%.2f" (query "genesis_slo_check_actual{check='IHSAN'}") }}
+              Target: ≥ 0.90
+              Warning threshold: < 0.90
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # LATENCY SLO ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-latency
+      interval: 30s
+      rules:
+        # CRITICAL: Latency above 400ms
+        - alert: GenesisLatencyCritical
+          expr: genesis_slo_check_state{check="LATENCY_MS"} == 2
+          for: 3m
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+            slo: latency
+          annotations:
+            summary: "LATENCY SLO CRITICAL - Response time degraded"
+            description: |
+              API latency has exceeded critical threshold (400ms).
+
+              Current latency: {{ printf "%.0f" (query "genesis_slo_check_actual{check='LATENCY_MS'}") }}ms
+              Target: ≤ 200ms
+              Critical threshold: > 400ms
+
+              Consider shedding load or scaling resources.
+
+        # WARNING: Latency between 200ms and 400ms
+        - alert: GenesisLatencyWarning
+          expr: genesis_slo_check_state{check="LATENCY_MS"} == 1
+          for: 5m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+            slo: latency
+          annotations:
+            summary: "LATENCY SLO WARNING - Elevated response time"
+            description: |
+              API latency is elevated but not critical.
+
+              Current latency: {{ printf "%.0f" (query "genesis_slo_check_actual{check='LATENCY_MS'}") }}ms
+              Target: ≤ 200ms
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # ERROR RATE SLO ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-errors
+      interval: 30s
+      rules:
+        # CRITICAL: Error rate above 3%
+        - alert: GenesisErrorRateCritical
+          expr: genesis_slo_check_state{check="ERROR_RATE_PERCENT"} == 2
+          for: 2m
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+            slo: error_rate
+          annotations:
+            summary: "ERROR RATE SLO CRITICAL - High error rate"
+            description: |
+              Error rate has exceeded critical threshold (3%).
+
+              Current error rate: {{ printf "%.2f" (query "genesis_slo_check_actual{check='ERROR_RATE_PERCENT'}") }}%
+              Target: < 1%
+              Critical threshold: ≥ 3%
+
+              Consider circuit breaker activation or rolling back recent changes.
+
+        # WARNING: Error rate between 1% and 3%
+        - alert: GenesisErrorRateWarning
+          expr: genesis_slo_check_state{check="ERROR_RATE_PERCENT"} == 1
+          for: 5m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+            slo: error_rate
+          annotations:
+            summary: "ERROR RATE SLO WARNING - Elevated errors"
+            description: |
+              Error rate is elevated but not critical.
+
+              Current error rate: {{ printf "%.2f" (query "genesis_slo_check_actual{check='ERROR_RATE_PERCENT'}") }}%
+              Target: < 1%
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # CONSENSUS SLO ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-consensus
+      interval: 30s
+      rules:
+        # CRITICAL: Consensus in DEGRADED or OFFLINE
+        - alert: GenesisConsensusCritical
+          expr: genesis_slo_check_state{check="CONSENSUS"} == 2
+          for: 1m
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+            slo: consensus
+          annotations:
+            summary: "CONSENSUS SLO CRITICAL - Core correctness compromised"
+            description: |
+              Consensus algorithm is in DEGRADED or OFFLINE state.
+
+              This is a critical system integrity issue.
+              Pause non-essential operations immediately.
+
+        # WARNING: Consensus in RECOVERY
+        - alert: GenesisConsensusWarning
+          expr: genesis_slo_check_state{check="CONSENSUS"} == 1
+          for: 5m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+            slo: consensus
+          annotations:
+            summary: "CONSENSUS SLO WARNING - System recovering"
+            description: |
+              Consensus algorithm is in RECOVERY state.
+
+              Monitor closely for return to STABLE/CONVERGING.
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # AGENT CAPACITY SLO ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-agents
+      interval: 30s
+      rules:
+        # CRITICAL: Less than 5 agents
+        - alert: GenesisAgentCapacityCritical
+          expr: genesis_slo_check_state{check="AGENT_CAPACITY"} == 2
+          for: 5m
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+            slo: agent_capacity
+          annotations:
+            summary: "AGENT CAPACITY SLO CRITICAL - Minimal agents"
+            description: |
+              Agent capacity has dropped below critical threshold.
+
+              Current agents: {{ printf "%.0f" (query "genesis_slo_check_actual{check='AGENT_CAPACITY'}") }}
+              Target: ≥ 10
+              Critical threshold: < 5
+
+              System is severely degraded.
+
+        # WARNING: Less than 10 agents
+        - alert: GenesisAgentCapacityWarning
+          expr: genesis_slo_check_state{check="AGENT_CAPACITY"} == 1
+          for: 10m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+            slo: agent_capacity
+          annotations:
+            summary: "AGENT CAPACITY SLO WARNING - Reduced capacity"
+            description: |
+              Agent capacity is below target but above critical.
+
+              Current agents: {{ printf "%.0f" (query "genesis_slo_check_actual{check='AGENT_CAPACITY'}") }}
+              Target: ≥ 10
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # SLO TRANSITION ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-transitions
+      interval: 30s
+      rules:
+        # Any transition to CRITICAL
+        - alert: GenesisSloTransitionToCritical
+          expr: increase(genesis_slo_transition_total{to_state="CRITICAL"}[5m]) > 0
+          labels:
+            severity: critical
+            service: bizra-genesis-node
+          annotations:
+            summary: "SLO state transitioned to CRITICAL"
+            description: |
+              Genesis Node SLO has transitioned to CRITICAL state.
+
+              Previous state: {{ $labels.from_state }}
+              New state: CRITICAL
+
+              This requires immediate attention.
+
+        # Frequent state changes (instability)
+        - alert: GenesisSloUnstable
+          expr: sum(increase(genesis_slo_transition_total[15m])) > 5
+          for: 5m
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+          annotations:
+            summary: "SLO state is unstable"
+            description: |
+              Genesis Node SLO state has changed more than 5 times in 15 minutes.
+
+              This indicates system instability.
+              Investigate root cause of oscillations.
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # SLO VIOLATION RATE ALERTS
+    # ═══════════════════════════════════════════════════════════════════════
+    - name: genesis-slo-violations
+      interval: 60s
+      rules:
+        # High violation rate
+        - alert: GenesisSloViolationSpike
+          expr: sum(increase(genesis_slo_violation_total[1h])) > 100
+          labels:
+            severity: warning
+            service: bizra-genesis-node
+          annotations:
+            summary: "High SLO violation rate"
+            description: |
+              More than 100 SLO violations recorded in the last hour.
+
+              Total violations: {{ $value }}
+
+              Review system health and consider proactive measures.

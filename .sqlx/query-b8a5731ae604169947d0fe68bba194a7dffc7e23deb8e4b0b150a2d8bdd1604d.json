@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO agent_state (\n                agent_id,\n                agent_type,\n                agent_name,\n                agent_role,\n                state,\n                health_status,\n                tasks_completed,\n                tasks_failed,\n                last_active\n            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            ON CONFLICT (agent_id)\n            DO UPDATE SET\n                state = EXCLUDED.state,\n                health_status = EXCLUDED.health_status,\n                tasks_completed = EXCLUDED.tasks_completed,\n                tasks_failed = EXCLUDED.tasks_failed,\n                last_active = EXCLUDED.last_active,\n                updated_at = NOW()\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Jsonb",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b8a5731ae604169947d0fe68bba194a7dffc7e23deb8e4b0b150a2d8bdd1604d"
+}

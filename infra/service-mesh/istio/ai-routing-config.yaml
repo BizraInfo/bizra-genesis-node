@@ -1,0 +1,329 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: bizra-ai-traffic-routing
+  namespace: bizra-production
+  annotations:
+    ai-routing/controller-version: "1.2.0"
+    traffic-prediction/horizon: "60m"
+spec:
+  gateways:
+  - bizra-production-gateway
+  http:
+  # AI-Optimized Primary Routing
+  - name: ai-optimized-primary
+    match:
+    - headers:
+        x-client-class:
+          exact: "standard"
+      sourceLabels:
+        region: "any"
+    route:
+    - destination:
+        host: bizra-genesis-node
+        subset: ai-optimized
+      weight: 85
+      headers:
+        request:
+          set:
+            x-routing-strategy: "ai-primary"
+            x-prediction-model: "lstm-v2"
+            x-latency-target: "50ms"
+    - destination:
+        host: bizra-genesis-node
+        subset: stable
+      weight: 15
+      headers:
+        request:
+          set:
+            x-routing-strategy: "fallback"
+
+  # Geographic Latency Optimization
+  - name: geo-latency-optimized
+    match:
+    - sourceLabels:
+        region: "us-west-2"
+        geo-latency-preference: "low"
+      headers:
+        x-forwarded-for:
+          prefix: "192.168."  # AWS us-west-2
+    route:
+    - destination:
+        host: bizra-global-regions
+        subset: us-west-local
+      weight: 100
+      headers:
+        request:
+          set:
+            x-routing-strategy: "geo-latency-usw"
+            x-global-distance: "same-region"
+
+  # Performance-Based GPU Acceleration
+  - name: performance-gpu-routing
+    match:
+    - headers:
+        x-workload-type:
+          exact: "inference-heavy"
+    route:
+    - destination:
+        host: bizra-genesis-node
+        subset: gpu-accelerated
+      weight: 100
+      headers:
+        request:
+          set:
+            x-routing-strategy: "gpu-accelerated"
+            x-hardware-optimization: "yes"
+            x-gpu-memory-target: "24GB"
+
+  # Cost-Optimized Regional Routing
+  - name: cost-optimized-routing
+    match:
+    - headers:
+        x-budget-constraint:
+          exact: "cost-optimized"
+        x-max-latency:
+          regex: "[2-9][0-9]{2}ms"  # <=999ms tolerance
+    route:
+    - destination:
+        host: bizra-global-regions
+        subset: cost-efficient-asia
+      weight: 60
+      headers:
+        request:
+          set:
+            x-routing-strategy: "cost-asia-pacific"
+            x-cost-saving-pct: "45"
+    - destination:
+        host: bizra-global-regions
+        subset: balanced-us-east
+      weight: 40
+      headers:
+        request:
+          set:
+            x-routing-strategy: "balanced-us-east"
+
+  # Anomaly Detection & Circuit Breaking
+  - name: anomaly-circuit-breaker
+    match:
+    - headers:
+        x-prediction-confidence:
+          regex: "^0\.[0-5][0-9]*$|"  # Confidence below 60%
+        x-system-health:
+          exact: "degraded"
+    route:
+    - destination:
+        host: bizra-genesis-node
+        subset: circuit-protected
+      weight: 100
+      headers:
+        request:
+          set:
+            x-routing-strategy: "circuit-protected"
+            x-anomaly-detected: "true"
+            x-protected-mode: "active"
+
+  # Real-Time Traffic Surge Protection
+  - name: traffic-surge-protection
+    match:
+    - headers:
+        x-prediction-traffic-surge:
+          regex: "predicted_([5-9]|[1-9][0-9]+)x"  # 5x or higher surge
+    route:
+    - destination:
+        host: bizra-genesis-node
+        subset: surge-protected
+      weight: 100
+      headers:
+        request:
+          set:
+            x-routing-strategy: "surge-protected"
+            x-auto-scaling: "triggered"
+            x-capacity-expansion: "250pct"
+
+  # AI Model A/B Testing Routing
+  - name: ai-ab-testing-routing
+    match:
+    - headers:
+        x-canary-test:
+          exact: "ai-ab-test"
+        x-user-cohort:
+          regex: "test-group-[ab]"
+    route:
+    - destination:
+        host: bizra-genesis-node
+        subset: ai-model-a
+      weight: 50
+      headers:
+        request:
+          set:
+            x-ab-test: "model-a"
+            x-model-version: "v2.1-gpt4"
+    - destination:
+        host: bizra-genesis-node
+        subset: ai-model-b
+      weight: 50
+      headers:
+        request:
+          set:
+            x-ab-test: "model-b"
+            x-model-version: "v2.2-claude3"
+
+  # Emergency Failover Routing
+  - name: emergency-failover-routing
+    match:
+    - headers:
+        x-system-status:
+          exact: "critical-failure"
+        x-emergency-mode:
+          exact: "active"
+    route:
+    - destination:
+        host: bizra-genesis-node
+        subset: emergency-failover
+      weight: 100
+      headers:
+        request:
+          set:
+            x-routing-strategy: "emergency-failover"
+            x-failover-mode: "active"
+            x-data-consistency: "eventual"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: bizra-ai-circuit-breaker
+  namespace: bizra-production
+spec:
+  host: bizra-genesis-node
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 15s
+      maxEjectionPercent: 30
+      consecutiveLocalOriginFailure: 3
+      splitExternalLocalOriginErrors: true
+    connectionPool:
+      tcp:
+        maxConnections: 1000
+        connectTimeout: 30s
+      http:
+        http2MaxRequests: 5000
+        maxRequestsPerConnection: 25
+        maxRetries: 5
+        retryOn: "5xx,gateway-error,connect-failure,refused-stream,retriable-4xx,retriable-headers"
+  subsets:
+  - name: ai-optimized
+    labels:
+      version: "latest"
+      ai-optimization: "enabled"
+      gpu-enabled: "true"
+    trafficPolicy:
+      loadBalancer:
+        simple: LEAST_REQUEST
+        localityLbSetting:
+          enabled: true
+          distribute:
+          - from: "us-central1/us-central1"
+            to:
+              "us-central1/us-central1": 70
+              "us-central1/us-central1a": 20
+              "us-central1/us-central1b": 10
+  - name: stable
+    labels:
+      version: "stable"
+      ai-optimization: "conservative"
+    trafficPolicy:
+      loadBalancer:
+        simple: ROUND_ROBIN
+  - name: gpu-accelerated
+    labels:
+      version: "gpu-enabled"
+      gpu-memory: "24GB"
+      acceleration: "nvidia-a100"
+    trafficPolicy:
+      loadBalancer:
+        simple: ROUND_ROBIN
+      localityLbSetting:
+        enabled: false  # Force specific GPU nodes
+  - name: circuit-protected
+    labels:
+      version: "protected"
+      resilience: "maximum"
+    trafficPolicy:
+      outlierDetection:
+        consecutive5xxErrors: 3
+        maxEjectionPercent: 20
+  - name: surge-protected
+    labels:
+      version: "surge-ready"
+      auto-scaling: "aggressive"
+  - name: ai-model-a
+    labels:
+      version: "model-a"
+      ai-engine: "gpt4-v2.1"
+  - name: ai-model-b
+    labels:
+      version: "model-b"
+      ai-engine: "claude3-v2.2"
+  - name: emergency-failover
+    labels:
+      version: "emergency"
+      data-consistency: "eventual"
+---
+# AI Traffic Predictor Integration
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: ai-traffic-predictor
+  namespace: bizra-production
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  url: oci://registry.bizra.ai/ai-traffic-predictor:v1.2.0
+  imagePullPolicy: IfNotPresent
+  pluginConfig:
+    prometheus_url: "http://prometheus.bizra-monitoring:9090"
+    ai_service_url: "grpc://ai-traffic-predictor.bizra-ai:8080"
+    prediction_cache_ttl_seconds: 300
+    anomaly_threshold: 0.75
+    surge_detection_coefficient: 2.5
+    confidence_minimum: 0.60
+  phase: AUTHN
+  priority: 100
+---
+# AI Routing Observability
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: bizra-ai-routing-telemetry
+  namespace: bizra-production
+spec:
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    - tagOverrides:
+        destination_service_name:
+          value: "destination_service"
+        ai_routing_decision:
+          value: "ai_routing_decision"
+        prediction_accuracy:
+          value: "routing_prediction_accuracy"
+        routing_strategy_used:
+          value: "x-routing-strategy"
+    - match:
+        metric: "REQUEST_COUNT"
+        mode: CLIENT_AND_SERVER
+  accessLogging:
+  - providers:
+    - name: envoy
+    filter:
+      expression: "request.url_path.contains('api')"

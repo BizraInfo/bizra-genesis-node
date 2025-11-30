@@ -1,0 +1,35 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-partition-bizra-production
+  namespace: bizra-production
+  annotations:
+    experiment.chaos-mesh.org/pause: "false"
+    experiment.chaos-mesh.org/pause-info: "Network partition chaos experiment"
+spec:
+  action: partition
+  mode: one
+  selector:
+    namespaces:
+      - bizra-production
+    labelSelectors:
+      "app": "bizra-genesis-node"
+  direction: to  # Only outbound traffic affected
+  target:
+    selector:
+      namespaces:
+        - bizra-production
+      labelSelectors:
+        "environment": "production"
+    mode: All
+  tcParameter:
+    delay:
+      latency: "200ms"
+      correlation: "25"
+      jitter: "50ms"
+  scheduler:
+    cron: "@weekly"  # Weekly chaos experiment
+  duration: "15m"
+  externalTargets:
+    - "database.external-postgres.bizra.ai"
+    - "redis.external-redis.bizra.ai"

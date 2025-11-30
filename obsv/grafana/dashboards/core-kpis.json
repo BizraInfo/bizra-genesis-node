@@ -1,0 +1,301 @@
+{
+  "uid": "bizra-core-kpis",
+  "title": "BIZRA Genesis Node - Core KPIs",
+  "tags": ["bizra", "slo", "core"],
+  "timezone": "utc",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"],
+    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "API Request Rate (RPS)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_requests_total{job=\"bizra-genesis\"}[5m]))",
+          "legendFormat": "Total RPS",
+          "interval": ""
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(http_requests_total{job=\"bizra-genesis\",status=~\"2..\"}[5m]))",
+          "legendFormat": "Success (2xx)",
+          "interval": ""
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate(http_requests_total{job=\"bizra-genesis\",status=~\"5..\"}[5m]))",
+          "legendFormat": "Errors (5xx)",
+          "interval": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"drawStyle": "line", "fillOpacity": 10},
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 500, "color": "yellow"},
+              {"value": 1000, "color": "red"}
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {"mode": "multi"},
+        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["mean", "last", "max"]}
+      }
+    },
+    {
+      "id": 2,
+      "title": "API Error Rate (SLO: <1%)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "bizra_api_error_rate{job=\"bizra-genesis\"} * 100",
+          "legendFormat": "Error Rate %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {"fillOpacity": 20},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 0.5, "color": "yellow"},
+              {"value": 1, "color": "red"}
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {"mode": "single"},
+        "legend": {"displayMode": "list", "placement": "bottom"}
+      }
+    },
+    {
+      "id": 3,
+      "title": "API Latency P95/P99 (SLO: <300ms/<500ms)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "refId": "P95",
+          "expr": "http_request_duration_milliseconds{job=\"bizra-genesis\",quantile=\"0.95\"}",
+          "legendFormat": "P95 Latency"
+        },
+        {
+          "refId": "P99",
+          "expr": "http_request_duration_milliseconds{job=\"bizra-genesis\",quantile=\"0.99\"}",
+          "legendFormat": "P99 Latency"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {"fillOpacity": 15},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 300, "color": "yellow"},
+              {"value": 500, "color": "red"}
+            ]
+          }
+        }
+      },
+      "options": {
+        "tooltip": {"mode": "multi"},
+        "legend": {"displayMode": "table", "placement": "bottom", "calcs": ["mean", "last", "max"]}
+      }
+    },
+    {
+      "id": 4,
+      "title": "PoI Validation Success Rate (SLO: >99%)",
+      "type": "stat",
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 8},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "bizra_poi_validation_success_rate{job=\"bizra-genesis\"} * 100",
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "red"},
+              {"value": 99, "color": "yellow"},
+              {"value": 99.5, "color": "green"}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "background",
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"]}
+      }
+    },
+    {
+      "id": 5,
+      "title": "Consensus Latency P95 (Target: <50μs)",
+      "type": "stat",
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 8},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "bizra_consensus_latency_microseconds{job=\"bizra-genesis\"}",
+          "instant": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "µs",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 50, "color": "yellow"},
+              {"value": 100, "color": "red"}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "background",
+        "orientation": "auto",
+        "textMode": "value_and_name",
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"]}
+      }
+    },
+    {
+      "id": 6,
+      "title": "Active Alerts",
+      "type": "alertlist",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "options": {
+        "showOptions": "current",
+        "maxItems": 20,
+        "sortOrder": 1,
+        "dashboardAlerts": false,
+        "alertName": "",
+        "dashboardTitle": "",
+        "tags": [],
+        "stateFilter": {"firing": true, "pending": true, "noData": false, "normal": false, "error": true}
+      }
+    },
+    {
+      "id": 7,
+      "title": "System Resources",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "refId": "CPU",
+          "expr": "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "CPU Usage %"
+        },
+        {
+          "refId": "MEM",
+          "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100",
+          "legendFormat": "Memory Usage %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {"fillOpacity": 10},
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "green"},
+              {"value": 70, "color": "yellow"},
+              {"value": 90, "color": "red"}
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "datasource": {"type": "prometheus", "uid": "prom"},
+        "enable": true,
+        "expr": "ALERTS{alertstate=\"firing\",job=\"bizra-genesis\"}",
+        "iconColor": "red",
+        "name": "Alerts",
+        "tagKeys": "alertname,severity",
+        "textFormat": "{{ alertname }}: {{ summary }}",
+        "titleFormat": "Alert"
+      }
+    ]
+  },
+  "__inputs": [],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.1.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "alertlist",
+      "name": "Alert list",
+      "version": ""
+    }
+  ]
+}

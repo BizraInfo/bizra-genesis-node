@@ -1,0 +1,21 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-kill-bizra-genesis-node
+  namespace: bizra-production
+  annotations:
+    experiment.chaos-mesh.org/pause: "false"
+    experiment.chaos-mesh.org/duration: "30m"
+spec:
+  action: pod-kill
+  mode: one  # Kill one pod at a time
+  selector:
+    namespaces:
+      - bizra-production
+    labelSelectors:
+      "app": "bizra-genesis-node"
+      "environment": "production"
+  scheduler:
+    cron: "@every 24h"  # Daily chaos experiment
+  duration: "30m"
+  gracePeriod: 30  # Allow 30 seconds for graceful shutdown

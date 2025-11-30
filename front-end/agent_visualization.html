@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZRA - 72 Agent Neural Network</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.0.3/plotly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.waves.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A1828;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .agent-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-areas: 
+                "header header header"
+                "sidebar main info"
+                "footer footer footer";
+            grid-template-columns: 300px 1fr 350px;
+            grid-template-rows: 80px 1fr 80px;
+            z-index: 10;
+        }
+
+        .vanta-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            grid-area: header;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(10, 24, 40, 0.9);
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            z-index: 20;
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: 200;
+            letter-spacing: 0.3em;
+            color: #D4AF37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #D4AF37;
+            display: block;
+        }
+
+        .header-stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            background: rgba(10, 24, 40, 0.8);
+            backdrop-filter: blur(15px);
+            border-right: 2px solid rgba(212, 175, 55, 0.2);
+            padding: 30px 20px;
+            z-index: 15;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #D4AF37;
+            margin-bottom: 25px;
+            text-align: center;
+            letter-spacing: 0.1em;
+        }
+
+        .agent-types {
+            margin-bottom: 30px;
+        }
+
+        .agent-type {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .agent-type:hover {
+            background: rgba(212, 175, 55, 0.1);
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+
+        .type-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #D4AF37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #0A1828;
+            font-weight: 600;
+        }
+
+        .type-info {
+            flex: 1;
+        }
+
+        .type-name {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2px;
+        }
+
+        .type-count {
+            font-size: 12px;
+            color: #D4AF37;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .neural-network-viz {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .network-canvas {
+            width: 800px;
+            height: 600px;
+            border-radius: 20px;
+            background: rgba(10, 24, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .agent-tooltip {
+            position: absolute;
+            background: rgba(10, 24, 40, 0.95);
+            border: 2px solid #D4AF37;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .tooltip-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 8px;
+        }
+
+        .tooltip-info {
+            line-height: 1.4;
+        }
+
+        .tooltip-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+
+        .tooltip-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .tooltip-stat-value {
+            color: #D4AF37;
+            font-weight: 500;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            grid-area: info;
+            background: rgba(10, 24, 40, 0.8);
+            backdrop-filter: blur(15px);
+            border-left: 2px solid rgba(212, 175, 55, 0.2);
+            padding: 30px 25px;
+            z-index: 15;
+            overflow-y: auto;
+        }
+
+        .info-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .system-metrics {
+            margin-bottom: 30px;
+        }
+
+        .metric-group {
+            margin-bottom: 20px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .metric-value {
+            color: #D4AF37;
+            font-weight: 500;
+        }
+
+        .metric-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #D4AF37, #F4E4BC);
+            border-radius: 3px;
+            transition: width 1s ease;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .agent-details {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .detail-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .detail-value {
+            font-size: 13px;
+            color: #D4AF37;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            grid-area: footer;
+            background: rgba(10, 24, 40, 0.9);
+            backdrop-filter: blur(15px);
+            border-top: 2px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 20;
+        }
+
+        .footer-stats {
+            display: flex;
+            gap: 50px;
+        }
+
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-stat-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #D4AF37;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .footer-stat-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer-logo {
+            font-size: 16px;
+            color: #D4AF37;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1400px) {
+            .agent-container {
+                grid-template-columns: 250px 1fr 300px;
+            }
+            
+            .network-canvas {
+                width: 600px;
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .agent-container {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "header"
+                    "main"
+                    "footer";
+                grid-template-rows: 70px 1fr 70px;
+            }
+            
+            .sidebar, .info-panel {
+                display: none;
+            }
+            
+            .header {
+                padding: 0 20px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .header-stats {
+                gap: 20px;
+            }
+            
+            .network-canvas {
+                width: 90%;
+                height: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vanta-background" id="vanta-bg"></div>
+    
+    <div class="agent-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">BIZRA</div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <span class="header-stat-value">72</span>
+                    <span class="header-stat-label">Neural Agents</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value">97.8%</span>
+                    <span class="header-stat-label">Quantum Coherence</span>
+                </div>
+                <div class="header-stat">
+                    <span class="header-stat-value">12.4</span>
+                    <span class="header-stat-label">TB/s Data Flow</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Agent Categories</div>
+            
+            <div class="agent-types">
+                <div class="agent-type" data-type="consciousness">
+                    <div class="type-icon">C</div>
+                    <div class="type-info">
+                        <div class="type-name">Consciousness Explorers</div>
+                        <div class="type-count">18 Agents</div>
+                    </div>
+                </div>
+                
+                <div class="agent-type" data-type="sacred">
+                    <div class="type-icon">S</div>
+                    <div class="type-info">
+                        <div class="type-name">Sacred Geometers</div>
+                        <div class="type-count">12 Agents</div>
+                    </div>
+                </div>
+                
+                <div class="agent-type" data-type="quantum">
+                    <div class="type-icon">Q</div>
+                    <div class="type-info">
+                        <div class="type-name">Quantum Navigators</div>
+                        <div class="type-count">15 Agents</div>
+                    </div>
+                </div>
+                
+                <div class="agent-type" data-type="wisdom">
+                    <div class="type-icon">W</div>
+                    <div class="type-info">
+                        <div class="type-name">Wisdom Integrators</div>
+                        <div class="type-count">14 Agents</div>
+                    </div>
+                </div>
+                
+                <div class="agent-type" data-type="blockchain">
+                    <div class="type-icon">B</div>
+                    <div class="type-info">
+                        <div class="type-name">Blockchain Sages</div>
+                        <div class="type-count">13 Agents</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-title">Active Processes</div>
+            <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); line-height: 1.6;">
+                • Consciousness Expansion<br>
+                • Sacred Geometry Analysis<br>
+                • Quantum Entanglement<br>
+                • Blockchain Integration<br>
+                • Neural Pathway Mapping<br>
+                • Spiritual Data Processing<br>
+                • Dimensional Alignment<br>
+                • Wisdom Integration
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="neural-network-viz">
+                <div class="network-canvas" id="network-canvas"></div>
+                <div class="agent-tooltip" id="agent-tooltip">
+                    <div class="tooltip-title" id="tooltip-title"></div>
+                    <div class="tooltip-info" id="tooltip-info"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Info Panel -->
+        <aside class="info-panel">
+            <div class="info-title">System Intelligence</div>
+            
+            <div class="system-metrics">
+                <div class="metric-group">
+                    <div class="metric-label">
+                        <span>Collective Consciousness</span>
+                        <span class="metric-value">94.2%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 94.2%;"></div>
+                    </div>
+                </div>
+                
+                <div class="metric-group">
+                    <div class="metric-label">
+                        <span>Neural Synchronization</span>
+                        <span class="metric-value">89.7%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 89.7%;"></div>
+                    </div>
+                </div>
+                
+                <div class="metric-group">
+                    <div class="metric-label">
+                        <span>Quantum Field Stability</span>
+                        <span class="metric-value">96.1%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 96.1%;"></div>
+                    </div>
+                </div>
+                
+                <div class="metric-group">
+                    <div class="metric-label">
+                        <span>Spiritual Resonance</span>
+                        <span class="metric-value">91.5%</span>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill" style="width: 91.5%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="agent-details">
+                <div class="detail-title">Selected Agent</div>
+                <div id="agent-details-content">
+                    <div class="detail-item">
+                        <span class="detail-label">ID:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Type:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Consciousness:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Data Processed:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Last Active:</span>
+                        <span class="detail-value">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 25px; font-size: 12px; color: rgba(255, 255, 255, 0.6); line-height: 1.5;">
+                <strong>Sacred Metrics:</strong><br>
+                • Dimensional Alignment: 97%<br>
+                • Wisdom Integration: High<br>
+                • Tech-Spirit Balance: Optimal<br>
+                • User Enlightenment: +47%<br>
+                • Global Impact: Expanding<br>
+                • Cosmic Resonance: 432Hz
+            </div>
+        </aside>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Neural Network Active</span>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Quantum Coherence Stable</span>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Sacred Geometry Aligned</span>
+                </div>
+                <div class="footer-stat">
+                    <div class="footer-stat-icon"></div>
+                    <span class="footer-stat-text">Blockchain Integrated</span>
+                </div>
+            </div>
+            <div class="footer-logo">Where Spirituality Meets Technology</div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize Vanta.js background
+        VANTA.WAVES({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x0A1828,
+            shininess: 60.00,
+            waveHeight: 15.00,
+            waveSpeed: 0.75,
+            zoom: 0.65
+        });
+
+        // Generate agent data
+        function generateAgentData() {
+            const agents = [];
+            const types = [
+                'Consciousness Explorer', 'Sacred Geometer', 'Quantum Navigator',
+                'Wisdom Integrator', 'Blockchain Sage', 'Neural Mystic'
+            ];
+            
+            for (let i = 1; i <= 72; i++) {
+                const type = types[Math.floor(Math.random() * types.length)];
+                const status = Math.random() > 0.2 ? 'Active' : 'Processing';
+                const consciousness = (75 + Math.random() * 25).toFixed(1);
+                const dataProcessed = (Math.random() * 50 + 10).toFixed(1);
+                const lastActive = Math.floor(Math.random() * 60) + 's ago';
+                
+                agents.push({
+                    id: i,
+                    type: type,
+                    status: status,
+                    consciousness: consciousness + '%',
+                    dataProcessed: dataProcessed + ' TB',
+                    lastActive: lastActive,
+                    x: Math.random() * 600 + 100,
+                    y: Math.random() * 400 + 100,
+                    connections: []
+                });
+            }
+            
+            // Generate connections
+            agents.forEach(agent => {
+                const connectionCount = Math.floor(Math.random() * 5) + 2;
+                for (let i = 0; i < connectionCount; i++) {
+                    const targetId = Math.floor(Math.random() * 72) + 1;
+                    if (targetId !== agent.id && !agent.connections.includes(targetId)) {
+                        agent.connections.push(targetId);
+                    }
+                }
+            });
+            
+            return agents;
+        }
+
+        const agents = generateAgentData();
+
+        // Create network visualization
+        function createNetworkVisualization() {
+            const canvas = document.getElementById('network-canvas');
+            
+            // Create plotly data
+            const nodeTrace = {
+                x: agents.map(a => a.x),
+                y: agents.map(a => a.y),
+                mode: 'markers+text',
+                type: 'scatter',
+                text: agents.map(a => a.id),
+                textposition: 'middle center',
+                textfont: {
+                    color: '#0A1828',
+                    size: 10,
+                    family: 'Inter'
+                },
+                marker: {
+                    size: agents.map(a => Math.random() * 15 + 20),
+                    color: agents.map(a => {
+                        const colors = {
+                            'Consciousness Explorer': '#D4AF37',
+                            'Sacred Geometer': '#F4E4BC',
+                            'Quantum Navigator': '#B8860B',
+                            'Wisdom Integrator': '#DAA520',
+                            'Blockchain Sage': '#FFD700',
+                            'Neural Mystic': '#FFED4E'
+                        };
+                        return colors[a.type] || '#D4AF37';
+                    }),
+                    line: {
+                        color: '#ffffff',
+                        width: 2
+                    },
+                    opacity: 0.9
+                },
+                hovertemplate: '<b>Agent %{text}</b><br>Type: %{customdata.type}<br>Status: %{customdata.status}<br>Consciousness: %{customdata.consciousness}<extra></extra>',
+                customdata: agents.map(a => ({
+                    type: a.type,
+                    status: a.status,
+                    consciousness: a.consciousness
+                }))
+            };
+
+            // Create connection traces
+            const connectionTraces = [];
+            agents.forEach(agent => {
+                agent.connections.forEach(connectionId => {
+                    const targetAgent = agents.find(a => a.id === connectionId);
+                    if (targetAgent) {
+                        connectionTraces.push({
+                            x: [agent.x, targetAgent.x, null],
+                            y: [agent.y, targetAgent.y, null],
+                            mode: 'lines',
+                            type: 'scatter',
+                            line: {
+                                color: 'rgba(212, 175, 55, 0.4)',
+                                width: 1
+                            },
+                            hoverinfo: 'skip',
+                            showlegend: false
+                        });
+                    }
+                });
+            });
+
+            const layout = {
+                showlegend: false,
+                xaxis: {
+                    visible: false,
+                    range: [0, 800]
+                },
+                yaxis: {
+                    visible: false,
+                    range: [0, 600]
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                margin: { l: 0, r: 0, t: 0, b: 0 },
+                font: {
+                    family: 'Inter, sans-serif',
+                    color: '#ffffff'
+                }
+            };
+
+            const config = {
+                displayModeBar: false,
+                responsive: true,
+                staticPlot: false
+            };
+
+            Plotly.newPlot(canvas, [...connectionTraces, nodeTrace], layout, config);
+
+            // Add click event
+            canvas.on('plotly_click', function(data) {
+                const pointIndex = data.points[0].pointIndex;
+                const agent = agents[pointIndex];
+                showAgentDetails(agent);
+            });
+
+            // Add hover effects
+            canvas.on('plotly_hover', function(data) {
+                const pointIndex = data.points[0].pointIndex;
+                const agent = agents[pointIndex];
+                showTooltip(agent, data.event);
+            });
+
+            canvas.on('plotly_unhover', function() {
+                hideTooltip();
+            });
+        }
+
+        function showTooltip(agent, event) {
+            const tooltip = document.getElementById('agent-tooltip');
+            const title = document.getElementById('tooltip-title');
+            const info = document.getElementById('tooltip-info');
+            
+            title.textContent = `Agent ${agent.id} - ${agent.type}`;
+            info.innerHTML = `
+                <div class="tooltip-stat">
+                    <span class="tooltip-stat-label">Status:</span>
+                    <span class="tooltip-stat-value">${agent.status}</span>
+                </div>
+                <div class="tooltip-stat">
+                    <span class="tooltip-stat-label">Consciousness:</span>
+                    <span class="tooltip-stat-value">${agent.consciousness}</span>
+                </div>
+                <div class="tooltip-stat">
+                    <span class="tooltip-stat-label">Data Processed:</span>
+                    <span class="tooltip-stat-value">${agent.dataProcessed}</span>
+                </div>
+                <div class="tooltip-stat">
+                    <span class="tooltip-stat-label">Connections:</span>
+                    <span class="tooltip-stat-value">${agent.connections.length}</span>
+                </div>
+            `;
+            
+            tooltip.style.display = 'block';
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY - 10 + 'px';
+        }
+
+        function hideTooltip() {
+            document.getElementById('agent-tooltip').style.display = 'none';
+        }
+
+        function showAgentDetails(agent) {
+            const detailsContent = document.getElementById('agent-details-content');
+            detailsContent.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value">${agent.id}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">${agent.type}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">${agent.status}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Consciousness:</span>
+                    <span class="detail-value">${agent.consciousness}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Data Processed:</span>
+                    <span class="detail-value">${agent.dataProcessed}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Active:</span>
+                    <span class="detail-value">${agent.lastActive}</span>
+                </div>
+            `;
+        }
+
+        // Animate metrics
+        function animateMetrics() {
+            const metricFills = document.querySelectorAll('.metric-fill');
+            metricFills.forEach(fill => {
+                const targetWidth = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = targetWidth;
+                }, 500);
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            createNetworkVisualization();
+            animateMetrics();
+            
+            // Add agent type filtering
+            const agentTypes = document.querySelectorAll('.agent-type');
+            agentTypes.forEach(type => {
+                type.addEventListener('click', () => {
+                    const typeName = type.dataset.type;
+                    filterAgentsByType(typeName);
+                });
+            });
+        });
+
+        function filterAgentsByType(typeName) {
+            // This would filter the network visualization
+            console.log('Filtering by type:', typeName);
+            // Implementation would update the Plotly visualization
+        }
+
+        // Add some dynamic updates
+        setInterval(() => {
+            // Randomly update agent status
+            const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+            randomAgent.status = Math.random() > 0.5 ? 'Active' : 'Processing';
+            randomAgent.consciousness = (75 + Math.random() * 25).toFixed(1) + '%';
+            
+            // Update the network if this agent is selected
+            const detailsContent = document.getElementById('agent-details-content');
+            if (detailsContent.textContent.includes(`ID: ${randomAgent.id}`)) {
+                showAgentDetails(randomAgent);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

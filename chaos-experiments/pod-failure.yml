@@ -1,0 +1,109 @@
+# Chaos Engineering Experiment: Pod Failure
+# Tests system resilience under pod failure conditions
+# A+ Quality Assurance for BIZRA Genesis Node
+
+version: 1.0.0
+kind: ChaosExperiment
+
+metadata:
+  name: pod-failure-test
+  namespace: bizra-chaos
+  description: "Test system behavior when pods are killed unexpectedly"
+  tags:
+    - pod
+    - failure
+    - resilience
+    - high-availability
+    - a-plus-quality
+
+spec:
+  selector:
+    namespaces:
+      - production
+    labelSelectors:
+      app: bizra-genesis-node
+
+  mode: one
+  value: "1"
+
+  duration: 3m
+
+  podChaos:
+    action: pod-kill
+    mode: one
+    selector:
+      namespaces:
+        - production
+      labelSelectors:
+        app: bizra-genesis-node
+        component: api-server
+    gracePeriod: 0
+
+  metricsCollector:
+    - type: prometheus
+      interval: 15s
+      metrics:
+        - name: pod_restart_total
+          query: rate(kube_pod_container_status_restarts_total[5m])
+        - name: service_availability
+          query: up{job="bizra-genesis-node"}
+        - name: error_rate
+          query: rate(http_requests_total{status=~"5.."}[1m]) / rate(http_requests_total[1m])
+
+  steadyStateHypothesis:
+    title: "System maintains availability during pod failures"
+    probes:
+      - name: service-health
+        type: probe
+        tolerance: "response_time < 5000ms"
+        provider:
+          type: http
+          url: "http://bizra-genesis-node.production.svc.cluster.local/health"
+          timeout: 5s
+          interval: 10s
+
+      - name: pod-recovery
+        type: probe
+        tolerance: "restart_count < 3"
+        provider:
+          type: prometheus
+          query: kube_pod_container_status_restarts_total{pod=~".*bizra-genesis-node.*"}[5m]
+
+      - name: error-budget
+        type: probe
+        tolerance: "< 1%"
+        provider:
+          type: prometheus
+          query: rate(http_requests_total{status=~"5.."}[1m]) / rate(http_requests_total[1m])
+
+  rollbacks:
+    - trigger: "service_unavailable > 30s"
+      action: "emergency_rollback"
+      version: "last_stable"
+
+    - trigger: "error_rate > 10%"
+      action: "circuit_breaker"
+      duration: 60s
+
+  notifications:
+    slack:
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channels:
+        - "#chaos-experiments"
+        - "#production-alerts"
+        - "#oncall"
+
+    pagerduty:
+      integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+      severity: "warning"
+
+  reports:
+    - type: json
+      path: "/tmp/chaos-reports/pod-failure-$(date +%Y%m%d-%H%M%S).json"
+    - type: prometheus
+      endpoint: "http://prometheus.production.svc.cluster.local/api/v1/write"
+      metric_name: "chaos_experiment_result"
+      labels:
+        experiment: "pod-failure"
+        result: "{{ .Result }}"
+        duration: "{{ .Duration }}"

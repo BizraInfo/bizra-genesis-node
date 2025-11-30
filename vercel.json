@@ -1,0 +1,123 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "name": "bizra-genesis-node",
+  "buildCommand": "npm run build:dashboard && npm run build:landing",
+  "outputDirectory": "apps/dashboard/dist",
+  "installCommand": "npm install",
+
+  "builds": [
+    {
+      "src": "apps/dashboard/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "apps/landing/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+
+  "routes": [
+    {
+      "src": "/landing/(.*)",
+      "dest": "/apps/landing/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "https://api.bizra.ai/$1"
+    },
+    {
+      "src": "/ws",
+      "dest": "https://api.bizra.ai/ws"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/dashboard/dist/$1"
+    }
+  ],
+
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://api.bizra.ai/:path*"
+    },
+    {
+      "source": "/landing",
+      "destination": "/apps/landing/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/apps/dashboard/dist/index.html"
+    }
+  ],
+
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://bizra.ai"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        }
+      ]
+    }
+  ],
+
+  "env": {
+    "VITE_API_URL": "https://api.bizra.ai",
+    "VITE_WS_URL": "wss://api.bizra.ai/ws",
+    "NODE_ENV": "production"
+  },
+
+  "github": {
+    "enabled": true,
+    "autoAlias": true,
+    "autoJobCancelation": true,
+    "silent": false
+  },
+
+  "regions": ["iad1"],
+
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 30
+    }
+  }
+}

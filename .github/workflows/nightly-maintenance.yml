@@ -1,0 +1,63 @@
+name: Nightly Maintenance
+
+on:
+  schedule:
+    - cron: '15 2 * * *'  # 02:15 UTC daily
+  workflow_dispatch:
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install deps
+        run: |
+          npm ci || true
+          cargo install cargo-audit --locked || true
+          npm install -g gitleaks@8.18.2 trivy@0.52.1 || true
+      - name: Cargo audit
+        run: cargo audit -q || true
+      - name: NPM audit high severity
+        run: |
+          if [ -f package.json ]; then npm audit --audit-level=high || true; fi
+      - name: Secret scan (gitleaks)
+        run: gitleaks detect --source . --report-format json --report-path nightly-gitleaks.json || true
+      - name: Architecture scanner
+        run: |
+          if [ -f tools/architecture-scanner/package.json ]; then (cd tools/architecture-scanner && npm run build && npm run scan -- ../..); fi
+      - name: Parse critical hotspots
+        run: |
+          CRIT=$(grep -i "critical security hotspots" tools/architecture-scanner/ARCHITECTURE.scanner.md | grep -oE '[0-9]+' | head -1 || echo 0)
+          echo "Critical hotspots: $CRIT" > nightly-hotspots.txt
+      - name: Create issue if thresholds exceeded
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const crit = parseInt(fs.readFileSync('nightly-hotspots.txt','utf8').split(':')[1]);
+            if (crit > 0) {
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Nightly: ${crit} critical security hotspots detected`,
+                body: `Automated nightly scan detected ${crit} critical security hotspots.\nPlease prioritize remediation.\n\nScanner report artifact attached.`,
+                labels: ['security','hotspot','nightly']
+              });
+            }
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-maintenance
+          path: |
+            nightly-gitleaks.json
+            tools/architecture-scanner/ARCHITECTURE.scanner.md
+            tools/architecture-scanner/architecture.map.json
+            nightly-hotspots.txt
+          if-no-files-found: ignore

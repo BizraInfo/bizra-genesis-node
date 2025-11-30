@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+Navigating to login...
+[Browser]: [vite] connecting...
+[Browser]: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: [vite] connected.
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+Filling email...
+Filling password...
+Clicking submit...
+Waiting for dashboard redirect...
+Navigating to onboarding...
+[Browser]: [vite] connecting...
+[Browser]: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: [vite] connected.
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+[Browser]: OnboardingProvider mounting
+  Γ£ô  1 [chromium] ΓÇ║ e2e\onboarding.spec.ts:60:5 ΓÇ║ Onboarding Flow ΓÇ║ should complete the 3-step onboarding wizard (10.8s)
+
+  1 passed (11.9s)

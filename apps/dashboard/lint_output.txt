@@ -1,0 +1,1328 @@
+
+> bizra-dashboard@1.0.0 lint
+> eslint src --ext .ts,.tsx
+
+(node:28972) ESLintIgnoreWarning: The ".eslintignore" file is no longer supported. Switch to using the "ignores" property in "eslint.config.js": https://eslint.org/docs/latest/use/configure/migration-guide#ignoring-files
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+C:\bizra-genesis-node\apps\dashboard\src\__tests__\components\agents\AgentDashboard.test.tsx
+   6:10  error  'screen' is defined but never used                                                           no-unused-vars
+   6:10  error  'screen' is defined but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+   6:18  error  'waitFor' is defined but never used                                                          no-unused-vars
+   6:18  error  'waitFor' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+   6:27  error  'within' is defined but never used                                                           no-unused-vars
+   6:27  error  'within' is defined but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+   8:3   error  'renderWithProviders' is defined but never used                                              no-unused-vars
+   8:3   error  'renderWithProviders' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+  12:3   error  'userEvent' is defined but never used                                                        no-unused-vars
+  12:3   error  'userEvent' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+  15:7   error  'mockAgentService' is assigned a value but never used                                        no-unused-vars
+  15:7   error  'mockAgentService' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  86:13  error  'lowScoreAgents' is assigned a value but never used                                          no-unused-vars
+  86:13  error  'lowScoreAgents' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\__tests__\components\auth\Login.test.tsx
+   6:10  error  'screen' is defined but never used                                                          no-unused-vars
+   6:10  error  'screen' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+   6:18  error  'waitFor' is defined but never used                                                         no-unused-vars
+   6:18  error  'waitFor' is defined but never used. Allowed unused vars must match /^_/u                   @typescript-eslint/no-unused-vars
+   6:27  error  'fireEvent' is defined but never used                                                       no-unused-vars
+   6:27  error  'fireEvent' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+   8:3   error  'renderWithProviders' is defined but never used                                             no-unused-vars
+   8:3   error  'renderWithProviders' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+   9:3   error  'mockUser' is defined but never used                                                        no-unused-vars
+   9:3   error  'mockUser' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+  15:7   error  'mockAuthService' is assigned a value but never used                                        no-unused-vars
+  15:7   error  'mockAuthService' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\__tests__\components\telemetry\TelemetryPanel.test.tsx
+   6:10  error  'screen' is defined but never used                                                        no-unused-vars
+   6:10  error  'screen' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+   6:18  error  'waitFor' is defined but never used                                                       no-unused-vars
+   6:18  error  'waitFor' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+   6:27  error  'act' is defined but never used                                                           no-unused-vars
+   6:27  error  'act' is defined but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+   8:3   error  'renderWithProviders' is defined but never used                                           no-unused-vars
+   8:3   error  'renderWithProviders' is defined but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  80:13  error  'meetsErrorSLO' is assigned a value but never used                                        no-unused-vars
+  80:13  error  'meetsErrorSLO' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\__tests__\elite-system-diagnostics.test.tsx
+    9:18  error    'screen' is defined but never used                                                                         no-unused-vars
+    9:18  error    'screen' is defined but never used. Allowed unused vars must match /^_/u                                   @typescript-eslint/no-unused-vars
+    9:26  error    'act' is defined but never used                                                                            no-unused-vars
+    9:26  error    'act' is defined but never used. Allowed unused vars must match /^_/u                                      @typescript-eslint/no-unused-vars
+    9:31  error    'waitFor' is defined but never used                                                                        no-unused-vars
+    9:31  error    'waitFor' is defined but never used. Allowed unused vars must match /^_/u                                  @typescript-eslint/no-unused-vars
+   59:10  error    'SacredLogo' is defined but never used                                                                     no-unused-vars
+   59:10  error    'SacredLogo' is defined but never used. Allowed unused vars must match /^_/u                               @typescript-eslint/no-unused-vars
+   64:7   error    'renderApp' is assigned a value but never used                                                             no-unused-vars
+   64:7   error    'renderApp' is assigned a value but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+   95:26  error    'performance' is not defined                                                                               no-undef
+   99:45  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  100:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  117:27  error    Expected { after 'if' condition                                                                            curly
+  131:18  error    'performance' is not defined                                                                               no-undef
+  143:42  error    Expected { after 'if' condition                                                                            curly
+  170:37  error    'data' is defined but never used                                                                           no-unused-vars
+  226:7   error    'user' is assigned a value but never used                                                                  no-unused-vars
+  226:7   error    'user' is assigned a value but never used. Allowed unused vars must match /^_/u                            @typescript-eslint/no-unused-vars
+  230:27  error    'window' is not defined                                                                                    no-undef
+  235:27  error    'window' is not defined                                                                                    no-undef
+  241:27  error    'window' is not defined                                                                                    no-undef
+  384:18  error    'failure' is assigned a value but never used                                                               no-unused-vars
+  384:18  error    'failure' is assigned a value but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\__tests__\test-utils.tsx
+    8:39  error  'Routes' is defined but never used                                        no-unused-vars
+    8:39  error  'Routes' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+    8:47  error  'Route' is defined but never used                                         no-unused-vars
+    8:47  error  'Route' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+  257:25  error  'window' is not defined                                                   no-undef
+  282:3   error  'window' is not defined                                                   no-undef
+  295:3   error  'window' is not defined                                                   no-undef
+  379:35  error  'setImmediate' is not defined                                             no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\AdvancedMetrics.tsx
+   72:39  error    'setInterval' is not defined                                                                                                                                        no-undef
+   78:27  error    Expected { after 'if' condition                                                                                                                                     curly
+   99:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  102:5   error    'intervalId' is never reassigned. Use 'const' instead                                                                                                               prefer-const
+  102:18  error    'setInterval' is not defined                                                                                                                                        no-undef
+  102:30  error    Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  106:7   error    'clearInterval' is not defined                                                                                                                                      no-undef
+  154:27  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  168:17  error    'window' is not defined                                                                                                                                             no-undef
+  359:27  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ProtectedRoute.tsx
+  118:34  error  'window' is not defined  no-undef
+  124:34  error  'window' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\RealtimeStatusPanel.tsx
+  45:23  error    Expected { after 'if' condition  curly
+  46:25  error    Expected { after 'if' condition  curly
+  57:14  warning  Do not nest ternary expressions  no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\components\SystemHealth.tsx
+   87:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   90:22  error    'setInterval' is not defined                                                                                                                                        no-undef
+   90:34  error    Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+   92:18  error    'clearInterval' is not defined                                                                                                                                      no-undef
+  104:16  error    '_error' is defined but never used                                                                                                                                  no-unused-vars
+  104:16  error    '_error' is defined but never used                                                                                                                                  @typescript-eslint/no-unused-vars
+  132:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  133:22  error    'setInterval' is not defined                                                                                                                                        no-undef
+  133:34  error    Promise returned in function argument where a void return was expected                                                                                              @typescript-eslint/no-misused-promises
+  135:18  error    'clearInterval' is not defined                                                                                                                                      no-undef
+  307:14  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+  398:35  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+  410:35  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\components\__tests__\ProtectedRoute.test.tsx
+   10:35  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+   11:15  error    'initial' is assigned a value but never used                                           no-unused-vars
+   11:15  error    'initial' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+   11:24  error    'animate' is assigned a value but never used                                           no-unused-vars
+   11:24  error    'animate' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+   11:33  error    'transition' is assigned a value but never used                                        no-unused-vars
+   11:33  error    'transition' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   11:45  error    'whileHover' is assigned a value but never used                                        no-unused-vars
+   11:45  error    'whileHover' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   11:57  error    'whileTap' is assigned a value but never used                                          no-unused-vars
+   11:57  error    'whileTap' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+   79:52  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  131:52  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\components\__tests__\RealtimeStatusPanel.test.tsx
+  41:12  error  'document' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\__tests__\SystemHealth.test.tsx
+   8:35  warning  Unexpected any. Specify a different type                                               @typescript-eslint/no-explicit-any
+  10:15  error    'initial' is assigned a value but never used                                           no-unused-vars
+  10:15  error    'initial' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  10:24  error    'animate' is assigned a value but never used                                           no-unused-vars
+  10:24  error    'animate' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  10:33  error    'transition' is assigned a value but never used                                        no-unused-vars
+  10:33  error    'transition' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  10:45  error    'whileHover' is assigned a value but never used                                        no-unused-vars
+  10:45  error    'whileHover' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  10:57  error    'whileTap' is assigned a value but never used                                          no-unused-vars
+  10:57  error    'whileTap' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\components\agents\AgentCard.tsx
+   9:23  error    'id' is defined but never used                                                                             no-unused-vars
+  52:21  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  57:25  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  90:44  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\agents\AgentChat.tsx
+   50:42  error    Expected { after 'if' condition  curly
+  172:10  warning  Do not nest ternary expressions  no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\components\agents\AgentChatInput.tsx
+  11:12  error  'content' is defined but never used  no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\components\agents\AgentGrid.tsx
+  14:13  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  48:29  error  Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  74:40  error  Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\components\agents\AgentMetrics.tsx
+   9:34  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  10:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  11:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\agents\__tests__\AgentGrid.test.tsx
+   2:26  error  'waitFor' is defined but never used                                        no-unused-vars
+   2:26  error  'waitFor' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  59:24  error  'document' is not defined                                                  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\citadel\Citadel.tsx
+   79:27  error  Expected { after 'if' condition  curly
+  115:40  error  Expected { after 'if' condition  curly
+  135:25  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\citadel\GlassInterface.tsx
+  58:21  error  'setInterval' is not defined     no-undef
+  62:11  error  'clearInterval' is not defined   no-undef
+  67:20  error  'clearInterval' is not defined   no-undef
+  81:21  error  'setInterval' is not defined     no-undef
+  85:11  error  'clearInterval' is not defined   no-undef
+  90:20  error  'clearInterval' is not defined   no-undef
+  95:27  error  Expected { after 'if' condition  curly
+  96:35  error  Expected { after 'if' condition  curly
+  97:35  error  Expected { after 'if' condition  curly
+  98:10  error  Expected { after 'else'          curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\citadel\SeedOfLife.tsx
+  49:41  error  Expected { after 'if' condition  curly
+  65:48  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\OnboardingWizard.tsx
+   14:27  error    '_updateUserData' is assigned a value but never used                                                                                                                no-unused-vars
+   32:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   82:20  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  104:19  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  198:53  error    '_onNext' is defined but never used                                                                                                                                 no-unused-vars
+  313:55  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\_archive_AutomatedSetupWizard.tsx
+    2:18  error    'AnimatePresence' is defined but never used                                                                                                                         no-unused-vars
+    2:18  error    'AnimatePresence' is defined but never used. Allowed unused vars must match /^_/u                                                                                   @typescript-eslint/no-unused-vars
+    8:3   error    'Settings' is defined but never used                                                                                                                                no-unused-vars
+    8:3   error    'Settings' is defined but never used. Allowed unused vars must match /^_/u                                                                                          @typescript-eslint/no-unused-vars
+  102:13  error    'error' is defined but never used                                                                                                                                   no-unused-vars
+  106:3   error    'userType' is defined but never used                                                                                                                                no-unused-vars
+  106:3   error    'userType' is defined but never used. Allowed unused args must match /^_/u                                                                                          @typescript-eslint/no-unused-vars
+  109:3   error    'onError' is defined but never used                                                                                                                                 no-unused-vars
+  109:3   error    'onError' is defined but never used. Allowed unused args must match /^_/u                                                                                           @typescript-eslint/no-unused-vars
+  122:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  124:6   warning  React Hook useEffect has a missing dependency: 'runStep'. Either include it or remove the dependency array                                                          react-hooks/exhaustive-deps
+  209:9   error    'getUserFriendlyMessage' is assigned a value but never used                                                                                                         no-unused-vars
+  209:9   error    'getUserFriendlyMessage' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                   @typescript-eslint/no-unused-vars
+  283:42  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  287:18  warning  Prefer using an optional chain expression instead, as it's more concise and easier to read                                                                          @typescript-eslint/prefer-optional-chain
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\_archive_OnboardingWizard.tsx
+   14:27  error    '_updateUserData' is assigned a value but never used                                                                                                                no-unused-vars
+   32:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   82:20  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  104:19  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  198:53  error    '_onNext' is defined but never used                                                                                                                                 no-unused-vars
+  313:55  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\generation-step.tsx
+   28:22  error    'setInterval' is not defined     no-undef
+   49:9   error    'clearInterval' is not defined   no-undef
+   55:18  error    'clearInterval' is not defined   no-undef
+  152:9   error    'React' is not defined           no-undef
+  163:18  warning  Do not nest ternary expressions  no-nested-ternary
+  175:11  warning  Do not nest ternary expressions  no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\onboarding-flow.tsx
+  12:35  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\onboarding-layout.tsx
+  85:11  warning  Do not nest ternary expressions  no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\profile-step.tsx
+  18:16  error    Expected { after 'if' condition           curly
+  52:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  90:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\components\onboarding\scan-step.tsx
+   28:22  error  'setInterval' is not defined    no-undef
+   36:18  error  'clearInterval' is not defined  no-undef
+  106:9   error  'React' is not defined          no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\poi\PoIDashboard.tsx
+  103:24  error    Expected { after 'if' condition                                                                                                                                     curly
+  107:19  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  112:25  error    Expected { after 'if' condition                                                                                                                                     curly
+  116:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  123:70  error    Expected { after 'if' condition                                                                                                                                     curly
+  124:74  error    Expected { after 'if' condition                                                                                                                                     curly
+  136:19  error    Expected { after 'if' condition                                                                                                                                     curly
+  137:42  error    Expected { after 'if' condition                                                                                                                                     curly
+  139:12  warning  Unexpected string concatenation                                                                                                                                     prefer-template
+  165:28  error    'window' is not defined                                                                                                                                             no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\rewards\RewardsDashboard.tsx
+   63:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   72:17  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   80:10  error    Unexpected confirm                                                                                                                                                  no-alert
+   80:10  error    'confirm' is not defined                                                                                                                                            no-undef
+   90:17  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   98:10  error    Unexpected confirm                                                                                                                                                  no-alert
+   98:10  error    'confirm' is not defined                                                                                                                                            no-undef
+  107:17  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  229:35  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  238:35  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\components\sacred\ConsciousnessMeter.tsx
+  1:1  warning  Expected space or tab after '//' in comment  spaced-comment
+  2:1  warning  Expected space or tab after '//' in comment  spaced-comment
+  3:1  warning  Expected space or tab after '//' in comment  spaced-comment
+
+C:\bizra-genesis-node\apps\dashboard\src\components\sacred\SacredAtmosphere.tsx
+    1:1   warning  Expected space or tab after '//' in comment                                      spaced-comment
+    2:1   warning  Expected space or tab after '//' in comment                                      spaced-comment
+    3:1   warning  Expected space or tab after '//' in comment                                      spaced-comment
+    6:10  error    'motion' is defined but never used                                               no-unused-vars
+    6:10  error    'motion' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+    7:55  error    'SACRED_COLORS' is defined but never used                                        no-unused-vars
+    7:55  error    'SACRED_COLORS' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   43:19  warning  Do not nest ternary expressions                                                  no-nested-ternary
+   51:18  error    Expected { after 'if' condition                                                  curly
+   54:15  error    Expected { after 'if' condition                                                  curly
+   58:22  error    'window' is not defined                                                          no-undef
+   59:23  error    'window' is not defined                                                          no-undef
+   63:5   error    'window' is not defined                                                          no-undef
+   68:7   error    'requestAnimationFrame' is not defined                                           no-undef
+   97:24  error    'setInterval' is not defined                                                     no-undef
+  100:7   error    'clearInterval' is not defined                                                   no-undef
+  101:7   error    'window' is not defined                                                          no-undef
+  170:20  error    'generateMetatronsCube' is not defined                                           no-undef
+  268:7   error    'currentX' is never reassigned. Use 'const' instead                              prefer-const
+  269:7   error    'currentY' is never reassigned. Use 'const' instead                              prefer-const
+  303:18  error    Expected { after 'if' condition                                                  curly
+  304:10  error    Expected { after 'else'                                                          curly
+  314:18  error    Expected { after 'if' condition                                                  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\sacred\SacredDashboard.tsx
+    1:1   warning  Expected space or tab after '//' in comment                                                                spaced-comment
+    2:1   warning  Expected space or tab after '//' in comment                                                                spaced-comment
+    3:1   warning  Expected space or tab after '//' in comment                                                                spaced-comment
+   62:11  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  149:72  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\telemetry\SloFlightStrip.tsx
+   51:32  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+   68:34  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+   86:32  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  104:36  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  110:27  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  127:32  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  142:29  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  235:23  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  286:19  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  296:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  296:66  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\telemetry\SystemTelemetryPanel.tsx
+   73:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  104:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  105:63  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  112:55  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  120:56  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  128:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  136:59  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  143:66  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  205:21  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  272:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\SacredButton.tsx
+  31:35  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\SacredInput.tsx
+  11:28  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\__tests__\GlassCard.test.tsx
+   10:10  error    'cn' is defined but never used                                        no-unused-vars
+   10:10  error    'cn' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  186:20  error    'document' is not defined                                             no-undef
+  200:44  warning  Unexpected any. Specify a different type                              @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\__tests__\SacredButton.test.tsx
+    8:37  error  'waitFor' is defined but never used                                        no-unused-vars
+    8:37  error  'waitFor' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  114:23  error  'document' is not defined                                                  no-undef
+  305:23  error  'document' is not defined                                                  no-undef
+  314:23  error  'document' is not defined                                                  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\__tests__\SacredInput.test.tsx
+   11:10  error  'cn' is defined but never used                                        no-unused-vars
+   11:10  error  'cn' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  111:28  error  'document' is not defined                                             no-undef
+  121:28  error  'document' is not defined                                             no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\aspect-ratio.tsx
+  7:4  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\button-group.tsx
+  28:4  error  'React' is not defined  no-undef
+  44:4  error  'React' is not defined  no-undef
+  64:4  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\calendar.tsx
+  185:28  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\carousel.tsx
+  21:13  error  'api' is defined but never used  no-unused-vars
+  65:15  error  Expected { after 'if' condition  curly
+  92:26  error  Expected { after 'if' condition  curly
+  97:15  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\chart.tsx
+   12:4   error    'k' is defined but never used                                                                              no-unused-vars
+   50:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   74:34  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   91:66  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  137:29  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  137:46  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  137:60  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  141:18  error    This assertion is unnecessary since it does not change the type of the expression                          @typescript-eslint/no-unnecessary-type-assertion
+  141:55  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  183:34  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  183:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  183:63  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  185:40  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  185:61  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  232:44  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  279:32  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  279:48  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  343:14  error    This assertion is unnecessary since it does not change the type of the expression                          @typescript-eslint/no-unnecessary-type-assertion
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\collapsible.tsx
+   7:4  error  'React' is not defined  no-undef
+  13:4  error  'React' is not defined  no-undef
+  24:4  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\empty.tsx
+   5:41  error  'React' is not defined  no-undef
+  18:47  error  'React' is not defined  no-undef
+  50:4   error  'React' is not defined  no-undef
+  61:46  error  'React' is not defined  no-undef
+  71:52  error  'React' is not defined  no-undef
+  84:48  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\field.tsx
+   10:44  error  'React' is not defined  no-undef
+   28:4   error  'React' is not defined  no-undef
+   44:46  error  'React' is not defined  no-undef
+   85:4   error  'React' is not defined  no-undef
+   97:48  error  'React' is not defined  no-undef
+  113:4   error  'React' is not defined  no-undef
+  128:46  error  'React' is not defined  no-undef
+  141:52  error  'React' is not defined  no-undef
+  160:4   error  'React' is not defined  no-undef
+  161:14  error  'React' is not defined  no-undef
+  191:4   error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\input-group.tsx
+   10:46  error  'React' is not defined  no-undef
+   63:4   error  'React' is not defined  no-undef
+  105:9   error  'React' is not defined  no-undef
+  118:50  error  'React' is not defined  no-undef
+  133:4   error  'React' is not defined  no-undef
+  149:4   error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\kbd.tsx
+   3:39  error  'React' is not defined  no-undef
+  18:44  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\progress.tsx
+  25:57  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\sidebar.tsx
+   38:13  error  'open' is defined but never used   no-unused-vars
+   40:19  error  'open' is defined but never used   no-unused-vars
+   67:19  error  'open' is defined but never used   no-unused-vars
+   77:25  error  'value' is defined but never used  no-unused-vars
+   86:7   error  'document' is not defined          no-undef
+  108:5   error  'window' is not defined            no-undef
+  109:18  error  'window' is not defined            no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\skeleton.tsx
+  3:44  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\slider.tsx
+  18:7  warning  Do not nest ternary expressions  no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\sonner.tsx
+  18:14  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\spinner.tsx
+  5:43  error  'React' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\toggle-group.tsx
+  56:37  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  57:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  60:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  61:30  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\use-mobile.tsx
+   9:17  error  'window' is not defined  no-undef
+  11:19  error  'window' is not defined  no-undef
+  14:17  error  'window' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\components\ui\use-toast.ts
+   18:7   error  'actionTypes' is assigned a value but only used as a type. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  129:25  error  'state' is defined but never used                                                                no-unused-vars
+  159:20  error  Expected { after 'if' condition                                                                  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\config.ts
+   5:53  error    'process' is not defined                                                                    no-undef
+  10:41  error    'process' is not defined                                                                    no-undef
+  11:23  error    'process' is not defined                                                                    no-undef
+  12:20  error    Expected { after 'if' condition                                                             curly
+  27:9   warning  Prefer using an optional chain expression instead, as it's more concise and easier to read  @typescript-eslint/prefer-optional-chain
+  39:18  error    Expected { after 'if' condition                                                             curly
+  43:18  error    Expected { after 'if' condition                                                             curly
+  50:23  error    'process' is not defined                                                                    no-undef
+  51:24  error    'process' is not defined                                                                    no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\contexts\AuthContext.tsx
+  135:7   error    'document' is not defined                                                                                                                                           no-undef
+  140:9   error    'document' is not defined                                                                                                                                           no-undef
+  168:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  223:66  error    Expected { after 'if' condition                                                                                                                                     curly
+  230:9   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  235:22  error    'setInterval' is not defined                                                                                                                                        no-undef
+  236:18  error    'clearInterval' is not defined                                                                                                                                      no-undef
+  251:22  error    Expected { after 'if' condition                                                                                                                                     curly
+  296:63  error    Expected { after 'if' condition                                                                                                                                     curly
+  300:9   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  305:22  error    'setInterval' is not defined                                                                                                                                        no-undef
+  306:18  error    'clearInterval' is not defined                                                                                                                                      no-undef
+  316:38  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\contexts\OnboardingContext.tsx
+  163:7   error    Unexpected lexical declaration in case block                                                               no-case-declarations
+  164:7   error    Unexpected lexical declaration in case block                                                               no-case-declarations
+  175:50  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  277:95  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  297:19  error    'localStorage' is not defined                                                                              no-undef
+  310:7   error    'localStorage' is not defined                                                                              no-undef
+  312:7   error    'localStorage' is not defined                                                                              no-undef
+  344:65  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  345:23  error    Expected { after 'if' condition                                                                            curly
+  440:5   error    'localStorage' is not defined                                                                              no-undef
+  474:23  error    Expected { after 'if' condition                                                                            curly
+  475:34  error    Expected { after 'if' condition                                                                            curly
+
+C:\bizra-genesis-node\apps\dashboard\src\contexts\WebSocketContext.tsx
+   25:22  error    'agentId' is defined but never used                                                                                                                                                      no-unused-vars
+   25:39  error    'content' is defined but never used                                                                                                                                                      no-unused-vars
+   25:56  error    'metadata' is defined but never used                                                                                                                                                     no-unused-vars
+   25:67  warning  Unexpected any. Specify a different type                                                                                                                                                 @typescript-eslint/no-explicit-any
+   26:21  error    'handler' is defined but never used                                                                                                                                                      no-unused-vars
+   26:31  error    'response' is defined but never used                                                                                                                                                     no-unused-vars
+   27:23  error    'handler' is defined but never used                                                                                                                                                      no-unused-vars
+   27:33  error    'indicator' is defined but never used                                                                                                                                                    no-unused-vars
+   28:22  error    'handler' is defined but never used                                                                                                                                                      no-unused-vars
+   28:32  error    'update' is defined but never used                                                                                                                                                       no-unused-vars
+   29:25  error    'actorId' is defined but never used                                                                                                                                                      no-unused-vars
+   29:42  error    'isTyping' is defined but never used                                                                                                                                                     no-unused-vars
+   48:9   warning  The 'connect' function makes the dependencies of useEffect Hook (at line 93) change on every render. To fix this, wrap the definition of 'connect' in its own useCallback() Hook         react-hooks/exhaustive-deps
+   48:9   warning  The 'connect' function makes the dependencies of useEffect Hook (at line 102) change on every render. To fix this, wrap the definition of 'connect' in its own useCallback() Hook        react-hooks/exhaustive-deps
+   62:9   warning  The 'disconnect' function makes the dependencies of useEffect Hook (at line 102) change on every render. To fix this, wrap the definition of 'disconnect' in its own useCallback() Hook  react-hooks/exhaustive-deps
+   71:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                                        no-console
+   76:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                                        no-console
+   87:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                       @typescript-eslint/no-floating-promises
+   98:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator                       @typescript-eslint/no-floating-promises
+  104:74  warning  Unexpected any. Specify a different type                                                                                                                                                 @typescript-eslint/no-explicit-any
+  111:38  error    'response' is defined but never used                                                                                                                                                     no-unused-vars
+  119:40  error    'indicator' is defined but never used                                                                                                                                                    no-unused-vars
+  127:39  error    'update' is defined but never used                                                                                                                                                       no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\contexts\__tests__\AuthContext.test.tsx
+  44:5   error    'localStorage' is not defined             no-undef
+  87:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\contexts\__tests__\WebSocketContext.test.tsx
+   34:54  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   35:23  error    Promise-returning function provided to attribute where a void return was expected                          @typescript-eslint/no-misused-promises
+   43:19  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  114:52  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  220:24  error    'error' is defined but never used                                                                          no-unused-vars
+  222:54  error    'error' is defined but never used                                                                          no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\contexts\_archive_OnboardingContext.tsx
+  151:50  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  237:3   warning  Unexpected console statement. Only these console methods are allowed: warn, error                          no-console
+  255:95  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  275:19  error    'localStorage' is not defined                                                                              no-undef
+  288:7   error    'localStorage' is not defined                                                                              no-undef
+  290:7   error    'localStorage' is not defined                                                                              no-undef
+  322:65  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  323:23  error    Expected { after 'if' condition                                                                            curly
+  418:5   error    'localStorage' is not defined                                                                              no-undef
+  452:23  error    Expected { after 'if' condition                                                                            curly
+  453:34  error    Expected { after 'if' condition                                                                            curly
+
+C:\bizra-genesis-node\apps\dashboard\src\controllers\agents-controller.ts
+   48:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+   60:17  error    'localStorage' is not defined                                                                                                                                       no-undef
+   72:39  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   78:25  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   79:37  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   80:82  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  146:54  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  152:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\controllers\auth-controller.ts
+   44:5   error    'localStorage' is not defined                                                                                                                                       no-undef
+   45:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+   65:39  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   74:30  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  108:3   error    'localStorage' is not defined                                                                                                                                       no-undef
+  113:17  error    'localStorage' is not defined                                                                                                                                       no-undef
+  126:17  error    'localStorage' is not defined                                                                                                                                       no-undef
+  128:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\controllers\metrics-controller.ts
+   63:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+   75:17  error    'localStorage' is not defined                                                                                                                                       no-undef
+   87:39  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   93:25  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  100:19  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  108:27  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  129:22  error    'NodeJS' is not defined                                                                                                                                             no-undef
+  138:3   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  141:21  error    'setInterval' is not defined                                                                                                                                        no-undef
+  142:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  145:3   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+  150:5   error    'clearInterval' is not defined                                                                                                                                      no-undef
+  152:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+  160:56  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  167:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  181:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\controllers\pat-controller.ts
+   42:43  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   73:43  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   88:24  warning  Do not nest ternary expressions                                                                            no-nested-ternary
+  130:29  error    Expected { after 'if' condition                                                                            curly
+  131:29  error    Expected { after 'if' condition                                                                            curly
+  132:29  error    Expected { after 'if' condition                                                                            curly
+  133:29  error    Expected { after 'if' condition                                                                            curly
+  134:29  error    Expected { after 'if' condition                                                                            curly
+  135:29  error    Expected { after 'if' condition                                                                            curly
+  167:13  error    'focusText' is assigned a value but never used                                                             no-unused-vars
+  167:13  error    'focusText' is assigned a value but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+  167:36  error    'description' is assigned a value but never used                                                           no-unused-vars
+  167:36  error    'description' is assigned a value but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+  187:59  error    Expected { after 'if' condition                                                                            curly
+  188:67  error    Expected { after 'if' condition                                                                            curly
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\__tests__\useConsciousness.test.tsx
+  30:23  error  'window' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\__tests__\useTelemetryStream.test.tsx
+    1:27  error    'waitFor' is defined but never used                                        no-unused-vars
+    1:27  error    'waitFor' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   17:16  error    'event' is defined but never used                                          no-unused-vars
+   17:23  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   18:14  error    'error' is defined but never used                                          no-unused-vars
+   18:21  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   19:14  error    'event' is defined but never used                                          no-unused-vars
+   19:21  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   55:46  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  240:28  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  259:67  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  345:69  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  363:67  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  384:67  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\sacred\geometry.ts
+  51:28  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\useConsciousness.ts
+    1:1   warning  Expected space or tab after '//' in comment        spaced-comment
+    2:1   warning  Expected space or tab after '//' in comment        spaced-comment
+    3:1   warning  Expected space or tab after '//' in comment        spaced-comment
+   10:27  error    'level' is defined but never used                  no-unused-vars
+   11:30  error    'delta' is defined but never used                  no-unused-vars
+   25:3   error    'MATERIAL_FOCUS' is defined but never used         no-unused-vars
+   26:3   error    'SOCIAL_ORIENTATION' is defined but never used     no-unused-vars
+   29:3   error    'EXISTENTIAL_CURIOSITY' is defined but never used  no-unused-vars
+   30:3   error    'SPIRITUAL_SEEKING' is defined but never used      no-unused-vars
+   33:3   error    'MINDFUL_PRESENCE' is defined but never used       no-unused-vars
+   34:3   error    'UNIFIED_CONSCIOUSNESS' is defined but never used  no-unused-vars
+   37:3   error    'UNIVERSAL_HARMONY' is defined but never used      no-unused-vars
+   38:3   error    'DIVINE_EMBODIMENT' is defined but never used      no-unused-vars
+   41:3   error    'COSMIC_UNITY' is defined but never used           no-unused-vars
+   42:3   error    'INFINITE_EXPANSION' is defined but never used     no-unused-vars
+   83:22  error    'localStorage' is not defined                      no-undef
+  101:7   error    'localStorage' is not defined                      no-undef
+  138:21  error    Expected { after 'if' condition                    curly
+  139:21  error    Expected { after 'if' condition                    curly
+  140:21  error    Expected { after 'if' condition                    curly
+  141:21  error    Expected { after 'if' condition                    curly
+  142:21  error    Expected { after 'if' condition                    curly
+  143:21  error    Expected { after 'if' condition                    curly
+  216:22  error    Expected { after 'if' condition                    curly
+  217:22  error    Expected { after 'if' condition                    curly
+  218:22  error    Expected { after 'if' condition                    curly
+  230:29  error    Expected { after 'if' condition                    curly
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\useDebounce.ts
+  59:52  error    'args' is defined but never used          no-unused-vars
+  59:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  59:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:8   error    'args' is defined but never used          no-unused-vars
+  63:46  error    'NodeJS' is not defined                   no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\useLocalStorage.ts
+   33:20  error  'window' is not defined  no-undef
+   54:11  error  'window' is not defined  no-undef
+   57:11  error  'window' is not defined  no-undef
+   76:9   error  'window' is not defined  no-undef
+   79:9   error  'window' is not defined  no-undef
+  111:5   error  'window' is not defined  no-undef
+  112:5   error  'window' is not defined  no-undef
+  115:7   error  'window' is not defined  no-undef
+  116:7   error  'window' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\useMediaQuery.ts
+   24:12  error  'window' is not defined          no-undef
+   32:24  error  'window' is not defined          no-undef
+  108:17  error  Expected { after 'if' condition  curly
+  109:17  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\useTelemetryStream.tsx
+   95:22  error    Expected { after 'if' condition                                                    curly
+   96:22  error    Expected { after 'if' condition                                                    curly
+   97:22  error    Expected { after 'if' condition                                                    curly
+  130:17  error    Expected { after 'if' condition                                                    curly
+  131:18  error    Expected { after 'if' condition                                                    curly
+  132:42  error    Expected { after 'if' condition                                                    curly
+  220:51  error    'setInterval' is not defined                                                       no-undef
+  229:7   error    'clearInterval' is not defined                                                     no-undef
+  260:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  265:34  error    'setInterval' is not defined                                                       no-undef
+  293:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  302:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+C:\bizra-genesis-node\apps\dashboard\src\hooks\useWebSocketStreams.ts
+   29:12  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+   38:14  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+   73:42  error    'NodeJS' is not defined                                                                                                                                                                                                                                                no-undef
+   79:49  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+   80:15  warning  Do not nest ternary expressions                                                                                                                                                                                                                                        no-nested-ternary
+  117:21  error    Expected { after 'if' condition                                                                                                                                                                                                                                        curly
+  125:19  warning  The ref value 'timeoutRefs.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'timeoutRefs.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  159:32  error    Expected { after 'if' condition                                                                                                                                                                                                                                        curly
+  162:31  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  168:46  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  169:34  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  170:46  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  171:46  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  174:40  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  216:32  error    Expected { after 'if' condition                                                                                                                                                                                                                                        curly
+  218:31  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  225:30  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  226:40  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  268:32  error    Expected { after 'if' condition                                                                                                                                                                                                                                        curly
+  270:31  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  275:52  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  276:43  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  276:63  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  277:32  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+  279:40  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                                                                                                                              @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\journeys\auth\journey.ts
+   7:75  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\journeys\auth\store.ts
+   30:13  error    'email' is defined but never used                                                  no-unused-vars
+   30:28  error    'password' is defined but never used                                               no-unused-vars
+   31:16  error    'data' is defined but never used                                                   no-unused-vars
+   44:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   69:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   82:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   87:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  112:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  125:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  130:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  144:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  146:16  error    'error' is defined but never used                                                  no-unused-vars
+  146:16  error    'error' is defined but never used                                                  @typescript-eslint/no-unused-vars
+  154:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  159:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+C:\bizra-genesis-node\apps\dashboard\src\layouts\MainLayout.tsx
+   99:19  error    'localStorage' is not defined                                                                                                                                       no-undef
+  105:14  error    'window' is not defined                                                                                                                                             no-undef
+  112:5   error    'document' is not defined                                                                                                                                           no-undef
+  113:5   error    'localStorage' is not defined                                                                                                                                       no-undef
+  114:6   warning  React Hook useEffect has a missing dependency: 'getEffectiveTheme'. Either include it or remove the dependency array                                                react-hooks/exhaustive-deps
+  117:24  error    'window' is not defined                                                                                                                                             no-undef
+  121:9   error    'document' is not defined                                                                                                                                           no-undef
+  153:11  error    'window' is not defined                                                                                                                                             no-undef
+  161:5   error    'window' is not defined                                                                                                                                             no-undef
+  162:18  error    'window' is not defined                                                                                                                                             no-undef
+  187:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  209:11  error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  210:15  error    'window' is not defined                                                                                                                                             no-undef
+  251:19  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  258:19  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  298:25  error    'window' is not defined                                                                                                                                             no-undef
+  314:14  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+  314:32  error    'window' is not defined                                                                                                                                             no-undef
+  355:79  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  434:25  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\api\rest-client.ts
+  46:29  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\api\sat.ts
+  13:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  21:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  28:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  35:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  43:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  52:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\api\websocket-bridge.ts
+  16:21  error  'status' is defined but never used                                       no-unused-vars
+  17:16  error  'message' is defined but never used                                      no-unused-vars
+  18:14  error  'error' is defined but never used                                        no-unused-vars
+  59:26  error  'event' is defined but never used                                        no-unused-vars
+  59:26  error  'event' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\journeys\agents.ts
+  43:17  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  45:17  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  53:22  error    Expected { after 'if' condition                                                    curly
+  78:60  error    Expected { after 'if' condition                                                    curly
+  81:82  error    Expected { after 'if' condition                                                    curly
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\journeys\auth.ts
+  56:13  warning  Prefer using an optional chain expression instead, as it's more concise and easier to read  @typescript-eslint/prefer-optional-chain
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\synapse\core.ts
+   5:3   error    'IDLE' is defined but never used                                                                           no-unused-vars
+   6:3   error    'LOADING' is defined but never used                                                                        no-unused-vars
+   7:3   error    'SUCCESS' is defined but never used                                                                        no-unused-vars
+   8:3   error    'ERROR' is defined but never used                                                                          no-unused-vars
+   9:3   error    'BLOCKED' is defined but never used                                                                        no-unused-vars
+  22:16  error    'data' is defined but never used                                                                           no-unused-vars
+  22:25  error    'message' is defined but never used                                                                        no-unused-vars
+  23:14  error    'error' is defined but never used                                                                          no-unused-vars
+  72:18  error    'data' is defined but never used                                                                           no-unused-vars
+  72:27  error    'message' is defined but never used                                                                        no-unused-vars
+  73:16  error    'error' is defined but never used                                                                          no-unused-vars
+  82:19  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  85:24  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  86:30  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\synapse\socket.test.ts
+   6:17  error    'event' is defined but never used                                      no-unused-vars
+   6:24  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   8:15  error    'error' is defined but never used                                      no-unused-vars
+   8:22  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  13:17  error    'url' is defined but never used                                        no-unused-vars
+  13:17  error    'url' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  21:37  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  22:22  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  23:22  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\synapse\socket.ts
+    1:10  error    'SynapseStatus' is defined but never used                                          no-unused-vars
+    1:10  error    'SynapseStatus' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+    4:5   error    'CONNECTING' is defined but never used                                             no-unused-vars
+    5:5   error    'CONNECTED' is defined but never used                                              no-unused-vars
+    6:5   error    'DISCONNECTED' is defined but never used                                           no-unused-vars
+    7:5   error    'RECONNECTING' is defined but never used                                           no-unused-vars
+    8:5   error    'ERROR' is defined but never used                                                  no-unused-vars
+   11:22  error    'payload' is defined but never used                                                no-unused-vars
+   11:31  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+   22:35  error    'status' is defined but never used                                                 no-unused-vars
+   49:17  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   98:40  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+  106:38  error    'status' is defined but never used                                                 no-unused-vars
+  123:13  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  139:46  warning  Unexpected any. Specify a different type                                           @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\lib\utils.ts
+  35:22  error    Expected { after 'if' condition   curly
+  36:22  error    Expected { after 'if' condition   curly
+  37:23  error    Expected { after 'if' condition   curly
+  44:40  error    'args' is defined but never used  no-unused-vars
+  47:8   error    'args' is defined but never used  no-unused-vars
+  59:32  error    Expected { after 'if' condition   curly
+  60:10  warning  Unexpected string concatenation   prefer-template
+
+C:\bizra-genesis-node\apps\dashboard\src\main.tsx
+  9:21  error  'document' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Achievements.tsx
+   13:18  warning  Unexpected string concatenation                                                                                                                                     prefer-template
+  112:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  114:6   warning  React Hook useEffect has a missing dependency: 'fetchAllData'. Either include it or remove the dependency array                                                     react-hooks/exhaustive-deps
+  124:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  125:38  error    'localStorage' is not defined                                                                                                                                       no-undef
+  144:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  145:38  error    'localStorage' is not defined                                                                                                                                       no-undef
+  169:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  170:38  error    'localStorage' is not defined                                                                                                                                       no-undef
+  183:11  error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  207:27  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  236:60  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Agents.tsx
+  496:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Analytics.tsx
+  239:22  error    Expected { after 'if' condition                                                    curly
+  241:22  error    'setInterval' is not defined                                                       no-undef
+  256:18  error    'clearInterval' is not defined                                                     no-undef
+  265:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Dashboard.test.tsx
+   7:37  error  'waitFor' is defined but never used                                                    no-unused-vars
+   7:37  error  'waitFor' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+  10:8   error  'RealtimeStatusPanel' is defined but never used                                        no-unused-vars
+  10:8   error  'RealtimeStatusPanel' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Landing.tsx
+  103:5   error  'window' is not defined  no-undef
+  104:18  error  'window' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Login.tsx
+   30:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   86:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  153:19  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  162:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  170:26  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\PatDashboard.tsx
+   16:10  error    'editingFocus' is assigned a value but never used                                                                                                                   no-unused-vars
+   16:10  error    'editingFocus' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                             @typescript-eslint/no-unused-vars
+   23:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   42:9   error    'handleFocusUpdate' is assigned a value but never used                                                                                                              no-unused-vars
+   42:9   error    'handleFocusUpdate' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                        @typescript-eslint/no-unused-vars
+   42:36  error    'updates' is defined but never used                                                                                                                                 no-unused-vars
+   42:36  error    'updates' is defined but never used. Allowed unused args must match /^_/u                                                                                           @typescript-eslint/no-unused-vars
+   43:25  error    Expected { after 'if' condition                                                                                                                                     curly
+   57:55  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+   65:25  error    Expected { after 'if' condition                                                                                                                                     curly
+  102:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  104:21  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  157:56  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  177:54  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  190:73  error    'index' is defined but never used                                                                                                                                   no-unused-vars
+  190:73  error    'index' is defined but never used. Allowed unused args must match /^_/u                                                                                             @typescript-eslint/no-unused-vars
+  194:19  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+  248:19  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+  271:19  warning  Do not nest ternary expressions                                                                                                                                     no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Register.tsx
+   43:31  error    Expected { after 'if' condition                                                                                                                                     curly
+   44:33  error    Expected { after 'if' condition                                                                                                                                     curly
+   45:33  error    Expected { after 'if' condition                                                                                                                                     curly
+   46:33  error    Expected { after 'if' condition                                                                                                                                     curly
+   47:40  error    Expected { after 'if' condition                                                                                                                                     curly
+  156:9   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  158:9   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  173:42  error    'window' is not defined                                                                                                                                             no-undef
+  196:32  error    Expected { after 'if' condition                                                                                                                                     curly
+  197:32  error    Expected { after 'if' condition                                                                                                                                     curly
+  202:32  error    Expected { after 'if' condition                                                                                                                                     curly
+  203:32  error    Expected { after 'if' condition                                                                                                                                     curly
+  261:19  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  270:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  278:26  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Settings.tsx
+  69:5  error    'document' is not defined                                                          no-undef
+  87:7  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\Synthesis.tsx
+   32:9   warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   36:11  error    'Workflow' is already defined                                                                                                                                       no-redeclare
+   58:13  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   93:10  error    '_isCreating' is assigned a value but never used                                                                                                                    no-unused-vars
+  415:23  error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  489:29  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  638:87  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\TelemetryPlayground.tsx
+  258:42  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\__tests__\Login.test.tsx
+  17:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:75  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:32  error    'JSX' is not defined                      no-undef
+  48:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\auth\Login.tsx
+  26:13  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  56:36  error  Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\auth\Register.tsx
+  50:17  error  Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  94:36  error  Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\help\HelpCenter.tsx
+  111:100  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\sat\SatOutboxPage.tsx
+   26:5   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   58:7   error    Unexpected alert                                                                                                                                                    no-alert
+   58:7   error    'alert' is not defined                                                                                                                                              no-undef
+   72:7   error    Unexpected alert                                                                                                                                                    no-alert
+   72:7   error    'alert' is not defined                                                                                                                                              no-undef
+   86:7   error    Unexpected alert                                                                                                                                                    no-alert
+   86:7   error    'alert' is not defined                                                                                                                                              no-undef
+  108:21  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  153:31  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  154:30  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  155:31  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  189:15  error    'id' is defined but never used                                                                                                                                      no-unused-vars
+  190:14  error    'id' is defined but never used                                                                                                                                      no-unused-vars
+  191:15  error    'id' is defined but never used                                                                                                                                      no-unused-vars
+  219:33  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  291:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\settings\Settings.tsx
+   45:13  error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+   47:8   warning  React Hook useEffect has a missing dependency: 'loadProfile'. Either include it or remove the dependency array                                                      react-hooks/exhaustive-deps
+   50:21  error    Expected { after 'if' condition                                                                                                                                     curly
+   60:18  error    'error' is defined but never used                                                                                                                                   no-unused-vars
+   60:18  error    'error' is defined but never used                                                                                                                                   @typescript-eslint/no-unused-vars
+  134:21  error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  186:63  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  210:59  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+  284:53  error    Promise-returning function provided to attribute where a void return was expected                                                                                   @typescript-eslint/no-misused-promises
+
+C:\bizra-genesis-node\apps\dashboard\src\pages\settings\__tests__\Settings.test.tsx
+  46:54  error    'React' is not defined                                                                                     no-undef
+  58:19  error    'React' is not defined                                                                                     no-undef
+  66:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  84:21  error    'e' is defined but never used                                                                              no-unused-vars
+  84:24  error    'React' is not defined                                                                                     no-undef
+  92:28  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\BizraHero.tsx
+  1:1  warning  Expected space or tab after '//' in comment  spaced-comment
+  2:1  warning  Expected space or tab after '//' in comment  spaced-comment
+  3:1  warning  Expected space or tab after '//' in comment  spaced-comment
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\ConsciousnessStream.tsx
+    1:1   warning  Expected space or tab after '//' in comment                                        spaced-comment
+    2:1   warning  Expected space or tab after '//' in comment                                        spaced-comment
+    3:1   warning  Expected space or tab after '//' in comment                                        spaced-comment
+   38:22  error    'metrics' is defined but never used                                                no-unused-vars
+   75:13  error    'fps' is assigned a value but never used                                           no-unused-vars
+   75:13  error    'fps' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+  145:33  error    'requestAnimationFrame' is not defined                                             no-undef
+  162:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  170:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  231:32  error    'performance' is not defined                                                       no-undef
+  232:33  error    'requestAnimationFrame' is not defined                                             no-undef
+  236:9   error    'cancelAnimationFrame' is not defined                                              no-undef
+  288:26  warning  Do not nest ternary expressions                                                    no-nested-ternary
+  298:8   error    'process' is not defined                                                           no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\HoursMonument.tsx
+   1:1   warning  Expected space or tab after '//' in comment                                                                                                                                                                                                                              spaced-comment
+   2:1   warning  Expected space or tab after '//' in comment                                                                                                                                                                                                                              spaced-comment
+   3:1   warning  Expected space or tab after '//' in comment                                                                                                                                                                                                                              spaced-comment
+   8:15  error    'HoursMonumentData' is defined but never used                                                                                                                                                                                                                            no-unused-vars
+   8:15  error    'HoursMonumentData' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  78:9   error    'cancelAnimationFrame' is not defined                                                                                                                                                                                                                                    no-undef
+  78:43  warning  The ref value 'animationRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'animationRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\RamadanOriginSection.tsx
+   1:1   warning  Expected space or tab after '//' in comment                                                                spaced-comment
+   2:1   warning  Expected space or tab after '//' in comment                                                                spaced-comment
+   3:1   warning  Expected space or tab after '//' in comment                                                                spaced-comment
+   8:15  error    'RamadanOriginData' is defined but never used                                                              no-unused-vars
+   8:15  error    'RamadanOriginData' is defined but never used. Allowed unused vars must match /^_/u                        @typescript-eslint/no-unused-vars
+  12:23  error    'months' is defined but never used                                                                         no-unused-vars
+  12:39  error    'hours' is defined but never used                                                                          no-unused-vars
+  60:42  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\SacredAtmosphere.tsx
+   1:1   warning  Expected space or tab after '//' in comment  spaced-comment
+   2:1   warning  Expected space or tab after '//' in comment  spaced-comment
+   3:1   warning  Expected space or tab after '//' in comment  spaced-comment
+  36:18  error    Expected { after 'if' condition              curly
+  39:15  error    Expected { after 'if' condition              curly
+  43:43  error    'window' is not defined                      no-undef
+  44:45  error    'window' is not defined                      no-undef
+  45:17  error    'window' is not defined                      no-undef
+  45:42  error    'window' is not defined                      no-undef
+  49:5   error    'window' is not defined                      no-undef
+  75:9   error    'requestAnimationFrame' is not defined       no-undef
+  82:7   error    'window' is not defined                      no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\components\ConsciousnessMap.tsx
+  28:19  error  'agentId' is defined but never used  no-unused-vars
+  49:25  error  Expected { after 'if' condition      curly
+  88:21  error  Expected { after 'if' condition      curly
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\components\ConsciousnessOrb.tsx
+   8:41  error  'SacredAnimations' is defined but never used                                        no-unused-vars
+   8:41  error  'SacredAnimations' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  20:14  error  'agentId' is defined but never used                                                 no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\components\SacredGrid.tsx
+   8:18  error    'calculateSacredGrid' is defined but never used                                                            no-unused-vars
+   8:18  error    'calculateSacredGrid' is defined but never used. Allowed unused vars must match /^_/u                      @typescript-eslint/no-unused-vars
+  93:30  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\sacred\geometry.ts
+    1:1   warning  Expected space or tab after '//' in comment       spaced-comment
+    2:1   warning  Expected space or tab after '//' in comment       spaced-comment
+    3:1   warning  Expected space or tab after '//' in comment       spaced-comment
+  268:3   error    '_timeOffset' is assigned a value but never used  no-unused-vars
+  276:17  warning  Do not nest ternary expressions                   no-nested-ternary
+  277:16  warning  Do not nest ternary expressions                   no-nested-ternary
+
+C:\bizra-genesis-node\apps\dashboard\src\services\__tests__\api.test.ts
+  190:27  error  'process' is not defined  no-undef
+  193:9   error  'process' is not defined  no-undef
+  203:11  error  'process' is not defined  no-undef
+  205:18  error  'process' is not defined  no-undef
+  212:14  error  'process' is not defined  no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\services\__tests__\auth.test.ts
+   26:15  error    '_index' is defined but never used                                                                         no-unused-vars
+   30:23  error    'window' is not defined                                                                                    no-undef
+   44:9   error    'localStorage' is not defined                                                                              no-undef
+   97:20  error    'localStorage' is not defined                                                                              no-undef
+  131:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\services\__tests__\websocket.test.ts
+   6:18  error  'event' is defined but never used  no-unused-vars
+   8:16  error  'event' is defined but never used  no-unused-vars
+  33:45  error  '_url' is defined but never used   no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\services\auth.ts
+   16:18  warning  Unexpected string concatenation                                                                            prefer-template
+   48:25  error    'localStorage' is not defined                                                                              no-undef
+   49:23  error    Expected { after 'if' condition                                                                            curly
+   69:7   error    'localStorage' is not defined                                                                              no-undef
+   72:7   error    'document' is not defined                                                                                  no-undef
+   81:7   error    'localStorage' is not defined                                                                              no-undef
+   82:7   error    'document' is not defined                                                                                  no-undef
+   90:18  error    Expected { after 'if' condition                                                                            curly
+   96:18  error    Expected { after 'if' condition                                                                            curly
+  144:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  151:38  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  183:18  error    'error' is defined but never used                                                                          no-unused-vars
+  183:18  error    'error' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  221:22  error    'refreshError' is defined but never used                                                                   no-unused-vars
+  221:22  error    'refreshError' is defined but never used                                                                   @typescript-eslint/no-unused-vars
+  248:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  258:31  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  265:30  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  303:29  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  310:72  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  317:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  348:29  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  355:80  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  362:55  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  383:14  error    'error' is defined but never used                                                                          no-unused-vars
+  383:14  error    'error' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  397:70  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  407:70  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  441:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  446:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  461:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  466:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  481:41  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  486:36  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  506:90  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  527:35  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  535:23  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  537:40  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  538:46  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  539:46  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  548:75  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+  555:45  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\services\poi.ts
+  63:34  error  Expected { after 'if' condition  curly
+  64:32  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\services\rewards.ts
+  64:34  error  Expected { after 'if' condition  curly
+  65:32  error  Expected { after 'if' condition  curly
+  99:17  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\services\websocket.ts
+    8:3   error    'Authenticate' is defined but never used                                                                                                                            no-unused-vars
+    9:3   error    'AuthResponse' is defined but never used                                                                                                                            no-unused-vars
+   10:3   error    'AgentMessage' is defined but never used                                                                                                                            no-unused-vars
+   11:3   error    'AgentResponse' is defined but never used                                                                                                                           no-unused-vars
+   12:3   error    'TypingIndicator' is defined but never used                                                                                                                         no-unused-vars
+   13:3   error    'PresenceUpdate' is defined but never used                                                                                                                          no-unused-vars
+   14:3   error    'SystemMessage' is defined but never used                                                                                                                           no-unused-vars
+   15:3   error    'Error' is defined but never used                                                                                                                                   no-unused-vars
+   16:3   error    'Ping' is defined but never used                                                                                                                                    no-unused-vars
+   17:3   error    'Pong' is defined but never used                                                                                                                                    no-unused-vars
+   22:12  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   31:14  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   38:14  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   65:13  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+   68:24  error    'message' is defined but never used                                                                                                                                 no-unused-vars
+   69:22  error    'error' is defined but never used                                                                                                                                   no-unused-vars
+   85:43  error    'setInterval' is not defined                                                                                                                                        no-undef
+  104:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+  142:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+  168:43  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  192:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+  196:43  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  209:65  warning  Unexpected any. Specify a different type                                                                                                                            @typescript-eslint/no-explicit-any
+  311:25  error    'setInterval' is not defined                                                                                                                                        no-undef
+  323:7   error    'clearInterval' is not defined                                                                                                                                      no-undef
+  345:5   warning  Unexpected console statement. Only these console methods are allowed: warn, error                                                                                   no-console
+  348:7   error    Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator  @typescript-eslint/no-floating-promises
+  348:31  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator                                                           @typescript-eslint/prefer-nullish-coalescing
+  367:3   warning  Prefer using nullish coalescing operator (`??=`) instead of an assignment expression, as it is simpler to read                                                      @typescript-eslint/prefer-nullish-coalescing
+
+C:\bizra-genesis-node\apps\dashboard\src\setupTests.ts
+   63:47  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   76:34  warning  Prefer using nullish coalescing operator (`??`) instead of a logical or (`||`), as it is a safer operator  @typescript-eslint/prefer-nullish-coalescing
+   82:23  error    'window' is not defined                                                                                    no-undef
+  105:6   warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  113:6   warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+  118:16  error    'event' is defined but never used                                                                          no-unused-vars
+  119:21  error    'event' is defined but never used                                                                          no-unused-vars
+  125:15  error    '_message' is defined but never used                                                                       no-unused-vars
+  127:20  error    '_type' is defined but never used                                                                          no-unused-vars
+  127:35  error    '_listener' is defined but never used                                                                      no-unused-vars
+  128:23  error    '_type' is defined but never used                                                                          no-unused-vars
+  128:38  error    '_listener' is defined but never used                                                                      no-unused-vars
+  129:17  error    '_event' is defined but never used                                                                         no-unused-vars
+  176:15  error    'event' is defined but never used                                                                          no-unused-vars
+  177:16  error    'event' is defined but never used                                                                          no-unused-vars
+  178:18  error    'event' is defined but never used                                                                          no-unused-vars
+  179:16  error    'event' is defined but never used                                                                          no-unused-vars
+  190:10  error    '_data' is defined but never used                                                                          no-unused-vars
+  195:22  error    '_type' is defined but never used                                                                          no-unused-vars
+  195:37  error    '_listener' is defined but never used                                                                      no-unused-vars
+  196:25  error    '_type' is defined but never used                                                                          no-unused-vars
+  196:40  error    '_listener' is defined but never used                                                                      no-unused-vars
+  203:29  warning  Unexpected any. Specify a different type                                                                   @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\store\use-onboarding-store.ts
+   5:13  error  'step' is defined but never used       no-unused-vars
+   6:20  error  'specs' is defined but never used      no-unused-vars
+   7:20  error  'profile' is defined but never used    no-unused-vars
+   8:23  error  'agentName' is defined but never used  no-unused-vars
+   8:42  error  'status' is defined but never used     no-unused-vars
+   9:17  error  'progress' is defined but never used   no-unused-vars
+  10:14  error  'phase' is defined but never used      no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\store\useBizraStore.ts
+  41:14  error  'phase' is defined but never used     no-unused-vars
+  45:16  error  'loading' is defined but never used   no-unused-vars
+  46:19  error  'metrics' is defined but never used   no-unused-vars
+  47:15  error  'amount' is defined but never used    no-unused-vars
+  48:21  error  'target' is defined but never used    no-unused-vars
+  49:23  error  'position' is defined but never used  no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\types\auth.ts
+   81:28  warning  Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  105:11  error    'credentials' is defined but never used      no-unused-vars
+  106:14  error    'data' is defined but never used             no-unused-vars
+  109:19  error    'updates' is defined but never used          no-unused-vars
+  110:20  error    'currentPassword' is defined but never used  no-unused-vars
+  110:45  error    'newPassword' is defined but never used      no-unused-vars
+  119:13  error    'React' is not defined                       no-undef
+
+C:\bizra-genesis-node\apps\dashboard\src\types\onboarding.ts
+   14:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   48:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:21  error    'persona' is defined but never used       no-unused-vars
+   62:14  error    'stepData' is defined but never used      no-unused-vars
+   62:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   64:14  error    'stepId' is defined but never used        no-unused-vars
+   66:20  error    'data' is defined but never used          no-unused-vars
+   77:13  error    'React' is not defined                    no-undef
+   79:17  error    'data' is defined but never used          no-unused-vars
+   80:19  error    'step' is defined but never used          no-unused-vars
+   80:41  error    'data' is defined but never used          no-unused-vars
+   85:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  107:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\types\react-three-postprocessing.d.ts
+  17:33  error    'props' is defined but never used         no-unused-vars
+  26:24  error    'props' is defined but never used         no-unused-vars
+  34:27  error    'props' is defined but never used         no-unused-vars
+  39:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:24  error    'props' is defined but never used         no-unused-vars
+  45:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  46:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:38  error    'props' is defined but never used         no-unused-vars
+  51:31  error    'props' is defined but never used         no-unused-vars
+  52:23  error    'props' is defined but never used         no-unused-vars
+  55:33  error    'props' is defined but never used         no-unused-vars
+  56:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:30  error    'props' is defined but never used         no-unused-vars
+
+C:\bizra-genesis-node\apps\dashboard\src\types\sat.ts
+  19:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\bizra-genesis-node\apps\dashboard\src\utils\formatters.ts
+   54:25  error  Expected { after 'if' condition  curly
+   55:26  error  Expected { after 'if' condition  curly
+   56:25  error  Expected { after 'if' condition  curly
+   57:24  error  Expected { after 'if' condition  curly
+   58:23  error  Expected { after 'if' condition  curly
+   59:23  error  Expected { after 'if' condition  curly
+   60:21  error  Expected { after 'if' condition  curly
+   61:24  error  Expected { after 'if' condition  curly
+   62:22  error  Expected { after 'if' condition  curly
+   63:25  error  Expected { after 'if' condition  curly
+   64:24  error  Expected { after 'if' condition  curly
+   65:24  error  Expected { after 'if' condition  curly
+   81:19  error  Expected { after 'if' condition  curly
+  143:20  error  Expected { after 'if' condition  curly
+  165:18  error  Expected { after 'if' condition  curly
+  174:19  error  Expected { after 'if' condition  curly
+  175:25  error  Expected { after 'if' condition  curly
+  176:27  error  Expected { after 'if' condition  curly
+  177:27  error  Expected { after 'if' condition  curly
+  181:17  error  Expected { after 'if' condition  curly
+  182:18  error  Expected { after 'if' condition  curly
+  183:20  error  Expected { after 'if' condition  curly
+  199:33  error  Expected { after 'if' condition  curly
+
+C:\bizra-genesis-node\apps\dashboard\src\utils\validators.ts
+   42:32  error    Expected { after 'if' condition           curly
+   43:32  error    Expected { after 'if' condition           curly
+   76:19  error    Expected { after 'if' condition           curly
+   77:24  error    Expected { after 'if' condition           curly
+   78:24  error    Expected { after 'if' condition           curly
+   79:24  error    Expected { after 'if' condition           curly
+   80:8   error    Expected { after 'else'                   curly
+  158:22  error    Expected { after 'if' condition           curly
+  258:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 1046 problems (715 errors, 331 warnings)
+  143 errors and 37 warnings potentially fixable with the `--fix` option.
+

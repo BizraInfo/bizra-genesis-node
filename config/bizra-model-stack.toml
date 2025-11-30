@@ -1,0 +1,227 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║              BIZRA MODEL STACK v0.1 - SOVEREIGN CONFIGURATION             ║
+# ║                                                                           ║
+# ║  This is the single source of truth for BIZRA's local AI infrastructure. ║
+# ║  Every model listed here runs on MuMu's Titan - no rented brains.        ║
+# ║                                                                           ║
+# ║  "The first node of BIZRA doesn't just use AI – it runs its *own* AI."   ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
+[meta]
+version = "0.1.0"
+created = "2025-11-25"
+architect = "Mahmoud 'MuMu' Hassan"
+hardware = "MSI Titan GT77HX (i9-14900HX, 128GB DDR5, RTX 4090)"
+philosophy = "Sovereignty first. Ihsān always. No assumptions."
+
+# =============================================================================
+# BIZRA PLANNER 7B - THE CENTRAL BRAIN
+# =============================================================================
+# Fine-tuned from AgentFlow 7B. This is BIZRA's sovereign planning intelligence.
+# Use for: SAT-LAB campaigns, Node0 planning, PAT orchestration, strategy.
+[models.bizra_planner]
+role = "brain"
+provider = "ollama"
+model_name = "bizra-planner:latest"  # VERIFIED: 6.3 GB on your Titan
+base_url = "http://localhost:11434"
+tier = "primary"
+purpose = "Planning, orchestration, SAT/PAT command, strategic reasoning"
+is_default = true
+
+# Capabilities
+capabilities = [
+    "long_horizon_planning",      # 30-90 day execution plans
+    "task_decomposition",         # Breaking complex work into steps
+    "content_calendar",           # SAT-LAB marketing campaigns
+    "agent_orchestration",        # Deciding which model/agent to call
+    "workflow_design",            # Multi-step process creation
+]
+
+# Sacred configuration
+[models.bizra_planner_7b.sacred]
+ihsan_floor = 0.85              # Minimum quality threshold
+genesis_alignment = true         # Validates against Ramadan 2023 principles
+architect_priority = true        # MuMu's tasks get highest priority
+
+# =============================================================================
+# QWEN 8B VISION - THE EYES
+# =============================================================================
+# Multimodal model for visual understanding. Sees what the Planner cannot.
+[models.qwen_vision]
+role = "vision"
+provider = "ollama"
+model_name = "qwen2.5:7b"  # VERIFIED: 4.7 GB on your Titan
+base_url = "http://localhost:11434"
+tier = "tool"
+purpose = "Image understanding, UI analysis, document extraction, chart reading"
+
+capabilities = [
+    "screenshot_analysis",        # Understand UI/dashboard screenshots
+    "document_extraction",        # PDF, presentation, diagram parsing
+    "chart_interpretation",       # Analytics, graphs, visualizations
+    "visual_design_feedback",     # Evaluate design mockups
+]
+
+# =============================================================================
+# 4B REASONER - THE FILTER
+# =============================================================================
+# Lightweight model for fast background processing. Cheap and quick.
+[models.reasoner]
+role = "light_reasoning"
+provider = "ollama"
+model_name = "llama3.2:latest"  # VERIFIED: 2.0 GB lightweight filter
+base_url = "http://localhost:11434"
+tier = "tool"
+purpose = "Fast summaries, tagging, classification, pre-filtering"
+
+capabilities = [
+    "summarization",              # Quick summaries of long text
+    "classification",             # Tag and categorize content
+    "filtering",                  # Pre-process before heavy models
+    "keyword_extraction",         # Pull key terms from documents
+]
+
+# Performance notes
+[models.reasoner_4b.performance]
+avg_latency_ms = 200              # Very fast
+max_context_tokens = 4096
+use_for_bulk_operations = true    # Good for processing many items
+
+# =============================================================================
+# KIMI 7B VOICE - THE VOICE
+# =============================================================================
+# Voice interface model. Makes BIZRA speak and listen.
+[models.kimi_7b_voice]
+role = "voice"
+provider = "ollama"
+model_name = "kimi-7b-voice"      # Update with actual model name
+base_url = "http://localhost:11434"
+tier = "interface"
+purpose = "Speech I/O, TTS/STT, voice assistant, PAT audio interface"
+
+capabilities = [
+    "text_to_speech",             # Read plans aloud
+    "speech_to_text",             # Transcribe voice input
+    "voice_interaction",          # Conversational voice interface
+    "audio_coaching",             # Real-time spoken guidance
+]
+
+# Future vision
+[models.kimi_7b_voice.roadmap]
+enabled = false                   # Set to true when fully installed
+future_use = "PAT team living in your ears, not just terminal"
+
+# =============================================================================
+# DEEPSEEK 8B - THE DEEP THINKER
+# =============================================================================
+# Heavy reasoning model for complex analysis, code, and mathematics.
+[models.deepseek]
+role = "deep_thinker"
+provider = "ollama"
+model_name = "deepseek-r1:8b"  # VERIFIED: 5.2 GB deep reasoning
+base_url = "http://localhost:11434"
+tier = "tool"
+purpose = "Complex reasoning, code generation, mathematical proofs, safety checks"
+
+capabilities = [
+    "code_generation",            # Write and refactor code
+    "code_review",                # Analyze code quality
+    "mathematical_reasoning",     # Proofs, tokenomics, crypto logic
+    "complex_analysis",           # Deep technical analysis
+    "safety_verification",        # Sanity check complex strategies
+]
+
+# Use cases
+[models.deepseek_8b.use_cases]
+pat_engineering = true            # PAT Engineering team uses this
+protocol_design = true            # Blockchain/consensus logic
+security_review = true            # Audit security implications
+
+# =============================================================================
+# ROUTING CONFIGURATION
+# =============================================================================
+# How the Planner decides which model to call
+[routing]
+default_model = "bizra_planner_7b"
+
+# Task-to-model mapping
+[routing.task_mapping]
+planning = "bizra_planner_7b"
+strategy = "bizra_planner_7b"
+sat_lab = "bizra_planner_7b"
+pat_orchestration = "bizra_planner_7b"
+
+vision = "qwen_8b_vision"
+screenshot = "qwen_8b_vision"
+document = "qwen_8b_vision"
+
+summarize = "reasoner_4b"
+classify = "reasoner_4b"
+filter = "reasoner_4b"
+
+voice = "kimi_7b_voice"
+speak = "kimi_7b_voice"
+
+code = "deepseek_8b"
+math = "deepseek_8b"
+security = "deepseek_8b"
+
+# =============================================================================
+# SAT-LAB SPECIFIC CONFIGURATION
+# =============================================================================
+# How SAT-LAB uses the model stack
+[sat_lab]
+primary_model = "bizra_planner_7b"
+content_calendar_model = "bizra_planner_7b"
+visual_suggestions_model = "qwen_8b_vision"
+summarization_model = "reasoner_4b"
+
+# SAT-LAB weekly cycle
+[sat_lab.weekly_cycle]
+enabled = true
+schedule = "every Monday 09:00 GST"
+channels = ["twitter", "linkedin", "github"]
+approval_required = true          # Human-in-the-loop (v0.1 policy)
+
+# =============================================================================
+# PAT TEAM CONFIGURATION
+# =============================================================================
+# How PAT personas map to model capabilities
+[pat]
+default_brain = "bizra_planner_7b"
+
+[pat.teams.marketing]
+models = ["bizra_planner_7b", "qwen_8b_vision", "reasoner_4b"]
+
+[pat.teams.engineering]
+models = ["bizra_planner_7b", "deepseek_8b"]
+
+[pat.teams.research]
+models = ["bizra_planner_7b", "deepseek_8b", "qwen_8b_vision"]
+
+[pat.teams.spiritual]
+models = ["bizra_planner_7b"]
+sacred_prompt_profile = true
+
+# =============================================================================
+# SOVEREIGNTY DECLARATION
+# =============================================================================
+# This section documents why this architecture matters
+[sovereignty]
+declaration = """
+Every model in this stack runs on MuMu's hardware.
+No rented GPUs. No cloud dependencies. No API rate limits on our own thinking.
+
+This is what sovereignty means:
+- The brain is ours (bizra-planner-7b)
+- The eyes are ours (qwen-8b-vision)  
+- The voice is ours (kimi-7b-voice)
+- The deep thought is ours (deepseek-8b)
+
+Node Zero doesn't just use AI. Node Zero IS the AI.
+"""
+
+hardware_owner = "Mahmoud 'MuMu' Hassan"
+location = "Dubai, UAE"
+network_dependency = "none"       # Can run fully offline
+external_api_dependency = "optional"  # Cloud APIs are helpers, not foundations

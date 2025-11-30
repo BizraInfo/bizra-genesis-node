@@ -1,0 +1,167 @@
+# SQLx Offline Cache Regeneration Workflow
+# Professional Elite Practitioner Infrastructure
+# Ensures CI/CD robustness and offline development capabilities
+
+name: SQLx Cache Regeneration
+
+on:
+  # Manual trigger for cache regeneration
+  workflow_dispatch:
+    inputs:
+      force_regeneration:
+        description: 'Force full cache regeneration (clears existing cache)'
+        required: false
+        type: boolean
+        default: false
+
+  # Trigger on migrations changes
+  push:
+    paths:
+      - 'migrations/**'
+      - 'src/persistence/**/*.rs'
+      - 'src/database/**/*.rs'
+    branches: [ main, develop ]
+
+env:
+  CARGO_TERM_COLOR: always
+  SQLX_OFFLINE: true
+  DATABASE_URL: postgres://bizra_user:bizra_password@localhost:5432/bizra_genesis_ci
+
+jobs:
+  sqlx-cache-regeneration:
+    name: 'SQLx Offline Cache Regeneration'
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: bizra_user
+          POSTGRES_PASSWORD: bizra_password
+          POSTGRES_DB: bizra_genesis_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: '📥 Checkout Repository'
+        uses: actions/checkout@v4
+
+      - name: '📦 Install Dependencies'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          cargo install sqlx-cli --no-default-features --features postgres
+
+      - name: '🔄 Run Database Migrations'
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          until pg_isready -h localhost -p 5432; do
+            echo "PostgreSQL is unavailable - sleeping"
+            sleep 2
+          done
+          echo "PostgreSQL is up - executing migrations"
+
+          sqlx migrate run --source migrations
+
+      - name: '🗄️ Prepare SQLx Offline Cache'
+        run: |
+          echo "Preparing SQLx offline cache for CI/CD..."
+
+          if [[ "${{ inputs.force_regeneration }}" == "true" ]]; then
+            echo "🔄 Force regeneration enabled - clearing existing cache"
+            rm -rf .sqlx
+          fi
+
+          cargo sqlx prepare --workspace
+
+          echo "✅ SQLx cache preparation complete"
+
+      - name: '🔍 Validate Cache Integrity'
+        run: |
+          echo "Validating generated SQLx cache..."
+          cargo sqlx prepare --check --workspace || exit 1
+
+          # Count generated cache files
+          CACHE_COUNT=$(find .sqlx -name "query-*.json" 2>/dev/null | wc -l)
+          echo "✅ Generated SQLx cache with $CACHE_COUNT query definitions"
+
+          if [ "$CACHE_COUNT" -eq 0 ]; then
+            echo "⚠️ Warning: No query definitions generated"
+            exit 1
+          fi
+
+      - name: '🧪 Verify Offline Compilation'
+        run: |
+          echo "Verifying offline compilation works..."
+          unset DATABASE_URL
+          cargo check --all-features --quiet
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Offline compilation successful"
+          else
+            echo "❌ Offline compilation failed"
+            exit 1
+          fi
+
+      - name: '📊 Generate Summary Report'
+        run: |
+          echo "## SQLx Cache Regeneration Report" > cache_summary.md
+          echo "- **Generated:** $(date)" >> cache_summary.md
+          echo "- **Queries Cached:** $(find .sqlx -name "query-*.json" 2>/dev/null | wc -l)" >> cache_summary.md
+          echo "- **Cache Size:** $(du -sh .sqlx 2>/dev/null | cut -f1)" >> cache_summary.md
+          echo "- **Status:** ✅ SUCCESS" >> cache_summary.md
+          echo "" >> cache_summary.md
+          echo "### SQLx Configuration:" >> cache_summary.md
+          echo "- **Offline Mode:** Enabled" >> cache_summary.md
+          echo "- **Database:** PostgreSQL 15" >> cache_summary.md
+          echo "- **Features:** [`database`]" >> cache_summary.md
+
+          cat cache_summary.md
+
+      - name: '📤 Upload Cache to Repository'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlx-cache-${{ github.sha }}
+          path: |
+            .sqlx/
+            cache_summary.md
+          retention-days: 30
+
+      - name: '🔀 Create Pull Request (if merges enabled)'
+        uses: peter-evans/create-pull-request@v5
+        if: github.event_name == 'push'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore(sqlx): Regenerate offline query cache
+
+            - Automated SQLx cache regeneration
+            - ${{ steps.cache_validation.outputs.count }} query definitions updated
+            - Offline compilation verified
+          title: '🔄 SQLx Offline Cache Regeneration'
+          body: |
+            ## 🤖 Automated SQLx Cache Regeneration
+
+            This PR updates the SQLx offline query cache to reflect recent database schema and query changes.
+
+            ### Changes:
+            - **Query Cache:** ${{ steps.cache_validation.outputs.count }} definitions regenerated
+            - **Offline Mode:** ✅ Verified functional
+            - **Migrations:** Applied to latest schema
+
+            ### Validation:
+            - ✅ `cargo sqlx prepare --check` passed
+            - ✅ Offline compilation successful
+            - ✅ Database connectivity confirmed
+
+            ---
+
+            *This PR was auto-generated by GitHub Actions*
+          branch: feature/sqlx-cache-${{ github.sha }}
+          delete-branch: true
+          draft: false

@@ -1,0 +1,118 @@
+# BIZRA Genesis Node - Mutation Testing Configuration (cargo-mutants)
+# Tests the quality of the test suite by introducing mutations and checking if tests catch them
+
+# Directories to test
+[mutate]
+# Focus on core business logic
+paths = [
+    "src/consensus.rs",
+    "src/routing.rs",
+    "src/trust.rs",
+    "src/scoring.rs",
+    "src/agents/",
+    "src/api/",
+]
+
+# Exclude certain paths
+exclude_paths = [
+    "src/bin/",
+    "src/models/errors.rs",  # Error definitions don't need mutation testing
+    "**/*_tests.rs",
+    "**/tests/**",
+]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MUTATION OPERATORS
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Which mutation operators to apply
+operators = [
+    "replace_binary_operator",     # Change + to -, * to /, etc.
+    "replace_comparison_operator",  # Change < to <=, == to !=, etc.
+    "replace_logical_operator",     # Change && to ||, etc.
+    "negate_boolean",               # Change true to false
+    "replace_constant",             # Change numeric constants
+    "delete_statement",             # Remove statements
+]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Test command to run for each mutant
+test_command = "cargo test"
+
+# Timeout for each test run (in seconds)
+timeout = 300  # 5 minutes per mutant
+
+# Number of parallel jobs
+jobs = 4
+
+# ═══════════════════════════════════════════════════════════════════════════
+# FILTERING
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Minimum number of tests that must run
+minimum_test_runs = 1
+
+# Skip functions that match these patterns
+skip_functions = [
+    # Skip simple getters/setters
+    "get_*",
+    "set_*",
+
+    # Skip display/debug implementations
+    "fmt",
+    "display",
+
+    # Skip trivial conversions
+    "from",
+    "into",
+    "as_*",
+]
+
+# Skip files that match these patterns
+skip_files = [
+    "**/examples/**",
+    "**/benches/**",
+]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# OUTPUT
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Output format (text, json, or both)
+output_format = "text"
+
+# Generate detailed report
+generate_report = true
+
+# Report file path
+report_path = "target/mutants/mutation-report.json"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# QUALITY THRESHOLDS
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Minimum mutation score to pass (percentage of mutants caught by tests)
+# Target: 80%+ for A+ quality
+minimum_mutation_score = 75.0
+
+# Fail CI if mutation score is below threshold
+fail_on_threshold = true
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ADVANCED SETTINGS
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Enable incremental mutation testing (only test changed code)
+incremental = true
+
+# Cache test results to speed up repeated runs
+cache_results = true
+
+# Print mutation diffs
+print_diffs = true
+
+# Verbose output
+verbose = false

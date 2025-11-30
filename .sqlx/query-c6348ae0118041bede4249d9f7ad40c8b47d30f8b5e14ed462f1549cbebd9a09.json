@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO router_state (model_name, alpha, beta)\n            VALUES ($1, $2, $3)\n            ON CONFLICT (model_name)\n            DO UPDATE SET\n                alpha = EXCLUDED.alpha,\n                beta = EXCLUDED.beta,\n                last_updated = NOW()\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Float8",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c6348ae0118041bede4249d9f7ad40c8b47d30f8b5e14ed462f1549cbebd9a09"
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZRA CLI Experience Demo</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0A1828;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: 200;
+            letter-spacing: 0.3em;
+            color: #D4AF37;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .cli-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 60px;
+        }
+        
+        .cli-option {
+            background: rgba(10, 24, 40, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .cli-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+        }
+        
+        .option-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 20px;
+        }
+        
+        .option-description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .option-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+        }
+        
+        .option-features li {
+            padding: 8px 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        .option-features li::before {
+            content: "✨ ";
+            color: #D4AF37;
+            margin-right: 8px;
+        }
+        
+        .launch-button {
+            background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+            color: #0A1828;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .launch-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+        
+        .features-section {
+            margin-top: 80px;
+            text-align: center;
+        }
+        
+        .features-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 40px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #D4AF37;
+            margin-bottom: 15px;
+        }
+        
+        .feature-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 40px 0;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .footer-text {
+            font-size: 16px;
+            color: #D4AF37;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
+        
+        @media (max-width: 768px) {
+            .cli-options {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .logo {
+                font-size: 36px;
+            }
+            
+            .subtitle {
+                font-size: 20px;
+            }
+            
+            .cli-option {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="header">
+            <div class="logo">BIZRA</div>
+            <div class="subtitle">Cinematic CLI Experience</div>
+            <div class="description">
+                Transform your powerful CLI backend into a sacred, cinematic experience where every command becomes a spiritual journey. 
+                Choose your path to consciousness through beautiful, interactive terminal interfaces.
+            </div>
+        </div>
+        
+        <div class="cli-options">
+            <div class="cli-option" onclick="window.open('bizra_cinematic_cli.html', '_blank')">
+                <div class="option-title">Sacred Terminal</div>
+                <div class="option-description">
+                    A beautiful cinematic terminal experience with sacred geometry backgrounds, 
+                    animated neural gardens, and spiritual command responses.
+                </div>
+                <ul class="option-features">
+                    <li>Sacred geometry backgrounds with Vanta.js</li>
+                    <li>Interactive neural garden with 18 animated nodes</li>
+                    <li>6 sacred commands with spiritual responses</li>
+                    <li>Real-time wisdom quotes and consciousness metrics</li>
+                    <li>Typewriter animations for every command</li>
+                    <li>Luxury navy & gold aesthetic design</li>
+                </ul>
+                <a href="bizra_cinematic_cli.html" class="launch-button" target="_blank">
+                    Launch Sacred Terminal
+                </a>
+            </div>
+            
+            <div class="cli-option" onclick="window.open('bizra_terminal_react.html', '_blank')">
+                <div class="option-title">React Terminal</div>
+                <div class="option-description">
+                    Advanced React-based terminal with component architecture, 
+                    state management, and professional UI interactions.
+                </div>
+                <ul class="option-features">
+                    <li>Full React 18 component architecture</li>
+                    <li>Advanced state management and hooks</li>
+                    <li>Professional UI with smooth animations</li>
+                    <li>Interactive neural garden component</li>
+                    <li>Dynamic metrics and wisdom quote system</li>
+                    <li>Modular, extensible component design</li>
+                </ul>
+                <a href="bizra_terminal_react.html" class="launch-button" target="_blank">
+                    Launch React Terminal
+                </a>
+            </div>
+        </div>
+        
+        <div class="features-section">
+            <div class="features-title">Sacred Features</div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌸</div>
+                    <div class="feature-title">Sacred Commands</div>
+                    <div class="feature-description">
+                        Transform technical commands into spiritual experiences. Each command tells a story of consciousness evolution.
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <div class="feature-title">Sacred Geometry</div>
+                    <div class="feature-description">
+                        Flower of Life patterns and sacred geometry provide the visual foundation for universal consciousness.
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🧘</div>
+                    <div class="feature-title">Consciousness Journey</div>
+                    <div class="feature-description">
+                        Every interaction becomes a meditation, every output a teaching, every moment a step toward awareness.
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌱</div>
+                    <div class="feature-title">Neural Garden</div>
+                    <div class="feature-description">
+                        Animated neural nodes represent awakened consciousness states, blooming with each sacred command.
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📿</div>
+                    <div class="feature-title">Sacred Wisdom</div>
+                    <div class="feature-description">
+                        Rotating wisdom quotes from various spiritual traditions, encoded with BIZRA's unique perspective.
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Real-time Metrics</div>
+                    <div class="feature-description">
+                        Live consciousness levels, quantum coherence, and spiritual resonance tracking in beautiful displays.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-text">Where Spirituality Meets Technology</div>
+        </div>
+    </div>
+</body>
+</html>

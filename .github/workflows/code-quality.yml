@@ -1,0 +1,208 @@
+name: Code Quality Analysis
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better analysis
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy, llvm-tools-preview
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: apps/dashboard/package-lock.json
+
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Run Rust tests with coverage
+        run: |
+          cargo tarpaulin \
+            --all-features \
+            --workspace \
+            --timeout 300 \
+            --out Lcov \
+            --output-dir coverage/ \
+            --exclude-files 'target/*' 'tests/*' 'benches/*'
+
+      - name: Run Clippy (JSON output)
+        run: |
+          cargo clippy --all-targets --all-features --message-format=json > target/clippy-report.json || true
+
+      - name: Install frontend dependencies
+        working-directory: apps/dashboard
+        run: npm ci
+
+      - name: Run frontend tests with coverage
+        working-directory: apps/dashboard
+        run: npm run test:coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=bizra
+            -Dsonar.projectKey=bizra_genesis_node
+
+      - name: Check Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  complexity-analysis:
+    name: Code Complexity Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install cargo-geiger (unsafe code scanner)
+        run: cargo install cargo-geiger
+
+      - name: Check for unsafe code
+        run: |
+          echo "🔍 Scanning for unsafe code..."
+          cargo geiger --output-format GitHubMarkdown > /tmp/geiger-report.md || true
+          cat /tmp/geiger-report.md
+
+      - name: Install tokei (code statistics)
+        run: cargo install tokei
+
+      - name: Generate code statistics
+        run: |
+          echo "📊 Generating code statistics..."
+          tokei --output json > /tmp/tokei-report.json
+          tokei
+
+      - name: Comment analysis on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 📊 Code Quality Analysis\n\n';
+
+            // Geiger report
+            if (fs.existsSync('/tmp/geiger-report.md')) {
+              const geiger = fs.readFileSync('/tmp/geiger-report.md', 'utf8');
+              comment += '### Unsafe Code Scan\n\n';
+              comment += geiger;
+              comment += '\n\n';
+            }
+
+            // Tokei stats
+            if (fs.existsSync('/tmp/tokei-report.json')) {
+              const tokei = JSON.parse(fs.readFileSync('/tmp/tokei-report.json', 'utf8'));
+              comment += '### Code Statistics\n\n';
+              comment += '| Language | Files | Lines | Code | Comments | Blanks |\n';
+              comment += '|----------|-------|-------|------|----------|--------|\n';
+
+              for (const [lang, stats] of Object.entries(tokei)) {
+                if (lang !== 'Total') {
+                  comment += `| ${lang} | ${stats.reports.length} | ${stats.code + stats.comments + stats.blanks} | ${stats.code} | ${stats.comments} | ${stats.blanks} |\n`;
+                }
+              }
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  security-scan:
+    name: Security & Dependency Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+
+      - name: Run cargo-audit
+        run: |
+          echo "🔒 Running security audit..."
+          cargo audit --json > /tmp/audit-report.json || true
+          cargo audit
+
+      - name: Run cargo-deny
+        run: |
+          echo "🚫 Checking dependencies and licenses..."
+          cargo deny check advisories licenses sources
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: /tmp/audit-report.json
+          retention-days: 30
+
+  quality-gate:
+    name: Quality Gate
+    needs: [sonarcloud, complexity-analysis, security-scan]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check all quality jobs
+        run: |
+          echo "📋 Quality Gate Results:"
+          echo "  SonarCloud: ${{ needs.sonarcloud.result }}"
+          echo "  Complexity: ${{ needs.complexity-analysis.result }}"
+          echo "  Security: ${{ needs.security-scan.result }}"
+
+          if [[ "${{ needs.sonarcloud.result }}" != "success" ]]; then
+            echo "❌ SonarCloud analysis failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.complexity-analysis.result }}" != "success" ]]; then
+            echo "⚠️  Complexity analysis failed (non-blocking)"
+          fi
+
+          if [[ "${{ needs.security-scan.result }}" != "success" ]]; then
+            echo "❌ Security scan failed"
+            exit 1
+          fi
+
+          echo "✅ Quality gate passed!"

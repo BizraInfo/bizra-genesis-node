@@ -1,0 +1,278 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║  BIZRA GENESIS NODE - Feature Matrix CI                                   ║
+# ║  Tests all feature combinations to ensure full build integrity            ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
+name: Feature Matrix CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.sqlx/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.sqlx/**'
+  workflow_dispatch:
+    inputs:
+      include_database_tests:
+        description: 'Include database integration tests'
+        required: false
+        default: false
+        type: boolean
+
+env:
+   CARGO_TERM_COLOR: always
+   RUSTFLAGS: "-D warnings"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 1: Quick validation (default features)
+  # ─────────────────────────────────────────────────────────────────────────────
+  quick-check:
+    name: Quick Check (Default Features)
+    runs-on: ubuntu-latest
+    env:
+      SQLX_OFFLINE: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-default-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-default-
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (default features)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Build (default features)
+        run: cargo build
+
+      - name: Test (default features)
+        run: cargo test --lib
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 2: Feature matrix testing (no database required)
+  # ─────────────────────────────────────────────────────────────────────────────
+  feature-matrix:
+    name: Feature Matrix
+    runs-on: ubuntu-latest
+    needs: quick-check
+    env:
+      SQLX_OFFLINE: "true"
+    strategy:
+      fail-fast: false
+      matrix:
+        features:
+          - name: "default"
+            flags: ""
+          - name: "simd"
+            flags: "--features simd"
+          - name: "avx2"
+            flags: "--features avx2"
+          - name: "all-except-database"
+            flags: "--features simd,avx2"
+        # Note: database feature requires live PostgreSQL and is tested separately
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.features.name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.features.name }}-
+
+      - name: Build (${{ matrix.features.name }})
+        run: cargo build ${{ matrix.features.flags }}
+
+      - name: Test (${{ matrix.features.name }})
+        run: cargo test --lib ${{ matrix.features.flags }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 3: Database feature testing (requires PostgreSQL)
+  # ─────────────────────────────────────────────────────────────────────────────
+  database-integration:
+    name: Database Integration Tests
+    runs-on: ubuntu-latest
+    needs: quick-check
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.include_database_tests == 'true'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: bizra
+          POSTGRES_PASSWORD: bizra_test_password
+          POSTGRES_DB: bizra_genesis_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://bizra:bizra_test_password@localhost:5432/bizra_genesis_test
+      SQLX_OFFLINE: "false"  # Use live database for this job
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features postgres
+
+      - name: Run migrations
+        run: sqlx migrate run
+
+      - name: Build with database feature
+        run: cargo build --features database
+
+      - name: Test with database feature
+        run: cargo test --features database
+
+      - name: Regenerate SQLx cache
+        run: |
+          rm -rf .sqlx
+          cargo sqlx prepare --features database
+
+      - name: Verify SQLx cache matches
+        run: |
+          git diff --exit-code .sqlx/ || {
+            echo "::error::SQLx cache is out of date. Please run 'cargo sqlx prepare --features database' and commit the changes."
+            exit 1
+          }
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 4: SLO validation tests
+  # ─────────────────────────────────────────────────────────────────────────────
+  slo-validation:
+    name: SLO Contract Validation
+    runs-on: ubuntu-latest
+    needs: quick-check
+    env:
+      SQLX_OFFLINE: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-slo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run SLO validation tests
+        run: cargo test --test slo_validation_tests -- --nocapture
+
+      - name: Verify ops/slo.yaml exists
+        run: |
+          if [ ! -f "ops/slo.yaml" ]; then
+            echo "::error::ops/slo.yaml not found - SLO contract is required"
+            exit 1
+          fi
+
+      - name: Validate SLO YAML syntax
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('ops/slo.yaml'))" || {
+            echo "::error::ops/slo.yaml is not valid YAML"
+            exit 1
+          }
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 5: Integration tests (standalone)
+  # ─────────────────────────────────────────────────────────────────────────────
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [quick-check, feature-matrix]
+    env:
+      SQLX_OFFLINE: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-integration-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run integration tests
+        run: cargo test --test '*' --exclude 'db_*'
+
+      - name: Run resource utilization tests
+        run: cargo test --test resource_utilization -- --nocapture || true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Stage 6: Summary report
+  # ─────────────────────────────────────────────────────────────────────────────
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [quick-check, feature-matrix, slo-validation, integration-tests]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Feature Matrix CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Quick Check | ${{ needs.quick-check.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Feature Matrix | ${{ needs.feature-matrix.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SLO Validation | ${{ needs.slo-validation.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Features Tested" >> $GITHUB_STEP_SUMMARY
+          echo "- default (no features)" >> $GITHUB_STEP_SUMMARY
+          echo "- simd" >> $GITHUB_STEP_SUMMARY
+          echo "- avx2" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** The \`database\` feature requires manual trigger with PostgreSQL service." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check overall status
+        if: needs.quick-check.result != 'success' || needs.feature-matrix.result != 'success' || needs.slo-validation.result != 'success'
+        run: exit 1

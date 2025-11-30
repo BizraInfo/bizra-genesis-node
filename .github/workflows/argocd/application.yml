@@ -1,0 +1,215 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-genesis-node
+  namespace: argocd
+  labels:
+    app: bizra-genesis-node
+    environment: production
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io  # Cascade delete on app removal
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: "deployments"
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: "alerts"
+spec:
+  # Project for RBAC and resource restrictions
+  project: bizra-production
+  
+  # Source repository
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node.git
+    targetRevision: main  # Can be branch, tag, or commit SHA
+    path: k8s/base
+    
+    # Optional: Helm values override
+    # helm:
+    #   valueFiles:
+    #     - values-production.yaml
+  
+  # Destination cluster and namespace
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bizra-production
+  
+  # Sync policy configuration
+  syncPolicy:
+    # Automated sync configuration
+    automated:
+      prune: true        # Remove resources not in Git
+      selfHeal: true     # Sync when cluster state drifts from Git
+      allowEmpty: false  # Prevent syncing empty directories
+    
+    # Sync options
+    syncOptions:
+      - CreateNamespace=true               # Auto-create namespace if missing
+      - PrunePropagationPolicy=foreground  # Wait for resource deletion
+      - PruneLast=true                     # Prune after all resources are synced
+      - RespectIgnoreDifferences=true      # Honor ignoreDifferences configuration
+      - ApplyOutOfSyncOnly=true            # Only apply out-of-sync resources
+    
+    # Retry configuration
+    retry:
+      limit: 5  # Max retry attempts
+      backoff:
+        duration: 5s      # Initial backoff duration
+        factor: 2         # Exponential backoff factor
+        maxDuration: 3m   # Max backoff duration
+  
+  # Revision history limit
+  revisionHistoryLimit: 10
+  
+  # Ignore differences for specific fields
+  ignoreDifferences:
+    # HPA manages replicas - don't sync from Git
+    - group: apps
+      kind: Deployment
+      name: bizra-genesis-node
+      jsonPointers:
+        - /spec/replicas
+    
+    # Ignore auto-generated annotations
+    - group: "*"
+      kind: "*"
+      managedFieldsManagers:
+        - kube-controller-manager
+  
+  # Health assessment configuration
+  info:
+    - name: "Documentation"
+      value: "https://github.com/BizraInfo/bizra-genesis-node/tree/main/k8s"
+    - name: "Runbook"
+      value: "https://bizra.io/runbooks/genesis-node"
+  
+---
+# AppProject for production environment with RBAC
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bizra-production
+  namespace: argocd
+  labels:
+    environment: production
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Production applications for Bizra Genesis Node
+  
+  # Source repositories
+  sourceRepos:
+    - https://github.com/BizraInfo/bizra-genesis-node.git
+    - https://charts.bitnami.com/bitnami  # For dependencies
+  
+  # Destination clusters and namespaces
+  destinations:
+    - namespace: bizra-production
+      server: https://kubernetes.default.svc
+    - namespace: observability
+      server: https://kubernetes.default.svc
+  
+  # Cluster resource whitelist - what can be deployed
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+  
+  # Namespace resource whitelist - allowed resources in namespaces
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: ConfigMap
+    - group: ''
+      kind: Secret
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: ServiceAccount
+    - group: ''
+      kind: PersistentVolumeClaim
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: apps
+      kind: DaemonSet
+    - group: batch
+      kind: Job
+    - group: batch
+      kind: CronJob
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+    - group: cert-manager.io
+      kind: Certificate
+  
+  # Namespace resource blacklist - explicitly denied resources
+  namespaceResourceBlacklist:
+    - group: ''
+      kind: ResourceQuota  # Managed separately
+    - group: ''
+      kind: LimitRange     # Managed separately
+  
+  # Roles and permissions
+  roles:
+    # Deployer role - can sync applications
+    - name: deployer
+      description: Deploy and sync applications
+      policies:
+        - p, proj:bizra-production:deployer, applications, sync, bizra-production/*, allow
+        - p, proj:bizra-production:deployer, applications, get, bizra-production/*, allow
+        - p, proj:bizra-production:deployer, applications, action/*, bizra-production/*, allow
+      groups:
+        - github-actions
+        - devops-team
+    
+    # Read-only role - can view applications
+    - name: readonly
+      description: View application status
+      policies:
+        - p, proj:bizra-production:readonly, applications, get, bizra-production/*, allow
+      groups:
+        - developers
+        - sre-team
+  
+  # Orphaned resources policy
+  orphanedResources:
+    warn: true  # Warn about orphaned resources
+    ignore:
+      - group: ''
+        kind: Secret
+        name: argocd-*  # Ignore ArgoCD internal secrets
+  
+  # Signature keys for commit verification
+  signatureKeys:
+    - keyID: <GPG_KEY_ID>  # Optional: enforce signed commits
+  
+  # Sync windows - restrict when syncs can happen
+  syncWindows:
+    # Allow syncs during business hours
+    - kind: allow
+      schedule: '0 9-17 * * MON-FRI'  # 9 AM - 5 PM weekdays
+      duration: 8h
+      applications:
+        - bizra-genesis-node
+      namespaces:
+        - bizra-production
+      clusters:
+        - https://kubernetes.default.svc
+    
+    # Block syncs during maintenance windows
+    - kind: deny
+      schedule: '0 2-4 * * SAT'  # 2 AM - 4 AM Saturday (maintenance)
+      duration: 2h
+      applications:
+        - '*'

@@ -1,0 +1,61 @@
+# Performance Budget - A+ Certification Thresholds
+# Version: 1.0
+# Date: November 17, 2025
+# Status: Baseline established from Milestone A+QW-1
+#
+# This file defines performance budgets for individual benchmarks.
+# Currently enforced via global 5μs threshold in CI.
+# Future enhancement: Per-benchmark threshold enforcement in check_bench.py
+
+benchmarks:
+  harmonic_synthesis:
+    baseline: 244-685ns      # Actual: 244-685ns (2-5 models)
+    warning: 1000ns          # 4x regression from best case
+    critical: 5000ns         # 20x regression (enforced in CI)
+
+  health_monitoring:
+    baseline: 19-20ns        # Actual: 19-20ns (record ops)
+    warning: 100ns           # 5x regression
+    critical: 500ns          # 25x regression
+
+  quality_scoring:
+    baseline: 374-543ns      # Actual: 374-543ns (2-5 models)
+    warning: 1000ns          # ~2x regression
+    critical: 5000ns         # ~10x regression
+
+  response_parsing:
+    baseline: 690ns          # Actual: 690ns (JSON parsing)
+    warning: 2000ns          # ~3x regression
+    critical: 5000ns         # ~7x regression
+
+  ensemble_simulation:
+    baseline: 373-883ns      # Actual: 373-883ns (2-5 models)
+    warning: 2000ns          # ~2x regression
+    critical: 5000ns         # ~6x regression
+
+  memory_usage:
+    baseline: 90-672ns       # Actual: 90-672ns (allocation ops)
+    warning: 1000ns          # ~1.5x regression
+    critical: 5000ns         # ~7x regression
+
+# Load Testing Budgets
+load_tests:
+  quick_validation:
+    p95_baseline: 603µs      # Actual: 603µs (0.6ms)
+    p95_warning: 5000µs      # 5ms
+    p95_critical: 50000µs    # 50ms (enforced in CI as warning)
+    p99_baseline: 1030µs     # Actual: 1.03ms
+    p99_warning: 10000µs     # 10ms
+    p99_critical: 100000µs   # 100ms
+
+# Coverage Budgets
+coverage:
+  baseline: 85.7%            # Actual: 85.7%
+  threshold: 80.0%           # Enforced in CI (blocking)
+  target: 90.0%              # Aspirational goal
+
+# Notes:
+# - All times in nanoseconds (ns) unless specified
+# - warning: Performance degradation worth investigating
+# - critical: Hard gate in CI (blocks merge)
+# - Baseline values from evidence/PERF-01.4-BENCHMARKS.md

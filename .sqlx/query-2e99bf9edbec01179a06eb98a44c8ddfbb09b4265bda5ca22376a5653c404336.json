@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                run_id,\n                inputs_sha256,\n                winner_model,\n                winner_json_sha256,\n                consensus_hash_hex,\n                policy_version,\n                pattern_pack_sha256,\n                timestamp_ms,\n                public_key_der,\n                signature,\n                proof_of_impact\n            FROM trust_receipts\n            ORDER BY created_at DESC\n            LIMIT $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "run_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "inputs_sha256",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "winner_model",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "winner_json_sha256",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "consensus_hash_hex",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "policy_version",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "pattern_pack_sha256",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "timestamp_ms",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "public_key_der",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 9,
+        "name": "signature",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 10,
+        "name": "proof_of_impact",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "2e99bf9edbec01179a06eb98a44c8ddfbb09b4265bda5ca22376a5653c404336"
+}

@@ -1,0 +1,122 @@
+# BIZRA Genesis Node - SLO Alert Rules
+# Based on BIZRA performance targets: P95 <300ms, P99 <500ms, Error rate <1%
+
+groups:
+  - name: bizra_slo_alerts
+    interval: 30s
+    rules:
+      # API Error Rate SLO (< 1%)
+      # Using pre-calculated error rate gauge from prometheus-adapter
+      - alert: ApiHighErrorRate
+        expr: |
+          bizra_api_error_rate{job="bizra-genesis"} > 0.01
+        for: 5m
+        labels:
+          severity: page
+          component: api
+          slo: error_rate
+        annotations:
+          summary: "API 5xx error rate above SLO"
+          description: "API error rate is {{ $value | humanizePercentage }} (threshold: 1%)"
+          runbook_url: "https://docs.bizra.ai/runbooks/high-error-rate"
+
+      # P95 Latency SLO (< 300ms)
+      # Using summary quantile from prometheus-adapter (milliseconds)
+      - alert: ApiHighP95Latency
+        expr: |
+          http_request_duration_milliseconds{job="bizra-genesis",quantile="0.95"} > 300
+        for: 5m
+        labels:
+          severity: page
+          component: api
+          slo: latency_p95
+        annotations:
+          summary: "API P95 latency above SLO"
+          description: "API P95 latency is {{ $value }}s (threshold: 0.300s)"
+          runbook_url: "https://docs.bizra.ai/runbooks/high-latency"
+
+      # P99 Latency SLO (< 500ms)
+      # Using summary quantile from prometheus-adapter (milliseconds)
+      - alert: ApiHighP99Latency
+        expr: |
+          http_request_duration_milliseconds{job="bizra-genesis",quantile="0.99"} > 500
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+          slo: latency_p99
+        annotations:
+          summary: "API P99 latency above SLO"
+          description: "API P99 latency is {{ $value }}s (threshold: 0.500s)"
+          runbook_url: "https://docs.bizra.ai/runbooks/high-latency"
+
+      # Consensus Performance (< 50μs)
+      # Using gauge from prometheus-adapter (microseconds)
+      - alert: ConsensusHighLatency
+        expr: |
+          bizra_consensus_latency_microseconds{job="bizra-genesis"} > 50
+        for: 10m
+        labels:
+          severity: warning
+          component: consensus
+          slo: consensus_latency
+        annotations:
+          summary: "Consensus latency degraded"
+          description: "Consensus P95 is {{ $value }}s (threshold: 50μs)"
+
+      # PoI Validation Success Rate (> 99%)
+      # Using pre-calculated success rate gauge from prometheus-adapter
+      - alert: PoiValidationLowSuccessRate
+        expr: |
+          bizra_poi_validation_success_rate{job="bizra-genesis"} < 0.99
+        for: 5m
+        labels:
+          severity: critical
+          component: poi
+          slo: validation_success
+        annotations:
+          summary: "PoI validation success rate below SLO"
+          description: "PoI success rate is {{ $value | humanizePercentage }} (threshold: 99%)"
+          runbook_url: "https://docs.bizra.ai/runbooks/poi-validation-failures"
+
+  - name: bizra_resource_alerts
+    interval: 30s
+    rules:
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes > 0.90
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+
+      # High CPU usage
+      - alert: HighCpuUsage
+        expr: |
+          100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}%"
+
+  - name: bizra_recording_rules
+    interval: 30s
+    rules:
+      # Pre-aggregate request rate for dashboards
+      - record: job:http_requests:rate5m
+        expr: sum(rate(http_requests_total{job="bizra-genesis"}[5m])) by (job, status)
+
+      # Pre-aggregate error rate
+      - record: job:http_requests:error_rate5m
+        expr: |
+          sum(rate(http_requests_total{job="bizra-genesis",status=~"5.."}[5m])) by (job)
+          /
+          sum(rate(http_requests_total{job="bizra-genesis"}[5m])) by (job)

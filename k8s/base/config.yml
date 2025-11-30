@@ -1,0 +1,272 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bizra-production
+  labels:
+    name: bizra-production
+    environment: production
+    istio-injection: enabled
+
+---
+# ConfigMap - Application Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bizra-config
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+data:
+  app.config.toml: |
+    [server]
+    port = 8080
+    host = "0.0.0.0"
+    workers = 4
+    
+    [database]
+    max_connections = 20
+    min_connections = 5
+    connection_timeout = 30
+    idle_timeout = 600
+    max_lifetime = 3600
+    
+    [redis]
+    max_connections = 10
+    connection_timeout = 5
+    
+    [features]
+    enable_websocket = true
+    enable_metrics = true
+    enable_tracing = true
+    enable_rate_limiting = true
+    
+    [security]
+    jwt_expiration = 3600
+    bcrypt_cost = 12
+    
+    [performance]
+    request_timeout = 30
+    max_concurrent_requests = 1000
+    rate_limit_requests = 100
+    rate_limit_window = 60
+
+---
+# ConfigMap - Fluent Bit Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Daemon        off
+        Log_Level     info
+        Parsers_File  parsers.conf
+
+    [INPUT]
+        Name              tail
+        Path              /app/logs/*.log
+        Parser            json
+        Tag               bizra.*
+        Refresh_Interval  5
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   On
+
+    [FILTER]
+        Name                kubernetes
+        Match               bizra.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     bizra.
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+
+    [OUTPUT]
+        Name   loki
+        Match  bizra.*
+        Host   loki.observability.svc.cluster.local
+        Port   3100
+        Labels job=bizra-genesis-node
+
+  parsers.conf: |
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+        Time_Keep   On
+
+---
+# Secret - Application Secrets (Base64 encoded)
+# NOTE: In production, use Sealed Secrets, External Secrets Operator, or Vault
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bizra-secrets
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+type: Opaque
+stringData:
+  # Database Connection
+  database-url: "postgresql://bizra:CHANGEME@postgres.bizra-production.svc.cluster.local:5432/bizra_production"
+  
+  # Redis Connection
+  redis-url: "redis://redis.bizra-production.svc.cluster.local:6379"
+  
+  # JWT Secret (32+ characters)
+  jwt-secret: "CHANGEME-production-jwt-secret-minimum-32-chars-required"
+  
+  # API Keys (if needed)
+  anthropic-api-key: "CHANGEME"
+  openai-api-key: "CHANGEME"
+  perplexity-api-key: "CHANGEME"
+
+---
+# Ingress - HTTPS with TLS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+  annotations:
+    # Ingress Controller
+    kubernetes.io/ingress.class: "nginx"
+    
+    # TLS Configuration
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/acme-challenge-type: "http01"
+    
+    # HTTPS Redirect
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
+    
+    # Rate Limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+    
+    # Timeouts
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    
+    # Body Size
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    
+    # WebSocket Support
+    nginx.ingress.kubernetes.io/websocket-services: "bizra-genesis-node"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+    
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://app.bizra.io"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    
+    # Security Headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Permissions-Policy: geolocation=(), microphone=(), camera=()";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';";
+spec:
+  tls:
+    - hosts:
+        - api.bizra.io
+        - ws.bizra.io
+      secretName: bizra-tls-cert
+  rules:
+    # API Endpoint
+    - host: api.bizra.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bizra-genesis-node
+                port:
+                  name: http
+    
+    # WebSocket Endpoint
+    - host: ws.bizra.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bizra-genesis-node
+                port:
+                  name: websocket
+
+---
+# Resource Quota - Namespace Level Limits
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: bizra-production-quota
+  namespace: bizra-production
+spec:
+  hard:
+    requests.cpu: "50"
+    requests.memory: "100Gi"
+    limits.cpu: "100"
+    limits.memory: "200Gi"
+    persistentvolumeclaims: "10"
+    services.loadbalancers: "5"
+    services.nodeports: "0"  # Disallow NodePort
+
+---
+# Limit Range - Default Resource Constraints
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: bizra-production-limits
+  namespace: bizra-production
+spec:
+  limits:
+    # Container defaults
+    - type: Container
+      default:
+        cpu: "1000m"
+        memory: "2Gi"
+      defaultRequest:
+        cpu: "500m"
+        memory: "1Gi"
+      max:
+        cpu: "4000m"
+        memory: "8Gi"
+      min:
+        cpu: "100m"
+        memory: "128Mi"
+    
+    # Pod limits
+    - type: Pod
+      max:
+        cpu: "8000m"
+        memory: "16Gi"
+      min:
+        cpu: "100m"
+        memory: "128Mi"
+    
+    # PVC limits
+    - type: PersistentVolumeClaim
+      max:
+        storage: "100Gi"
+      min:
+        storage: "1Gi"

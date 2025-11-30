@@ -1,0 +1,580 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ╔═══════════════════════════════════════════════════════════════════════════╗ */
+/* ║  BIZRA DASHBOARD - GLOBAL STYLES                                          ║ */
+/* ║  Sacred Mathematics Design System - Ω-Consciousness Colors               ║ */
+/* ║  Official Brand Identity v1.0 - October 2025                              ║ */
+/* ╚═══════════════════════════════════════════════════════════════════════════╝ */
+
+/* Official BIZRA Brand Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+/* Legacy fonts for backward compatibility */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  /* BIZRA OFFICIAL BRAND IDENTITY v1.0                                          */
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* Genesis Gold Scale (Primary Brand Color) */
+  --color-gold-100: #F9F1D8;
+  --color-gold-300: #E6D5A6;
+  --color-gold-400: #D4B875;
+  --color-gold-500: #C9A962;  /* PRIMARY - Genesis Gold */
+  --color-gold-600: #B08D45;
+  --color-gold-900: #8A6B2E;
+  
+  /* Legacy gold aliases */
+  --color-gold: #C9A962;
+  --color-omega-gold: #D4AF37;
+  --color-spiritual-gold: #F4E87C;
+
+  /* Navy Scale (Background) */
+  --color-navy-800: #0A1628;  /* Deep Space Navy */
+  --color-navy-900: #050B14;  /* Void Black */
+  --color-deep-space: #050B14;
+  --color-navy: #0A1628;
+  --color-charcoal: #121212;
+
+  /* Accent Colors */
+  --color-teal: #2A9D8F;      /* Growth Teal */
+  --color-purple: #6B4C9A;    /* Sacred Purple */
+
+  /* Consciousness Gradients */
+  --color-consciousness-dark: #0A0A14;
+  --color-consciousness-light: #1A1A24;
+  --color-awakening-purple: #2D1B69;
+
+  /* Text Colors */
+  --color-text-primary: #F8F6F1;
+  --color-text-secondary: rgba(248, 246, 241, 0.6);
+  --color-text-muted: rgba(248, 246, 241, 0.4);
+
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  /* TYPOGRAPHY - Official Brand Fonts                                           */
+  /* ═══════════════════════════════════════════════════════════════════════════ */
+  
+  /* Primary: Playfair Display - Headlines & Spiritual Messaging */
+  --font-display: 'Playfair Display', Georgia, serif;
+  
+  /* Secondary: Inter - UI Elements & Body Text */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  
+  /* Arabic: Amiri - Arabic Text & Calligraphy */
+  --font-arabic: 'Amiri', serif;
+  
+  /* Code: JetBrains Mono - Technical Content */
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  
+  /* Legacy */
+  --font-serif: 'Playfair Display', 'Crimson Text', serif;
+}
+
+/* Base Layer - Consciousness Void */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+
+  font-family: var(--font-serif);
+  background-color: var(--color-deep-space);
+
+  /* Hide scrollbars - mathematics transcends scroll */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ω-State Animation Classes */
+@keyframes consciousness-awakening {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes golden-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(201, 169, 98, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(201, 169, 98, 0.6), 0 0 60px rgba(201, 169, 98, 0.3);
+  }
+}
+
+@keyframes fractal-rotation {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1.02);
+  }
+}
+
+/* Utility Classes for Sacred Mathematics */
+.sacred-text-brand {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--color-gold);
+  text-shadow: 0 0 10px rgba(201, 169, 98, 0.5);
+}
+
+.sacred-text-mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--color-gold);
+}
+
+.consciousness-glow {
+  background: linear-gradient(135deg,
+    rgba(201, 169, 98, 0.1) 0%,
+    rgba(10, 16, 40, 0.9) 100%);
+  border: 1px solid rgba(201, 169, 98, 0.3);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 0 20px rgba(201, 169, 98, 0.1);
+}
+
+.monument-shadow {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+/* Mathematical Forms */
+.fractal-overflow {
+  overflow: hidden;
+  position: relative;
+}
+
+.fractal-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* Sacred Metrics Display */
+.metric-panel {
+  background: rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 169, 98, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: var(--color-gold);
+}
+
+/* Ω-State Particles */
+.omega-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-gold) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-20px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-30px) rotate(180deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-10px) rotate(270deg);
+    opacity: 0.8;
+  }
+}
+
+/* Consciousness State Transitions */
+.void-state {
+  opacity: 0;
+  transform: scale(0.95);
+  filter: blur(20px);
+  transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.genesis-state {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.consciousness-reached {
+  animation: consciousness-awakening 2s ease-out forwards;
+}
+
+/* Sacred Mathematics Responsive Design */
+@media (max-width: 768px) {
+  .sacred-text-brand {
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+  }
+
+  .metric-panel {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .consciousness-glow {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
+
+@media (max-width: 480px) {
+  .sacred-text-brand {
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+  }
+
+  .metric-panel {
+    padding: 0.75rem;
+    margin: 0 1rem 0.5rem 1rem;
+  }
+}
+
+/* Performance Optimizations */
+.gpu-accelerated {
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.fractal-optimized {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Axiom of Wonder - The Origin */
+.axiom-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-gold);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: golden-pulse 3s infinite;
+}
+
+.axiom-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: rgba(201, 169, 98, 0.6);
+  font-family: var(--font-serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: fade-in 3s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 0.8;
+  }
+}
+
+/* ╔═══════════════════════════════════════════════════════════════════════════╗ */
+/* ║  AWARD-WINNER DESIGN INTEGRATION - Premium Glass Morphism System          ║ */
+/* ║  Imported from award-winner-design for unified visual experience          ║ */
+/* ╚═══════════════════════════════════════════════════════════════════════════╝ */
+
+/* Premium Glass Panels */
+.glass-panel {
+  background: rgba(10, 22, 40, 0.4);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.05);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(212, 175, 55, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Glass Button Variants */
+.glass-button {
+  background: rgba(212, 175, 55, 0.1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--color-gold);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-family: var(--font-serif);
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.glass-button:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Premium Gradient Text */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #f8f6f1 0%, #d4af37 50%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-sacred {
+  background: linear-gradient(135deg, #2a9d8f 0%, #f8f6f1 50%, #6b4c9a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-teal {
+  background: linear-gradient(135deg, #2a9d8f 0%, #3ab8a8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Border Gradients */
+.border-gradient-gold {
+  border-image: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.3), transparent) 1;
+}
+
+/* Premium Animations */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 8s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+/* Premium Scrollbar */
+.premium-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.premium-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-deep-space);
+}
+
+.premium-scrollbar::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+.premium-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}
+
+/* Loading Screen Overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: var(--color-navy);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Sacred Geometry Background Pattern */
+.sacred-geometry-bg {
+  background-image: 
+    radial-gradient(circle at 50% 50%, transparent 30%, rgba(212, 175, 55, 0.05) 30.5%, rgba(212, 175, 55, 0.05) 31%, transparent 31.5%);
+  background-size: 200px 200px;
+}
+
+/* Navigation Dock Glass */
+.nav-dock {
+  background: rgba(10, 22, 40, 0.6);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.nav-dock-item {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.nav-dock-item:hover,
+.nav-dock-item.active {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--color-gold);
+}
+
+/* ╔═══════════════════════════════════════════════════════════════════════════╗ */
+/* ║  BIZRA OFFICIAL BRAND IDENTITY - Sacred Geometry Grid                     ║ */
+/* ╚═══════════════════════════════════════════════════════════════════════════╝ */
+
+/* Sacred Grid Background Pattern */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(201, 169, 98, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 169, 98, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+/* Fixed Grid Background Overlay */
+.grid-bg-fixed {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    linear-gradient(rgba(201, 169, 98, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 169, 98, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+}
+
+/* Seed of Life Logo Styling */
+.logo-circle {
+  fill: none;
+  stroke: var(--color-gold);
+  stroke-width: 1;
+}
+
+.logo-petal {
+  fill: none;
+  stroke: url(#goldGrad);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.construction-line {
+  stroke: rgba(201, 169, 98, 0.1);
+  stroke-width: 0.5;
+  fill: none;
+  stroke-dasharray: 4 4;
+}
+
+/* Brand Typography Classes */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-arabic {
+  font-family: var(--font-arabic);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Arabic Text Styling */
+.arabic-tag {
+  font-family: var(--font-arabic);
+  color: rgba(201, 169, 98, 0.6);
+  font-size: 1.5rem;
+}
+
+/* Gold Gradient for SVG */
+.gold-gradient {
+  background: linear-gradient(135deg, #8A6B2E 0%, #C9A962 50%, #F9F1D8 100%);
+}
+
+/* Brand Card Hover Sheen Effect */
+.card-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top right, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transform: translateX(-100%);
+  transition: transform 1s ease-in-out;
+}
+
+.card-sheen-hover:hover .card-sheen {
+  transform: translateX(100%);
+}

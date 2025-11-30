@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(python:*)",
+      "Bash(cargo tree:*)",
+      "Bash(cargo audit:*)",
+      "Bash(cat:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo test:*)",
+      "Bash($env:SQLX_OFFLINE=\"true\")",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo fmt:*)",
+      "Bash(set:*)",
+      "Bash(git -C:*)",
+      "Bash(git checkout:*)",
+      "Bash(SQLX_OFFLINE=true cargo check:*)",
+      "Bash(export SQLX_OFFLINE=true)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(dir:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm install:*)",
+      "Bash(SQLX_OFFLINE=true cargo test:*)",
+      "Bash(SQLX_OFFLINE=true cargo clippy:*)",
+      "Bash(SQLX_OFFLINE=true cargo build:*)",
+      "Bash(powershell -Command \"$env:SQLX_OFFLINE=''''true''''; cargo test --all-features 2>&1\")",
+      "Bash(cmd /c \"set SQLX_OFFLINE=true && cargo test --all-features\")",
+      "Bash(cargo build:*)",
+      "Bash(xargs basename:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

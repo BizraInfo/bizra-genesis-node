@@ -1,0 +1,124 @@
+{
+  "title": "Container Failure Chaos Experiment",
+  "description": "Tests system resilience when backend containers fail unexpectedly",
+  "version": "1.0.0",
+  "methodology": "Chaos Engineering - Failure Injection",
+  "hypothesis": "BIZRA Genesis Node can maintain service availability with <5% impact during container failures",
+  "steady-state": {
+    "response_time_p95": "< 200ms",
+    "error_rate": "< 0.1%",
+    "websocket_connections": "stable"
+  },
+  "experiment": {
+    "duration": "300s",
+    "stages": [
+      {
+        "name": "baseline",
+        "duration": "60s",
+        "action": "observe",
+        "description": "Establish baseline performance"
+      },
+      {
+        "name": "chaos_injection",
+        "duration": "60s",
+        "action": "kill_containers",
+        "target": "bizra-backend",
+        "intensity": "partial",
+        "replicas_to_kill": 1,
+        "description": "Kill one replica to simulate container failure"
+      },
+      {
+        "name": "recovery_observation",
+        "duration": "120s",
+        "action": "observe",
+        "description": "Monitor system recovery and auto-scaling"
+      },
+      {
+        "name": "full_failure_test",
+        "duration": "30s",
+        "action": "kill_containers",
+        "target": "bizra-backend",
+        "intensity": "all_but_one",
+        "description": "Test extreme failure scenario"
+      },
+      {
+        "name": "final_recovery",
+        "duration": "30s",
+        "action": "observe",
+        "description": "Final recovery validation"
+      }
+    ],
+    "rollback": {
+      "auto_rollback": true,
+      "rollback_triggers": [
+        {"metric": "error_rate", "threshold": 0.05, "duration": "30s"},
+        {"metric": "response_time_p95", "threshold": 1000, "duration": "60s"}
+      ]
+    }
+  },
+  "measurements": [
+    {
+      "metric": "response_time_p95",
+      "baseline": "< 150ms",
+      "chaos_impact": "< 300ms",
+      "recovery_target": "< 200ms"
+    },
+    {
+      "metric": "error_rate_total",
+      "baseline": "< 0.001%",
+      "chaos_impact": "< 1%",
+      "recovery_target": "< 0.01%"
+    },
+    {
+      "metric": "websocket_reconnections",
+      "baseline": "0/min",
+      "chaos_impact": "< 5/min",
+      "recovery_target": "< 1/min"
+    },
+    {
+      "metric": "container_restarts",
+      "expected": "1-2",
+      "maximum": "5"
+    }
+  ],
+  "observability": {
+    "prometheus_queries": [
+      "rate(http_requests_total{status!~\"2..\"}[5m])",
+      "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+      "kube_pod_container_status_restarts_total"
+    ],
+    "grafana_dashboards": [
+      "bizra-performance",
+      "kubernetes-cluster-monitoring"
+    ],
+    "alerts": [
+      {
+        "name": "HighErrorRate",
+        "query": "rate(http_requests_total{status!~\"2..\"}[5m]) > 0.01",
+        "severity": "warning"
+      }
+    ]
+  },
+  "success_criteria": [
+    "System maintains <5% error rate during chaos injection",
+    "Recovery completes within 2 minutes after failure",
+    "WebSocket connections automatically reconnect",
+    "Performance returns to within 20% of baseline"
+  ],
+  "execution": {
+    "command": "chaos run experiment chaos-experiments/container-failure.json",
+    "pre_conditions": [
+      "Kubernetes cluster running",
+      "Istio service mesh configured",
+      "Prometheus monitoring active",
+      "Grafana dashboards ready",
+      "BIZRA node deployed with HPA"
+    ],
+    "post_conditions": [
+      "All services returned to baseline performance",
+      "No manual intervention required",
+      "Experiment results archived",
+      "Runbook updated if needed"
+    ]
+  }
+}

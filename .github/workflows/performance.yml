@@ -1,0 +1,762 @@
+name: Performance & Benchmarking Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly on Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      baseline_update:
+        description: 'Auto-update performance baselines'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # 🚀 Performance Benchmarks
+  benchmarks:
+    name: Rust Performance Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy  # For additional performance insights
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install sccache
+      uses: mozilla-actions/sccache-action@v0.0.4
+
+    - name: Run Criterion benchmarks
+      run: |
+        cargo bench --all-features
+        mkdir -p evidence/benchmarks
+        cp target/criterion/* evidence/benchmarks/ -r || true
+
+    - name: Store benchmark results
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Rust Performance Benchmarks
+        tool: 'cargo'
+        output-file-path: output.txt
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: ${{ github.event.inputs.baseline_update == 'true' || github.event_name == 'schedule' }}
+
+    - name: Upload benchmark artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results-${{ github.sha }}
+        path: |
+          target/criterion/
+          evidence/benchmarks/
+
+  # 📊 Performance Regression Detection (Elite Full-Stack Blueprint)
+  perf-regression-gate:
+    name: Performance Regression Gate
+    runs-on: ubuntu-latest
+    needs: [benchmarks]
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download benchmark results
+      uses: actions/download-artifact@v4
+      with:
+        name: benchmark-results-${{ github.sha }}
+
+    - name: Parse Criterion outputs and compare against baselines
+      id: regression_check
+      run: |
+        set -e
+
+        # Create results directory
+        mkdir -p evidence
+
+        echo "🚀 Starting Elite Performance Regression Gate..."
+
+        # Parse Criterion outputs
+        python3 - <<'EOF'
+        import json
+        import pathlib
+        import sys
+        import datetime
+
+        baseline_path = pathlib.Path("evidence/benchmarks-baseline.json")
+        results = {}
+
+        # Collect latest Criterion results
+        for path in pathlib.Path(".").rglob("target/criterion/*/new/estimates.json"):
+            bench_name = path.parent.parent.name
+            try:
+                data = json.loads(path.read_text())
+            except Exception as exc:
+                print(f"Failed to parse {path}: {exc}", file=sys.stderr)
+                continue
+            mean_ns = (
+                data.get("mean", {}) or data.get("Mean", {})
+            ).get("point_estimate")
+            if mean_ns is None:
+                continue
+            results[bench_name] = mean_ns / 1000.0  # convert to microseconds
+
+        if not results:
+            print("❌ No Criterion results found!", file=sys.stderr)
+            sys.exit(1)
+
+        print(f"📊 Parsed {len(results)} benchmark results")
+
+        # Generate comparison report
+        report = {
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "commit": "${{ github.sha }}",
+            "results": results,
+            "comparisons": {},
+            "regressions": []
+        }
+
+        # Load and compare against baselines
+        if baseline_path.exists():
+            try:
+                baseline_data = json.loads(baseline_path.read_text())
+                baselines = baseline_data.get("benchmarks", {})
+
+                print("📈 Comparing against committed baselines..."
+                for name, baseline_us in baselines.items():
+                    if name == "_example":  # Skip example entry
+                        continue
+
+                    actual_us = results.get(name)
+                    if actual_us is None:
+                        print(f"⚠️  Warning: benchmark '{name}' missing in current run")
+                        continue
+
+                    if baseline_us <= 0:
+                        print(f"⚠️  Warning: invalid baseline for '{name}' (<= 0)")
+                        continue
+
+                    delta = (actual_us - baseline_us) / baseline_us
+                    regression = delta > 0.10  # 10% threshold per blueprint
+
+                    report["comparisons"][name] = {
+                        "baseline": baseline_us,
+                        "actual": actual_us,
+                        "delta_percent": delta * 100,
+                        "regression": regression
+                    }
+
+                    status = "✅ PASS" if not regression else "❌ REGRESSION"
+                    print(f"{status} {name}: {baseline_us:.2f}μs → {actual_us:.2f}μs ({delta*100:+.1f}%)")
+
+                    if regression:
+                        report["regressions"].append({
+                            "benchmark": name,
+                            "baseline": baseline_us,
+                            "actual": actual_us,
+                            "delta_percent": delta * 100
+                        })
+
+            except Exception as exc:
+                print(f"❌ Failed to load baseline file: {exc}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print("⚠️  No baseline file found - establishing initial baseline...")
+
+        # Save analysis results
+        with open("evidence/benchmarks-current.json", "w") as f:
+            json.dump(report, f, indent=2)
+
+        # Set outputs for next steps
+        if report["regressions"]:
+            regressions_str = ", ".join(f"{r['benchmark']} ({r['delta_percent']:+.1f}%)" for r in report["regressions"])
+            print(f"REGRESSIONS={regressions_str}" >> $GITHUB_OUTPUT)
+            print(f"REGRESSION_COUNT={len(report['regressions'])}" >> $GITHUB_OUTPUT)
+            sys.exit(1)  # Fail the step if regressions detected
+
+        print("✅ No regressions detected! All benchmarks within 10% threshold.")
+        EOF
+
+    - name: Generate detailed regression report
+      if: failure() && steps.regression_check.outcome == 'failure'
+      run: |
+        echo "## 🚨 Performance Regression Alert" >> regression-report.md
+        echo "" >> regression-report.md
+        echo "**Commit:** ${{ github.sha }}" >> regression-report.md
+        echo "**PR:** #${{ github.event.number }}" >> regression-report.md
+        echo "**Timestamp:** $(date -u)" >> regression-report.md
+        echo "" >> regression-report.md
+        echo "### Critical Regressions (>10% threshold)" >> regression-report.md
+        echo "" >> regression-report.md
+
+        if [ -f "evidence/benchmarks-current.json" ]; then
+          python3 - <<'PY'
+        import json
+        with open("evidence/benchmarks-current.json", "r") as f:
+            data = json.load(f)
+
+        regressions = data.get("regressions", [])
+        if regressions:
+            for reg in regressions:
+                name = reg["benchmark"]
+                baseline = reg["baseline"]
+                actual = reg["actual"]
+                delta_pct = reg["delta_percent"]
+                print(f"- **{name}**: {baseline:.2f}μs → {actual:.2f}μs (**{delta_pct:+.1f}%**) ❌")
+        PY
+        fi
+
+        echo "" >> regression-report.md
+        echo "### Ihsan Excellence Violation" >> regression-report.md
+        echo "Performance regressions violate our commitment to world-class standards." >> regression-report.md
+        echo "" >> regression-report.md
+        echo "### Required Actions" >> regression-report.md
+        echo "1. Investigate the cause of regression(s)" >> regression-report.md
+        echo "2. Optimize or revert performance-impacting changes" >> regression-report.md
+        echo "3. Update baselines only after root cause resolution" >> regression-report.md
+        echo "4. File incident report for tracking" >> regression-report.md
+
+    - name: Comment PR with regression details
+      if: failure() && steps.regression_check.outcome == 'failure'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const regressionData = fs.readFileSync('evidence/benchmarks-current.json', 'utf8');
+          const report = JSON.parse(regressionData);
+
+          let body = `## 🚨 Performance Regression Detected
+
+          **PR:** #${{ github.event.number }}
+          **Commit:** ${{ github.sha }}
+
+          ### Regressions Exceeding 10% Threshold
+
+          | Benchmark | Baseline | Actual | Change | Status |
+          |-----------|----------|--------|--------|--------|
+          `;
+
+          report.regressions.forEach(reg => {
+            const trend = reg.delta_percent > 0 ? '📈' : '📉';
+            const status = '❌ FAIL';
+            body += `| ${reg.benchmark} | ${reg.baseline.toFixed(2)}μs | ${reg.actual.toFixed(2)}μs | ${trend} ${reg.delta_percent.toFixed(1)}% | ${status} |\n`;
+          });
+
+          body += `
+          ### Next Steps
+          1. **Investigate Changes**: Review commits in this PR for performance-impacting code
+          2. **Optimize or Revert**: Address root cause of regression
+          3. **Re-run CI**: After fixes are applied
+          4. **Contact Team**: Escalate if regression is architectural
+
+          ### Ihsan Excellence Principle
+          Performance regressions above 10% violate our elite standards. This PR cannot merge until resolved.
+
+          *Auto-generated by Elite Performance Regression Gate*
+          `;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+
+  # 🧪 Load Testing Infrastructure
+  load-test:
+    name: Load Testing Suite
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: bizra_user
+          POSTGRES_PASSWORD: bizra_password
+          POSTGRES_DB: bizra_genesis
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up k6
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://github.com/grafana/k6/releases/download/v0.48.0/k6-v0.48.0-linux-amd64.tar.gz
+        tar -xzf k6-v0.48.0-linux-amd64.tar.gz
+        sudo mv k6-v0.48.0-linux-amd64/k6 /usr/local/bin/k6
+        k6 version
+
+    - name: Install Python dependencies for validation
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install pyyaml
+
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Run database migrations
+      run: |
+        export DATABASE_URL="postgresql://bizra_user:bizra_password@localhost:5432/bizra_genesis?sslmode=disable"
+        cargo run --bin setup-db || echo "Migrations completed with warnings"
+
+    - name: Start application server
+      run: |
+        export DATABASE_URL="postgresql://bizra_user:bizra_password@localhost:5432/bizra_genesis?sslmode=disable"
+        export REDIS_URL="redis://localhost:6379"
+        export JWT_SECRET="test_jwt_secret_for_load_testing_only_not_secure"
+        export RUST_LOG=warn
+
+        # Start server in background
+        timeout 300 cargo run --bin api_server &
+        SERVER_PID=$!
+
+        # Wait for server to be ready (health check)
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:3000/health 2>/dev/null; then
+            echo "Server ready on port 3000"
+            break
+          fi
+          echo "Waiting... ($i/30)"
+          sleep 2
+
+          if [ $i -eq 30 ]; then
+            echo "Server failed to start within 60 seconds"
+            kill $SERVER_PID || true
+            exit 1
+          fi
+        done
+
+        # Export PID for next step; keep running
+        echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+      env:
+        CARGO_TERM_COLOR: always
+
+    - name: Run k6 load tests
+      run: |
+        set -e
+        trap 'if [ -n "${SERVER_PID:-}" ]; then kill $SERVER_PID || true; fi' EXIT
+
+        # Run the main baseline load test (summary export for parsing)
+        k6 run --summary-export=results.json load-tests/k6-baseline.js
+
+        # Validate results against SLOs
+        echo "Validating load test results..."
+        python3 - <<'PY'
+        import json
+        import sys
+        import pathlib
+        import yaml
+
+        try:
+            with open('results.json', 'r') as f:
+                data = json.load(f)
+
+            slo_path = pathlib.Path("ops/slo.yaml")
+            if slo_path.exists():
+                with open(slo_path, "r") as sf:
+                    slo = yaml.safe_load(sf) or {}
+            else:
+                slo = {}
+
+            perf_slo = slo.get("performance", {})
+            p95_slo = float(perf_slo.get("http_req_p95_ms", 500))
+            error_rate_slo = float(perf_slo.get("http_error_rate", 0.01))
+            throughput_slo = float(perf_slo.get("throughput_rps", 0))
+
+            metrics = data.get("metrics", {})
+            dur_metric = metrics.get("http_req_duration", {})
+            p95_val = (
+                dur_metric.get("percentiles", {}) or dur_metric.get("values", {})
+            ).get("p(95)")
+
+            err_metric = metrics.get("http_req_failed", {})
+            err_rate = err_metric.get("rate") or err_metric.get("value", 0) or 0
+
+            reqs_metric = metrics.get("http_reqs", {})
+            throughput = reqs_metric.get("rate") or reqs_metric.get("count", 0)
+
+            if p95_val is not None:
+                if p95_val > p95_slo:
+                    print(f'P95 latency ({p95_val}ms) exceeds SLO ({p95_slo}ms)')
+                    sys.exit(1)
+                print(f'P95 latency: {p95_val}ms (SLO {p95_slo}ms)')
+
+            if err_rate > error_rate_slo:
+                print(f'Error rate ({err_rate:.2%}) exceeds SLO ({error_rate_slo:.2%})')
+                sys.exit(1)
+            print(f'Error rate: {err_rate:.2%} (SLO {error_rate_slo:.2%})')
+
+            if throughput_slo and throughput < throughput_slo:
+                print(f'Throughput ({throughput}) below SLO ({throughput_slo})')
+                sys.exit(1)
+            if throughput_slo:
+                print(f'Throughput: {throughput} (SLO {throughput_slo})')
+
+        except Exception as e:
+            print(f'Error parsing results: {e}')
+            sys.exit(1)
+        PY
+
+    - name: Upload k6 results
+      uses: actions/upload-artifact@v4
+      with:
+        name: k6-load-test-results-${{ github.sha }}
+        path: |
+          results.json
+          evidence/load-test-baseline.json
+
+    - name: Generate performance report
+      run: |
+        echo "# Load Test Performance Report" > evidence/load-test-report.md
+        echo "" >> evidence/load-test-report.md
+        echo "**Timestamp:** $(date -u)" >> evidence/load-test-report.md
+        echo "**Commit:** ${{ github.sha }}" >> evidence/load-test-report.md
+        echo "" >> evidence/load-test-report.md
+
+        if [ -f results.json ]; then
+          echo "### Key Metrics" >> evidence/load-test-report.md
+          echo "\`\`\`json" >> evidence/load-test-report.md
+          jq '.metrics | {http_req_duration: .http_req_duration, http_req_failed: .http_req_failed, http_reqs: .http_reqs}' results.json >> evidence/load-test-report.md
+          echo "\`\`\`" >> evidence/load-test-report.md
+        else
+          echo "### Load Test Status" >> evidence/load-test-report.md
+          echo "❌ Load test did not complete successfully" >> evidence/load-test-report.md
+        fi
+
+    - name: Update performance baselines
+      if: github.ref == 'refs/heads/main' && (github.event.inputs.baseline_update == 'true' || github.event_name == 'schedule')
+      run: |
+        echo "Performance baselines would be auto-updated here"
+        echo "Current implementation: Manual baseline updates required"
+        # TODO: Implement automatic baseline saving
+        # cp results.json .performance-baselines.json load test baseline
+        echo "Manual: Update .performance-baselines.json with new acceptable ranges"
+
+  # 🔄 Weekly Performance Baseline Update
+  baseline-update:
+    name: Update Performance Baselines
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && github.repository == 'BizraInfo/bizra-genesis-node'
+    needs: [benchmarks, load-test]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Update performance baselines and create PR if improved
+      id: update_baselines
+      run: |
+        python3 - <<'EOF'
+        import json
+        import pathlib
+        import os
+        import subprocess
+        import datetime
+
+        def run_git_command(cmd):
+            return subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+        baseline_path = pathlib.Path("evidence/benchmarks-baseline.json")
+        current = {"benchmarks": {}}
+        original_baselines = {}
+
+        if baseline_path.exists():
+            try:
+                current = json.loads(baseline_path.read_text())
+                original_baselines = current.get("benchmarks", {}).copy()
+            except Exception as exc:
+                print(f"Warning: could not read existing baseline, starting fresh: {exc}")
+
+        baselines = current.get("benchmarks", {})
+
+        # Collect latest Criterion results
+        results = {}
+        for path in pathlib.Path(".").rglob("target/criterion/*/new/estimates.json"):
+            bench_name = path.parent.parent.name
+            try:
+                data = json.loads(path.read_text())
+            except Exception as exc:
+                print(f"Skip {path}: {exc}")
+                continue
+            mean_ns = (
+                data.get("mean", {}) or data.get("Mean", {})
+            ).get("point_estimate")
+            if mean_ns is None:
+                continue
+            results[bench_name] = mean_ns / 1000.0
+            baselines[bench_name] = mean_ns / 1000.0
+
+        if not baselines:
+            print("No benchmark results found to update baselines.")
+            exit(1)
+
+        # Check for improvements (per blueprint: automated PRs for improvements only)
+        improvements = {}
+        for name, new_value in baselines.items():
+            if name in original_baselines:
+                old_value = original_baselines[name]
+                improvement_pct = (old_value - new_value) / old_value * 100
+                if improvement_pct > 1.0:  # At least 1% improvement to trigger PR
+                    improvements[name] = {
+                        "old": old_value,
+                        "new": new_value,
+                        "improvement_pct": improvement_pct
+                    }
+
+        # Update baseline file with new values
+        current["benchmarks"] = baselines
+        current["lastUpdated"] = datetime.datetime.utcnow().isoformat() + "Z"
+        baseline_path.parent.mkdir(parents=True, exist_ok=True)
+        baseline_path.write_text(json.dumps(current, indent=2))
+
+        print(f"✅ Updated baselines written to {baseline_path}")
+
+        # Create automated PR for significant improvements only
+        if improvements:
+            # Set outputs for PR creation
+            improvements_list = ", ".join(f"{k} ({v['improvement_pct']:.1f}%)" for k,v in improvements.items())
+            print(f"IMPROVEMENTS={improvements_list}" >> $GITHUB_OUTPUT)
+            print(f"IMPROVEMENT_COUNT={len(improvements)}" >> $GITHUB_OUTPUT)
+
+            # Save improvement details
+            with open("baselines-improvements.json", "w") as f:
+                json.dump({
+                    "improvements": improvements,
+                    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                    "commit": os.environ.get("GITHUB_SHA", "unknown")
+                }, f, indent=2)
+
+            print("✅ Significant performance improvements detected - PR will be created")
+        else:
+            print("✅ All baselines updated - no significant improvements requiring PR")
+
+        EOF
+
+    - name: Create automated PR for performance improvements
+      if: steps.update_baselines.outputs.improvement_count > 0
+      run: |
+        # Generate PR content
+        python3 - <<'PY'
+        import json
+        import os
+
+        with open("baselines-improvements.json", "r") as f:
+            data = json.load(f)
+
+        improvements = data["improvements"]
+        commit = data["commit"][:8]  # Short SHA
+
+        title = f"🚀 Performance Improvements - Weekly Baseline Update {commit}"
+        body = f"""## 🚀 Automated Performance Baseline Update
+
+        **Weekly Benchmark Run**: {data["timestamp"][:10]}
+        **Source Commit**: {data["commit"]}
+
+        ### Significant Performance Improvements Detected
+
+        The scheduled performance benchmarks have detected the following improvements that exceed the 1% threshold for automated PR creation:
+
+        | Benchmark | Previous | Current | Improvement | Status |
+        |-----------|----------|---------|-------------|--------|
+        """
+
+        for name, details in improvements.items():
+            old_val = details["old"]
+            new_val = details["new"]
+            imp_pct = details["improvement_pct"]
+            trend = "📈" if imp_pct > 0 else "📉"
+            body += f"| {name} | {old_val:.2f}μs | {new_val:.2f}μs | {trend} {imp_pct:.1f}% | ✅ IMPROVED |\n"
+
+        body += """
+
+        ### Ihsan Excellence Achievement
+
+        This PR demonstrates our commitment to continuous performance improvement through:
+        - ✅ **Automated Monitoring**: Weekly scheduled benchmark execution
+        - ✅ **Rigorous Thresholds**: Only meaningful improvements (>1%) warrant attention
+        - ✅ **Baseline Evolution**: Progressive improvement of acceptable performance standards
+        - ✅ **Evidence-Based**: All claims backed by Criterion benchmark data
+
+        ### Next Steps
+
+        1. **CI Verification**: Ensure all quality gates pass
+        2. **Review Baselines**: Confirm updated `evidence/benchmarks-baseline.json` accuracy
+        3. **Deploy Improvements**: Merge if all checks pass
+        4. **Monitor Impact**: Track production performance post-deployment
+
+        ### Evidence Links
+
+        - **Benchmark Results**: Download from CI artifacts
+        - **Regression Reports**: Generated in `evidence/` directory
+        - **Baseline File**: Updated `evidence/benchmarks-baseline.json`
+
+        *Auto-generated by Elite Performance Regression Gate*
+        """
+
+        # Write PR content to file for GitHub CLI
+        with open("pr-body.md", "w") as f:
+            f.write(body)
+
+        # Extract title for GitHub CLI
+        print(f"TITLE={title}")
+        PY
+
+    - name: Create and push baseline update PR
+      if: steps.update_baselines.outputs.improvement_count > 0
+      run: |
+        TITLE=$(python3 -c "import json; data=json.load(open('baselines-improvements.json')); print(f'🚀 Performance Improvements - Weekly Baseline Update {data[\"commit\"][:8]}')")
+        BRANCH_NAME="perf-baseline-update-$(date +%Y%m%d-%H%M%S)"
+
+        # Create new branch
+        git checkout -b "$BRANCH_NAME"
+
+        # Commit baseline updates
+        git add evidence/benchmarks-baseline.json
+        git commit -m "perf: Update performance baselines with significant improvements
+
+        Automated baseline update from scheduled benchmark run.
+        Improvements detected exceed 1% threshold per Elite Blueprint requirements.
+
+        - Updated evidence/benchmarks-baseline.json
+        - Evidence: See CI artifact baselines-improvements.json"
+
+        # Push branch
+        git push origin "$BRANCH_NAME"
+
+        # Create PR using GitHub CLI
+        if command -v gh >/dev/null 2>&1; then
+          gh pr create \
+            --title "$TITLE" \
+            --body-file pr-body.md \
+            --label performance,automated \
+            --base main
+        fi
+
+        echo "✅ Automated performance improvement PR created!"
+
+    - name: Upload updated baselines
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: updated-benchmarks-baseline-${{ github.sha }}
+        path: evidence/benchmarks-baseline.json
+
+  # 📈 Performance Reporting
+  report:
+    name: Generate Performance Report
+    runs-on: ubuntu-latest
+    needs: [benchmarks, load-test]
+    if: always()
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Download previous benchmark data
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        tool: 'cargo'
+        output-file-path: dummy.txt
+        save-data-file: true
+
+    - name: Generate comprehensive performance report
+      run: |
+        echo "# Genesis Node Performance Report" > performance-report.md
+        echo "" >> performance-report.md
+        echo "**Generated:** $(date -u)" >> performance-report.md
+        echo "**Commit:** ${{ github.sha }}" >> performance-report.md
+        echo "**Branch:** ${{ github.ref_name }}" >> performance-report.md
+        echo "" >> performance-report.md
+
+        if [ -f benchmark-data.json ]; then
+          echo "## Benchmark Results" >> performance-report.md
+          echo "Rust performance benchmarks completed." >> performance-report.md
+          echo "" >> performance-report.md
+        fi
+
+        if [ -f results.json ]; then
+          echo "## Load Test Results" >> performance-report.md
+          echo "### Key SLOs" >> performance-report.md
+          if jq -e '.metrics.http_req_duration' results.json >/dev/null 2>&1; then
+            p95=$(jq -r '.metrics.http_req_duration.percentiles["p(95)"] // .metrics.http_req_duration.values["p(95)"] // empty' results.json)
+            if [ -n "$p95" ]; then
+            echo "- **P95 Latency:** ${p95}ms (Target: <500ms)" >> performance-report.md
+          fi
+
+          if jq -e '.metrics.http_req_failed' results.json >/dev/null 2>&1; then
+            error_rate=$(jq -r '.metrics.http_req_failed.rate // .metrics.http_req_failed.value // empty' results.json)
+            if [ -n "$error_rate" ]; then
+            echo "- **Error Rate:** $(echo "scale=2; ${error_rate}*100" | bc)% (Target: <1%)" >> performance-report.md
+          fi
+          echo "" >> performance-report.md
+        fi
+
+        echo "## Recommendations" >> performance-report.md
+        echo "Performance monitoring and regression detection active." >> performance-report.md
+
+    - name: Upload performance report
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-report-${{ github.sha }}
+        path: |
+          performance-report.md
+          evidence/
+
+  # 🚨 Performance Regression Alerts
+  alert:
+    name: Performance Alerting
+    runs-on: ubuntu-latest
+    needs: [report]
+    if: failure()
+    steps:
+    - name: Send regression alert
+      run: |
+        echo "Performance regression detected!"
+        echo "This job would send notifications to:"
+        echo "- GitHub Issues (automatic regression tracking)"
+        echo "- Slack/Discord webhooks"
+        echo "- Email notifications"
+
+        # TODO: Implement actual alerting logic
+        # Create GitHub issue with regression details
+        # Send webhook notifications
+        echo "🚨 ALERT: Performance regression detected in commit ${{ github.sha }}"

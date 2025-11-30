@@ -1,0 +1,166 @@
+name: CI Quality Gates
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  checks: write
+  issues: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+      - name: Install tooling
+        run: |
+          npm ci
+          npm install -g gitleaks@8.18.2 trivy@0.52.1
+          cargo install cargo-audit --locked || true
+      - name: Build Rust workspace
+        run: cargo build --all --release
+      - name: Run Rust tests
+        run: cargo test --all --no-fail-fast
+      - name: Run Node build (if applicable)
+        run: |
+          if [ -f package.json ]; then npm run build || npm run compile || echo "No build script"; fi
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            target/release
+            **/dist
+          if-no-files-found: ignore
+
+  secret_scan:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run gitleaks
+        run: |
+          gitleaks detect --source . --report-format json --report-path gitleaks-report.json || true
+      - name: Upload gitleaks report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+      - name: Fail on secrets
+        run: |
+          count=$(jq '[.findings[]] | length' gitleaks-report.json || echo 0)
+          echo "Secrets found: $count"
+          if [ "$count" -gt 0 ]; then echo "::error::Secrets detected"; exit 1; fi
+
+  security_scan:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy FS scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+      - name: Cargo audit
+        run: |
+          cargo audit -q || exit 1
+      - name: NPM audit
+        run: |
+          if [ -f package.json ]; then npm audit --audit-level=high || exit 1; fi
+
+  architecture_scan:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install scanner deps
+        run: npm ci
+      - name: Run architecture scanner
+        run: |
+          if [ -f tools/architecture-scanner/package.json ]; then (cd tools/architecture-scanner && npm run build && npm run scan -- ../..); fi
+      - name: Upload scanner artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-scanner-report
+          path: |
+            tools/architecture-scanner/architecture.map.json
+            tools/architecture-scanner/ARCHITECTURE.scanner.md
+          if-no-files-found: ignore
+      - name: Evaluate critical hotspots
+        run: |
+          CRIT=$(grep -i "critical security hotspots" tools/architecture-scanner/ARCHITECTURE.scanner.md | grep -oE '[0-9]+' | head -1 || echo 0)
+          echo "Critical hotspots: $CRIT"
+          if [ "$CRIT" -gt 0 ]; then echo "::error::Critical security hotspots detected ($CRIT)"; exit 1; fi
+
+  performance_smoke:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup k6
+        uses: grafana/setup-k6@v1
+      - name: Start service (background)
+        run: |
+          cargo run --bin genesis-node &
+          sleep 10
+      - name: Run k6 smoke test
+        run: |
+          if [ -f tools/perf/k6/smoke.js ]; then k6 run --quiet tools/perf/k6/smoke.js || exit 1; else echo "No k6 script"; fi
+
+  quality_gate:
+    runs-on: ubuntu-latest
+    needs: [prepare, secret_scan, security_scan, architecture_scan, performance_smoke]
+    steps:
+      - name: Final gate evaluation
+        run: echo "All quality gates passed."
+
+  summary_comment:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [quality_gate]
+    steps:
+      - name: Post summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `✔ Build & Tests Passed\n✔ Secret Scan Clean\n✔ Security Scan Passed\n✔ Architecture Scan Passed (0 critical)\n✔ Performance Smoke Passed`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });

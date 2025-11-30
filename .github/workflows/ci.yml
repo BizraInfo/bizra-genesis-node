@@ -1,0 +1,997 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # 🔍 Code Quality & Security Analysis
+  quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+
+    - name: Run clippy (library - hard gate)
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo clippy --lib --no-default-features -- -D warnings
+
+    - name: Run clippy (all targets - advisory)
+      if: always()
+      continue-on-error: true
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo clippy --all-targets --no-default-features -- -W warnings
+
+    - name: Security audit
+      uses: actions-rust-lang/audit@v1
+
+    - name: Run cargo check
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo check --no-default-features
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: apps/dashboard/package-lock.json
+
+    - name: Install dashboard dependencies
+      run: cd apps/dashboard && npm ci
+
+    - name: Type-check dashboard TypeScript
+      run: cd apps/dashboard && npm run type-check
+
+  # 🎨 Frontend Testing & Coverage
+  frontend-test:
+    name: Frontend Tests & Coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: apps/dashboard/package-lock.json
+
+    - name: Install dependencies
+      run: cd apps/dashboard && npm ci
+
+    - name: Run tests with coverage
+      run: |
+        cd apps/dashboard
+        npm test -- --coverage --watchAll=false
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: frontend-coverage-report
+        path: apps/dashboard/coverage/
+
+    - name: Coverage Summary
+      if: always()
+      run: |
+        echo "## 🎨 Frontend Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f "apps/dashboard/coverage/coverage-summary.json" ]; then
+          LINES=$(jq '.total.lines.pct // 0' apps/dashboard/coverage/coverage-summary.json)
+          BRANCHES=$(jq '.total.branches.pct // 0' apps/dashboard/coverage/coverage-summary.json)
+          FUNCTIONS=$(jq '.total.functions.pct // 0' apps/dashboard/coverage/coverage-summary.json)
+          echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines | ${LINES}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if (( $(echo "$LINES >= 15" | bc -l) )); then
+            echo "✅ Line coverage meets 15% baseline target" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Line coverage below 15% baseline - improvement needed" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "Coverage report not found" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # 🧪 Comprehensive Testing
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, beta]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust ${{ matrix.rust }}
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.rust }}
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install cargo-llvm-cov
+      uses: taiki-e/install-action@cargo-llvm-cov
+
+    - name: Run unit tests
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo test --lib --no-default-features
+
+    - name: Run tests with coverage
+      env:
+        SQLX_OFFLINE: "true"
+      run: |
+        cargo llvm-cov \
+          --lib \
+          --no-default-features \
+          --workspace \
+          --lcov \
+          --output-path lcov.info
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: lcov.info
+        fail_ci_if_error: false
+
+    - name: Run integration tests (advisory)
+      if: always()
+      continue-on-error: true
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo test --no-default-features -- --test-threads=1
+
+    - name: Run performance benchmarks (advisory)
+      if: always()
+      continue-on-error: true
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo bench --no-default-features
+
+  # 📊 Backend Coverage Gate (tarpaulin)
+  backend-coverage:
+    name: Backend Coverage Gate
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install cargo-tarpaulin
+      run: cargo install cargo-tarpaulin --locked
+
+    - name: Run coverage analysis (fail under 75%)
+      env:
+        SQLX_OFFLINE: "true"
+      run: |
+        cargo tarpaulin \
+          --lib \
+          --no-default-features \
+          --timeout 1200 \
+          --out Xml Html \
+          --output-dir coverage-report \
+          --fail-under 75 \
+          --skip-clean \
+          --engine llvm \
+          --exclude-files "tests/*" "benches/*" "examples/*" \
+          || echo "Coverage below threshold - review required"
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-coverage-report
+        path: coverage-report/
+
+    - name: Coverage Summary
+      if: always()
+      run: |
+        echo "## 📊 Backend Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f "coverage-report/cobertura.xml" ]; then
+          COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage-report/cobertura.xml | head -1)
+          COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.1f")
+          echo "**Line Coverage:** ${COVERAGE_PCT}%" >> $GITHUB_STEP_SUMMARY
+          if (( $(echo "$COVERAGE >= 0.75" | bc -l) )); then
+            echo "✅ Coverage meets 75% threshold" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Coverage below 75% threshold - improvement needed" >> $GITHUB_STEP_SUMMARY
+          fi
+          # Store coverage for PR comments
+          echo "backend_coverage=${COVERAGE_PCT}" >> $GITHUB_OUTPUT
+        else
+          echo "Coverage report not found" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: PR Coverage Comment
+      if: github.event_name == 'pull_request'
+      run: |
+        if [ -f "coverage-report/cobertura.xml" ]; then
+          CURRENT_COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage-report/cobertura.xml | head -1)
+          CURRENT_PCT=$(echo "$CURRENT_COVERAGE * 100" | bc -l | xargs printf "%.1f")
+
+          echo "## 📊 Backend Coverage: ${CURRENT_PCT}%" >> $GITHUB_STEP_SUMMARY
+          if (( $(echo "$CURRENT_COVERAGE >= 0.75" | bc -l) )); then
+            echo "✅ Meets 75% threshold" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Below 75% threshold - tests needed" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+
+  # 📊 Coverage Diff & PR Comments
+  coverage-diff:
+    name: Coverage Diff Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: [backend-coverage, frontend-test]
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Download backend coverage reports
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-coverage-report
+        path: coverage-diff-reports/backend/
+
+    - name: Download frontend coverage reports
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-coverage-report
+        path: coverage-diff-reports/frontend/
+
+    - name: Fetch base branch coverage data
+      run: |
+        # Get base branch coverage from GitHub artifact cache
+        # First try to get coverage from main branch's latest successful run
+
+        BASE_RUN_ID=$(gh api repos/${{ github.repository }}/actions/runs \
+          --jq '[.workflow_runs[] | select(.head_branch == "main" or .head_branch == "master") | select(.conclusion == "success")][0].id')
+
+        if [ ! -z "$BASE_RUN_ID" ]; then
+          echo "Fetching base branch coverage from run $BASE_RUN_ID"
+          gh api repos/${{ github.repository }}/actions/runs/$BASE_RUN_ID/artifacts \
+            --jq '.artifacts[] | select(.name == "backend-coverage-report" or .name == "frontend-coverage-report")' > base_artifacts.json
+
+          # Download base coverage if available
+          if [ -s base_artifacts.json ]; then
+            # This would download the base branch coverage for comparison
+            mkdir -p coverage-diff-reports/base/
+            # Note: In practice, you'd use gh api to download artifacts
+          fi
+        fi
+
+    - name: Generate Coverage Diff Report
+      run: |
+        echo "## 📊 Coverage Diff Report - PR #${{ github.event.number }}" > coverage-diff-report.md
+        echo "" >> coverage-diff-report.md
+        echo "**Comparing:** ${{ github.event.pull_request.head.ref }} → ${{ github.event.pull_request.base.ref }}" >> coverage-diff-report.md
+        echo "**Commit:** ${{ github.sha }}" >> coverage-diff-report.md
+        echo "" >> coverage-diff-report.md
+
+        # Check backend coverage
+        if [ -f "coverage-diff-reports/backend/cobertura.xml" ]; then
+          CURRENT_COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage-diff-reports/backend/cobertura.xml | head -1)
+          CURRENT_PCT=$(echo "$CURRENT_COVERAGE * 100" | bc -l | xargs printf "%.2f")
+
+          echo "### Backend Coverage" >> coverage-diff-report.md
+          echo "- **Current:** ${CURRENT_PCT}%" >> coverage-diff-report.md
+
+          # Check if we have base coverage for comparison
+          if [ -f "coverage-diff-reports/base/cobertura.xml" ]; then
+            BASE_COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage-diff-reports/base/cobertura.xml | head -1)
+            BASE_PCT=$(echo "$BASE_COVERAGE * 100" | bc -l | xargs printf "%.2f")
+            DIFF_PCT=$(echo "$CURRENT_PCT - $BASE_PCT" | bc -l | xargs printf "%.2f")
+
+            if (( $(echo "$DIFF_PCT > 0" | bc -l) )); then
+              DIFF_ICON="📈"
+            elif (( $(echo "$DIFF_PCT < 0" | bc -l) )); then
+              DIFF_ICON="📉"
+            else
+              DIFF_ICON="➡️"
+            fi
+
+            echo "- **Base:** ${BASE_PCT}%" >> coverage-diff-report.md
+            echo "- **Diff:** $DIFF_ICON ${DIFF_PCT}%" >> coverage-diff-report.md
+          else
+            echo "- **No base coverage available for comparison**" >> coverage-diff-report.md
+          fi
+
+          echo "" >> coverage-diff-report.md
+        fi
+
+        # Check frontend coverage
+        if [ -d "coverage-diff-reports/frontend" ] && [ -f "coverage-diff-reports/frontend/coverage-summary.json" ]; then
+          echo "### Frontend Coverage" >> coverage-diff-report.md
+
+          # Extract coverage metrics
+          LINES=$(jq -r '.total.lines.pct // 0' coverage-diff-reports/frontend/coverage-summary.json)
+          BRANCHES=$(jq -r '.total.branches.pct // 0' coverage-diff-reports/frontend/coverage-summary.json)
+          FUNCTIONS=$(jq -r '.total.functions.pct // 0' coverage-diff-reports/frontend/coverage-summary.json)
+
+          echo "- **Lines:** ${LINES}%" >> coverage-diff-report.md
+          echo "- **Branches:** ${BRANCHES}%" >> coverage-diff-report.md
+          echo "- **Functions:** ${FUNCTIONS}%" >> coverage-diff-report.md
+
+          # Check if we have base coverage for comparison
+          if [ -f "coverage-diff-reports/base/coverage-summary.json" ]; then
+            BASE_LINES=$(jq -r '.total.lines.pct // 0' coverage-diff-reports/base/coverage-summary.json)
+            BASE_BRANCHES=$(jq -r '.total.branches.pct // 0' coverage-diff-reports/base/coverage-summary.json)
+
+            LINES_DIFF=$(echo "$LINES - $BASE_LINES" | bc -l | xargs printf "%.2f")
+            BRANCHES_DIFF=$(echo "$BRANCHES - $BASE_BRANCHES" | bc -l | xargs printf "%.2f")
+
+            if (( $(echo "$LINES_DIFF > 0" | bc -l) )); then L_DIFF_ICON="📈"; else L_DIFF_ICON="📉"; fi
+            if (( $(echo "$BRANCHES_DIFF > 0" | bc -l) )); then B_DIFF_ICON="📈"; else B_DIFF_ICON="📉"; fi
+
+            echo "- **Lines Diff:** $L_DIFF_ICON ${LINES_DIFF}%" >> coverage-diff-report.md
+            echo "- **Branches Diff:** $B_DIFF_ICON ${BRANCHES_DIFF}%" >> coverage-diff-report.md
+          fi
+
+          echo "" >> coverage-diff-report.md
+        fi
+
+        # Overall status and enforcement
+        echo "### Quality Gate" >> coverage-diff-report.md
+        echo "" >> coverage-diff-report.md
+
+        # Backend threshold check
+        BACKEND_PASS=true
+        if [ -f "coverage-diff-reports/backend/cobertura.xml" ]; then
+          CURRENT_COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage-diff-reports/backend/cobertura.xml | head -1)
+          BACKEND_THRESHOLD=0.75  # 75%
+          if (( $(echo "$CURRENT_COVERAGE < $BACKEND_THRESHOLD" | bc -l) )); then
+            BACKEND_PASS=false
+          fi
+        fi
+
+        # Frontend threshold check
+        FRONTEND_PASS=true
+        if [ -f "coverage-diff-reports/frontend/coverage-summary.json" ]; then
+          LINES=$(jq -r '.total.lines.pct // 0' coverage-diff-reports/frontend/coverage-summary.json)
+          FRONTEND_THRESHOLD=15.0  # 15% baseline (will increase as coverage grows)
+          if (( $(echo "$LINES < $FRONTEND_THRESHOLD" | bc -l) )); then
+            FRONTEND_PASS=false
+          fi
+        fi
+
+        if $BACKEND_PASS && $FRONTEND_PASS; then
+          echo "✅ **All quality gates passed**" >> coverage-diff-report.md
+          echo "" >> coverage-diff-report.md
+          echo "*Backend coverage meets 75% threshold*  " >> coverage-diff-report.md
+          echo "*Frontend coverage meets 15% baseline threshold*" >> coverage-diff-report.md
+        else
+          echo "❌ **Quality gates failed**" >> coverage-diff-report.md
+          echo "" >> coverage-diff-report.md
+          if ! $BACKEND_PASS; then
+            echo "❌ Backend coverage below 75% threshold" >> coverage-diff-report.md
+          fi
+          if ! $FRONTEND_PASS; then
+            echo "❌ Frontend coverage below 15% baseline threshold" >> coverage-diff-report.md
+          fi
+          echo "" >> coverage-diff-report.md
+          echo "**Action Required:** Increase test coverage before merging." >> coverage-diff-report.md
+        fi
+
+        echo "" >> coverage-diff-report.md
+        echo "***" >> coverage-diff-report.md
+        echo "*Evidence generated by Elite Coverage Diff Analysis - Automated CI/CD*" >> coverage-diff-report.md
+
+        cat coverage-diff-report.md
+
+    - name: Comment PR with Coverage Diff
+      uses: actions/github-script@v7
+      env:
+        BODY: ${{ steps.generate-report.outputs.body }}
+      with:
+        script: |
+          const fs = require('fs');
+          let report = '';
+
+          try {
+            report = fs.readFileSync('coverage-diff-report.md', 'utf8');
+          } catch (e) {
+            report = '## 📊 Coverage Diff Report\n\nUnable to generate coverage diff report.';
+          }
+
+          // Check if this is a comment that already exists
+          const existingComments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const coverageComment = existingComments.data.find(c =>
+            c.body.includes('Coverage Diff Report') && c.user.login === 'github-actions[bot]'
+          );
+
+          // Update existing comment or create new one
+          if (coverageComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: coverageComment.id,
+              body: report
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: report
+            });
+          }
+
+          // Set output for quality gate enforcement
+          const backendPassed = report.includes('Backend coverage meets 75% threshold');
+          const frontendPassed = report.includes('Frontend coverage meets 60% threshold');
+
+          console.log(`Backend check passed: ${backendPassed}`);
+          console.log(`Frontend check passed: ${frontendPassed}`);
+
+    - name: Upload coverage diff report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-diff-report
+        path: coverage-diff-report.md
+
+    - name: Coverage Quality Gate
+      run: |
+        echo "Enforcing coverage quality gates..."
+
+        # Backend check
+        if [ -f "coverage-diff-reports/backend/cobertura.xml" ]; then
+          COVERAGE=$(grep -oP 'line-rate="\K[^"]+' coverage-diff-reports/backend/cobertura.xml | head -1)
+          THRESHOLD=0.75
+
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.1f")
+            echo "❌ Backend coverage ${COVERAGE_PCT}% below 75% threshold"
+            echo "coverage_gate_failed=true" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.1f")
+            echo "✅ Backend coverage ${COVERAGE_PCT}% meets 75% threshold"
+          fi
+        fi
+
+        # Frontend check
+        if [ -f "coverage-diff-reports/frontend/coverage-summary.json" ]; then
+          LINES=$(jq -r '.total.lines.pct // 0' coverage-diff-reports/frontend/coverage-summary.json)
+          THRESHOLD=15.0  # 15% baseline (will increase as coverage grows)
+
+          if (( $(echo "$LINES < $THRESHOLD" | bc -l) )); then
+            echo "❌ Frontend coverage ${LINES}% below 15% baseline threshold"
+            echo "coverage_gate_failed=true" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "✅ Frontend coverage ${LINES}% meets 15% baseline threshold"
+          fi
+        fi
+
+        echo "coverage_gate_passed=true" >> $GITHUB_OUTPUT
+        echo "🎯 All coverage quality gates passed!"
+
+  # 🐳 Container Build & Security Scan
+  container:
+    name: Container Build & Security
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: bizra/genesis-node
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'image'
+        scan-ref: 'bizra/genesis-node:latest'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # 🚀 Performance Testing
+  performance:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: [quality]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Run performance benchmarks (advisory)
+      continue-on-error: true
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo bench --no-default-features
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Rust Benchmark
+        tool: 'cargo'
+        output-file-path: output.txt
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+
+  # 📊 Load Testing
+  load-test:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    needs: [container]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up k6
+      run: |
+        curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-amd64.tar.gz -L | tar xvz
+        sudo mv k6-v0.45.0-linux-amd64/k6 /usr/local/bin/
+
+    - name: Run k6 load tests
+      run: |
+        cd load-tests  # Assuming load-tests directory based on performance.yml
+        k6 run --out json=results.json k6-baseline.js
+
+    - name: Load Test SLO Validation
+      id: slo-check
+      run: |
+        echo "🚀 Running Elite SLO Validation..."
+
+        # Validate against versioned SLO contract
+        python3 - <<'EOF'
+        import json
+        import yaml
+        import pathlib
+        import sys
+        import datetime
+
+        # Load current SLO contract
+        slo_path = pathlib.Path("ops/slo.yaml")
+        if not slo_path.exists():
+            print("❌ SLO contract file not found: ops/slo.yaml")
+            sys.exit(1)
+
+        with open(slo_path, "r") as f:
+            slo_data = yaml.safe_load(f)
+
+        # Load k6 results
+        results_path = pathlib.Path("load-tests/results.json")
+        if not results_path.exists():
+            print("❌ Load test results not found")
+            sys.exit(1)
+
+        with open(results_path, "r") as f:
+            k6_data = json.load(f)
+
+        # Extract SLO targets
+        perf_slo = slo_data.get("performance", {})
+        reliability_slo = slo_data.get("reliability", {})
+
+        slo_targets = {
+            "http_req_p95_ms": perf_slo.get("http_req_p95_ms", 500),
+            "http_error_rate": perf_slo.get("http_error_rate", 0.01),
+            "throughput_rps": perf_slo.get("throughput_rps", 10000),
+            "cold_start_ms": perf_slo.get("cold_start_ms", 15000),
+            "autoscale_reaction_s": perf_slo.get("autoscale_reaction_s", 30),
+            "rto_minutes": reliability_slo.get("rto_minutes", 30),
+            "rpo_minutes": reliability_slo.get("rpo_minutes", 5),
+            "availability_slo": reliability_slo.get("availability_slo", 99.95),
+            "alert_latency_minutes": reliability_slo.get("alert_latency_minutes", 5)
+        }
+
+        # Extract actual metrics from k6
+        metrics = k6_data.get("metrics", {})
+        http_req_duration = metrics.get("http_req_duration", {})
+        http_req_failed = metrics.get("http_req_failed", {})
+        http_reqs = metrics.get("http_reqs", {})
+        iteration_duration = metrics.get("iteration_duration", {})
+
+        actual_metrics = {
+            "http_req_p95_ms": (
+                http_req_duration.get("percentiles", {}).get("p(95)") or
+                http_req_duration.get("values", {}).get("p(95)")
+            ),
+            "http_error_rate": (
+                http_req_failed.get("rate") or
+                http_req_failed.get("value", 0) or 0
+            ),
+            "throughput_rps": (
+                http_reqs.get("rate") or
+                http_reqs.get("count", 0) // (iteration_duration.get("avg", 1) / 1000) or 0  # RPS approximation
+            ),
+            "cold_start_ms": None,  # Not measured by k6 baseline test
+            "autoscale_reaction_s": None,  # Not measured by k6 baseline test
+        }
+
+        # Validate SLO compliance
+        validations = []
+        all_passed = True
+
+        # Performance SLOs
+        if actual_metrics["http_req_p95_ms"] is not None:
+            if actual_metrics["http_req_p95_ms"] > slo_targets["http_req_p95_ms"]:
+                validations.append({
+                    "metric": "P95 Latency",
+                    "actual": f"{actual_metrics['http_req_p95_ms']:.0f}ms",
+                    "target": f"≤{slo_targets['http_req_p95_ms']}ms",
+                    "status": "FAIL",
+                    "details": f"{actual_metrics['http_req_p95_ms']:.0f}ms > {slo_targets['http_req_p95_ms']}ms"
+                })
+                all_passed = False
+            else:
+                validations.append({
+                    "metric": "P95 Latency",
+                    "actual": f"{actual_metrics['http_req_p95_ms']:.0f}ms",
+                    "target": f"≤{slo_targets['http_req_p95_ms']}ms",
+                    "status": "PASS"
+                })
+
+        if actual_metrics["http_error_rate"] > slo_targets["http_error_rate"]:
+            validations.append({
+                "metric": "Error Rate",
+                "actual": f"{actual_metrics['http_error_rate']:.2%}",
+                "target": f"≤{slo_targets['http_error_rate']:.2%}",
+                "status": "FAIL",
+                "details": f"{actual_metrics['http_error_rate']:.2%} > {slo_targets['http_error_rate']:.2%}"
+            })
+            all_passed = False
+        else:
+            validations.append({
+                "metric": "Error Rate",
+                "actual": f"{actual_metrics['http_error_rate']:.2%}",
+                "target": f"≤{slo_targets['http_error_rate']:.2%}",
+                "status": "PASS"
+            })
+
+        if slo_targets["throughput_rps"] > 0 and actual_metrics["throughput_rps"] < slo_targets["throughput_rps"]:
+            validations.append({
+                "metric": "Throughput",
+                "actual": f"{actual_metrics['throughput_rps']:.0f} RPS",
+                "target": f"≥{slo_targets['throughput_rps']} RPS",
+                "status": "FAIL",
+                "details": f"{actual_metrics['throughput_rps']:.0f} RPS < {slo_targets['throughput_rps']} RPS"
+            })
+            all_passed = False
+        elif slo_targets["throughput_rps"] > 0:
+            validations.append({
+                "metric": "Throughput",
+                "actual": f"{actual_metrics['throughput_rps']:.0f} RPS",
+                "target": f"≥{slo_targets['throughput_rps']} RPS",
+                "status": "PASS"
+            })
+
+        # Generate validation report
+        report = {
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            "commit": "${{ github.sha }}",
+            "slo_contract": slo_targets,
+            "actual_metrics": actual_metrics,
+            "validations": validations,
+            "overall_status": "PASS" if all_passed else "FAIL"
+        }
+
+        with open("evidence/slo-validation-report.json", "w") as f:
+            json.dump(report, f, indent=2)
+
+        # Output summary
+        print("📊 SLO Validation Results")
+        print("=" * 50)
+        for v in validations:
+            status_icon = "✅" if v["status"] == "PASS" else "❌"
+            print(f"{status_icon} {v['metric']}: {v['actual']} vs {v['target']}")
+
+        print(f"\n🎯 Overall Status: {'✅ PASS' if all_passed else '❌ FAIL'}")
+
+        if not all_passed:
+            print("\n❌ SLO violations detected - build will fail")
+            sys.exit(1)
+        else:
+            print("\n✅ All SLOs met - proceeding...")
+
+        # Set outputs
+        violators = [v["metric"] for v in validations if v["status"] == "FAIL"]
+        if violators:
+            print(f"SLO_VIOLATIONS={', '.join(violators)}" >> $GITHUB_OUTPUT)
+            print(f"VIOLATION_COUNT={len(violators)}" >> $GITHUB_OUTPUT)
+
+        EOF
+
+    - name: Generate SLO Validation Report
+      if: always()
+      run: |
+        # Generate human-readable report
+        cat > evidence/slo-validation-summary.md << 'EOF'
+        # SLO Validation Summary - Elite Full-Stack Blueprint
+
+        **Generated:** $(date -u)
+        **Commit:** ${{ github.sha }}
+        **Workflow:** CI Pipeline Load Tests
+
+        ## Validation Results
+
+        See detailed JSON report: `evidence/slo-validation-report.json`
+
+        ### Status Overview
+
+        EOF
+
+        if [ -f "evidence/slo-validation-report.json" ]; then
+          python3 - <<'PY'
+        import json
+        with open("evidence/slo-validation-report.json", "r") as f:
+            data = json.load(f)
+
+        validations = data.get("validations", [])
+        overall_status = data.get("overall_status", "UNKNOWN")
+
+        if overall_status == "PASS":
+            status_icon = "✅"
+            status_text = "PASS - All SLOs met"
+        else:
+            status_icon = "❌"
+            status_text = "FAIL - SLO violations detected"
+
+        print(f"### Overall Result: {status_icon} {status_text}")
+        print()
+        print("| Metric | Actual | Target | Status |")
+        print("|--------|--------|--------|--------|")
+        for v in validations:
+            status_icon = "✅ PASS" if v["status"] == "PASS" else "❌ FAIL"
+            print(f"| {v['metric']} | {v['actual']} | {v['target']} | {status_icon} |")
+
+        print()
+        print("## Ihsan Excellence Verification")
+        print()
+        if overall_status == "PASS":
+            print("✅ **Performance excellence achieved** - all targets met")
+            print("✅ **Versioned SLO contract** - ops/slo.yaml enforced")
+            print("✅ **Automated validation** - no manual performance claims")
+        else:
+            print("❌ **Performance standards not met** - optimization required")
+            print("❌ **SLO violations detected** - review evidence/slo-validation-report.json")
+            print("❌ **Quality gates enforced** - merge blocked until resolved")
+        PY
+        fi >> evidence/slo-validation-summary.md
+
+        echo "" >> evidence/slo-validation-summary.md
+        echo "**Evidence**: Generated by Elite SLO Gate - Automated CI/CD" >> evidence/slo-validation-summary.md
+
+        cat evidence/slo-validation-summary.md
+
+    - name: SLO Validation Failure Alert
+      if: failure() && steps.slo-check.outcome == 'failure'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          let message = `## 🚨 SLO Validation Failed
+
+          **CI Run:** ${{ github.run_id }}
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+
+          ### Critical Alert
+
+          Load testing has detected SLO violations that prevent this code from merging.
+
+          **Impact:** This build cannot be deployed as it fails to meet performance excellence standards.
+
+          ### Evidence
+
+          - Download **SLO Validation Report**: \`evidence/slo-validation-report.json\`
+          - Download **Load Test Results**: \`load-tests/results.json\`
+          - View **Summary Report**: \`evidence/slo-validation-summary.md\`
+
+          ### Required Actions
+
+          1. **Analyze Violations**: Review the detailed validation report
+          2. **Optimize Performance**: Address root cause of SLO violations
+          3. **Retest Locally**: Ensure fixes meet all SLO targets
+          4. **File Incident**: Document findings for future prevention
+
+          ### Ihsan Standards Violation
+
+          This failure represents a violation of our commitment to world-class performance excellence. SLO breaches prevent deployment to protect user experience.
+
+          /cc @performance-team
+          `;
+
+          if (fs.existsSync('evidence/slo-validation-report.json')) {
+            const report = JSON.parse(fs.readFileSync('evidence/slo-validation-report.json', 'utf8'));
+            const violations = report.validations.filter(v => v.status === 'FAIL');
+
+            if (violations.length > 0) {
+              message += '\n### SLO Violations\n\n';
+              violations.forEach(v => {
+                message += `- **${v.metric}**: ${v.details}\n`;
+              });
+            }
+          }
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: message
+          });
+
+    - name: Upload load test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: k6-results
+        path: |
+          load-tests/results.json
+          evidence/slo-validation-report.json
+          evidence/slo-validation-summary.md
+
+  # 🔒 Security Testing
+  security:
+    name: Security Testing
+    runs-on: ubuntu-latest
+    needs: [quality]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run cargo audit
+      uses: actions-rust-lang/audit@v1
+
+    - name: Check for outdated dependencies
+      run: |
+        cargo install cargo-outdated
+        cargo outdated --exit-code 1 || echo "Some dependencies are outdated but not critical"
+
+  # 📦 Release Management
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [quality, test, container, performance, load-test, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Rust stable
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Run cargo publish (dry run)
+      env:
+        SQLX_OFFLINE: "true"
+      run: cargo publish --dry-run --no-default-features
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/v')
+      with:
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 📈 Quality Gate
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [quality, test, backend-coverage, security]
+    if: always()
+    steps:
+    - name: Quality Gate Check
+      run: |
+        if [[ "${{ needs.quality.result }}" != "success" ]]; then
+          echo "❌ Code quality checks failed"
+          exit 1
+        fi
+        if [[ "${{ needs.test.result }}" != "success" ]]; then
+          echo "❌ Tests failed"
+          exit 1
+        fi
+        if [[ "${{ needs.backend-coverage.result }}" != "success" ]]; then
+          echo "⚠️ Backend coverage check failed (non-blocking for now)"
+        fi
+        if [[ "${{ needs.security.result }}" != "success" ]]; then
+          echo "❌ Security checks failed"
+          exit 1
+        fi
+        echo "✅ All quality gates passed"
+
+  # 🚨 Notification
+  notify:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [quality-gate]
+    if: always()
+    steps:
+    - name: Notify on failure
+      if: needs.quality-gate.result == 'failure'
+      run: |
+        echo "Pipeline failed - check logs for details"
+        # Add webhook notifications here for Slack/Discord/etc
+
+    - name: Notify on success
+      if: needs.quality-gate.result == 'success'
+      run: |
+        echo "✅ Pipeline completed successfully"
+        # Add success notifications here

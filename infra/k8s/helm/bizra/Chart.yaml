@@ -1,0 +1,29 @@
+apiVersion: v2
+name: bizra-genesis-node
+description: A Helm chart for BIZRA Genesis Node - Professional Elite Implementation
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - bizra
+  - genesis-node
+  - ai
+  - consensus
+  - blockchain
+  - rust
+home: https://github.com/BizraInfo/bizra-genesis-node
+sources:
+  - https://github.com/BizraInfo/bizra-genesis-node
+maintainers:
+  - name: BIZRA Development Team
+    email: dev@bizra.ai
+annotations:
+  artifacthub.io/category: "ai-ml"
+  artifacthub.io/license: "MIT"
+  artifacthub.io/links: |
+    - name: Homepage
+      url: https://bizra.ai
+    - name: Documentation
+      url: https://docs.bizra.ai
+    - name: Source Code
+      url: https://github.com/BizraInfo/bizra-genesis-node

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bizra-system
+  labels:
+    name: bizra-system
+    environment: production
+    managed-by: elite-practitioner
+    security-tier: enterprise
+    compliance: soc2-gdpr

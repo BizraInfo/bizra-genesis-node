@@ -1,0 +1,20 @@
+// ╔═══════════════════════════════════════════════════════════════════════════╗
+// ║  BIZRA PAT DASHBOARD COMPONENTS                                         ║
+// ║  Personal Agentic Team dashboard components                              ║
+// ╚═══════════════════════════════════════════════════════════════════════════╝
+
+// Export the individual PAT dashboard components
+// These will be developed incrementally alongside the core dashboard
+
+export { default as PatDashboard } from '../PatDashboard';
+
+// Placeholder components for future development
+// These will be refined over time to match sacred UX patterns
+
+// export { default as CoreFocusCard } from './CoreFocusCard';
+// export { default as SacredStateCard } from './SacredStateCard';
+// export { default as NextMovesCard } from './NextMovesCard';
+// export { default as WeeklyImpactCard } from './WeeklyImpactCard';
+// export { default as TrustReceiptsFeed } from './TrustReceiptsFeed';
+// export { default as TeamStatusGrid } from './TeamStatusGrid';
+// export { default as GrowthTreeVisualization } from './GrowthTreeVisualization';

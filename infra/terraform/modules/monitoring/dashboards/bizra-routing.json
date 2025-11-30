@@ -1,0 +1,51 @@
+{
+  "dashboard": {
+    "title": "BIZRA Genesis Node - Routing",
+    "tags": ["bizra", "routing"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "title": "Routing Latency (P95)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(routing_duration_ms_bucket[5m]))",
+            "legendFormat": "P95 Latency (ms)"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Route Distribution",
+        "type": "piechart",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "sum by (route) (rate(routing_selections_total[5m]))",
+            "legendFormat": "{{route}}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Thompson Sampling Metrics",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "thompson_sampling_alpha",
+            "legendFormat": "Alpha - {{route}}"
+          },
+          {
+            "expr": "thompson_sampling_beta",
+            "legendFormat": "Beta - {{route}}"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE agent_state\n            SET health_status = $2,\n                updated_at = NOW()\n            WHERE agent_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f241f5f887b799ed64a29de4b626f9375960084738ced10fbd4d57702611f7dc"
+}

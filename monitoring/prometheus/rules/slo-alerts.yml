@@ -1,0 +1,496 @@
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SLO VIOLATION ALERTS - Elite Performance Standards
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: slo_violations
+    interval: 30s
+    rules:
+      # HTTP Request Latency - P95 SLO: <500ms
+      - alert: HTTPLatencyP95Breach
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, namespace, pod)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          slo: latency_p95
+          impact: user_experience
+          team: backend
+        annotations:
+          summary: "HTTP P95 latency exceeds 500ms SLO"
+          description: |
+            P95 latency is {{ $value | humanizeDuration }} in {{ $labels.namespace }}/{{ $labels.pod }}.
+            SLO target: <500ms
+            Current value: {{ $value | humanizeDuration }}
+            Impact: Degraded user experience, potential timeout cascades
+          runbook_url: https://bizra.io/runbooks/http-latency-p95-breach
+          dashboard_url: https://grafana.bizra.io/d/bizra-genesis-node/performance
+      
+      # HTTP Request Latency - P99 SLO: <1s
+      - alert: HTTPLatencyP99Critical
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, namespace, pod)
+          ) > 1.0
+        for: 3m
+        labels:
+          severity: critical
+          slo: latency_p99
+          impact: user_experience
+          team: backend
+        annotations:
+          summary: "HTTP P99 latency exceeds 1s critical threshold"
+          description: |
+            P99 latency is {{ $value | humanizeDuration }} in {{ $labels.namespace }}/{{ $labels.pod }}.
+            Critical threshold: 1s
+            Current value: {{ $value | humanizeDuration }}
+            Impact: Tail latency affecting power users
+          runbook_url: https://bizra.io/runbooks/http-latency-p99-critical
+      
+      # Error Rate - SLO: <1%
+      - alert: HTTPErrorRateSLOBreach
+        expr: |
+          (
+            sum(rate(http_requests_total{job="bizra-genesis-node",status=~"5.."}[5m])) by (namespace, pod)
+            /
+            sum(rate(http_requests_total{job="bizra-genesis-node"}[5m])) by (namespace, pod)
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          slo: error_rate
+          impact: reliability
+          team: backend
+        annotations:
+          summary: "HTTP error rate exceeds 1% SLO"
+          description: |
+            Error rate is {{ $value | humanizePercentage }} in {{ $labels.namespace }}/{{ $labels.pod }}.
+            SLO target: <1%
+            Current value: {{ $value | humanizePercentage }}
+            Impact: Service reliability degradation
+          runbook_url: https://bizra.io/runbooks/error-rate-slo-breach
+          dashboard_url: https://grafana.bizra.io/d/bizra-genesis-node/errors
+      
+      # Availability - SLO: 99.95%
+      - alert: AvailabilitySLOBreach
+        expr: |
+          (
+            1 - (
+              sum(rate(http_requests_total{job="bizra-genesis-node",status=~"5.."}[1h])) by (namespace)
+              /
+              sum(rate(http_requests_total{job="bizra-genesis-node"}[1h])) by (namespace)
+            )
+          ) < 0.9995
+        for: 10m
+        labels:
+          severity: critical
+          slo: availability
+          impact: business_critical
+          team: sre
+        annotations:
+          summary: "Service availability below 99.95% SLO"
+          description: |
+            Availability is {{ $value | humanizePercentage }} in {{ $labels.namespace }}.
+            SLO target: 99.95%
+            Current value: {{ $value | humanizePercentage }}
+            Impact: SLA breach imminent, customer impact
+          runbook_url: https://bizra.io/runbooks/availability-slo-breach
+          escalation: "@oncall-sre @leadership"
+      
+      # Database Query Latency - SLO: P95 <100ms
+      - alert: DatabaseQueryLatencySLOBreach
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(db_query_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, query_type)
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          slo: db_latency_p95
+          impact: performance
+          team: backend
+        annotations:
+          summary: "Database query P95 latency exceeds 100ms SLO"
+          description: |
+            DB query P95 latency is {{ $value | humanizeDuration }} for {{ $labels.query_type }}.
+            SLO target: <100ms
+            Current value: {{ $value | humanizeDuration }}
+            Impact: Increased response times, potential bottleneck
+          runbook_url: https://bizra.io/runbooks/db-latency-slo-breach
+      
+      # Consensus Finalization - SLO: <2s
+      - alert: ConsensusFinalizationSLOBreach
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(consensus_finalization_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le)
+          ) > 2.0
+        for: 5m
+        labels:
+          severity: critical
+          slo: consensus_finalization
+          impact: blockchain_operations
+          team: blockchain
+        annotations:
+          summary: "Consensus finalization exceeds 2s SLO"
+          description: |
+            Consensus finalization P95 is {{ $value | humanizeDuration }}.
+            SLO target: <2s
+            Current value: {{ $value | humanizeDuration }}
+            Impact: Block production delays, network synchronization issues
+          runbook_url: https://bizra.io/runbooks/consensus-finalization-slow
+      
+      # WebSocket Connection Stability - SLO: >99% uptime
+      - alert: WebSocketStabilitySLOBreach
+        expr: |
+          (
+            sum(rate(websocket_disconnections_total{job="bizra-genesis-node"}[1h])) by (namespace)
+            /
+            sum(rate(websocket_connections_total{job="bizra-genesis-node"}[1h])) by (namespace)
+          ) > 0.01
+        for: 10m
+        labels:
+          severity: warning
+          slo: websocket_stability
+          impact: real_time_features
+          team: backend
+        annotations:
+          summary: "WebSocket disconnection rate exceeds 1%"
+          description: |
+            WebSocket disconnection rate is {{ $value | humanizePercentage }} in {{ $labels.namespace }}.
+            SLO target: <1% disconnections
+            Current value: {{ $value | humanizePercentage }}
+            Impact: Real-time update reliability degraded
+          runbook_url: https://bizra.io/runbooks/websocket-stability
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SECURITY HOTSPOT ALERTS - Audit-Driven Detection
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: security_hotspots
+    interval: 5m
+    rules:
+      # Critical Security Hotspots Detected
+      - alert: CriticalSecurityHotspotsDetected
+        expr: |
+          scanner_security_hotspots_total{severity="critical"} > 0
+        for: 0m
+        labels:
+          severity: critical
+          category: security
+          impact: data_breach_risk
+          team: security
+        annotations:
+          summary: "Critical security hotspots detected in codebase"
+          description: |
+            {{ $value }} critical security hotspots detected.
+            Types: Hardcoded secrets, SQL injection vulnerabilities, unsafe code patterns
+            Impact: Immediate data breach risk
+            Action: Review scanner report and remediate immediately
+          runbook_url: https://bizra.io/runbooks/security-hotspot-remediation
+          scanner_report: https://bizra.io/scanner/latest-report.html
+          escalation: "@security-team @cto"
+      
+      # Hardcoded Secrets in Production Code
+      - alert: HardcodedSecretsInProduction
+        expr: |
+          scanner_security_hotspots_total{type="hardcoded_secrets",environment="production"} > 0
+        for: 0m
+        labels:
+          severity: critical
+          category: security
+          impact: credential_exposure
+          team: security
+        annotations:
+          summary: "Hardcoded secrets detected in production code"
+          description: |
+            {{ $value }} hardcoded secrets found in production codebase.
+            Risk: API keys, JWT secrets, database credentials exposed in source code
+            Action: Rotate all potentially compromised credentials immediately
+          runbook_url: https://bizra.io/runbooks/hardcoded-secrets-response
+          escalation: "@security-team @oncall-sre"
+      
+      # High Security Hotspots Accumulating
+      - alert: HighSecurityHotspotsAccumulating
+        expr: |
+          increase(scanner_security_hotspots_total{severity="high"}[24h]) > 5
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+          impact: security_debt
+          team: security
+        annotations:
+          summary: "High-severity security hotspots increasing"
+          description: |
+            {{ $value }} new high-severity security hotspots in last 24h.
+            Trend: Security debt accumulating
+            Action: Review and prioritize remediation in next sprint
+          runbook_url: https://bizra.io/runbooks/security-debt-management
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PERFORMANCE BOTTLENECK ALERTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: performance_bottlenecks
+    interval: 5m
+    rules:
+      # Memory Pressure from Excessive Cloning
+      - alert: ExcessiveCloningDetected
+        expr: |
+          scanner_performance_bottlenecks_total{type="excessive_cloning",impact="memory_pressure"} > 10
+        for: 30m
+        labels:
+          severity: warning
+          category: performance
+          impact: memory_pressure
+          team: backend
+        annotations:
+          summary: "Excessive cloning patterns detected"
+          description: |
+            {{ $value }} instances of excessive cloning detected.
+            Impact: Memory pressure, potential OOM conditions
+            Common patterns: metrics.export(), Arc.clone() in hot paths
+            Action: Review scanner report for optimization opportunities
+          runbook_url: https://bizra.io/runbooks/memory-optimization
+          scanner_report: https://bizra.io/scanner/latest-report.html
+      
+      # Blocking I/O in Async Context
+      - alert: BlockingIOInAsyncContext
+        expr: |
+          scanner_performance_bottlenecks_total{type="blocking_io_in_async"} > 5
+        for: 1h
+        labels:
+          severity: warning
+          category: performance
+          impact: response_latency
+          team: backend
+        annotations:
+          summary: "Blocking I/O detected in async context"
+          description: |
+            {{ $value }} blocking I/O operations in async functions.
+            Impact: Thread pool exhaustion, increased latency
+            Action: Refactor to use async I/O primitives
+          runbook_url: https://bizra.io/runbooks/async-io-best-practices
+      
+      # God Modules Detected
+      - alert: GodModulesExceedingComplexity
+        expr: |
+          scanner_performance_bottlenecks_total{type="god_module",complexity=~"high|critical"} > 3
+        for: 24h
+        labels:
+          severity: info
+          category: code_quality
+          impact: maintainability
+          team: architecture
+        annotations:
+          summary: "God modules exceeding 300 LOC detected"
+          description: |
+            {{ $value }} modules exceeding complexity thresholds.
+            Impact: Maintainability, testing difficulty, onboarding friction
+            Action: Plan refactoring in next architecture review
+          runbook_url: https://bizra.io/runbooks/module-refactoring
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # INFRASTRUCTURE HEALTH
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: infrastructure_health
+    interval: 30s
+    rules:
+      # Pod Crash Loop
+      - alert: PodCrashLooping
+        expr: |
+          rate(kube_pod_container_status_restarts_total{namespace="bizra-production"}[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          category: infrastructure
+          impact: availability
+          team: sre
+        annotations:
+          summary: "Pod {{ $labels.pod }} crash looping"
+          description: |
+            Pod {{ $labels.pod }} in {{ $labels.namespace }} is crash looping.
+            Restart rate: {{ $value }} restarts/sec
+            Impact: Service degradation, potential outage
+          runbook_url: https://bizra.io/runbooks/pod-crash-loop
+          dashboard_url: https://grafana.bizra.io/d/kubernetes/pod-health
+      
+      # High Pod Memory Usage
+      - alert: PodMemoryPressure
+        expr: |
+          (
+            container_memory_working_set_bytes{namespace="bizra-production",container="bizra-genesis-node"}
+            /
+            container_spec_memory_limit_bytes{namespace="bizra-production",container="bizra-genesis-node"}
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          impact: performance
+          team: sre
+        annotations:
+          summary: "Pod {{ $labels.pod }} memory usage at {{ $value | humanizePercentage }}"
+          description: |
+            Pod {{ $labels.pod }} memory usage is {{ $value | humanizePercentage }} of limit.
+            Threshold: 90%
+            Impact: Potential OOM kill, performance degradation
+          runbook_url: https://bizra.io/runbooks/memory-pressure
+      
+      # High CPU Throttling
+      - alert: PodCPUThrottling
+        expr: |
+          rate(container_cpu_cfs_throttled_seconds_total{namespace="bizra-production",container="bizra-genesis-node"}[5m]) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          category: infrastructure
+          impact: performance
+          team: sre
+        annotations:
+          summary: "Pod {{ $labels.pod }} experiencing CPU throttling"
+          description: |
+            Pod {{ $labels.pod }} CPU throttled {{ $value | humanizeDuration }}/sec.
+            Impact: Increased latency, degraded throughput
+            Action: Review resource limits and consider vertical scaling
+          runbook_url: https://bizra.io/runbooks/cpu-throttling
+      
+      # Node Disk Pressure
+      - alert: NodeDiskPressure
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
+            /
+            node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}
+          ) < 0.1
+        for: 10m
+        labels:
+          severity: critical
+          category: infrastructure
+          impact: availability
+          team: sre
+        annotations:
+          summary: "Node {{ $labels.instance }} disk usage at {{ $value | humanizePercentage }}"
+          description: |
+            Node {{ $labels.instance }} has {{ $value | humanizePercentage }} disk space remaining.
+            Critical threshold: 10%
+            Impact: Eviction risk, logging failures
+          runbook_url: https://bizra.io/runbooks/disk-pressure
+      
+      # HPA at Max Replicas
+      - alert: HPAMaxReplicasReached
+        expr: |
+          kube_horizontalpodautoscaler_status_current_replicas{namespace="bizra-production"}
+          ==
+          kube_horizontalpodautoscaler_spec_max_replicas{namespace="bizra-production"}
+        for: 15m
+        labels:
+          severity: warning
+          category: infrastructure
+          impact: scalability_limit
+          team: sre
+        annotations:
+          summary: "HPA {{ $labels.horizontalpodautoscaler }} at max replicas"
+          description: |
+            HPA {{ $labels.horizontalpodautoscaler }} has reached max replicas.
+            Current: {{ $value }}
+            Impact: Cannot scale further, performance degradation under load
+            Action: Review HPA max replicas and cluster capacity
+          runbook_url: https://bizra.io/runbooks/hpa-max-replicas
+      
+      # Database Connection Pool Exhaustion
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: |
+          (
+            pg_stat_database_numbackends{datname="bizra_production"}
+            /
+            pg_settings_max_connections
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: critical
+          category: infrastructure
+          impact: availability
+          team: backend
+        annotations:
+          summary: "Database connection pool at {{ $value | humanizePercentage }} capacity"
+          description: |
+            PostgreSQL connection pool usage at {{ $value | humanizePercentage }}.
+            Threshold: 80%
+            Impact: Connection refused errors, service degradation
+          runbook_url: https://bizra.io/runbooks/db-connection-pool
+      
+      # Redis Memory Pressure
+      - alert: RedisMemoryPressure
+        expr: |
+          (
+            redis_memory_used_bytes
+            /
+            redis_memory_max_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: infrastructure
+          impact: performance
+          team: backend
+        annotations:
+          summary: "Redis memory usage at {{ $value | humanizePercentage }}"
+          description: |
+            Redis memory usage at {{ $value | humanizePercentage }} of max.
+            Threshold: 85%
+            Impact: Eviction policy activation, cache miss rate increase
+          runbook_url: https://bizra.io/runbooks/redis-memory-pressure
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BUSINESS METRICS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: business_metrics
+    interval: 1m
+    rules:
+      # Transaction Processing Rate Drop
+      - alert: TransactionProcessingRateDrop
+        expr: |
+          (
+            rate(consensus_transactions_processed_total[5m])
+            <
+            0.5 * rate(consensus_transactions_processed_total[1h] offset 1h)
+          )
+        for: 10m
+        labels:
+          severity: warning
+          category: business
+          impact: revenue
+          team: blockchain
+        annotations:
+          summary: "Transaction processing rate dropped by 50%"
+          description: |
+            Transaction rate is {{ $value }} tx/sec (50% below baseline).
+            Impact: Revenue loss, user complaints
+            Action: Investigate consensus mechanism and network health
+          runbook_url: https://bizra.io/runbooks/transaction-rate-drop
+      
+      # API Usage Anomaly
+      - alert: APIUsageAnomalyDetected
+        expr: |
+          abs(
+            rate(http_requests_total{job="bizra-genesis-node"}[5m])
+            - rate(http_requests_total{job="bizra-genesis-node"}[5m] offset 1h)
+          ) > 100
+        for: 15m
+        labels:
+          severity: info
+          category: business
+          impact: capacity_planning
+          team: product
+        annotations:
+          summary: "API usage deviates significantly from baseline"
+          description: |
+            API request rate changed by {{ $value }} req/sec vs 1h ago.
+            Possible causes: Marketing campaign, bot traffic, service disruption
+            Action: Monitor for abuse patterns or capacity issues
+          runbook_url: https://bizra.io/runbooks/api-usage-anomaly

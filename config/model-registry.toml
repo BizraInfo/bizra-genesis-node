@@ -1,0 +1,151 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║                    BIZRA MODEL REGISTRY v0.1                              ║
+# ║          Sovereign AI Stack - Running on MuMu's Titan                     ║
+# ║                                                                           ║
+# ║  "The first node of BIZRA doesn't just use AI – it runs its own AI."     ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+#
+# This is the single source of truth for all AI models in the BIZRA ecosystem.
+# All models run locally on Ollama - no cloud dependencies for core operations.
+#
+# Hardware: MSI Titan GT77 HX 13VI
+# - Intel i9-14900HX (24 cores)
+# - 128GB DDR5 RAM
+# - NVIDIA RTX 4090 (16GB VRAM)
+# - Windows 11 Pro
+#
+# Total VRAM Required: ~22GB (with batching/swapping via Ollama)
+# Ollama handles memory management automatically.
+
+# ============================================================================
+# BIZRA CORE BRAIN - The Commander
+# ============================================================================
+[models.bizra_planner]
+role = "brain"
+provider = "ollama"
+model_name = "bizra-planner:latest"
+description = "BIZRA Planner v0.1 - Fine-tuned AgentFlow 7B for long-horizon planning"
+tier = "primary"
+use_for = [
+    "sat_lab_campaigns",
+    "pat_orchestration", 
+    "strategic_planning",
+    "task_decomposition",
+    "weekly_content_calendars",
+    "execution_plans"
+]
+vram_gb = 6.3
+context_length = 8192
+temperature_default = 0.7
+
+# ============================================================================
+# SPECIALIST MODELS - The Team
+# ============================================================================
+
+[models.qwen_vision]
+role = "vision"
+provider = "ollama"
+model_name = "qwen2.5:7b"
+description = "Vision & Reasoning - Image analysis, UI understanding, chart reading"
+tier = "specialist"
+use_for = [
+    "image_analysis",
+    "screenshot_reading",
+    "ui_mockup_review",
+    "chart_interpretation",
+    "pdf_extraction",
+    "visual_content_design"
+]
+vram_gb = 4.7
+context_length = 32768
+temperature_default = 0.3
+
+[models.deepseek_thinker]
+role = "deep_thinker"
+provider = "ollama"
+model_name = "deepseek-r1:8b"
+description = "Deep Thinker - Complex reasoning, code review, math, protocols"
+tier = "specialist"
+use_for = [
+    "code_generation",
+    "code_review",
+    "mathematical_reasoning",
+    "protocol_analysis",
+    "security_review",
+    "complex_debugging"
+]
+vram_gb = 5.2
+context_length = 16384
+temperature_default = 0.2
+
+[models.mistral_writer]
+role = "writer"
+provider = "ollama"
+model_name = "mistral:latest"
+description = "General Writer - Long-form content, essays, documentation"
+tier = "specialist"
+use_for = [
+    "long_form_content",
+    "documentation",
+    "blog_posts",
+    "technical_writing",
+    "email_drafting"
+]
+vram_gb = 4.4
+context_length = 32768
+temperature_default = 0.7
+
+[models.llama_fast]
+role = "fast_worker"
+provider = "ollama"
+model_name = "llama3.2:latest"
+description = "Fast Worker - Quick tasks, summaries, classifications"
+tier = "specialist"
+use_for = [
+    "quick_summaries",
+    "text_classification",
+    "tagging",
+    "simple_questions",
+    "filtering"
+]
+vram_gb = 2.0
+context_length = 8192
+temperature_default = 0.5
+
+# ============================================================================
+# ROUTING CONFIGURATION
+# ============================================================================
+
+[routing]
+default_model = "bizra_planner"
+sat_lab_planning = "bizra_planner"
+sat_lab_content_drafts = "bizra_planner"
+sat_lab_visual_analysis = "qwen_vision"
+pat_orchestration = "bizra_planner"
+pat_code_tasks = "deepseek_thinker"
+pat_research = "bizra_planner"
+pat_writing = "mistral_writer"
+summaries = "llama_fast"
+classifications = "llama_fast"
+
+# ============================================================================
+# OLLAMA CONFIGURATION
+# ============================================================================
+
+[ollama]
+base_url = "http://localhost:11434"
+timeout_seconds = 120
+max_retries = 3
+concurrent_requests = 2
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+[metadata]
+version = "0.1.0"
+created = "2025-11-25"
+author = "BIZRA Genesis Node"
+hardware = "MSI Titan GT77 HX 13VI"
+location = "Dubai, UAE"
+sovereignty = "100% local - no cloud AI dependencies"

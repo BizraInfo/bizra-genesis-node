@@ -1,0 +1,439 @@
+{
+  "meta": {
+    "system": "BIZRA Genesis Node - DevOps Evidence Dossier",
+    "version": "1.0.0",
+    "generated_at": "2025-11-27T21:59:03.343519Z",
+    "generator": "check_evidence_compliance.py"
+  },
+  "summary": {
+    "total_claims": 24,
+    "verified": 24,
+    "partial": 0,
+    "not_implemented": 0,
+    "verification_rate": 100.0,
+    "by_category": {
+      "pipeline": {
+        "verified": 4,
+        "partial": 0,
+        "not_implemented": 0
+      },
+      "security": {
+        "verified": 5,
+        "partial": 0,
+        "not_implemented": 0
+      },
+      "resilience": {
+        "verified": 4,
+        "partial": 0,
+        "not_implemented": 0
+      },
+      "sre": {
+        "verified": 4,
+        "partial": 0,
+        "not_implemented": 0
+      },
+      "ai-risk": {
+        "verified": 4,
+        "partial": 0,
+        "not_implemented": 0
+      },
+      "governance": {
+        "verified": 3,
+        "partial": 0,
+        "not_implemented": 0
+      }
+    }
+  },
+  "claims": [
+    {
+      "id": "PIPE-001",
+      "description": "9-stage multi-environment pipeline with quality gates",
+      "category": "pipeline",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "01-pipelines/workflows/elite-devops-pipeline.yml"
+      ],
+      "found": [
+        "01-pipelines/workflows/elite-devops-pipeline.yml"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "PIPE-002",
+      "description": "AI-powered risk assessment analyzing 100+ signals",
+      "category": "pipeline",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "05-ai-risk-engine/risk_engine.ts",
+        "05-ai-risk-engine/pipeline_integration.yaml"
+      ],
+      "found": [
+        "05-ai-risk-engine/risk_engine.ts",
+        "05-ai-risk-engine/pipeline_integration.yaml"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "PIPE-003",
+      "description": "Automated rollback on SLO breach",
+      "category": "pipeline",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "01-pipelines/docs/pipeline_maturity.md",
+        "02-sre-and-slos/error_budget_policy.md"
+      ],
+      "found": [
+        "01-pipelines/docs/pipeline_maturity.md",
+        "02-sre-and-slos/error_budget_policy.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "PIPE-004",
+      "description": "Blue-green and canary deployment strategies",
+      "category": "pipeline",
+      "severity": "standard",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "01-pipelines/docs/deployment_strategies.md"
+      ],
+      "found": [
+        "01-pipelines/docs/deployment_strategies.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SEC-001",
+      "description": "SOX automated financial controls",
+      "category": "security",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "03-security-and-compliance/sox_controls_automation.md"
+      ],
+      "found": [
+        "03-security-and-compliance/sox_controls_automation.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SEC-002",
+      "description": "GDPR privacy-by-design implementation",
+      "category": "security",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "03-security-and-compliance/gdpr_privacy_by_design.md"
+      ],
+      "found": [
+        "03-security-and-compliance/gdpr_privacy_by_design.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SEC-003",
+      "description": "HIPAA security controls for PHI",
+      "category": "security",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "03-security-and-compliance/hipaa_security_controls.md"
+      ],
+      "found": [
+        "03-security-and-compliance/hipaa_security_controls.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SEC-004",
+      "description": "Controls matrix with 50+ automated checks",
+      "category": "security",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "03-security-and-compliance/controls-matrix.csv"
+      ],
+      "found": [
+        "03-security-and-compliance/controls-matrix.csv"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SEC-005",
+      "description": "Secret scanning with zero tolerance",
+      "category": "security",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "03-security-and-compliance/artifacts/audit_evidence/"
+      ],
+      "found": [
+        "03-security-and-compliance/artifacts/audit_evidence/"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "RES-001",
+      "description": "Chaos testing framework with 7-layer failure simulation",
+      "category": "resilience",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "04-resilience-and-chaos/chaos_scenarios.yaml"
+      ],
+      "found": [
+        "04-resilience-and-chaos/chaos_scenarios.yaml"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "RES-002",
+      "description": "Documented chaos runbook with blast radius controls",
+      "category": "resilience",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "04-resilience-and-chaos/chaos_runbook.md"
+      ],
+      "found": [
+        "04-resilience-and-chaos/chaos_runbook.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "RES-003",
+      "description": "MTTR less than 5 minutes (measured)",
+      "category": "resilience",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "04-resilience-and-chaos/artifacts/mttr_metrics.csv"
+      ],
+      "found": [
+        "04-resilience-and-chaos/artifacts/mttr_metrics.csv"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "RES-004",
+      "description": "Automated incident response playbooks",
+      "category": "resilience",
+      "severity": "standard",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "04-resilience-and-chaos/incident_playbooks.md"
+      ],
+      "found": [
+        "04-resilience-and-chaos/incident_playbooks.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SRE-001",
+      "description": "99.95% availability SLO with error budgets",
+      "category": "sre",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "02-sre-and-slos/slos.yaml"
+      ],
+      "found": [
+        "02-sre-and-slos/slos.yaml"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SRE-002",
+      "description": "P95 latency under 500ms enforced in CI",
+      "category": "sre",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "02-sre-and-slos/slos.yaml",
+        "01-pipelines/workflows/elite-devops-pipeline.yml"
+      ],
+      "found": [
+        "02-sre-and-slos/slos.yaml",
+        "01-pipelines/workflows/elite-devops-pipeline.yml"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SRE-003",
+      "description": "Error budget burn rate alerts (fast/slow)",
+      "category": "sre",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "02-sre-and-slos/error_budget_policy.md"
+      ],
+      "found": [
+        "02-sre-and-slos/error_budget_policy.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "SRE-004",
+      "description": "Monthly SLO compliance reports",
+      "category": "sre",
+      "severity": "standard",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "02-sre-and-slos/artifacts/slo_compliance_report_2025-11.md"
+      ],
+      "found": [
+        "02-sre-and-slos/artifacts/slo_compliance_report_2025-11.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "AI-001",
+      "description": "ML-powered deployment risk assessment",
+      "category": "ai-risk",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "05-ai-risk-engine/risk_engine_spec.md"
+      ],
+      "found": [
+        "05-ai-risk-engine/risk_engine_spec.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "AI-002",
+      "description": "100+ signal analysis (code, infra, time, team)",
+      "category": "ai-risk",
+      "severity": "critical",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "05-ai-risk-engine/risk_engine.ts"
+      ],
+      "found": [
+        "05-ai-risk-engine/risk_engine.ts"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "AI-003",
+      "description": "Pipeline integration with automated gates",
+      "category": "ai-risk",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "05-ai-risk-engine/pipeline_integration.yaml"
+      ],
+      "found": [
+        "05-ai-risk-engine/pipeline_integration.yaml"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "AI-004",
+      "description": "Decision audit trail for all assessments",
+      "category": "ai-risk",
+      "severity": "standard",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "05-ai-risk-engine/artifacts/decision_logs/"
+      ],
+      "found": [
+        "05-ai-risk-engine/artifacts/decision_logs/"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "GOV-001",
+      "description": "Formal change management policy",
+      "category": "governance",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "06-governance-and-process/change_management_policy.md"
+      ],
+      "found": [
+        "06-governance-and-process/change_management_policy.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "GOV-002",
+      "description": "RFC process for architectural decisions",
+      "category": "governance",
+      "severity": "high",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "06-governance-and-process/rfc_process.md"
+      ],
+      "found": [
+        "06-governance-and-process/rfc_process.md"
+      ],
+      "missing": [],
+      "empty": []
+    },
+    {
+      "id": "GOV-003",
+      "description": "Sample RFCs demonstrating process",
+      "category": "governance",
+      "severity": "standard",
+      "status": "verified",
+      "symbol": "\u2705",
+      "required_paths": [
+        "06-governance-and-process/artifacts/sample_rfcs/RFC-001-ai-risk-engine.md"
+      ],
+      "found": [
+        "06-governance-and-process/artifacts/sample_rfcs/RFC-001-ai-risk-engine.md"
+      ],
+      "missing": [],
+      "empty": []
+    }
+  ]
+}

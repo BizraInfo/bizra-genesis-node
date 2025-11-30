@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+/* Smooth focus transitions */
+*:focus {
+  outline: 2px solid #C9A962;
+  outline-offset: 2px;
+}
+
+/* Glass morphism utilities */
+.glass {
+  backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(209, 213, 219, 0.3);
+}
+
+.dark-glass {
+  backdrop-filter: blur(16px) saturate(120%);
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+/* Sacred animations */
+@keyframes sacred-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.sacred-pulse {
+  animation: sacred-pulse 4s ease-in-out infinite;
+}
+
+/* Consciousness flow gradients */
+.conciousness-gradient {
+  background: linear-gradient(45deg,
+    #C9A962 0%,
+    #2A9D8F 25%,
+    #0A1628 50%,
+    #2A9D8F 75%,
+    #C9A962 100%);
+  background-size: 400% 400%;
+  animation: consciousness-flow 8s ease infinite;
+}
+
+@keyframes consciousness-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

@@ -1,0 +1,180 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# BIZRA Genesis Node - Prometheus Configuration
+# Elite-Grade Observability Standards
+# ═══════════════════════════════════════════════════════════════════════════
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'bizra-production'
+    env: 'production'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ALERTING - SLO-Based Alert Rules
+# ═══════════════════════════════════════════════════════════════════════════
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+rule_files:
+  - 'rules/*.yml'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SCRAPE CONFIGURATIONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+scrape_configs:
+  # BIZRA Genesis Node - Main Application
+  - job_name: 'bizra-genesis-node'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - bizra-production
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: bizra-genesis-node
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__address__]
+        target_label: __address__
+        regex: ([^:]+)(?::\d+)?
+        replacement: $1:9090
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: '(http_request_duration_seconds|http_requests_total|db_query_duration_seconds|consensus_finalization_duration_seconds|websocket_connections_total|websocket_disconnections_total|scanner_security_hotspots_total|scanner_performance_bottlenecks_total).*'
+        action: keep
+
+  # Kubernetes API Server
+  - job_name: 'kubernetes-apiservers'
+    kubernetes_sd_configs:
+      - role: endpoints
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: default;kubernetes;https
+
+  # Kubernetes Nodes (cAdvisor)
+  - job_name: 'kubernetes-cadvisor'
+    kubernetes_sd_configs:
+      - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+
+  # Kubernetes Pods
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+
+  # PostgreSQL
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'postgres-primary'
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'redis-primary'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RECORDING RULES - Pre-computed Aggregations
+# ═══════════════════════════════════════════════════════════════════════════
+
+recording_rules:
+  - name: slo_recording_rules
+    interval: 30s
+    rules:
+      # HTTP Request Rate (5m window)
+      - record: http:requests:rate5m
+        expr: sum(rate(http_requests_total{job="bizra-genesis-node"}[5m])) by (status, method, endpoint)
+
+      # HTTP Error Rate (5m window)
+      - record: http:errors:rate5m
+        expr: sum(rate(http_requests_total{job="bizra-genesis-node",status=~"5.."}[5m])) by (namespace, pod)
+
+      # HTTP Success Rate (5m window)
+      - record: http:success:rate5m
+        expr: sum(rate(http_requests_total{job="bizra-genesis-node",status=~"2.."}[5m])) by (namespace, pod)
+
+      # HTTP P50 Latency
+      - record: http:latency:p50
+        expr: histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, endpoint))
+
+      # HTTP P95 Latency
+      - record: http:latency:p95
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, endpoint))
+
+      # HTTP P99 Latency
+      - record: http:latency:p99
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, endpoint))
+
+      # Database Query P95 Latency
+      - record: db:query_latency:p95
+        expr: histogram_quantile(0.95, sum(rate(db_query_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le, query_type))
+
+      # Consensus Finalization P95
+      - record: consensus:finalization:p95
+        expr: histogram_quantile(0.95, sum(rate(consensus_finalization_duration_seconds_bucket{job="bizra-genesis-node"}[5m])) by (le))
+
+      # Availability (1h window)
+      - record: slo:availability:1h
+        expr: 1 - (sum(rate(http_requests_total{job="bizra-genesis-node",status=~"5.."}[1h])) / sum(rate(http_requests_total{job="bizra-genesis-node"}[1h])))
+
+      # Pod Memory Usage Percentage
+      - record: pod:memory_usage:percentage
+        expr: container_memory_working_set_bytes{namespace="bizra-production",container="bizra-genesis-node"} / container_spec_memory_limit_bytes{namespace="bizra-production",container="bizra-genesis-node"} * 100
+
+      # Pod CPU Usage Percentage
+      - record: pod:cpu_usage:percentage
+        expr: rate(container_cpu_usage_seconds_total{namespace="bizra-production",container="bizra-genesis-node"}[5m]) / on(pod) container_spec_cpu_quota{namespace="bizra-production",container="bizra-genesis-node"} * 100

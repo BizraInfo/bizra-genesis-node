@@ -1,0 +1,724 @@
+{
+  "root": "C:\\bizra-genesis-node\\tools",
+  "generatedAt": "2025-11-29T12:54:17.216Z",
+  "files": [
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\perf\\compare-k6.js",
+      "lang": "js",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 1394,
+        "loc": 42,
+        "mtimeMs": 1764420436337.0444
+      },
+      "imports": [
+        "fs"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [
+          {
+            "line": 19,
+            "snippet": "console.log(`P95=${p95}ms, ErrorRate=${err}`);"
+          },
+          {
+            "line": 21,
+            "snippet": "console.error(`::error::P95 ${p95}ms exceeds limit ${maxP95}ms`);"
+          },
+          {
+            "line": 25,
+            "snippet": "console.error(`::error::Error rate ${err} exceeds limit ${maxErr}`);"
+          },
+          {
+            "line": 33,
+            "snippet": "console.log(`Baseline P95=${b95}ms, Change=${change.toFixed(2)}%`);"
+          },
+          {
+            "line": 35,
+            "snippet": "console.error(`::error::P95 regression ${change.toFixed(2)}% exceeds ${maxRegressionPct}%`);"
+          }
+        ],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 5,
+        "reasons": [
+          "Integration surface: 5"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\exporter\\prometheus-export.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 3896,
+        "loc": 97,
+        "mtimeMs": 1764418772773.4895
+      },
+      "imports": [
+        "http",
+        "fs",
+        "path"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [
+          {
+            "line": 95,
+            "snippet": "console.log(`Scanner Prometheus exporter listening on http://${HOST}:${PORT}`);"
+          }
+        ],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 5,
+        "reasons": [
+          "Integration surface: 1"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\audit-report-generator.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 16585,
+        "loc": 369,
+        "mtimeMs": 1764420802241.2334
+      },
+      "imports": [
+        "path",
+        "./types",
+        "./quality-calculator"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": [
+          {
+            "type": "large_god_module",
+            "severity": "high",
+            "impact": "maintainability",
+            "confidence": 100,
+            "evidence": {
+              "line": 1,
+              "snippet": "Component has 369 lines of code (threshold: 300)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 9684,
+        "loc": 257,
+        "mtimeMs": 1764420826773.63
+      },
+      "imports": [
+        "path",
+        "./utils/walker",
+        "./utils/fs",
+        "./types",
+        "./parsers/rust",
+        "./parsers/ts",
+        "./utils/resolve",
+        "./quality-calculator",
+        "./audit-report-generator"
+      ],
+      "signals": {
+        "db": [],
+        "http": [
+          {
+            "line": 231,
+            "snippet": "- HTTP/WebSocket: ${integrationCounts.http} files"
+          }
+        ],
+        "llm": [],
+        "observability": [
+          {
+            "line": 156,
+            "snippet": "console.log(`🔍 SAPE Analysis: ${securityHotspots.length} security hotspots, ${performanceHotspots.length} performance bottlenecks detected`);"
+          },
+          {
+            "line": 162,
+            "snippet": "console.log(`📊 Quality Grade: ${qualityGrade.overall.letter} (${qualityGrade.overall.score}/100) - ${qualityGrade.risk_level} risk`);"
+          },
+          {
+            "line": 172,
+            "snippet": "console.log(`📋 Principal Technical Audit v3 generated: ${auditOut}`);"
+          },
+          {
+            "line": 249,
+            "snippet": "console.log(`Architecture map written: ${outJson}`);"
+          },
+          {
+            "line": 250,
+            "snippet": "console.log(`Markdown summary written: ${mdOut}`);"
+          },
+          {
+            "line": 254,
+            "snippet": "console.error(e);"
+          }
+        ],
+        "unsafe": [],
+        "todos": [
+          {
+            "line": 76,
+            "snippet": "reasons.push(`Many TODO/FIXME: ${todos}`);"
+          },
+          {
+            "line": 79,
+            "snippet": "reasons.push(`Some TODO/FIXME: ${todos}`);"
+          }
+        ],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 15,
+        "reasons": [
+          "Some TODO/FIXME: 2",
+          "Integration surface: 7"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\quality-calculator.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 6091,
+        "loc": 161,
+        "mtimeMs": 1764420760973.2246
+      },
+      "imports": [
+        "./types"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\types.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 1590,
+        "loc": 66,
+        "mtimeMs": 1764411551565.4202
+      },
+      "imports": [],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\perf\\k6\\regression.js",
+      "lang": "js",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 571,
+        "loc": 25,
+        "mtimeMs": 1764420436337.0444
+      },
+      "imports": [
+        "k6/http",
+        "k6"
+      ],
+      "signals": {
+        "db": [],
+        "http": [
+          {
+            "line": 18,
+            "snippet": "const res = http.get(`${BASE_URL}${ep}`);"
+          }
+        ],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 5,
+        "reasons": [
+          "Integration surface: 1"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\perf\\k6\\smoke.js",
+      "lang": "js",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 455,
+        "loc": 23,
+        "mtimeMs": 1764415742423.5715
+      },
+      "imports": [
+        "k6/http",
+        "k6"
+      ],
+      "signals": {
+        "db": [],
+        "http": [
+          {
+            "line": 16,
+            "snippet": "const res = http.get(`${BASE_URL}/health`);"
+          }
+        ],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 5,
+        "reasons": [
+          "Integration surface: 1"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\rust.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 7495,
+        "loc": 159,
+        "mtimeMs": 1764412192396.7778
+      },
+      "imports": [
+        "../types",
+        "path"
+      ],
+      "signals": {
+        "db": [
+          {
+            "line": 9,
+            "snippet": "const RE_SQLX = /\\b(sqlx::|sqlx\\s*::|query!|query_as!|FromRow|Executor|Pool|PgPool|MySqlPool)/;"
+          }
+        ],
+        "http": [],
+        "llm": [
+          {
+            "line": 12,
+            "snippet": "const RE_LLM = /\\b(openai|azure[_\\s]*openai|anthropic|mistral|ChatCompletion|CreateChatCompletion|claude|gpt-)/i;"
+          },
+          {
+            "line": 22,
+            "snippet": "{ regex: /OPENAIAPIKEYSK-(?!env\\.|std::env)/gi, type: 'hardcoded_secrets' as const, risk: 'data_breach' as const, severity: 'critical' as const, confidence: 90 },"
+          },
+          {
+            "line": 23,
+            "snippet": "{ regex: /ANTHROPICAPIKEYSK-(?:CHANGETHIS|ANT-CHANGETHIS)/gi, type: 'test_secrets_in_prod' as const, risk: 'deployment_risk' as const, severity: 'critical' as const, confidence: 100 },"
+          }
+        ],
+        "observability": [
+          {
+            "line": 11,
+            "snippet": "const RE_OBSERVABILITY = /\\b(tracing::|prometheus|opentelemetry|info!|warn!|error!|debug!|trace!|instrument)/;"
+          }
+        ],
+        "unsafe": [],
+        "todos": [
+          {
+            "line": 6,
+            "snippet": "const RE_TODO = /\\b(TODO|FIXME|XXX)\\b/i;"
+          }
+        ],
+        "security_hotspots": [
+          {
+            "type": "unsafe_code",
+            "severity": "high",
+            "risk": "runtime_crash",
+            "confidence": 80,
+            "evidence": {
+              "line": 91,
+              "snippet": "while ((match = patternRegex.exec(content)) !== null) {\r\n      const lineNum = content.substring(0, match.index).split('\\n').length;"
+            }
+          },
+          {
+            "type": "unsafe_code",
+            "severity": "high",
+            "risk": "runtime_crash",
+            "confidence": 80,
+            "evidence": {
+              "line": 108,
+              "snippet": "while ((match = patternRegex.exec(content)) !== null) {\r\n      const lineNum = content.substring(0, match.index).split('\\n').length;"
+            }
+          }
+        ],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 15,
+        "reasons": [
+          "Some TODO/FIXME: 1",
+          "Integration surface: 5"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\ts.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 7759,
+        "loc": 225,
+        "mtimeMs": 1764412170753.9214
+      },
+      "imports": [
+        "../types"
+      ],
+      "signals": {
+        "db": [
+          {
+            "line": 107,
+            "snippet": "const RE_DB = /\\b(pg|postgres|mysql|sqlite3|prisma|sqlx|@prisma\\/client|PrismaClient|query\\(|execute\\()/i;"
+          }
+        ],
+        "http": [
+          {
+            "line": 108,
+            "snippet": "const RE_HTTP = /\\b(axios|fetch\\(|superagent|request\\(|got\\b|http\\.get|http\\.post|RequestInit|Response)/;"
+          },
+          {
+            "line": 109,
+            "snippet": "const RE_WEBSOCKET = /\\b(WebSocket|ws\\.|socket\\.io|io\\()/;"
+          }
+        ],
+        "llm": [
+          {
+            "line": 52,
+            "snippet": "pattern: /OPENAI_API_KEY.*?=.*?['\"`]sk-[a-zA-Z0-9]{20,}['\"`]/i,"
+          },
+          {
+            "line": 59,
+            "snippet": "pattern: /ANTHROPIC_API_KEY.*?=.*?['\"`]sk-ant-[a-zA-Z0-9\\-_]{20,}['\"`]/i,"
+          },
+          {
+            "line": 111,
+            "snippet": "const RE_LLM = /\\b(openai|@azure\\/openai|anthropic|@anthropic|mistral|ChatCompletion|createChatCompletion|claude|gpt-)/i;"
+          }
+        ],
+        "observability": [
+          {
+            "line": 110,
+            "snippet": "const RE_OBSERVABILITY = /\\b(opentelemetry|otel|prom-client|winston|pino|console\\.log|console\\.error)/;"
+          }
+        ],
+        "unsafe": [],
+        "todos": [
+          {
+            "line": 5,
+            "snippet": "const RE_TODO = /\\b(TODO|FIXME|XXX)\\b/i;"
+          }
+        ],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      },
+      "hotspot": {
+        "score": 15,
+        "reasons": [
+          "Some TODO/FIXME: 1",
+          "Integration surface: 7"
+        ]
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\fs.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 449,
+        "loc": 22,
+        "mtimeMs": 1764407638933.3428
+      },
+      "imports": [
+        "fs"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\resolve.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 2953,
+        "loc": 96,
+        "mtimeMs": 1764408948032.547
+      },
+      "imports": [
+        "path",
+        "fs",
+        "./tsconfig"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\tsconfig.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 2777,
+        "loc": 87,
+        "mtimeMs": 1764408820643.161
+      },
+      "imports": [
+        "path",
+        "fs"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      }
+    },
+    {
+      "path": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\walker.ts",
+      "lang": "ts",
+      "layer": "tools",
+      "metrics": {
+        "bytes": 584,
+        "loc": 29,
+        "mtimeMs": 1764407638933.3428
+      },
+      "imports": [
+        "fast-glob",
+        "path"
+      ],
+      "signals": {
+        "db": [],
+        "http": [],
+        "llm": [],
+        "observability": [],
+        "unsafe": [],
+        "todos": [],
+        "security_hotspots": [],
+        "performance_hotspots": []
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\perf\\compare-k6.js",
+      "to": "fs",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\exporter\\prometheus-export.ts",
+      "to": "http",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\exporter\\prometheus-export.ts",
+      "to": "fs",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\exporter\\prometheus-export.ts",
+      "to": "path",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\audit-report-generator.ts",
+      "to": "path",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\audit-report-generator.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\types.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\audit-report-generator.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\quality-calculator.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "path",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\walker.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\fs.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\types.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\rust.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\ts.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\resolve.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\quality-calculator.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\index.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\audit-report-generator.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\quality-calculator.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\types.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\perf\\k6\\regression.js",
+      "to": "k6/http",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\perf\\k6\\regression.js",
+      "to": "k6",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\perf\\k6\\smoke.js",
+      "to": "k6/http",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\perf\\k6\\smoke.js",
+      "to": "k6",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\rust.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\types.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\rust.ts",
+      "to": "path",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\parsers\\ts.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\types.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\fs.ts",
+      "to": "fs",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\resolve.ts",
+      "to": "path",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\resolve.ts",
+      "to": "fs",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\resolve.ts",
+      "to": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\tsconfig.ts",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\tsconfig.ts",
+      "to": "path",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\tsconfig.ts",
+      "to": "fs",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\walker.ts",
+      "to": "fast-glob",
+      "evidence": []
+    },
+    {
+      "from": "C:\\bizra-genesis-node\\tools\\architecture-scanner\\src\\utils\\walker.ts",
+      "to": "path",
+      "evidence": []
+    }
+  ]
+}

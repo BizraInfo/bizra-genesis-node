@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO router_state (model_name, model_type, alpha, beta)\n            VALUES ($1, $2, 1.0, 1.0)\n            ON CONFLICT (model_name) DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "401274f4e020d0c86b3799cc2a2db47533164ce96951e0480fe3b61c1e23a538"
+}

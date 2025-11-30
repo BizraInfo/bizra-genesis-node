@@ -1,0 +1,304 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bizra-genesis-node-production
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/manifest-generate-paths: "."
+    notifications.argoproj.io/subscribe.on-deploy-succeeded: production-alerts
+    notifications.argoproj.io/subscribe.on-deploy-failed: production-alerts
+  labels:
+    environment: production
+    tier: application
+    criticality: high
+spec:
+  project: bizra-genesis-node-production
+
+  source:
+    repoURL: https://github.com/BizraInfo/bizra-genesis-node
+    path: k8s/base
+    targetRevision: HEAD
+
+    # Helm configuration for production with canary rollout
+    helm:
+      releaseName: bizra-genesis-node-production
+      valueFiles:
+        - values-production.yaml
+        - values-secrets-production.yaml
+      parameters:
+      - name: image.tag
+        value: $ARGOCD_APP_REVISION
+      - name: environment
+        value: production
+      - name: ingress.host
+        value: genesis-node.bizra.ai
+      - name: ingress.className
+        value: nginx-prod
+      - name: resources.requests.memory
+        value: "1Gi"
+      - name: resources.requests.cpu
+        value: "500m"
+      - name: resources.limits.memory
+        value: "2Gi"
+      - name: resources.limits.cpu
+        value: "1000m"
+      - name: autoscaling.enabled
+        value: "true"
+      - name: autoscaling.minReplicas
+        value: "3"
+      - name: autoscaling.maxReplicas
+        value: "10"
+      - name: autoscaling.targetCPUUtilizationPercentage
+        value: "70"
+      - name: autoscaling.targetMemoryUtilizationPercentage
+        value: "80"
+      - name: affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
+        value: "environment"
+      - name: affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator
+        value: "In"
+      - name: affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0]
+        value: "production"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: bizra-production
+
+  # MANUAL sync for production - requires approval
+  syncPolicy:
+    automated:
+      prune: false  # Explicit control for production
+      selfHeal: false  # No automated healing in production
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=false  # Namespace exists
+      - PrunePropagationPolicy=foreground
+      - PruneLast=false
+      - RespectIgnoreDifferences=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 1m
+
+  # Progressive rollout configuration
+  revisionHistoryLimit: 20
+
+  # Production-specific resource management
+  ignoreDifferences:
+  - group: ""
+    kind: Service
+    jsonPointers:
+      - /spec/clusterIP
+      - /metadata/annotations
+  - group: "apps"
+    kind: Deployment
+    jsonPointers:
+      - /spec/template/spec/containers/0/image
+      - /metadata/annotations
+      - /spec/progressDeadlineSeconds
+
+  # Health checks for production rollout
+  info:
+  - name: 'Repository'
+    value: 'https://github.com/BizraInfo/bizra-genesis-node'
+
+---
+# Progressive Deployment Rollout Strategy (Applied via Argo Rollouts)
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: bizra-genesis-node-production-rollout
+  namespace: bizra-production
+spec:
+  replicas: 10
+  strategy:
+    canary:
+      # Canary analysis for progressive rollout
+      canaryService: bizra-genesis-node-canary
+      stableService: bizra-genesis-node-stable
+      analysis:
+        templates:
+        - templateName: success-rate
+        args:
+        - name: service-name
+          value: bizra-genesis-node
+        - name: baseline-success-rate
+          value: "95"
+        - name: canary-success-rate
+          value: "98"
+
+      # Traffic management with Istio
+      trafficRouting:
+        istio:
+          virtualService:
+            name: bizra-genesis-node
+            routes:
+            - primary  # Existing production traffic
+
+      # Progressive rollout steps
+      steps:
+      # Step 1: 20% traffic to canary (validation phase)
+      - setWeight: 20
+      - pause: {duration: 5m}  # Wait 5 minutes for metrics
+
+      # Step 2: 40% traffic to canary (expanded testing)
+      - setWeight: 40
+      - pause: {}
+
+      # Step 3: 60% traffic to canary (majority testing)
+      - setWeight: 60
+      - pause: {duration: 10m}
+
+      # Step 4: 80% traffic to canary (near-full production)
+      - setWeight: 80
+      - pause: {}
+
+      # Step 5: Full production (100% traffic)
+      - setWeight: 100
+
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      environment: production
+
+  template:
+    metadata:
+      labels:
+        app: bizra-genesis-node
+        environment: production
+        version: ${{ ARGOCD_APP_REVISION }}
+    spec:
+      containers:
+      - name: bizra-genesis-node
+        image: bizra/genesis-node:${{ ARGOCD_APP_REVISION }}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: environment
+                operator: In
+                values:
+                - production
+
+---
+# Analysis Template for Production Rollout Validation
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+  namespace: bizra-production
+spec:
+  metrics:
+  - name: success-rate
+    interval: 5m
+    successCondition: result[0] >= 0.95
+    provider:
+      prometheus:
+        address: http://prometheus-operated:9090
+        query: |
+          sum(irate(istio_requests_total{reporter="source",destination_service_name=~"{{args.service-name}}",response_code!~"5.*"}[5m]))
+          /
+          sum(irate(istio_requests_total{reporter="source",destination_service_name=~"{{args.service-name}}"}[5m]))
+
+  - name: error-rate
+    interval: 5m
+    successCondition: result[0] <= 0.05
+    provider:
+      prometheus:
+        address: http://prometheus-operated:9090
+        query: |
+          sum(irate(istio_requests_total{reporter="source",destination_service_name=~"{{args.service-name}}",response_code=~"5.*"}[5m]))
+          /
+          sum(irate(istio_requests_total{reporter="source",destination_service_name=~"{{args.service-name}}"}[5m]))
+
+  - name: p95-latency
+    interval: 5m
+    successCondition: result[0] <= 0.5
+    provider:
+      prometheus:
+        address: http://prometheus-operated:9090
+        query: histogram_quantile(0.95, sum(irate(istio_request_duration_milliseconds_bucket{reporter="source",destination_service_name=~"{{args.service-name}}"}[5m])) by (le))
+
+---
+# Post-Deployment Validation via Argo Events
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: production-deployment-validation
+  namespace: bizra-production
+spec:
+  dependencies:
+  - name: deployment-complete
+    gatewayName: webhook
+    eventName: production-deployment
+    filters:
+      name: payload.deployment.status
+      value: "successful"
+
+  subscription:
+    http:
+      port: 9000
+
+  triggers:
+  - template:
+      name: post-deployment-validation
+      k8s:
+        group: batch
+        version: v1
+        resource: jobs
+        operation: create
+        source:
+          resource:
+            apiVersion: batch/v1
+            kind: Job
+            metadata:
+              name: post-deployment-validation
+              namespace: bizra-production
+            spec:
+              template:
+                spec:
+                  containers:
+                  - name: validation
+                    image: bizra/deployment-validator:latest
+                    env:
+                    - name: DEPLOYMENT_SHA
+                      value: "{{.Input}}"
+                    - name: SLACK_WEBHOOK_URL
+                      valueFrom:
+                        secretKeyRef:
+                          name: slack-webhooks
+                          key: production-deployments
+                  restartPolicy: Never
+        parameters:
+        - src:
+            dependencyName: deployment-complete
+          dest: spec.template.spec.containers.0.env.1.value

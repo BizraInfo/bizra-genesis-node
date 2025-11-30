@@ -1,0 +1,193 @@
+---
+# AI-Driven Auto-Scaling with KEDA - Phase THREE Enterprise Scaling
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: bizra-api-cpu-scaler
+  namespace: bizra-system
+  labels:
+    app: bizra-api
+    component: scaling
+    scaler-type: cpu
+    managed-by: elite-practitioner
+spec:
+  scaleTargetRef:
+    name: bizra-api
+  pollingInterval: 15
+  cooldownPeriod:  300
+  idleReplicaCount: 3
+  minReplicaCount: 3
+  maxReplicaCount: 50
+  triggers:
+  - type: cpu
+    metricType: Utilization
+    metadata:
+      value: "70"
+  - type: memory
+    metricType: Utilization
+    metadata:
+      value: "80"
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: bizra-api-queue-scaler
+  namespace: bizra-system
+  labels:
+    app: bizra-api
+    component: scaling
+    scaler-type: queue
+    managed-by: elite-practitioner
+spec:
+  scaleTargetRef:
+    name: bizra-api
+  pollingInterval: 10
+  cooldownPeriod:  180
+  idleReplicaCount: 1
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  triggers:
+  - type: redis
+    metadata:
+      address: "redis://bizra-redis:6379"
+      passwordFromEnv: REDIS_PASSWORD
+      listName: "bizra-request-queue"
+      listLength: "100"
+      activationListLength: "50"
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: bizra-api-latency-scaler
+  namespace: bizra-system
+  labels:
+    app: bizra-api
+    component: scaling
+    scaler-type: prometheus
+    managed-by: elite-practitioner
+spec:
+  scaleTargetRef:
+    name: bizra-api
+  pollingInterval: 30
+  cooldownPeriod:  120
+  idleReplicaCount: 2
+  minReplicaCount: 2
+  maxReplicaCount: 40
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: "http://prometheus-server:80"
+      metricName: "http_request_duration_seconds"
+      query: |
+        rate(http_request_duration_seconds{quantile="0.95"}[5m])
+        > 0.5
+      threshold: "1"
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: bizra-api-temporal-scaler
+  namespace: bizra-system
+  labels:
+    app: bizra-api
+    component: scaling
+    scaler-type: cron
+    managed-by: elite-practitioner
+spec:
+  scaleTargetRef:
+    name: bizra-api
+  pollingInterval: 300
+  cooldownPeriod:  600
+  idleReplicaCount: 5
+  minReplicaCount: 5
+  maxReplicaCount: 25
+  triggers:
+  - type: cron
+    metadata:
+      timezone: "Asia/Dubai"
+      start: "06:00"
+      end: "22:00"
+      desiredReplicas: "15"
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: bizra-api-predictive-scaler
+  namespace: bizra-system
+  labels:
+    app: bizra-api
+    component: scaling
+    scaler-type: predictive
+    managed-by: elite-practitioner
+spec:
+  scaleTargetRef:
+    name: bizra-api
+  pollingInterval: 60
+  cooldownPeriod:  600
+  idleReplicaCount: 3
+  minReplicaCount: 3
+  maxReplicaCount: 50
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: "http://prometheus-server:80"
+      metricName: "bizra_predictive_load"
+      query: |
+        bizra_sarima_forecast{confidence="high"}
+      threshold: "20"
+      activationThreshold: "10"
+
+---
+# Horizontal Pod Autoscaler as Backup Scaling Strategy
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bizra-api-hpa-backup
+  namespace: bizra-system
+  labels:
+    app: bizra-api
+    component: scaling
+    scaler-type: hpa-backup
+    managed-by: elite-practitioner
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bizra-api
+  minReplicas: 3
+  maxReplicas: 100
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      selectPolicy: Min
+      policies:
+      - type: Percent
+        value: 20
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      selectPolicy: Max
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 5
+        periodSeconds: 60

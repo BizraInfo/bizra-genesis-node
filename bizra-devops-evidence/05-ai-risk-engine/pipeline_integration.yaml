@@ -1,0 +1,284 @@
+# AI Risk Engine Pipeline Integration
+# Evidence for: AI-003
+
+# This configuration defines how the AI Risk Engine integrates
+# with the BIZRA CI/CD pipeline at Stage 5.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: risk-engine-config
+  namespace: ci-cd
+data:
+  # Risk thresholds per environment
+  thresholds: |
+    development:
+      max_score: 100  # Always allow
+      auto_approve: true
+      require_review: false
+
+    staging:
+      max_score: 85
+      auto_approve: true
+      require_review: false
+      override_allowed: true
+      override_approvers:
+        - senior-engineer
+        - tech-lead
+
+    production:
+      max_score: 70
+      auto_approve: false
+      require_review: true
+      required_reviewers: 2
+      override_allowed: true
+      override_approvers:
+        - vp-engineering
+        - director-sre
+
+  # Signal weights (can be tuned)
+  signal_weights: |
+    categories:
+      code: 0.35
+      infrastructure: 0.30
+      time: 0.20
+      team: 0.15
+
+    # Override specific signals
+    overrides:
+      C010:  # Breaking changes
+        weight: 2.0
+        critical: true
+      I003:  # Database schema change
+        weight: 1.5
+        critical: true
+      T007:  # Holiday proximity
+        weight: 1.2
+
+  # Time-based restrictions
+  deployment_windows: |
+    # UTC times
+    allowed:
+      - days: [monday, tuesday, wednesday, thursday]
+        start: "09:00"
+        end: "17:00"
+        risk_modifier: 0.0
+
+      - days: [friday]
+        start: "09:00"
+        end: "14:00"
+        risk_modifier: 0.1
+
+    restricted:
+      - days: [friday]
+        start: "14:00"
+        end: "23:59"
+        risk_modifier: 0.3
+        require_approval: true
+
+      - days: [saturday, sunday]
+        risk_modifier: 0.5
+        require_approval: true
+        emergency_only: true
+
+    blocked:
+      # No deployments during these periods
+      - name: "Thanksgiving week"
+        start: "2025-11-24"
+        end: "2025-11-30"
+      - name: "Christmas/New Year"
+        start: "2025-12-23"
+        end: "2026-01-02"
+
+  # Notification configuration
+  notifications: |
+    on_high_risk:
+      - type: slack
+        channel: "#deployments"
+        mention: "@oncall"
+      - type: email
+        to: "sre-team@bizra.ai"
+
+    on_blocked:
+      - type: slack
+        channel: "#deployments"
+        channel: "#incident-response"
+        mention: "@vp-engineering"
+      - type: pagerduty
+        service: "deployment-blocked"
+
+    on_override:
+      - type: slack
+        channel: "#security-audit"
+      - type: audit_log
+        level: "warning"
+
+---
+# GitHub Actions integration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: risk-engine-github-action
+  namespace: ci-cd
+data:
+  action.yml: |
+    name: 'BIZRA AI Risk Assessment'
+    description: 'Analyze deployment risk using ML-powered signal analysis'
+
+    inputs:
+      commit:
+        description: 'Git commit SHA to assess'
+        required: true
+      branch:
+        description: 'Branch name'
+        required: true
+      environment:
+        description: 'Target deployment environment'
+        required: true
+        default: 'staging'
+      override:
+        description: 'Override high risk (requires approval)'
+        required: false
+        default: 'false'
+      override_reason:
+        description: 'Reason for override'
+        required: false
+
+    outputs:
+      risk_score:
+        description: 'Calculated risk score (0-100)'
+      risk_level:
+        description: 'Risk level (LOW/MEDIUM/HIGH)'
+      approved:
+        description: 'Whether deployment is approved'
+      report_url:
+        description: 'URL to detailed risk report'
+
+    runs:
+      using: 'composite'
+      steps:
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20'
+
+        - name: Install dependencies
+          shell: bash
+          run: |
+            cd ${{ github.action_path }}
+            npm ci
+
+        - name: Run Risk Assessment
+          id: assess
+          shell: bash
+          run: |
+            node ${{ github.action_path }}/risk_engine.js \
+              --commit "${{ inputs.commit }}" \
+              --branch "${{ inputs.branch }}" \
+              --env "${{ inputs.environment }}" \
+              --output risk-report.json
+
+            SCORE=$(jq '.risk_score' risk-report.json)
+            LEVEL=$(jq -r '.risk_level' risk-report.json)
+            APPROVED=$(jq '.deployment_approved' risk-report.json)
+
+            echo "risk_score=$SCORE" >> $GITHUB_OUTPUT
+            echo "risk_level=$LEVEL" >> $GITHUB_OUTPUT
+            echo "approved=$APPROVED" >> $GITHUB_OUTPUT
+
+        - name: Handle Override
+          if: inputs.override == 'true' && steps.assess.outputs.approved == 'false'
+          shell: bash
+          run: |
+            echo "::warning::Risk override requested by ${{ github.actor }}"
+            echo "Reason: ${{ inputs.override_reason }}"
+
+            # Log override for audit
+            cat > override-record.json << EOF
+            {
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "actor": "${{ github.actor }}",
+              "commit": "${{ inputs.commit }}",
+              "environment": "${{ inputs.environment }}",
+              "original_score": ${{ steps.assess.outputs.risk_score }},
+              "reason": "${{ inputs.override_reason }}"
+            }
+            EOF
+
+        - name: Upload Report
+          uses: actions/upload-artifact@v4
+          with:
+            name: risk-assessment-${{ inputs.commit }}
+            path: |
+              risk-report.json
+              override-record.json
+
+---
+# Webhook for external integration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: risk-engine-webhook
+  namespace: ci-cd
+data:
+  webhook_spec.yaml: |
+    # Risk Engine can be called via webhook for non-GitHub integrations
+    endpoint: /api/risk/assess
+    method: POST
+
+    request:
+      schema:
+        type: object
+        required:
+          - commit
+          - branch
+          - environment
+        properties:
+          commit:
+            type: string
+            pattern: "^[a-f0-9]{40}$"
+          branch:
+            type: string
+          environment:
+            type: string
+            enum: [development, staging, production]
+          override:
+            type: boolean
+            default: false
+          override_approver:
+            type: string
+          override_reason:
+            type: string
+
+    response:
+      schema:
+        type: object
+        properties:
+          assessment_id:
+            type: string
+          risk_score:
+            type: integer
+            minimum: 0
+            maximum: 100
+          risk_level:
+            type: string
+            enum: [LOW, MEDIUM, HIGH]
+          deployment_approved:
+            type: boolean
+          top_factors:
+            type: array
+          recommendations:
+            type: array
+
+    authentication:
+      type: bearer
+      header: Authorization
+
+    rate_limit:
+      requests_per_minute: 60
+
+    audit:
+      enabled: true
+      log_request: true
+      log_response: true
+      retention_days: 365

@@ -1,0 +1,60 @@
+Control_ID,Category,Framework,Requirement,Description,Automation_Status,Tool,Frequency,Evidence_Path,Last_Verified,Owner
+AC-001,Access Control,SOX,AC-2,User account provisioning requires manager approval,Automated,RBAC Middleware,Real-time,src/middleware/rbac.rs,2025-11-27,Security Team
+AC-002,Access Control,SOX,AC-2,Quarterly access review for privileged accounts,Semi-Automated,Audit Script,Quarterly,scripts/access-review.ps1,2025-11-15,Security Team
+AC-003,Access Control,SOX,AC-3,Role-based access control enforcement,Automated,JWT Middleware,Real-time,src/middleware/jwt.rs,2025-11-27,Platform Team
+AC-004,Access Control,SOX,AC-6,Least privilege enforcement for service accounts,Automated,K8s RBAC,Real-time,k8s/rbac.yaml,2025-11-27,Platform Team
+AC-005,Access Control,SOX,AC-7,Failed login attempt lockout (5 attempts),Automated,Rate Limiter,Real-time,src/middleware/rate_limit.rs,2025-11-27,Security Team
+AC-006,Access Control,HIPAA,§164.312(d),MFA required for administrative access,Automated,MFA Module,Real-time,src/security/mfa.rs,2025-11-27,Security Team
+AC-007,Access Control,GDPR,Art. 32,Session timeout after 30 minutes inactivity,Automated,JWT Config,Real-time,src/auth/claims.rs,2025-11-27,Platform Team
+AC-008,Access Control,SOX,AC-11,Session lock on inactivity,Automated,Frontend,Real-time,apps/dashboard/src/hooks/useSessionTimeout.ts,2025-11-27,Frontend Team
+AC-009,Access Control,SOX,AC-12,Session termination on logout,Automated,Auth API,Real-time,src/api/auth/mod.rs,2025-11-27,Platform Team
+AC-010,Access Control,GDPR,Art. 25,Privacy by default - minimal data collection,Automated,Data Schema,Design-time,src/models/mod.rs,2025-11-27,Data Team
+CM-001,Change Management,SOX,CM-2,Baseline configuration documented,Automated,IaC,Real-time,k8s/,2025-11-27,Platform Team
+CM-002,Change Management,SOX,CM-3,Configuration change control process,Automated,GitHub PR,Per-change,06-governance-and-process/change_management_policy.md,2025-11-27,DevOps Team
+CM-003,Change Management,SOX,CM-4,Security impact analysis for changes,Automated,AI Risk Engine,Per-deploy,05-ai-risk-engine/risk_engine.ts,2025-11-27,DevOps Team
+CM-004,Change Management,SOX,CM-5,Access restrictions for change,Automated,Branch Protection,Real-time,.github/CODEOWNERS,2025-11-27,DevOps Team
+CM-005,Change Management,SOX,CM-6,Configuration settings enforcement,Automated,K8s ConfigMaps,Real-time,k8s/configmap.yaml,2025-11-27,Platform Team
+CM-006,Change Management,SOX,CM-7,Least functionality - disabled unnecessary services,Automated,Container Config,Build-time,Dockerfile,2025-11-27,Platform Team
+CM-007,Change Management,SOX,CM-8,System component inventory,Automated,SBOM Generator,Per-build,cargo audit,2025-11-27,Security Team
+CM-008,Change Management,HIPAA,§164.312(e),Encryption configuration management,Automated,TLS Config,Real-time,src/secrets/kms.rs,2025-11-27,Security Team
+SD-001,System Development,SOX,SA-3,System development lifecycle,Manual,RFC Process,Per-project,06-governance-and-process/rfc_process.md,2025-11-27,Engineering
+SD-002,System Development,SOX,SA-8,Security engineering principles,Automated,Linting,Per-build,cargo clippy,2025-11-27,Engineering
+SD-003,System Development,SOX,SA-10,Developer configuration management,Automated,Git,Real-time,.gitignore,2025-11-27,Engineering
+SD-004,System Development,SOX,SA-11,Developer security testing,Automated,CI Pipeline,Per-build,.github/workflows/ci.yml,2025-11-27,DevOps Team
+SD-005,System Development,SOX,SA-15,Development process standards,Manual,Documentation,Quarterly,CLAUDE.md,2025-11-27,Engineering
+SD-006,System Development,GDPR,Art. 25,Privacy by design in development,Manual,Design Review,Per-feature,03-security-and-compliance/gdpr_privacy_by_design.md,2025-11-27,Privacy Team
+AU-001,Audit & Accountability,SOX,AU-2,Auditable events defined,Automated,Tracing Config,Real-time,src/observability/mod.rs,2025-11-27,Platform Team
+AU-002,Audit & Accountability,SOX,AU-3,Audit record content,Automated,Structured Logging,Real-time,tracing crate,2025-11-27,Platform Team
+AU-003,Audit & Accountability,SOX,AU-4,Audit storage capacity,Automated,Log Rotation,Daily,Loki Config,2025-11-27,Platform Team
+AU-004,Audit & Accountability,SOX,AU-6,Audit review and analysis,Semi-Automated,Grafana,Daily,02-sre-and-slos/artifacts/grafana_screenshots/,2025-11-27,SRE Team
+AU-005,Audit & Accountability,SOX,AU-9,Protection of audit information,Automated,Log Encryption,Real-time,Loki Config,2025-11-27,Security Team
+AU-006,Audit & Accountability,HIPAA,§164.312(b),Audit controls for PHI access,Automated,Audit Middleware,Real-time,src/security/audit/mod.rs,2025-11-27,Security Team
+AU-007,Audit & Accountability,GDPR,Art. 30,Records of processing activities,Semi-Automated,Data Catalog,Monthly,Data Processing Registry,2025-11-27,Privacy Team
+IR-001,Incident Response,SOX,IR-1,Incident response policy,Manual,Documentation,Annual,04-resilience-and-chaos/incident_playbooks.md,2025-11-27,Security Team
+IR-002,Incident Response,SOX,IR-4,Incident handling procedures,Manual,Runbook,Per-incident,04-resilience-and-chaos/chaos_runbook.md,2025-11-27,SRE Team
+IR-003,Incident Response,SOX,IR-5,Incident monitoring,Automated,Alertmanager,Real-time,ops/observability/alertmanager.yml,2025-11-27,SRE Team
+IR-004,Incident Response,SOX,IR-6,Incident reporting,Semi-Automated,PagerDuty,Per-incident,PagerDuty Integration,2025-11-27,SRE Team
+IR-005,Incident Response,HIPAA,§164.308(a)(6),Security incident procedures,Manual,Playbook,Per-incident,04-resilience-and-chaos/incident_playbooks.md,2025-11-27,Security Team
+IR-006,Incident Response,GDPR,Art. 33,Data breach notification (72 hours),Manual,Procedure,Per-incident,Breach Response Plan,2025-11-27,Privacy Team
+SC-001,System Communications,SOX,SC-7,Boundary protection,Automated,Network Policy,Real-time,k8s/network-policy.yaml,2025-11-27,Platform Team
+SC-002,System Communications,SOX,SC-8,Transmission confidentiality,Automated,TLS 1.3,Real-time,HTTPS Enforcement,2025-11-27,Platform Team
+SC-003,System Communications,SOX,SC-12,Cryptographic key management,Automated,KMS,Real-time,src/secrets/kms.rs,2025-11-27,Security Team
+SC-004,System Communications,SOX,SC-13,Cryptographic protection,Automated,AES-GCM,Real-time,src/trust.rs,2025-11-27,Security Team
+SC-005,System Communications,HIPAA,§164.312(e)(1),Transmission security,Automated,TLS,Real-time,HTTPS Config,2025-11-27,Platform Team
+SC-006,System Communications,GDPR,Art. 32,Encryption of personal data,Automated,Field Encryption,Real-time,src/secrets/kms.rs,2025-11-27,Security Team
+SI-001,System Integrity,SOX,SI-2,Flaw remediation,Automated,Dependabot,Weekly,GitHub Dependabot,2025-11-27,DevOps Team
+SI-002,System Integrity,SOX,SI-3,Malicious code protection,Automated,Container Scan,Per-build,Trivy,2025-11-27,Security Team
+SI-003,System Integrity,SOX,SI-4,System monitoring,Automated,Prometheus,Real-time,src/metrics.rs,2025-11-27,SRE Team
+SI-004,System Integrity,SOX,SI-5,Security alerts and advisories,Automated,GitHub Advisory,Real-time,cargo audit,2025-11-27,Security Team
+SI-005,System Integrity,SOX,SI-7,Software integrity verification,Automated,Checksums,Per-build,Build Pipeline,2025-11-27,DevOps Team
+SI-006,System Integrity,HIPAA,§164.308(a)(5),Security awareness training,Manual,Training,Annual,Security Training Records,2025-11-27,HR
+CP-001,Contingency Planning,SOX,CP-2,Contingency plan,Manual,Documentation,Annual,OPERATOR_RUNBOOK_v0.9.0.md,2025-11-27,SRE Team
+CP-002,Contingency Planning,SOX,CP-9,System backup,Automated,Velero,Daily,Backup Config,2025-11-27,Platform Team
+CP-003,Contingency Planning,SOX,CP-10,System recovery,Semi-Automated,Disaster Recovery,Per-test,DR Runbook,2025-11-27,SRE Team
+CP-004,Contingency Planning,HIPAA,§164.308(a)(7),Contingency plan for PHI,Manual,DR Plan,Annual,DR Documentation,2025-11-27,Compliance Team
+RA-001,Risk Assessment,SOX,RA-3,Risk assessment,Semi-Automated,AI Risk Engine,Per-deploy,05-ai-risk-engine/risk_engine.ts,2025-11-27,Security Team
+RA-002,Risk Assessment,SOX,RA-5,Vulnerability scanning,Automated,Trivy/Gitleaks,Per-build,.github/workflows/security-scan.yml,2025-11-27,Security Team
+RA-003,Risk Assessment,GDPR,Art. 35,Data protection impact assessment,Manual,DPIA Template,Per-feature,DPIA Records,2025-11-27,Privacy Team
+PM-001,Program Management,SOX,PM-9,Risk management strategy,Manual,Documentation,Annual,SECURITY_THREAT_MODEL.md,2025-11-27,Security Team
+PM-002,Program Management,GDPR,Art. 37,Data protection officer,Manual,Appointment,N/A,DPO Contact,2025-11-27,Legal
+PM-003,Program Management,HIPAA,§164.308(a)(2),Assigned security responsibility,Manual,Role Assignment,N/A,Security Team Charter,2025-11-27,Management

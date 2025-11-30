@@ -1,0 +1,347 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bizra-genesis-node
+  namespace: bizra-production
+  labels:
+    app: bizra-genesis-node
+    component: backend
+    tier: application
+    environment: production
+    version: v0.9.0
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  replicas: 3
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # Zero-downtime deployments
+  selector:
+    matchLabels:
+      app: bizra-genesis-node
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: bizra-genesis-node
+        component: backend
+        tier: application
+        environment: production
+        version: v0.9.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "bizra-genesis-node"
+    spec:
+      # Security Context - Run as non-root
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+      
+      # Service Account for RBAC
+      serviceAccountName: bizra-genesis-node
+      automountServiceAccountToken: true
+      
+      # Topology Spread for High Availability
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: bizra-genesis-node
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: bizra-genesis-node
+      
+      # Pod Anti-Affinity - Spread across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - bizra-genesis-node
+                topologyKey: kubernetes.io/hostname
+      
+      # Init Container - Database Migration
+      initContainers:
+        - name: db-migration
+          image: bizra/genesis-node:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Running database migrations..."
+              /app/migrate
+              echo "Migrations complete"
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: database-url
+            - name: RUST_LOG
+              value: "info"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+      
+      # Main Application Container
+      containers:
+        - name: bizra-genesis-node
+          image: bizra/genesis-node:latest
+          imagePullPolicy: IfNotPresent
+          
+          # Security Context - Container Level
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+          
+          # Ports
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: websocket
+              containerPort: 8081
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+            - name: health
+              containerPort: 8082
+              protocol: TCP
+          
+          # Environment Variables
+          env:
+            # Application Config
+            - name: RUST_LOG
+              value: "info,bizra_genesis_node=debug"
+            - name: RUST_BACKTRACE
+              value: "1"
+            - name: PORT
+              value: "8080"
+            - name: ENVIRONMENT
+              value: "production"
+            
+            # Database Connection
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: database-url
+            - name: DATABASE_MAX_CONNECTIONS
+              value: "20"
+            - name: DATABASE_MIN_CONNECTIONS
+              value: "5"
+            
+            # Redis Connection
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: redis-url
+            - name: REDIS_MAX_CONNECTIONS
+              value: "10"
+            
+            # JWT Configuration
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: bizra-secrets
+                  key: jwt-secret
+            - name: JWT_EXPIRATION
+              value: "3600"
+            
+            # Observability
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://otel-collector.observability:4317"
+            - name: OTEL_SERVICE_NAME
+              value: "bizra-genesis-node"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "service.version=v0.9.0,deployment.environment=production"
+            
+            # Feature Flags
+            - name: ENABLE_WEBSOCKET
+              value: "true"
+            - name: ENABLE_METRICS
+              value: "true"
+            - name: ENABLE_TRACING
+              value: "true"
+            
+            # Performance Tuning
+            - name: TOKIO_WORKER_THREADS
+              value: "4"
+            - name: MAX_CONCURRENT_REQUESTS
+              value: "1000"
+            
+            # Pod Identity
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          
+          # Resource Management - Guaranteed QoS
+          resources:
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+              ephemeral-storage: "2Gi"
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+              ephemeral-storage: "1Gi"
+          
+          # Health Probes - Elite Configuration
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: health
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: health
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: health
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 30  # 150s max startup time
+          
+          # Lifecycle Hooks - Graceful Shutdown
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    echo "Initiating graceful shutdown..."
+                    sleep 5  # Allow load balancer to deregister
+                    kill -TERM 1  # Send SIGTERM to main process
+          
+          # Volume Mounts
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/cache
+            - name: logs
+              mountPath: /app/logs
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+        
+        # Sidecar - Log Aggregation (Fluent Bit)
+        - name: log-aggregator
+          image: fluent/fluent-bit:2.1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+          volumeMounts:
+            - name: logs
+              mountPath: /app/logs
+              readOnly: true
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc
+              readOnly: true
+      
+      # Volumes
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: "512Mi"
+        - name: cache
+          emptyDir:
+            sizeLimit: "1Gi"
+        - name: logs
+          emptyDir:
+            sizeLimit: "2Gi"
+        - name: config
+          configMap:
+            name: bizra-config
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config
+      
+      # DNS Policy
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60  # Allow time for graceful shutdown
+      
+      # Node Selection - Production Pool Only
+      nodeSelector:
+        node.kubernetes.io/instance-type: "c6i.2xlarge"  # CPU-optimized
+        environment: production
+      
+      # Tolerations - For Dedicated Nodes
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "production"
+          effect: "NoSchedule"

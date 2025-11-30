@@ -1,0 +1,52 @@
+name: Performance Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of benchmark (smoke, regression, soak)'
+        required: true
+        default: 'regression'
+      duration:
+        description: 'Test duration (e.g., 30s,1m,5m)'
+        required: true
+        default: '1m'
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup k6
+        uses: grafana/setup-k6@v1
+      - name: Install parsing tools
+        run: sudo apt-get update && sudo apt-get install -y jq bc
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build service
+        run: cargo build --bin genesis-node --release
+      - name: Start service
+        run: |
+          ./target/release/genesis-node &
+          sleep 10
+      - name: Run k6 benchmark
+        run: |
+          if [ -f tools/perf/k6/smoke.js ]; then \
+            k6 run -e TEST_TYPE=${{ github.event.inputs.test_type }} -e DURATION=${{ github.event.inputs.duration }} tools/perf/k6/smoke.js --quiet --summary-export k6-summary.json; \
+          else \
+            echo 'No k6 script found' && exit 1; \
+          fi
+      - name: Parse summary
+        run: |
+          cat k6-summary.json
+          P95=$(jq '.metrics.http_req_duration[''p(95)'']' k6-summary.json)
+          ERR_RATE=$(jq '.metrics.http_req_failed.rate' k6-summary.json)
+          echo "P95: $P95 ms"; echo "Error Rate: $ERR_RATE";
+          if (( $(echo "$P95 > 500" | bc -l) )); then echo "::error::P95 latency above 500ms"; exit 1; fi
+          if (( $(echo "$ERR_RATE > 0.01" | bc -l) )); then echo "::error::Error rate above 1%"; exit 1; fi
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-summary
+          path: k6-summary.json

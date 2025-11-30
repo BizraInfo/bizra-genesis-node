@@ -1,0 +1,247 @@
+name: E2E Tests (Playwright)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  PLAYWRIGHT_VERSION: '1.40.0'
+
+jobs:
+  e2e-tests:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+        shard: [1/4, 2/4, 3/4, 4/4]
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bizra_test
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: bizra_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            apps/dashboard/package-lock.json
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Install dependencies
+        run: |
+          # Install backend dependencies
+          cargo build --release
+
+          # Install frontend dependencies
+          cd apps/dashboard
+          npm ci
+
+      - name: Install Playwright browsers
+        run: |
+          cd apps/dashboard
+          npx playwright install --with-deps ${{ matrix.project }}
+
+      - name: Setup test environment
+        run: |
+          cp .env.example .env
+          echo "DATABASE_URL=postgresql://bizra_test:test_password@localhost:5432/bizra_test" >> .env
+          echo "REDIS_URL=redis://localhost:6379" >> .env
+          echo "E2E_TEST_EMAIL=test@example.com" >> .env
+          echo "E2E_TEST_PASSWORD=TestPassword123!" >> .env
+          echo "E2E_BASE_URL=http://localhost:5173" >> .env
+          echo "E2E_API_URL=http://localhost:3000/api/v1" >> .env
+
+      - name: Run database migrations
+        run: |
+          cargo install sqlx-cli --no-default-features --features postgres
+          sqlx migrate run
+
+      - name: Start backend server
+        run: |
+          cargo run --release &
+          echo $! > backend.pid
+
+          # Wait for backend to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:3000/api/v1/health; do sleep 2; done'
+
+      - name: Start frontend dev server
+        run: |
+          cd apps/dashboard
+          npm run dev &
+          echo $! > frontend.pid
+
+          # Wait for frontend to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
+
+      - name: Run Playwright tests
+        run: |
+          cd tests/e2e
+          npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}
+        env:
+          E2E_BASE_URL: http://localhost:5173
+          E2E_API_URL: http://localhost:3000/api/v1
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ matrix.project }}-${{ matrix.shard }}
+          path: tests/e2e/test-results/
+          retention-days: 30
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}-${{ matrix.shard }}
+          path: tests/e2e/playwright-report/
+          retention-days: 30
+
+      - name: Upload test videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-videos-${{ matrix.project }}-${{ matrix.shard }}
+          path: tests/e2e/test-results/**/video.webm
+          retention-days: 7
+
+      - name: Stop servers
+        if: always()
+        run: |
+          if [ -f backend.pid ]; then kill $(cat backend.pid) || true; fi
+          if [ -f apps/dashboard/frontend.pid ]; then kill $(cat apps/dashboard/frontend.pid) || true; fi
+
+  merge-reports:
+    name: Merge Playwright Reports
+    needs: e2e-tests
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-report-*
+          path: all-reports/
+
+      - name: Merge reports
+        run: |
+          npx playwright merge-reports --reporter html all-reports/
+
+      - name: Upload merged report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = `## 🎭 E2E Test Results (Playwright)\n\n`;
+            comment += `**Status**: ${{ needs.e2e-tests.result === 'success' ? '✅ PASSED' : '❌ FAILED' }}\n\n`;
+            comment += `**Projects Tested**: Chromium, Firefox, WebKit\n`;
+            comment += `**Shards**: 4 parallel shards per browser\n\n`;
+            comment += `[View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  visual-regression:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd apps/dashboard
+          npm ci
+
+      - name: Install Playwright
+        run: |
+          cd apps/dashboard
+          npx playwright install chromium
+
+      - name: Run visual regression tests
+        run: |
+          cd tests/e2e
+          npx playwright test --project=chromium --grep @visual
+
+      - name: Upload visual diff artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-diffs
+          path: tests/e2e/test-results/**/diff.png
+          retention-days: 7

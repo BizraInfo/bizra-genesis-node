@@ -1,0 +1,155 @@
+# BIZRA Genesis Node - Pre-commit Configuration
+# Elite Full-Stack Blueprint: Security-First Development
+#
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # ============================================================================
+  # Rust Code Quality
+  # ============================================================================
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: Rust Format Check
+        entry: cargo fmt --all -- --check
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: Rust Lint (Clippy)
+        entry: cargo clippy --all-targets --all-features -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-check
+        name: Rust Compile Check
+        entry: cargo check --all-features
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+  # ============================================================================
+  # Security Validation
+  # ============================================================================
+  - repo: local
+    hooks:
+      - id: no-hardcoded-secrets
+        name: Check for Hardcoded Secrets
+        entry: bash -c 'if grep -rE "secret\s*=\s*\"[^\"]{8,}\"" src/ --include="*.rs" | grep -v "test" | grep -v "example" | grep -v "// "; then echo "ERROR: Potential hardcoded secrets detected!"; exit 1; fi'
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: jwt-secret-env
+        name: Verify JWT Secret from Environment
+        entry: bash -c 'if grep -q "JWT_SECRET" src/api/alpha_invites.rs || grep -q "std::env::var.*JWT" src/middleware/jwt.rs; then exit 0; else echo "WARNING: JWT secret should be from environment"; exit 0; fi'
+        language: system
+        files: ^src/(api|middleware)/.*\.rs$
+        pass_filenames: false
+
+      - id: security-headers-present
+        name: Verify Security Headers Middleware
+        entry: bash -c 'if [ -f "src/middleware/security_headers.rs" ] && grep -q "strict-transport-security" src/middleware/security_headers.rs; then exit 0; else echo "ERROR: Security headers middleware not properly configured"; exit 1; fi'
+        language: system
+        files: ^src/middleware/.*\.rs$
+        pass_filenames: false
+
+      - id: rbac-middleware-present
+        name: Verify RBAC Middleware
+        entry: bash -c 'if [ -f "src/middleware/rbac.rs" ] && grep -q "pub enum Role" src/middleware/rbac.rs; then exit 0; else echo "ERROR: RBAC middleware not properly configured"; exit 1; fi'
+        language: system
+        files: ^src/middleware/.*\.rs$
+        pass_filenames: false
+
+      - id: cors-middleware-present
+        name: Verify CORS Middleware
+        entry: bash -c 'if [ -f "src/middleware/cors.rs" ] && grep -q "CorsLayer" src/middleware/cors.rs; then exit 0; else echo "ERROR: CORS middleware not properly configured"; exit 1; fi'
+        language: system
+        files: ^src/middleware/.*\.rs$
+        pass_filenames: false
+
+  # ============================================================================
+  # Dependency Security
+  # ============================================================================
+  - repo: local
+    hooks:
+      - id: cargo-audit
+        name: Security Audit (cargo-audit)
+        entry: bash -c 'if command -v cargo-audit &> /dev/null; then cargo audit; else echo "cargo-audit not installed, skipping"; fi'
+        language: system
+        files: ^Cargo\.(toml|lock)$
+        pass_filenames: false
+
+      - id: cargo-deny
+        name: Dependency License Check (cargo-deny)
+        entry: bash -c 'if command -v cargo-deny &> /dev/null && [ -f "deny.toml" ]; then cargo deny check; else echo "cargo-deny not installed or deny.toml missing, skipping"; fi'
+        language: system
+        files: ^Cargo\.(toml|lock)$
+        pass_filenames: false
+
+  # ============================================================================
+  # General Code Quality
+  # ============================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(.*\.md|.*\.json)$
+      - id: end-of-file-fixer
+        exclude: ^(.*\.md|.*\.json)$
+      - id: check-yaml
+        args: ['--unsafe']
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: detect-private-key
+
+  # ============================================================================
+  # Secrets Detection (Gitleaks)
+  # ============================================================================
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
+        name: Gitleaks Secret Detection
+
+  # ============================================================================
+  # Frontend (if applicable)
+  # ============================================================================
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: Frontend ESLint
+        entry: bash -c 'if [ -d "apps/dashboard" ] && [ -f "apps/dashboard/package.json" ]; then cd apps/dashboard && npm run lint --if-present; fi'
+        language: system
+        files: ^apps/dashboard/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+
+      - id: frontend-typecheck
+        name: Frontend TypeScript Check
+        entry: bash -c 'if [ -d "apps/dashboard" ] && [ -f "apps/dashboard/tsconfig.json" ]; then cd apps/dashboard && npx tsc --noEmit; fi'
+        language: system
+        files: ^apps/dashboard/.*\.(ts|tsx)$
+        pass_filenames: false
+
+# ============================================================================
+# Configuration
+# ============================================================================
+default_language_version:
+  python: python3
+
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

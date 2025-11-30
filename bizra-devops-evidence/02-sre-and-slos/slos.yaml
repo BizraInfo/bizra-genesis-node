@@ -1,0 +1,160 @@
+# BIZRA Genesis Node - Service Level Objectives
+# Evidence for: SRE-001, SRE-002
+
+apiVersion: sloth.slok.dev/v1
+kind: PrometheusServiceLevel
+metadata:
+  name: bizra-genesis-node
+  namespace: production
+spec:
+  service: "bizra-genesis-node"
+  labels:
+    team: "platform"
+    tier: "critical"
+
+  slos:
+    # =========================================================================
+    # AVAILABILITY SLO - 99.95% (21.6 minutes/month error budget)
+    # =========================================================================
+    - name: "availability"
+      objective: 99.95
+      description: "API availability - requests successfully served"
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(http_requests_total{
+              service="bizra-api",
+              status=~"5.."
+            }[{{.window}}]))
+          totalQuery: |
+            sum(rate(http_requests_total{
+              service="bizra-api"
+            }[{{.window}}]))
+      alerting:
+        name: "BizraAvailabilitySLO"
+        labels:
+          severity: "critical"
+          team: "platform"
+        annotations:
+          summary: "Availability SLO at risk"
+          runbook: "https://docs.bizra.ai/runbooks/availability"
+        pageAlert:
+          labels:
+            severity: "critical"
+        ticketAlert:
+          labels:
+            severity: "warning"
+
+    # =========================================================================
+    # LATENCY SLO - P95 < 500ms
+    # =========================================================================
+    - name: "latency-p95"
+      objective: 99.0
+      description: "95th percentile latency under 500ms"
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(http_request_duration_seconds_bucket{
+              service="bizra-api",
+              le="0.5"
+            }[{{.window}}])) -
+            sum(rate(http_request_duration_seconds_bucket{
+              service="bizra-api",
+              le="+Inf"
+            }[{{.window}}]))
+          totalQuery: |
+            sum(rate(http_request_duration_seconds_count{
+              service="bizra-api"
+            }[{{.window}}]))
+      alerting:
+        name: "BizraLatencyP95SLO"
+        labels:
+          severity: "warning"
+        annotations:
+          summary: "P95 latency SLO breach"
+          runbook: "https://docs.bizra.ai/runbooks/latency"
+
+    # =========================================================================
+    # LATENCY SLO - P99 < 1000ms
+    # =========================================================================
+    - name: "latency-p99"
+      objective: 99.0
+      description: "99th percentile latency under 1000ms"
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(http_request_duration_seconds_bucket{
+              service="bizra-api",
+              le="1.0"
+            }[{{.window}}])) -
+            sum(rate(http_request_duration_seconds_bucket{
+              service="bizra-api",
+              le="+Inf"
+            }[{{.window}}]))
+          totalQuery: |
+            sum(rate(http_request_duration_seconds_count{
+              service="bizra-api"
+            }[{{.window}}]))
+
+    # =========================================================================
+    # THROUGHPUT SLO - > 1000 RPS sustained
+    # =========================================================================
+    - name: "throughput"
+      objective: 99.0
+      description: "System handles 1000+ requests per second"
+      sli:
+        raw:
+          errorRatioQuery: |
+            (
+              1000 -
+              sum(rate(http_requests_total{service="bizra-api"}[{{.window}}]))
+            ) / 1000
+
+    # =========================================================================
+    # ERROR RATE SLO - < 1% 5xx errors
+    # =========================================================================
+    - name: "error-rate"
+      objective: 99.0
+      description: "Less than 1% server errors"
+      sli:
+        events:
+          errorQuery: |
+            sum(rate(http_requests_total{
+              service="bizra-api",
+              status=~"5.."
+            }[{{.window}}]))
+          totalQuery: |
+            sum(rate(http_requests_total{
+              service="bizra-api"
+            }[{{.window}}]))
+
+---
+# =========================================================================
+# SLO SUMMARY TABLE
+# =========================================================================
+# | SLO Name      | Target  | Window | Error Budget/Month |
+# |---------------|---------|--------|-------------------|
+# | Availability  | 99.95%  | 30d    | 21.6 minutes      |
+# | Latency P95   | 99.0%   | 30d    | 7.2 hours         |
+# | Latency P99   | 99.0%   | 30d    | 7.2 hours         |
+# | Throughput    | 99.0%   | 30d    | 7.2 hours         |
+# | Error Rate    | 99.0%   | 30d    | 7.2 hours         |
+# =========================================================================
+
+# =========================================================================
+# ENFORCEMENT POLICY
+# =========================================================================
+# CI/CD Gates (enforced at deploy time):
+#   - P95 latency < 500ms (BLOCKING)
+#   - P99 latency < 1000ms (WARNING)
+#   - Error rate < 1% (BLOCKING)
+#
+# Runtime Alerts:
+#   - Fast burn: 14.4x consumption (page immediately)
+#   - Slow burn: 6x consumption (page after 1 hour)
+#
+# Error Budget Policy:
+#   - > 75% consumed: Deploy freeze
+#   - > 90% consumed: Incident response mode
+#   - 100% consumed: All changes require director approval
+# =========================================================================
