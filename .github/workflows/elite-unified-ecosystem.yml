@@ -30,10 +30,11 @@ on:
         default: false
   repository_dispatch:
     types: [unified-ecosystem-update, ecosystem-deploy, performance-regression]
-  workflow_run:
-    workflows: ["*"]
-    types: [completed]
-    branches: [main]
+  # DISABLED: workflow_run with ["*"] causes infinite loop and billing exhaustion
+  # workflow_run:
+  #   workflows: ["*"]
+  #   types: [completed]
+  #   branches: [main]
 
 env:
   NODE_VERSION: '18.19.0'
