@@ -192,10 +192,18 @@ export function PremiumDashboard() {
               <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
               LIVE
             </span>
-            <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <button 
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              aria-label="Notifications"
+              title="Notifications"
+            >
               <Bell className="w-5 h-5 text-gray-400" />
             </button>
-            <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <button 
+              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              aria-label="Settings"
+              title="Settings"
+            >
               <Settings className="w-5 h-5 text-gray-400" />
             </button>
           </div>

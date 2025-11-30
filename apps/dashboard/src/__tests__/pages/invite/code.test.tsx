@@ -8,10 +8,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import InviteAcceptancePage from '../../../pages/invite/[code]';
-import * as inviteService from '../../../services/invite';
+import { inviteService } from '../../../services/invite';
 
-// Mock the invite service
-jest.mock('../../../services/invite');
+// Mock the invite service instance methods
+jest.mock('../../../services/invite', () => ({
+  inviteService: {
+    validateInvite: jest.fn(),
+    acceptInvite: jest.fn(),
+  },
+  InviteService: jest.fn(),
+}));
 
 // Mock CSS files
 jest.mock('../../../styles/invite.css', () => ({}));
