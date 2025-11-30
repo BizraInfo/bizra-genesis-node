@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "name": "bizra-genesis",
   "framework": "nextjs",
   "buildCommand": "cd apps/dashboard && npm install && npm run build",
   "outputDirectory": "apps/dashboard/.next",
@@ -76,7 +75,5 @@
     "autoAlias": true,
     "autoJobCancelation": true,
     "silent": false
-  },
-
-  "regions": ["iad1", "sfo1", "cdg1"]
+  }
 }

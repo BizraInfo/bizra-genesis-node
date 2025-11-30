@@ -1,0 +1,78 @@
+# Rust build artifacts
+target/
+
+# Node dependencies
+node_modules/
+**/node_modules/
+
+# Git
+.git/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Build artifacts
+dist/
+build/
+.next/
+**/.next/
+out/
+
+# Test and coverage
+coverage/
+*.test.*
+__tests__/
+
+# Development tools
+k6-v0.48.0-windows-amd64/
+k6/
+load-tests/
+benches/
+
+# Archives and backups
+_archive_noise/
+backups/
+*.tar.gz
+*.zip
+
+# Logs
+logs/
+*.log
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Large directories not needed for deployment
+BIZRA_DEVOPS_EVIDENCE/
+bizra-devops-evidence/
+technical folder/
+TASKMASTER_ELITE/
+.taskmaster/
+evidence/
+artifacts/
+
+# Documentation
+docs/
+*.md
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+
+# Rust files (backend only - not needed for Vercel frontend)
+*.rs
+Cargo.toml
+Cargo.lock
+rust-env.txt
+
+# Vercel folder
+.vercel/
