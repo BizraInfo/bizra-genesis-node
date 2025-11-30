@@ -1,56 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "name": "bizra-genesis-node",
-  "buildCommand": "npm run build:dashboard && npm run build:landing",
-  "outputDirectory": "apps/dashboard/dist",
+  "name": "bizra-genesis",
+  "framework": "nextjs",
+  "buildCommand": "cd apps/dashboard && npm install && npm run build",
+  "outputDirectory": "apps/dashboard/.next",
   "installCommand": "npm install",
-
-  "builds": [
-    {
-      "src": "apps/dashboard/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "apps/landing/index.html",
-      "use": "@vercel/static"
-    }
-  ],
-
-  "routes": [
-    {
-      "src": "/landing/(.*)",
-      "dest": "/apps/landing/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "https://api.bizra.ai/$1"
-    },
-    {
-      "src": "/ws",
-      "dest": "https://api.bizra.ai/ws"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/apps/dashboard/dist/$1"
-    }
-  ],
+  "devCommand": "cd apps/dashboard && npm run dev",
 
   "rewrites": [
     {
       "source": "/api/:path*",
       "destination": "https://api.bizra.ai/:path*"
-    },
-    {
-      "source": "/landing",
-      "destination": "/apps/landing/index.html"
-    },
-    {
-      "source": "/",
-      "destination": "/apps/dashboard/dist/index.html"
     }
   ],
 
@@ -60,7 +21,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://bizra.ai"
+          "value": "https://bizra.info"
         },
         {
           "key": "Access-Control-Allow-Methods",
@@ -94,14 +55,19 @@
         {
           "key": "Permissions-Policy",
           "value": "geolocation=(), microphone=(), camera=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.bizra.ai wss://api.bizra.ai"
         }
       ]
     }
   ],
 
   "env": {
-    "VITE_API_URL": "https://api.bizra.ai",
-    "VITE_WS_URL": "wss://api.bizra.ai/ws",
+    "NEXT_PUBLIC_API_URL": "https://api.bizra.info",
+    "NEXT_PUBLIC_WS_URL": "wss://api.bizra.info/ws",
+    "NEXT_PUBLIC_APP_URL": "https://bizra.info",
     "NODE_ENV": "production"
   },
 
@@ -112,12 +78,5 @@
     "silent": false
   },
 
-  "regions": ["iad1"],
-
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 30
-    }
-  }
+  "regions": ["iad1", "sfo1", "cdg1"]
 }
