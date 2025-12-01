@@ -7,10 +7,10 @@ use anyhow::Result;
 use std::env;
 
 // Import the actual crate modules - adjust these paths as needed
-use bizra_genesis_node::SynthesisOrchestrator;
 use bizra_genesis_node::models::{
     AnthropicProvider, CompletionOptions, ModelProvider, OllamaProvider, OpenAIProvider,
 };
+use bizra_genesis_node::SynthesisOrchestrator;
 
 /// Environment detection utilities for conditional test execution
 fn has_env_var(key: &str) -> bool {

@@ -56,9 +56,8 @@ pub fn create_router(
     ));
 
     // Initialize Circuit Breaker Registry
-    let circuit_breaker_registry = Arc::new(
-        crate::middleware::circuit_breaker::CircuitBreakerRegistry::new(),
-    );
+    let circuit_breaker_registry =
+        Arc::new(crate::middleware::circuit_breaker::CircuitBreakerRegistry::new());
 
     // Create auth routes (these have their own rate limiting)
     let auth_routes = Router::new()
@@ -80,12 +79,18 @@ pub fn create_router(
     // Create alpha invite routes (existing system)
     let alpha_routes = Router::new()
         .route("/alpha/request", post(alpha_invites::request_alpha_access))
-        .route("/alpha/invite/:code", post(alpha_invites::accept_alpha_invite));
+        .route(
+            "/alpha/invite/:code",
+            post(alpha_invites::accept_alpha_invite),
+        );
 
     // Create invite management routes (manual admin creation)
     let invite_routes = Router::new()
         .route("/admin/invites", post(invites::create_invite_handler))
-        .route("/invite/:code/validate", get(invites::validate_invite_handler))
+        .route(
+            "/invite/:code/validate",
+            get(invites::validate_invite_handler),
+        )
         .route("/invite/:code/accept", post(invites::accept_invite_handler));
 
     // Create telemetry routes (Glass Cockpit endpoints)
@@ -113,27 +118,33 @@ pub fn create_router(
 
     // Add extensions for middleware access
     router
-        .layer(axum::middleware::from_fn(move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
-            let pool = pool.clone();
-            async move {
-                req.extensions_mut().insert(pool);
-                next.run(req).await
-            }
-        }))
-        .layer(axum::middleware::from_fn(move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
-            let metrics = metrics.clone();
-            async move {
-                req.extensions_mut().insert(metrics);
-                next.run(req).await
-            }
-        }))
-        .layer(axum::middleware::from_fn(move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
-            let telemetry_collector = telemetry_collector.clone();
-            async move {
-                req.extensions_mut().insert(telemetry_collector);
-                next.run(req).await
-            }
-        }))
+        .layer(axum::middleware::from_fn(
+            move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
+                let pool = pool.clone();
+                async move {
+                    req.extensions_mut().insert(pool);
+                    next.run(req).await
+                }
+            },
+        ))
+        .layer(axum::middleware::from_fn(
+            move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
+                let metrics = metrics.clone();
+                async move {
+                    req.extensions_mut().insert(metrics);
+                    next.run(req).await
+                }
+            },
+        ))
+        .layer(axum::middleware::from_fn(
+            move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
+                let telemetry_collector = telemetry_collector.clone();
+                async move {
+                    req.extensions_mut().insert(telemetry_collector);
+                    next.run(req).await
+                }
+            },
+        ))
 }
 
 #[cfg(test)]

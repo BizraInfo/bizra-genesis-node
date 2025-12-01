@@ -225,7 +225,7 @@ async fn handle_ping(message: WebSocketMessage) -> WsResult<Option<WebSocketMess
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Route agent message to appropriate handler in the 72-agent AEGIS system
-/// 
+///
 /// Agent categories:
 /// - PAT (Personal Agentic Team): 7 agents for user-facing tasks
 /// - SAT (System Agentic Team): 5 agents for system operations
@@ -234,76 +234,71 @@ async fn route_to_agent(msg: &AgentMessage, user_id: &str) -> Result<String, Str
     // Parse agent category from agent_id (format: "category.agent_name")
     let parts: Vec<&str> = msg.agent_id.split('.').collect();
     let category = parts.first().unwrap_or(&"general");
-    
+
     match *category {
         // Personal Agentic Team - User-facing agents
-        "pat" | "personal" => {
-            route_pat_agent(&msg.agent_id, &msg.content, user_id).await
-        }
+        "pat" | "personal" => route_pat_agent(&msg.agent_id, &msg.content, user_id).await,
         // System Agentic Team - System operations
-        "sat" | "system" => {
-            route_sat_agent(&msg.agent_id, &msg.content).await
-        }
+        "sat" | "system" => route_sat_agent(&msg.agent_id, &msg.content).await,
         // Financial agents
-        "finance" | "financial" => {
-            Ok(format!("[Finance Agent] Processing request for user {}: {}", 
-                user_id, &msg.content[..std::cmp::min(100, msg.content.len())]))
-        }
+        "finance" | "financial" => Ok(format!(
+            "[Finance Agent] Processing request for user {}: {}",
+            user_id,
+            &msg.content[..std::cmp::min(100, msg.content.len())]
+        )),
         // Knowledge/RAG agents
-        "knowledge" | "rag" => {
-            Ok(format!("[Knowledge Agent] Querying knowledge base: {}", 
-                &msg.content[..std::cmp::min(100, msg.content.len())]))
-        }
+        "knowledge" | "rag" => Ok(format!(
+            "[Knowledge Agent] Querying knowledge base: {}",
+            &msg.content[..std::cmp::min(100, msg.content.len())]
+        )),
         // Default: Echo with routing info
-        _ => {
-            Ok(format!("[AEGIS Router] Agent '{}' acknowledged for user '{}': {}", 
-                msg.agent_id, user_id, &msg.content[..std::cmp::min(100, msg.content.len())]))
-        }
+        _ => Ok(format!(
+            "[AEGIS Router] Agent '{}' acknowledged for user '{}': {}",
+            msg.agent_id,
+            user_id,
+            &msg.content[..std::cmp::min(100, msg.content.len())]
+        )),
     }
 }
 
 /// Route to Personal Agentic Team agents
 async fn route_pat_agent(agent_id: &str, content: &str, user_id: &str) -> Result<String, String> {
     let agent_name = agent_id.split('.').nth(1).unwrap_or("assistant");
-    
+
     match agent_name {
-        "assistant" | "general" => {
-            Ok(format!("[PAT Assistant] Hello {}! I received: {}", 
-                user_id, &content[..std::cmp::min(200, content.len())]))
-        }
-        "scheduler" => {
-            Ok(format!("[PAT Scheduler] Scheduling request received: {}", 
-                &content[..std::cmp::min(200, content.len())]))
-        }
-        "analyst" => {
-            Ok(format!("[PAT Analyst] Analysis request queued: {}", 
-                &content[..std::cmp::min(200, content.len())]))
-        }
-        _ => {
-            Ok(format!("[PAT {}] Request acknowledged: {}", 
-                agent_name, &content[..std::cmp::min(200, content.len())]))
-        }
+        "assistant" | "general" => Ok(format!(
+            "[PAT Assistant] Hello {}! I received: {}",
+            user_id,
+            &content[..std::cmp::min(200, content.len())]
+        )),
+        "scheduler" => Ok(format!(
+            "[PAT Scheduler] Scheduling request received: {}",
+            &content[..std::cmp::min(200, content.len())]
+        )),
+        "analyst" => Ok(format!(
+            "[PAT Analyst] Analysis request queued: {}",
+            &content[..std::cmp::min(200, content.len())]
+        )),
+        _ => Ok(format!(
+            "[PAT {}] Request acknowledged: {}",
+            agent_name,
+            &content[..std::cmp::min(200, content.len())]
+        )),
     }
 }
 
 /// Route to System Agentic Team agents
 async fn route_sat_agent(agent_id: &str, content: &str) -> Result<String, String> {
     let agent_name = agent_id.split('.').nth(1).unwrap_or("monitor");
-    
+
     match agent_name {
-        "monitor" | "health" => {
-            Ok("[SAT Monitor] System health check initiated".to_string())
-        }
-        "security" => {
-            Ok("[SAT Security] Security scan queued".to_string())
-        }
-        "orchestrator" => {
-            Ok(format!("[SAT Orchestrator] Orchestration command received: {}", 
-                &content[..std::cmp::min(100, content.len())]))
-        }
-        _ => {
-            Ok(format!("[SAT {}] System request acknowledged", agent_name))
-        }
+        "monitor" | "health" => Ok("[SAT Monitor] System health check initiated".to_string()),
+        "security" => Ok("[SAT Security] Security scan queued".to_string()),
+        "orchestrator" => Ok(format!(
+            "[SAT Orchestrator] Orchestration command received: {}",
+            &content[..std::cmp::min(100, content.len())]
+        )),
+        _ => Ok(format!("[SAT {}] System request acknowledged", agent_name)),
     }
 }
 

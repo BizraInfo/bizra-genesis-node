@@ -196,10 +196,8 @@ impl ConsensusSnr {
         }
 
         let mean = values.iter().sum::<f32>() / values.len() as f32;
-        let variance = values
-            .iter()
-            .map(|x| (x - mean).powi(2))
-            .sum::<f32>() / (values.len() - 1) as f32; // Sample standard deviation
+        let variance =
+            values.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / (values.len() - 1) as f32; // Sample standard deviation
 
         variance.sqrt()
     }
@@ -273,7 +271,10 @@ impl AgentSnr {
         efficiency_scores: &[f32],
         reliability_scores: &[f32],
     ) -> SnrResult {
-        if accuracy_scores.is_empty() || efficiency_scores.is_empty() || reliability_scores.is_empty() {
+        if accuracy_scores.is_empty()
+            || efficiency_scores.is_empty()
+            || reliability_scores.is_empty()
+        {
             return SnrResult {
                 snr: 0.0,
                 signal: 0.0,
@@ -286,7 +287,8 @@ impl AgentSnr {
         // Combined signal is weighted average of dimensions
         let accuracy_avg = accuracy_scores.iter().sum::<f32>() / accuracy_scores.len() as f32;
         let efficiency_avg = efficiency_scores.iter().sum::<f32>() / efficiency_scores.len() as f32;
-        let reliability_avg = reliability_scores.iter().sum::<f32>() / reliability_scores.len() as f32;
+        let reliability_avg =
+            reliability_scores.iter().sum::<f32>() / reliability_scores.len() as f32;
 
         // Weighted composite signal (prioritize accuracy, then reliability, then efficiency)
         let signal = (accuracy_avg * 0.5) + (reliability_avg * 0.3) + (efficiency_avg * 0.2);
@@ -303,7 +305,8 @@ impl AgentSnr {
         let category = SnrCategory::from_snr(snr);
 
         // Lower confidence due to multiple dimensions
-        let min_sample_size = accuracy_scores.len()
+        let min_sample_size = accuracy_scores
+            .len()
             .min(efficiency_scores.len())
             .min(reliability_scores.len());
         let confidence = ((min_sample_size as f32 / 15.0) * 0.9).min(0.85).max(0.2);
@@ -394,7 +397,11 @@ impl SystemSnr {
         let snr = signal / noise;
         let category = SnrCategory::from_snr(snr);
 
-        let confidence = if historical_values.len() >= 10 { 0.9 } else { 0.7 };
+        let confidence = if historical_values.len() >= 10 {
+            0.9
+        } else {
+            0.7
+        };
 
         SnrResult {
             snr,
@@ -440,7 +447,12 @@ impl SnrStats {
         let mut category_distribution = HashMap::new();
         let total_count = measurements.len() as f32;
 
-        for &category in &[SnrCategory::Poor, SnrCategory::Fair, SnrCategory::Good, SnrCategory::Excellent] {
+        for &category in &[
+            SnrCategory::Poor,
+            SnrCategory::Fair,
+            SnrCategory::Good,
+            SnrCategory::Excellent,
+        ] {
             let count = measurements
                 .iter()
                 .filter(|m| m.category == category)
@@ -571,7 +583,10 @@ mod tests {
         assert!(snr.snr > 10.0);
 
         // Should be in good or excellent category
-        assert!(matches!(snr.category, SnrCategory::Good | SnrCategory::Excellent));
+        assert!(matches!(
+            snr.category,
+            SnrCategory::Good | SnrCategory::Excellent
+        ));
 
         // Average should be around 0.95
         assert!((snr.signal - 0.946).abs() < 0.01);
@@ -603,7 +618,8 @@ mod tests {
         let efficiency = &[0.88, 0.85, 0.87, 0.86];
         let reliability = &[0.95, 0.93, 0.96, 0.92];
 
-        let snr = AgentSnr::calculate_multidimensional_reliability(accuracy, efficiency, reliability);
+        let snr =
+            AgentSnr::calculate_multidimensional_reliability(accuracy, efficiency, reliability);
 
         // Should combine all three dimensions
         assert!(snr.snr > 1.0);
@@ -627,7 +643,10 @@ mod tests {
 
         // Low uptime, high errors = poor SNR
         assert!(poor_snr.snr < 10.0);
-        assert!(matches!(poor_snr.category, SnrCategory::Poor | SnrCategory::Fair));
+        assert!(matches!(
+            poor_snr.category,
+            SnrCategory::Poor | SnrCategory::Fair
+        ));
     }
 
     #[test]
@@ -642,12 +661,21 @@ mod tests {
         // Signal is 1.0 (meeting target), noise is std_dev of historical (~0.16)
         // SNR = 1.0 / 0.16 ≈ 6.25 → Fair category
         assert!(snr.snr > 0.0, "Should produce valid SNR, got {}", snr.snr);
-        assert!(snr.signal == 1.0, "Should show full compliance when exceeding target");
+        assert!(
+            snr.signal == 1.0,
+            "Should show full compliance when exceeding target"
+        );
 
         // Poor SLO performance (below target)
         let poor_snr = SystemSnr::calculate_slo_snr(95.0, 99.5, historical);
-        assert!(poor_snr.signal < 1.0, "Should show partial compliance when below target");
-        assert!(poor_snr.snr < snr.snr, "Should have lower SNR than compliant");
+        assert!(
+            poor_snr.signal < 1.0,
+            "Should show partial compliance when below target"
+        );
+        assert!(
+            poor_snr.snr < snr.snr,
+            "Should have lower SNR than compliant"
+        );
     }
 
     #[test]
@@ -672,7 +700,10 @@ mod tests {
         // Should detect trend (could be stable or other)
         assert!(matches!(
             stats.trend,
-            SnrTrend::Stable | SnrTrend::Improving | SnrTrend::Worsening | SnrTrend::InsufficientData
+            SnrTrend::Stable
+                | SnrTrend::Improving
+                | SnrTrend::Worsening
+                | SnrTrend::InsufficientData
         ));
     }
 

@@ -80,7 +80,10 @@ mod auth_error_tests {
             format!("{}", AuthError::MissingToken),
             "Missing authentication token"
         );
-        assert_eq!(format!("{}", AuthError::InvalidToken), "Invalid or malformed token");
+        assert_eq!(
+            format!("{}", AuthError::InvalidToken),
+            "Invalid or malformed token"
+        );
         assert_eq!(format!("{}", AuthError::ExpiredToken), "Token has expired");
     }
 
@@ -146,11 +149,7 @@ mod test_jwt_generation_tests {
 
     #[test]
     fn test_generate_valid_claims() {
-        let claims = TestClaims::valid(
-            "user-123",
-            "test@example.com",
-            "alpha-100",
-        );
+        let claims = TestClaims::valid("user-123", "test@example.com", "alpha-100");
 
         assert_eq!(claims.sub, "user-123");
         assert_eq!(claims.email, "test@example.com");

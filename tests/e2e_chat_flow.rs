@@ -102,10 +102,7 @@ async fn e2e_ai_provider_failure_path() {
     let status = response.status();
     if !status.is_success() {
         let body_text = response.text().await.expect("read error response");
-        println!(
-            "⚠️ SAPE processed failure scenario with status: {}",
-            status
-        );
+        println!("⚠️ SAPE processed failure scenario with status: {}", status);
         println!("Error response: {}", body_text);
     } else {
         println!("✅ E2E Failure Path: SAPE handled error scenario gracefully");

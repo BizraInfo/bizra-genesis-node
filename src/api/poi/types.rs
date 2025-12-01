@@ -3,12 +3,12 @@
 // ║  Data structures for impact attestation and verification                   ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 use utoipa::ToSchema;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 use validator::Validate;
-use sqlx::FromRow;
 
 // ╔══════════════════════════════════════════════════════════════════════════
 // DATABASE ENUMS
@@ -230,7 +230,7 @@ mod tests {
         // Invalid domain (too long)
         let invalid = PoiVerifyRequest {
             contributor_id: Uuid::new_v4(),
-            impact_domain: "a".repeat(51),  // 51 > 50 max length
+            impact_domain: "a".repeat(51), // 51 > 50 max length
             raw_score: 85.0,
             weight: 1.2,
             payload_hash: "sha256:d9c9fa504add65a1be737f3fe3447bc056fd1aa".to_string(),
@@ -243,7 +243,7 @@ mod tests {
         let invalid_score = PoiVerifyRequest {
             contributor_id: Uuid::new_v4(),
             impact_domain: "education".to_string(),
-            raw_score: 150.0,  // > 100 max
+            raw_score: 150.0, // > 100 max
             weight: 1.2,
             payload_hash: "sha256:d9c9fa504add65a1be737f3fe3447bc056fd1aa".to_string(),
             signature: "test_b64_signature_ABcdef1234567890ABCDEFghijklmnop".to_string(),
@@ -274,22 +274,18 @@ mod tests {
             total_attestations: 100,
             verified_attestations: 95,
             avg_score: 0.756,
-            by_domain: vec![
-                PoiDomainAggregate {
-                    impact_domain: "education".to_string(),
-                    count: Some(45),
-                    avg_score: Some(0.823),
-                }
-            ],
-            recent_activity: vec![
-                PoiRecentActivity {
-                    contributor_id: Uuid::new_v4(),
-                    impact_domain: "education".to_string(),
-                    normalized_score: 0.89,
-                    status: PoiStatus::Verified,
-                    timestamp: Utc::now(),
-                }
-            ],
+            by_domain: vec![PoiDomainAggregate {
+                impact_domain: "education".to_string(),
+                count: Some(45),
+                avg_score: Some(0.823),
+            }],
+            recent_activity: vec![PoiRecentActivity {
+                contributor_id: Uuid::new_v4(),
+                impact_domain: "education".to_string(),
+                normalized_score: 0.89,
+                status: PoiStatus::Verified,
+                timestamp: Utc::now(),
+            }],
         };
 
         let json = serde_json::to_string(&summary).unwrap();

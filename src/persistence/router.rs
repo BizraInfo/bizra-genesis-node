@@ -300,10 +300,13 @@ mod tests {
         let repo = RouterRepository::new(pool.clone());
 
         // Use unique test model name to avoid state leakage
-        let test_model = format!("test-increment-{}", std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_nanos());
+        let test_model = format!(
+            "test-increment-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        );
 
         // Initialize first
         repo.initialize_model(&test_model, None).await.unwrap();

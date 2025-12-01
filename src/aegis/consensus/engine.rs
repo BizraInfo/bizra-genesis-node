@@ -83,9 +83,7 @@ impl ConsensusEngine for WeightedSelectiveConsensus {
                 async move { agent_clone.spawn_parallel(task_clone, phi_threshold).await }
             })
             .buffer_unordered(MAX_CONCURRENT_AGENTS)
-            .filter_map(|res| async move {
-                res.ok()
-            })
+            .filter_map(|res| async move { res.ok() })
             .collect()
             .await;
 

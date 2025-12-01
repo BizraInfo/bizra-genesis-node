@@ -118,7 +118,9 @@ pub async fn sat_outbox_handler(
         Ok(items) => (StatusCode::OK, Json(ApiResponse::success(items))),
         Err(_) => (
             StatusCode::SERVICE_UNAVAILABLE,
-            Json(ApiResponse::error("Service temporarily unavailable (Circuit Breaker Open)")),
+            Json(ApiResponse::error(
+                "Service temporarily unavailable (Circuit Breaker Open)",
+            )),
         ),
     }
 }
@@ -130,7 +132,10 @@ pub async fn sat_recommendations_handler(
 ) -> impl IntoResponse {
     // Use Circuit Breaker for recommendations service
     let cb = cb_registry
-        .get_or_create("sat_recommendations_service", CircuitBreakerConfig::default())
+        .get_or_create(
+            "sat_recommendations_service",
+            CircuitBreakerConfig::default(),
+        )
         .await;
 
     let result = cb.call(async {
@@ -172,7 +177,9 @@ pub async fn sat_recommendations_handler(
         Ok(recommendations) => (StatusCode::OK, Json(ApiResponse::success(recommendations))),
         Err(_) => (
             StatusCode::SERVICE_UNAVAILABLE,
-            Json(ApiResponse::error("Service temporarily unavailable (Circuit Breaker Open)")),
+            Json(ApiResponse::error(
+                "Service temporarily unavailable (Circuit Breaker Open)",
+            )),
         ),
     }
 }

@@ -95,7 +95,7 @@ async fn cleanup_test_data(pool: &PgPool) -> Result<(), sqlx::Error> {
 #[cfg(feature = "database")]
 mod tests {
     use super::*;
-    use axum::{extract::State, http::StatusCode, Json, Extension};
+    use axum::{extract::State, http::StatusCode, Extension, Json};
     use serde_json::json;
     use std::sync::Arc;
     use validator::Validate;
@@ -193,7 +193,8 @@ mod tests {
                 experience: "Beginner".to_string(),
             };
 
-            let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
+            let result =
+                request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
             assert!(result.is_ok());
         }
 
@@ -457,7 +458,8 @@ mod tests {
                 experience: "Beginner".to_string(),
             };
 
-            let result = request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
+            let result =
+                request_alpha_access(Extension(Arc::new(pool.clone())), Json(request)).await;
             assert!(result.is_ok());
         }
 
@@ -533,11 +535,41 @@ mod tests {
     #[tokio::test]
     async fn test_invite_status_enum() {
         // Test enum variants
-        assert_eq!(serde_json::to_value(&InviteStatus::Pending).unwrap().as_str().unwrap(), "pending");
-        assert_eq!(serde_json::to_value(&InviteStatus::Sent).unwrap().as_str().unwrap(), "sent");
-        assert_eq!(serde_json::to_value(&InviteStatus::Accepted).unwrap().as_str().unwrap(), "accepted");
-        assert_eq!(serde_json::to_value(&InviteStatus::Expired).unwrap().as_str().unwrap(), "expired");
-        assert_eq!(serde_json::to_value(&InviteStatus::Revoked).unwrap().as_str().unwrap(), "revoked");
+        assert_eq!(
+            serde_json::to_value(&InviteStatus::Pending)
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "pending"
+        );
+        assert_eq!(
+            serde_json::to_value(&InviteStatus::Sent)
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "sent"
+        );
+        assert_eq!(
+            serde_json::to_value(&InviteStatus::Accepted)
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "accepted"
+        );
+        assert_eq!(
+            serde_json::to_value(&InviteStatus::Expired)
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "expired"
+        );
+        assert_eq!(
+            serde_json::to_value(&InviteStatus::Revoked)
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            "revoked"
+        );
     }
 
     #[tokio::test]

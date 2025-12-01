@@ -55,7 +55,9 @@ impl GenesisBlock {
                 fairness: 100.0,  // Solidarity
                 diversity: 100.0, // Global Ecosystem
             },
-            seed_hash: blake3::hash(b"BIZRA: From Darkness to Light").to_hex().to_string(),
+            seed_hash: blake3::hash(b"BIZRA: From Darkness to Light")
+                .to_hex()
+                .to_string(),
             token_config: TokenConfig::default(),
         }
     }

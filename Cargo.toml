@@ -58,7 +58,7 @@ tokio-stream = "0.1"
 
 # Database Excellence
 rocksdb = "0.21"
-sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls", "migrate", "uuid", "chrono", "bigdecimal"] }  # Updated from 0.7 to fix RUSTSEC-2024-0363
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "macros", "uuid", "chrono", "bigdecimal"] }
 redis = { version = "1.0.0-rc.4", features = ["tokio-comp", "connection-manager"] }
 
 # Auth & Security

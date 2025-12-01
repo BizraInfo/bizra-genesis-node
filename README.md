@@ -111,6 +111,11 @@ bizra-genesis-node/
 | **Ihsan Quality Gate** | 4-dimensional scoring (accuracy, safety, efficiency, excellence) |
 | **Trust Bridge** | Ed25519 + BLAKE3 cryptographic verification |
 
+### Genesis Package (Node 0)
+- `config/genesis_node.manifest.json`: declares Node 0 (MSI Titan) hardware, datasets, and capabilities.
+- `config/block_zero.json`: Block Zero scaffold (chain ID, genesis keys/capabilities, PoI/token placeholders).
+- `config/model0_stack.json`: Model 0 stack (planner/orchestration/distillation targets).
+
 ---
 
 ## Features

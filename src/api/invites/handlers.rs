@@ -3,19 +3,13 @@
 // ║  API handlers for invite code generation and acceptance                 ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
-use axum::{
-    extract::Path,
-    http::StatusCode,
-    response::IntoResponse,
-    Extension,
-    Json
-};
+use axum::{extract::Path, http::StatusCode, response::IntoResponse, Extension, Json};
+use bcrypt;
 use chrono::{Duration, Utc};
 use serde_json::json;
 use sqlx::PgPool;
 use std::sync::Arc;
 use uuid::Uuid;
-use bcrypt;
 
 use super::models::*;
 
@@ -72,7 +66,10 @@ fn generate_jwt_token(user_id: &str) -> Result<String, (StatusCode, Json<serde_j
     })?;
 
     if secret.len() < 32 {
-        tracing::error!("CRITICAL SECURITY ERROR: JWT_SECRET is only {} characters (minimum: 32)", secret.len());
+        tracing::error!(
+            "CRITICAL SECURITY ERROR: JWT_SECRET is only {} characters (minimum: 32)",
+            secret.len()
+        );
         return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!({
@@ -297,22 +294,20 @@ pub async fn accept_invite_handler(
     }
 
     // Check if user already exists
-    let existing_user = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM users WHERE email = $1"
-    )
-    .bind(&payload.email)
-    .fetch_one(&*pool)
-    .await
-    .map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(InviteError {
-                error: "Database error".to_string(),
-                code: "DB_ERROR".to_string(),
-                details: None,
-            }),
-        )
-    })?;
+    let existing_user = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM users WHERE email = $1")
+        .bind(&payload.email)
+        .fetch_one(&*pool)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(InviteError {
+                    error: "Database error".to_string(),
+                    code: "DB_ERROR".to_string(),
+                    details: None,
+                }),
+            )
+        })?;
 
     if existing_user > 0 {
         return Err((
@@ -326,17 +321,16 @@ pub async fn accept_invite_handler(
     }
 
     // Hash password
-    let password_hash = bcrypt::hash(&payload.password, bcrypt::DEFAULT_COST)
-        .map_err(|_| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(InviteError {
-                    error: "Failed to process password".to_string(),
-                    code: "PASSWORD_HASH_ERROR".to_string(),
-                    details: None,
-                }),
-            )
-        })?;
+    let password_hash = bcrypt::hash(&payload.password, bcrypt::DEFAULT_COST).map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(InviteError {
+                error: "Failed to process password".to_string(),
+                code: "PASSWORD_HASH_ERROR".to_string(),
+                details: None,
+            }),
+        )
+    })?;
 
     // Create user account
     let user_id = Uuid::new_v4().to_string();
@@ -372,14 +366,12 @@ pub async fn accept_invite_handler(
     })?;
 
     // Mark invite as accepted
-    sqlx::query(
-        "UPDATE alpha_invites SET status = 'accepted', accepted_at = $2 WHERE id = $1"
-    )
-    .bind(&invite_data.id)
-    .bind(Utc::now())
-    .execute(&*pool)
-    .await
-    .ok(); // Don't fail if update fails
+    sqlx::query("UPDATE alpha_invites SET status = 'accepted', accepted_at = $2 WHERE id = $1")
+        .bind(&invite_data.id)
+        .bind(Utc::now())
+        .execute(&*pool)
+        .await
+        .ok(); // Don't fail if update fails
 
     // Generate JWT token
     let access_token = match generate_jwt_token(&user_id) {
@@ -389,7 +381,10 @@ pub async fn accept_invite_handler(
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(InviteError {
-                    error: json_response["error"].as_str().unwrap_or("Token generation failed").to_string(),
+                    error: json_response["error"]
+                        .as_str()
+                        .unwrap_or("Token generation failed")
+                        .to_string(),
                     code: "TOKEN_GENERATION_FAILED".to_string(),
                     details: None,
                 }),
@@ -414,9 +409,12 @@ pub async fn accept_invite_handler(
 
 #[cfg(test)]
 mod tests {
+    use super::super::models::{
+        CreateInviteRequest, InviteAcceptanceRequest, InviteEntry, InviteError, InviteStatus,
+        InviteValidationResponse,
+    };
     use super::*;
     use chrono::{DateTime, Duration, Utc};
-    use super::super::models::{InviteEntry, InviteStatus, InviteAcceptanceRequest, InviteValidationResponse, CreateInviteRequest, InviteError};
 
     // -------------------------------------------------------------------------
     // generate_invite_code() Tests
@@ -425,10 +423,14 @@ mod tests {
     #[test]
     fn test_generate_invite_code_format() {
         let code = generate_invite_code();
-        
+
         // Format: XXXX-XXXX-XXXX (14 chars total with hyphens)
-        assert_eq!(code.len(), 14, "Invite code should be 14 characters (12 + 2 hyphens)");
-        
+        assert_eq!(
+            code.len(),
+            14,
+            "Invite code should be 14 characters (12 + 2 hyphens)"
+        );
+
         // Check hyphen positions
         let chars: Vec<char> = code.chars().collect();
         assert_eq!(chars[4], '-', "First hyphen should be at position 4");
@@ -438,14 +440,15 @@ mod tests {
     #[test]
     fn test_generate_invite_code_charset() {
         let code = generate_invite_code();
-        
+
         // Should only contain allowed characters (excluding ambiguous: 0, 1, I, O)
         let allowed_chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789-";
-        
+
         for c in code.chars() {
             assert!(
                 allowed_chars.contains(c),
-                "Character '{}' should be in allowed charset", c
+                "Character '{}' should be in allowed charset",
+                c
             );
         }
     }
@@ -456,23 +459,36 @@ mod tests {
         for _ in 0..100 {
             let code = generate_invite_code();
             let code_without_hyphens: String = code.chars().filter(|&c| c != '-').collect();
-            
-            assert!(!code_without_hyphens.contains('0'), "Code should not contain '0'");
-            assert!(!code_without_hyphens.contains('1'), "Code should not contain '1'");
-            assert!(!code_without_hyphens.contains('I'), "Code should not contain 'I'");
-            assert!(!code_without_hyphens.contains('O'), "Code should not contain 'O'");
-            assert!(!code_without_hyphens.chars().any(|c| c.is_lowercase()), "Code should be uppercase");
+
+            assert!(
+                !code_without_hyphens.contains('0'),
+                "Code should not contain '0'"
+            );
+            assert!(
+                !code_without_hyphens.contains('1'),
+                "Code should not contain '1'"
+            );
+            assert!(
+                !code_without_hyphens.contains('I'),
+                "Code should not contain 'I'"
+            );
+            assert!(
+                !code_without_hyphens.contains('O'),
+                "Code should not contain 'O'"
+            );
+            assert!(
+                !code_without_hyphens.chars().any(|c| c.is_lowercase()),
+                "Code should be uppercase"
+            );
         }
     }
 
     #[test]
     fn test_generate_invite_code_uniqueness() {
         use std::collections::HashSet;
-        
-        let codes: HashSet<String> = (0..100)
-            .map(|_| generate_invite_code())
-            .collect();
-        
+
+        let codes: HashSet<String> = (0..100).map(|_| generate_invite_code()).collect();
+
         // All 100 codes should be unique
         assert_eq!(codes.len(), 100, "All generated codes should be unique");
     }
@@ -481,9 +497,9 @@ mod tests {
     fn test_generate_invite_code_segments() {
         let code = generate_invite_code();
         let segments: Vec<&str> = code.split('-').collect();
-        
+
         assert_eq!(segments.len(), 3, "Code should have 3 segments");
-        
+
         for segment in segments {
             assert_eq!(segment.len(), 4, "Each segment should be 4 characters");
         }
@@ -499,8 +515,11 @@ mod tests {
             InviteStatus::Sent,
             Utc::now() + Duration::days(7), // Expires in 7 days
         );
-        
-        assert!(!invite.is_expired(), "Invite with future expiry should not be expired");
+
+        assert!(
+            !invite.is_expired(),
+            "Invite with future expiry should not be expired"
+        );
     }
 
     #[test]
@@ -509,8 +528,11 @@ mod tests {
             InviteStatus::Sent,
             Utc::now() - Duration::hours(1), // Expired 1 hour ago
         );
-        
-        assert!(invite.is_expired(), "Invite with past expiry should be expired");
+
+        assert!(
+            invite.is_expired(),
+            "Invite with past expiry should be expired"
+        );
     }
 
     #[test]
@@ -519,8 +541,11 @@ mod tests {
             InviteStatus::Sent,
             Utc::now() - Duration::seconds(1), // Expired 1 second ago
         );
-        
-        assert!(invite.is_expired(), "Invite expired 1 second ago should be expired");
+
+        assert!(
+            invite.is_expired(),
+            "Invite expired 1 second ago should be expired"
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -529,11 +554,8 @@ mod tests {
 
     #[test]
     fn test_valid_for_acceptance_sent_not_expired() {
-        let invite = create_test_invite_entry(
-            InviteStatus::Sent,
-            Utc::now() + Duration::days(7),
-        );
-        
+        let invite = create_test_invite_entry(InviteStatus::Sent, Utc::now() + Duration::days(7));
+
         assert!(
             invite.is_valid_for_acceptance(),
             "Sent invite with future expiry should be valid for acceptance"
@@ -542,11 +564,9 @@ mod tests {
 
     #[test]
     fn test_invalid_for_acceptance_already_accepted() {
-        let invite = create_test_invite_entry(
-            InviteStatus::Accepted,
-            Utc::now() + Duration::days(7),
-        );
-        
+        let invite =
+            create_test_invite_entry(InviteStatus::Accepted, Utc::now() + Duration::days(7));
+
         assert!(
             !invite.is_valid_for_acceptance(),
             "Already accepted invite should not be valid for acceptance"
@@ -559,7 +579,7 @@ mod tests {
             InviteStatus::Expired,
             Utc::now() + Duration::days(7), // Status says expired
         );
-        
+
         assert!(
             !invite.is_valid_for_acceptance(),
             "Invite with Expired status should not be valid for acceptance"
@@ -568,11 +588,9 @@ mod tests {
 
     #[test]
     fn test_invalid_for_acceptance_revoked() {
-        let invite = create_test_invite_entry(
-            InviteStatus::Revoked,
-            Utc::now() + Duration::days(7),
-        );
-        
+        let invite =
+            create_test_invite_entry(InviteStatus::Revoked, Utc::now() + Duration::days(7));
+
         assert!(
             !invite.is_valid_for_acceptance(),
             "Revoked invite should not be valid for acceptance"
@@ -581,11 +599,9 @@ mod tests {
 
     #[test]
     fn test_invalid_for_acceptance_pending() {
-        let invite = create_test_invite_entry(
-            InviteStatus::Pending,
-            Utc::now() + Duration::days(7),
-        );
-        
+        let invite =
+            create_test_invite_entry(InviteStatus::Pending, Utc::now() + Duration::days(7));
+
         assert!(
             !invite.is_valid_for_acceptance(),
             "Pending invite should not be valid for acceptance (only Sent is valid)"
@@ -598,7 +614,7 @@ mod tests {
             InviteStatus::Sent,
             Utc::now() - Duration::hours(1), // Expired
         );
-        
+
         assert!(
             !invite.is_valid_for_acceptance(),
             "Sent invite that has expired should not be valid for acceptance"
@@ -619,11 +635,14 @@ mod tests {
             (InviteStatus::Expired, r#""Expired""#),
             (InviteStatus::Revoked, r#""Revoked""#),
         ];
-        
+
         for (status, expected_json) in statuses {
-            let json = serde_json::to_string(&status)
-                .expect("Should serialize status");
-            assert_eq!(json, expected_json, "Status {:?} should serialize to {}", status, expected_json);
+            let json = serde_json::to_string(&status).expect("Should serialize status");
+            assert_eq!(
+                json, expected_json,
+                "Status {:?} should serialize to {}",
+                status, expected_json
+            );
         }
     }
 
@@ -637,10 +656,10 @@ mod tests {
             (r#""Expired""#, InviteStatus::Expired),
             (r#""Revoked""#, InviteStatus::Revoked),
         ];
-        
+
         for (json, expected_status) in test_cases {
-            let status: InviteStatus = serde_json::from_str(json)
-                .expect("Should deserialize status");
+            let status: InviteStatus =
+                serde_json::from_str(json).expect("Should deserialize status");
             assert_eq!(status, expected_status);
         }
     }
@@ -674,10 +693,10 @@ mod tests {
             "password": "SecurePassword123!",
             "full_name": "Test User"
         }"#;
-        
-        let request: InviteAcceptanceRequest = 
+
+        let request: InviteAcceptanceRequest =
             serde_json::from_str(json).expect("Should deserialize");
-        
+
         assert_eq!(request.invite_code, "ABCD-EFGH-IJKL");
         assert_eq!(request.email, "test@example.com");
         assert_eq!(request.password, "SecurePassword123!");
@@ -693,7 +712,7 @@ mod tests {
             email: "test@example.com".to_string(),
             inviter_notes: Some("Welcome to BIZRA!".to_string()),
         };
-        
+
         let json = serde_json::to_string(&response).expect("Should serialize");
         assert!(json.contains(r#""valid":true"#));
         assert!(json.contains(r#""status":"sent""#));
@@ -708,10 +727,9 @@ mod tests {
             "inviter_id": "admin-123",
             "notes": "VIP invite"
         }"#;
-        
-        let request: CreateInviteRequest = 
-            serde_json::from_str(json).expect("Should deserialize");
-        
+
+        let request: CreateInviteRequest = serde_json::from_str(json).expect("Should deserialize");
+
         assert_eq!(request.email, "newuser@example.com");
         assert_eq!(request.inviter_id, Some("admin-123".to_string()));
         assert_eq!(request.notes, Some("VIP invite".to_string()));
@@ -720,10 +738,9 @@ mod tests {
     #[test]
     fn test_create_invite_request_minimal() {
         let json = r#"{"email": "user@example.com"}"#;
-        
-        let request: CreateInviteRequest = 
-            serde_json::from_str(json).expect("Should deserialize");
-        
+
+        let request: CreateInviteRequest = serde_json::from_str(json).expect("Should deserialize");
+
         assert_eq!(request.email, "user@example.com");
         assert!(request.inviter_id.is_none());
         assert!(request.notes.is_none());
@@ -736,7 +753,7 @@ mod tests {
             code: "INVALID_INVITE".to_string(),
             details: Some(serde_json::json!({"hint": "Check the code format"})),
         };
-        
+
         let json = serde_json::to_string(&error).expect("Should serialize");
         assert!(json.contains(r#""error":"Invalid invite code""#));
         assert!(json.contains(r#""code":"INVALID_INVITE""#));

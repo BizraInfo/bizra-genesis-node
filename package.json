@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "BIZRA Genesis Node - Professional Elite multi-agent consensus system",
   "type": "module",
-  "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
     "test": "cd apps/dashboard && npm test",

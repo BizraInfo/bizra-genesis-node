@@ -4,7 +4,7 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use async_trait::async_trait;
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
+use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
 use ring::signature::{UnparsedPublicKey, ED25519};
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -84,11 +84,13 @@ impl PoiSignatureVerifier for DatabasePoiVerifier {
             .ok_or(PoiVerificationError::InvalidPublicKey)?;
 
         // 2. Decode base64 signature
-        let signature_bytes = BASE64_STANDARD.decode(signature_b64)
+        let signature_bytes = BASE64_STANDARD
+            .decode(signature_b64)
             .map_err(|_| PoiVerificationError::SignatureVerificationFailed)?;
 
         // 3. Decode base64 public key
-        let public_key_bytes = BASE64_STANDARD.decode(public_key_b64)
+        let public_key_bytes = BASE64_STANDARD
+            .decode(public_key_b64)
             .map_err(|_| PoiVerificationError::InvalidPublicKey)?;
 
         // 4. Verify Ed25519 signature
@@ -260,7 +262,10 @@ mod tests {
         let public_key = UnparsedPublicKey::new(&ED25519, &public_key_b);
         let result = public_key.verify(payload, signature_from_a.as_ref());
 
-        assert!(result.is_err(), "Signature from different key should be rejected");
+        assert!(
+            result.is_err(),
+            "Signature from different key should be rejected"
+        );
     }
 
     /// Tests that a tampered payload fails verification
@@ -360,7 +365,10 @@ mod tests {
         let public_key = UnparsedPublicKey::new(&ED25519, &decoded_pk);
         let result = public_key.verify(payload, &decoded_sig);
 
-        assert!(result.is_ok(), "Base64 roundtrip should preserve signature validity");
+        assert!(
+            result.is_ok(),
+            "Base64 roundtrip should preserve signature validity"
+        );
     }
 
     /// Security test: Verifies that a 44+ char random string is NOT accepted as valid
@@ -377,7 +385,10 @@ mod tests {
         let public_key = UnparsedPublicKey::new(&ED25519, &public_key_bytes);
         let result = public_key.verify(payload, &fake_signature);
 
-        assert!(result.is_err(), "Arbitrary 64-byte string should NOT be accepted as valid signature");
+        assert!(
+            result.is_err(),
+            "Arbitrary 64-byte string should NOT be accepted as valid signature"
+        );
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

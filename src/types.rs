@@ -645,25 +645,25 @@ mod tests {
         assert_eq!(deserialized.accuracy, 0.9);
     }
 
-#[test]
-fn test_scored_candidate_creation() {
-    let candidate = Candidate::example();
-    let scores = CandidateScores {
-        accuracy: 0.9,
-        safety: 0.95,
-        efficiency: 0.85,
-        ihsan: 0.9,
-        snr: None,
-    };
+    #[test]
+    fn test_scored_candidate_creation() {
+        let candidate = Candidate::example();
+        let scores = CandidateScores {
+            accuracy: 0.9,
+            safety: 0.95,
+            efficiency: 0.85,
+            ihsan: 0.9,
+            snr: None,
+        };
 
-    let scored = ScoredCandidate {
-        candidate: candidate.clone(),
-        scores: scores.clone(),
-    };
+        let scored = ScoredCandidate {
+            candidate: candidate.clone(),
+            scores: scores.clone(),
+        };
 
-    assert_eq!(scored.candidate.model, "model-1");
-    assert_eq!(scored.scores.accuracy, 0.9);
-}
+        assert_eq!(scored.candidate.model, "model-1");
+        assert_eq!(scored.scores.accuracy, 0.9);
+    }
 
     #[test]
     fn test_consensus_config_default() {

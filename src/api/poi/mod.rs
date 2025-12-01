@@ -80,7 +80,6 @@ pub fn poi_router() -> Router<PoiAppState> {
 // ╔══════════════════════════════════════════════════════════════════════════
 // TRACING & OBSERVABILITY - ECONOMIC IMPACT TRACKING
 // ╔══════════════════════════════════════════════════════════════════════════
-
 #[instrument(
     skip(state, body),
     fields(
@@ -122,13 +121,13 @@ pub async fn verify_poi(
                 Json(serde_json::json!({
                     "error": "Rate limit exceeded",
                     "message": "Too many attestation requests"
-                }))
+                })),
             ),
             AttestationRateLimitError::BackendError(_) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(serde_json::json!({
                     "error": "Rate limiter error"
-                }))
+                })),
             ),
         })?;
 
@@ -195,7 +194,8 @@ pub async fn verify_poi(
     .map_err(|e| {
         // Handle unique constraint violation for duplicate payload_hash
         if let sqlx::Error::Database(ref db_err) = e {
-            if db_err.code().as_deref() == Some("23505") { // PostgreSQL unique_violation
+            if db_err.code().as_deref() == Some("23505") {
+                // PostgreSQL unique_violation
                 return (
                     StatusCode::CONFLICT,
                     Json(serde_json::json!({

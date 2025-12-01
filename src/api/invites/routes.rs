@@ -7,8 +7,8 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use std::sync::Arc;
 use sqlx::PgPool;
+use std::sync::Arc;
 
 use super::handlers::*;
 

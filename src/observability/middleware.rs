@@ -2,11 +2,7 @@
 //!
 //! Middleware for tracking HTTP request metrics.
 
-use axum::{
-    extract::Request,
-    middleware::Next,
-    response::Response,
-};
+use axum::{extract::Request, middleware::Next, response::Response};
 use std::time::Instant;
 
 /// Middleware to track HTTP request duration and count

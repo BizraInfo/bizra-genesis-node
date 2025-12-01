@@ -2,8 +2,8 @@
 //!
 //! HTTP endpoints for metrics export and health checking.
 
-use axum::{response::IntoResponse, http::StatusCode};
 use crate::observability::metrics::global_handle;
+use axum::{http::StatusCode, response::IntoResponse};
 
 /// Prometheus metrics endpoint handler
 ///

@@ -39,8 +39,7 @@ impl InviteEntry {
 
     /// Check if invite is valid for acceptance
     pub fn is_valid_for_acceptance(&self) -> bool {
-        matches!(self.status, InviteStatus::Sent)
-            && !self.is_expired()
+        matches!(self.status, InviteStatus::Sent) && !self.is_expired()
     }
 }
 

@@ -9,8 +9,8 @@
 
 use axum::http::StatusCode;
 use axum_test::TestServer;
-use bizra_genesis_node::{
-    api::{create_router, metrics::MetricsCollector, telemetry::TelemetryCollector},
+use bizra_genesis_node::api::{
+    create_router, metrics::MetricsCollector, telemetry::TelemetryCollector,
 };
 use serde_json::json;
 use sqlx::PgPool;

@@ -216,10 +216,7 @@ async fn reward_distribution_conservative_and_idempotent() {
     let mut share_sum = BigDecimal::from(0);
     for row in &scores {
         share_sum += &row.normalized_share.clone();
-        assert_eq!(
-            &row.total_score.clone(),
-            &BigDecimal::from(1)
-        );
+        assert_eq!(&row.total_score.clone(), &BigDecimal::from(1));
     }
 
     let diff = (share_sum - BigDecimal::from(1)).abs();

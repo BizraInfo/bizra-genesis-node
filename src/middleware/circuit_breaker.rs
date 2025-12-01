@@ -441,7 +441,11 @@ impl<E: std::fmt::Display> std::fmt::Display for CircuitBreakerError<E> {
                 circuit_name,
                 state,
             } => {
-                write!(f, "Circuit '{}' is {} - request rejected", circuit_name, state)
+                write!(
+                    f,
+                    "Circuit '{}' is {} - request rejected",
+                    circuit_name, state
+                )
             }
             CircuitBreakerError::Inner(e) => write!(f, "{}", e),
         }

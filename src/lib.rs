@@ -594,26 +594,55 @@ mod integration_tests {
         };
 
         // Execute revolutionary performance cycle
-        let result = apex_engine.execute_performance_cycle(&synthesis_input).await;
+        let result = apex_engine
+            .execute_performance_cycle(&synthesis_input)
+            .await;
         assert!(result.is_ok(), "APEX performance cycle should succeed");
 
         let revolutionary_output = result.unwrap();
 
         // Verify revolutionary capability amplification
-        assert!(revolutionary_output.performance_gain >= 1.0, "Performance gain should be positive");
-        assert!(revolutionary_output.quality_improvement >= 0.0, "Quality improvement should be non-negative");
-        assert!(revolutionary_output.cognitive_amplification >= 1.0, "Cognitive amplification should be at least 1.0");
-        assert!(revolutionary_output.revolutionary_capability_multiplier > 1.0, "Revolutionary multiplier should exceed baseline");
+        assert!(
+            revolutionary_output.performance_gain >= 1.0,
+            "Performance gain should be positive"
+        );
+        assert!(
+            revolutionary_output.quality_improvement >= 0.0,
+            "Quality improvement should be non-negative"
+        );
+        assert!(
+            revolutionary_output.cognitive_amplification >= 1.0,
+            "Cognitive amplification should be at least 1.0"
+        );
+        assert!(
+            revolutionary_output.revolutionary_capability_multiplier > 1.0,
+            "Revolutionary multiplier should exceed baseline"
+        );
 
         // Verify ultra-thinking protocol activation
         let post_cycle_metrics = apex_engine.get_current_metrics();
-        assert!(post_cycle_metrics.snr_performance >= 50.0, "SNR performance should meet elite standards");
+        assert!(
+            post_cycle_metrics.snr_performance >= 50.0,
+            "SNR performance should meet elite standards"
+        );
 
         println!("🎯 APEX Performance Engine Integration Test PASSED");
-        println!("   Performance Gain: {:.2}x", revolutionary_output.performance_gain);
-        println!("   Quality Improvement: {:.2}", revolutionary_output.quality_improvement);
-        println!("   Cognitive Amplification: {:.2}x", revolutionary_output.cognitive_amplification);
-        println!("   Revolutionary Multiplier: {:.2}x", revolutionary_output.revolutionary_capability_multiplier);
+        println!(
+            "   Performance Gain: {:.2}x",
+            revolutionary_output.performance_gain
+        );
+        println!(
+            "   Quality Improvement: {:.2}",
+            revolutionary_output.quality_improvement
+        );
+        println!(
+            "   Cognitive Amplification: {:.2}x",
+            revolutionary_output.cognitive_amplification
+        );
+        println!(
+            "   Revolutionary Multiplier: {:.2}x",
+            revolutionary_output.revolutionary_capability_multiplier
+        );
     }
 
     #[tokio::test]
@@ -627,23 +656,49 @@ mod integration_tests {
 
         // Verify elite SNR performance - SNR = signal/noise = 0.95/std_dev
         // With std_dev ≈ 0.085, SNR ≈ 11.2 which is Good category
-        assert!(snr_result.category == SnrCategory::Excellent || snr_result.category == SnrCategory::Good,
-            "Expected Good/Excellent category, got {:?}", snr_result.category);
-        assert!(snr_result.snr >= 5.0, "Clear consensus should yield high SNR, got {}", snr_result.snr);
-        assert!(snr_result.confidence > 0.0, "Should have positive confidence");
+        assert!(
+            snr_result.category == SnrCategory::Excellent
+                || snr_result.category == SnrCategory::Good,
+            "Expected Good/Excellent category, got {:?}",
+            snr_result.category
+        );
+        assert!(
+            snr_result.snr >= 5.0,
+            "Clear consensus should yield high SNR, got {}",
+            snr_result.snr
+        );
+        assert!(
+            snr_result.confidence > 0.0,
+            "Should have positive confidence"
+        );
 
         // Test agent reliability SNR
         let agent_performance = &[0.94, 0.96, 0.93, 0.95, 0.97];
         let agent_snr = AgentSnr::calculate_agent_reliability(agent_performance);
 
         // With mean ≈ 0.95 and low std_dev, should get high SNR
-        assert!(agent_snr.snr >= 10.0, "Reliable agent should show high SNR, got {}", agent_snr.snr);
-        assert!(agent_snr.category == SnrCategory::Excellent || agent_snr.category == SnrCategory::Good);
-        assert!(agent_snr.confidence > 0.0, "Should have positive confidence");
+        assert!(
+            agent_snr.snr >= 10.0,
+            "Reliable agent should show high SNR, got {}",
+            agent_snr.snr
+        );
+        assert!(
+            agent_snr.category == SnrCategory::Excellent || agent_snr.category == SnrCategory::Good
+        );
+        assert!(
+            agent_snr.confidence > 0.0,
+            "Should have positive confidence"
+        );
 
         println!("🎯 SNR-Enhanced Consensus Reliability Test PASSED");
-        println!("   Consensus SNR: {:.2} ({:?})", snr_result.snr, snr_result.category);
-        println!("   Agent Reliability SNR: {:.2} ({:?})", agent_snr.snr, agent_snr.category);
+        println!(
+            "   Consensus SNR: {:.2} ({:?})",
+            snr_result.snr, snr_result.category
+        );
+        println!(
+            "   Agent Reliability SNR: {:.2} ({:?})",
+            agent_snr.snr, agent_snr.category
+        );
     }
 
     #[test]
@@ -653,12 +708,18 @@ mod integration_tests {
         // Test system coherence measurement with highly coherent components
         let coherent_components = &[0.95, 0.96, 0.94, 0.97, 0.93];
         let coherence = measure_system_coherence(coherent_components);
-        assert!(coherence >= 0.8, "Highly coherent components should yield high coherence score");
+        assert!(
+            coherence >= 0.8,
+            "Highly coherent components should yield high coherence score"
+        );
 
         // Test with low coherence (high variance)
         let incoherent_components = &[0.99, 0.50, 0.98, 0.45, 0.96];
         let low_coherence = measure_system_coherence(incoherent_components);
-        assert!(low_coherence < coherence, "Incoherent components should yield lower coherence score");
+        assert!(
+            low_coherence < coherence,
+            "Incoherent components should yield lower coherence score"
+        );
 
         println!("🎯 Quantitative System Coherence Test PASSED");
         println!("   High Coherence Score: {:.3}", coherence);
@@ -690,23 +751,47 @@ mod integration_tests {
         };
 
         let result = amplifier.amplify(&synthesis_input).await;
-        assert!(result.is_ok(), "Ultra-thinking amplification should succeed");
+        assert!(
+            result.is_ok(),
+            "Ultra-thinking amplification should succeed"
+        );
 
         let amplified_output = result.unwrap();
 
         // Verify revolutionary cognitive gains
-        assert!(amplified_output.cognitive_gain >= 4.5, "Ultra-thinking should yield significant cognitive gain");
-        assert!(amplified_output.performance_gain >= 3.8, "Cognitive amplification should boost performance");
-        assert!(amplified_output.quality_improvement >= 0.15, "Ultra-thinking should enhance quality");
+        assert!(
+            amplified_output.cognitive_gain >= 4.5,
+            "Ultra-thinking should yield significant cognitive gain"
+        );
+        assert!(
+            amplified_output.performance_gain >= 3.8,
+            "Cognitive amplification should boost performance"
+        );
+        assert!(
+            amplified_output.quality_improvement >= 0.15,
+            "Ultra-thinking should enhance quality"
+        );
 
         // Verify nano-precision execution timing
-        assert!(amplified_output.execution_time_us < 1000, "Ultra-thinking should execute with nano-precision timing");
+        assert!(
+            amplified_output.execution_time_us < 1000,
+            "Ultra-thinking should execute with nano-precision timing"
+        );
 
         println!("🌟 Ultra-Thinking Protocol Engine Test PASSED");
         println!("   Cognitive Gain: {:.2}x", amplified_output.cognitive_gain);
-        println!("   Performance Gain: {:.2}x", amplified_output.performance_gain);
-        println!("   Quality Improvement: {:.3}", amplified_output.quality_improvement);
-        println!("   Execution Time: {} μs", amplified_output.execution_time_us);
+        println!(
+            "   Performance Gain: {:.2}x",
+            amplified_output.performance_gain
+        );
+        println!(
+            "   Quality Improvement: {:.3}",
+            amplified_output.quality_improvement
+        );
+        println!(
+            "   Execution Time: {} μs",
+            amplified_output.execution_time_us
+        );
     }
 
     #[tokio::test]
@@ -721,18 +806,30 @@ mod integration_tests {
         let revolutionary_multiplier = calculate_revolutionary_multiplier(
             performance_gain,
             cognitive_amplification,
-            quality_improvement
+            quality_improvement,
         );
 
         // Expected: 3.5 × 4.2 × (1 + 0.25) = 3.5 × 4.2 × 1.25 = 18.375
         let expected = 3.5 * 4.2 * 1.25;
-        assert!((revolutionary_multiplier - expected).abs() < 0.001, "Revolutionary multiplier calculation should be accurate");
+        assert!(
+            (revolutionary_multiplier - expected).abs() < 0.001,
+            "Revolutionary multiplier calculation should be accurate"
+        );
 
-        assert!(revolutionary_multiplier > 15.0, "Revolutionary multiplication should exceed exponential thresholds");
+        assert!(
+            revolutionary_multiplier > 15.0,
+            "Revolutionary multiplication should exceed exponential thresholds"
+        );
 
         println!("⚡️ Revolutionary Capability Multiplication Test PASSED");
-        println!("   Revolutionary Multiplier: {:.3}x", revolutionary_multiplier);
-        println!("   Breakthrough Achievement: {:.1}x exponential performance", revolutionary_multiplier / 10.0);
+        println!(
+            "   Revolutionary Multiplier: {:.3}x",
+            revolutionary_multiplier
+        );
+        println!(
+            "   Breakthrough Achievement: {:.1}x exponential performance",
+            revolutionary_multiplier / 10.0
+        );
     }
 
     #[tokio::test]
@@ -762,8 +859,15 @@ mod integration_tests {
         use crate::snr::*;
         let consensus_snr = ConsensusSnr::calculate_consensus_snr(0.96, &[0.96, 0.89, 0.82]);
         // SNR = 0.96 / std_dev([0.96, 0.89, 0.82]) ≈ 0.96 / 0.07 ≈ 13.7
-        assert!(consensus_snr.snr > 5.0, "Consensus SNR not meeting standards, got {}", consensus_snr.snr);
-        println!("   ✅ SNR Intelligence operational: {:.2} consensus clarity", consensus_snr.snr);
+        assert!(
+            consensus_snr.snr > 5.0,
+            "Consensus SNR not meeting standards, got {}",
+            consensus_snr.snr
+        );
+        println!(
+            "   ✅ SNR Intelligence operational: {:.2} consensus clarity",
+            consensus_snr.snr
+        );
 
         // Phase 4: Ultra-Thinking Protocol Verification
         println!("🧠 PHASE 4: ULTRA-THINKING PROTOCOL VERIFICATION");
@@ -771,10 +875,10 @@ mod integration_tests {
             task: task.clone(),
             contract: contract.clone(),
             cognitive_context: CognitiveContext {
-                ihsan_alignment: 1.0,    // Perfect Ihsan alignment
-                quantum_coherence: 0.98, // Near-perfect quantum coherence
-                ethical_resonance: 0.96, // Elite ethical resonance
-                temporal_alignment: 0.95, // Superior temporal alignment
+                ihsan_alignment: 1.0,          // Perfect Ihsan alignment
+                quantum_coherence: 0.98,       // Near-perfect quantum coherence
+                ethical_resonance: 0.96,       // Elite ethical resonance
+                temporal_alignment: 0.95,      // Superior temporal alignment
                 ultra_thinking_intensity: 1.0, // Maximum ultra-thinking
             },
             performance_requirements: PerformanceRequirements {
@@ -785,30 +889,63 @@ mod integration_tests {
             },
         };
 
-        let revolution_result = apex_engine.execute_performance_cycle(&cognitive_input).await.unwrap();
+        let revolution_result = apex_engine
+            .execute_performance_cycle(&cognitive_input)
+            .await
+            .unwrap();
         println!("   ✅ Ultra-thinking protocols engaged");
-        println!("   📈 Performance Gain: {:.2}x", revolution_result.performance_gain);
-        println!("   🎯 Quality Improvement: {:.3}", revolution_result.quality_improvement);
-        println!("   🧠 Cognitive Amplification: {:.2}x", revolution_result.cognitive_amplification);
-        println!("   ⚡️ Revolutionary Multiplier: {:.2}x", revolution_result.revolutionary_capability_multiplier);
+        println!(
+            "   📈 Performance Gain: {:.2}x",
+            revolution_result.performance_gain
+        );
+        println!(
+            "   🎯 Quality Improvement: {:.3}",
+            revolution_result.quality_improvement
+        );
+        println!(
+            "   🧠 Cognitive Amplification: {:.2}x",
+            revolution_result.cognitive_amplification
+        );
+        println!(
+            "   ⚡️ Revolutionary Multiplier: {:.2}x",
+            revolution_result.revolutionary_capability_multiplier
+        );
 
         // Phase 5: Pinnacle Performance Validation
         println!("🏆 PHASE 5: PINNACLE PERFORMANCE VALIDATION");
-        assert!(revolution_result.revolutionary_capability_multiplier > 10.0,
-                "Revolutionary capability multiplier below elite threshold");
+        assert!(
+            revolution_result.revolutionary_capability_multiplier > 10.0,
+            "Revolutionary capability multiplier below elite threshold"
+        );
 
         // Simulate elite practitioner metrics threshold verification
         let elite_thresholds = [
             ("Performance Gain", revolution_result.performance_gain, 3.0),
             ("Quality Score", revolution_result.quality_improvement, 0.2),
-            ("Cognitive Amplification", revolution_result.cognitive_amplification, 4.0),
-            ("Revolutionary Multiplier", revolution_result.revolutionary_capability_multiplier, 12.0),
+            (
+                "Cognitive Amplification",
+                revolution_result.cognitive_amplification,
+                4.0,
+            ),
+            (
+                "Revolutionary Multiplier",
+                revolution_result.revolutionary_capability_multiplier,
+                12.0,
+            ),
         ];
 
         for (metric, actual, threshold) in elite_thresholds.iter() {
-            assert!(actual >= threshold, "{} below elite threshold: {:.3} < {:.3}",
-                    metric, actual, threshold);
-            println!("   ✅ {}: {:.3} ≥ {:.3} threshold ✓", metric, actual, threshold);
+            assert!(
+                actual >= threshold,
+                "{} below elite threshold: {:.3} < {:.3}",
+                metric,
+                actual,
+                threshold
+            );
+            println!(
+                "   ✅ {}: {:.3} ≥ {:.3} threshold ✓",
+                metric, actual, threshold
+            );
         }
 
         // Phase 6: APOCALYPSE PROTOCOL FINAL VERIFICATION
@@ -828,10 +965,22 @@ mod integration_tests {
 
         // Final transformation metrics
         println!("📊 FINAL TRANSFORMATION METRICS:");
-        println!("   Environmental Mastery: {:.1}%", revolution_result.revolutionary_capability_multiplier * 8.5);
-        println!("   Cognitive Supremacy: {:.1}%", revolution_result.cognitive_amplification * 23.5);
-        println!("   Performance Excellence: {:.1}%", revolution_result.performance_gain * 28.6);
-        println!("   Quality Perfection: {:.1}%", revolution_result.quality_improvement * 400.0);
+        println!(
+            "   Environmental Mastery: {:.1}%",
+            revolution_result.revolutionary_capability_multiplier * 8.5
+        );
+        println!(
+            "   Cognitive Supremacy: {:.1}%",
+            revolution_result.cognitive_amplification * 23.5
+        );
+        println!(
+            "   Performance Excellence: {:.1}%",
+            revolution_result.performance_gain * 28.6
+        );
+        println!(
+            "   Quality Perfection: {:.1}%",
+            revolution_result.quality_improvement * 400.0
+        );
         println!();
         println!("🎖️ TRANSFORMATION VERIFICATION: ETERNAL SUCCESS");
     }

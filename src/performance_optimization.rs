@@ -5,9 +5,9 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 use crate::types::*;
-use std::sync::{Arc, RwLock};
-use std::collections::HashMap;
 use parking_lot::RwLock as PLRwLock;
+use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
 use tokio::time::Instant;
 use tracing::error;
 
@@ -78,12 +78,12 @@ pub struct PerformanceThresholds {
 impl Default for PerformanceThresholds {
     fn default() -> Self {
         Self {
-            critical_latency_us: 10_000,     // 10ms = 10,000μs
-            warning_latency_us: 1_000,       // 1ms = 1,000μs
+            critical_latency_us: 10_000, // 10ms = 10,000μs
+            warning_latency_us: 1_000,   // 1ms = 1,000μs
             min_quality_threshold: 0.95,
             min_snr_threshold: 50.0,
-            cpu_alert_threshold: 0.95,       // 95%
-            memory_alert_threshold: 0.90,    // 90%
+            cpu_alert_threshold: 0.95,    // 95%
+            memory_alert_threshold: 0.90, // 90%
         }
     }
 }
@@ -95,7 +95,10 @@ pub trait OptimizationStrategy: Send + Sync {
     fn name(&self) -> &'static str;
 
     /// Execute optimization strategy
-    async fn optimize(&self, metrics: &PerformanceMetrics) -> Result<OptimizationResult, PerformanceError>;
+    async fn optimize(
+        &self,
+        metrics: &PerformanceMetrics,
+    ) -> Result<OptimizationResult, PerformanceError>;
 
     /// Check if strategy is applicable to current conditions
     fn is_applicable(&self, metrics: &PerformanceMetrics) -> bool;
@@ -192,9 +195,15 @@ impl ApexPerformanceEngine {
         engine.register_strategy(Box::new(AdaptiveResourceAllocation::new()));
 
         // Initialize cognitive amplifiers
-        engine.cognitive_amplifiers.push(Box::new(UltraThinkingAmplifier::new()));
-        engine.cognitive_amplifiers.push(Box::new(QuantumCoherenceAmplifier::new()));
-        engine.cognitive_amplifiers.push(Box::new(EthicalResonanceAmplifier::new()));
+        engine
+            .cognitive_amplifiers
+            .push(Box::new(UltraThinkingAmplifier::new()));
+        engine
+            .cognitive_amplifiers
+            .push(Box::new(QuantumCoherenceAmplifier::new()));
+        engine
+            .cognitive_amplifiers
+            .push(Box::new(EthicalResonanceAmplifier::new()));
 
         engine
     }
@@ -211,16 +220,19 @@ impl ApexPerformanceEngine {
         let amplified_input = self.amplify_cognitive_input(input).await?;
 
         // Phase 2: Multi-Strategy Optimization Execution
-        let optimization_results = self.execute_optimization_strategies(&current_metrics).await?;
+        let optimization_results = self
+            .execute_optimization_strategies(&current_metrics)
+            .await?;
 
         // Phase 3: Adaptive Learning Integration
-        self.adaptive_learning.update_performance_model(&optimization_results).await;
+        self.adaptive_learning
+            .update_performance_model(&optimization_results)
+            .await;
 
         // Phase 4: Performance Validation and Enhancement
-        let enhanced_output = self.enhance_output_with_performance_gains(
-            amplified_input,
-            &optimization_results,
-        ).await?;
+        let enhanced_output = self
+            .enhance_output_with_performance_gains(amplified_input, &optimization_results)
+            .await?;
 
         let total_execution_time = start_time.elapsed().as_micros() as u64;
 
@@ -232,7 +244,8 @@ impl ApexPerformanceEngine {
 
     /// Register optimization strategy
     fn register_strategy(&mut self, strategy: Box<dyn OptimizationStrategy>) {
-        self.strategies.insert(strategy.name().to_string(), strategy);
+        self.strategies
+            .insert(strategy.name().to_string(), strategy);
     }
 
     /// Amplify cognitive input using ultra-thinking protocols
@@ -283,11 +296,13 @@ impl ApexPerformanceEngine {
         optimization_results: &[OptimizationResult],
     ) -> Result<RevolutionaryOutput, PerformanceError> {
         // Calculate total performance gains
-        let total_performance_gain = optimization_results.iter()
+        let total_performance_gain = optimization_results
+            .iter()
             .map(|r| r.performance_gain)
             .product::<f32>();
 
-        let total_quality_improvement = optimization_results.iter()
+        let total_quality_improvement = optimization_results
+            .iter()
             .map(|r| r.quality_improvement)
             .sum::<f32>();
 
@@ -311,7 +326,9 @@ impl ApexPerformanceEngine {
             synthesized_result: OrchestratorResult {
                 winner: apex_candidate,
                 telemetry: Telemetry {
-                    sli_metrics: Sli { json_compliance_rate: 1.0 },
+                    sli_metrics: Sli {
+                        json_compliance_rate: 1.0,
+                    },
                     quality_metrics: Quality {
                         accuracy_uplift: total_quality_improvement,
                     },
@@ -320,7 +337,8 @@ impl ApexPerformanceEngine {
             performance_gain: total_performance_gain,
             quality_improvement: total_quality_improvement,
             cognitive_amplification: amplified_input.cognitive_amplification,
-            revolutionary_capability_multiplier: total_performance_gain * amplified_input.cognitive_amplification,
+            revolutionary_capability_multiplier: total_performance_gain
+                * amplified_input.cognitive_amplification,
         };
 
         Ok(revolutionary_output)
@@ -361,9 +379,14 @@ impl QuantumOptimization {
 
 #[async_trait::async_trait]
 impl OptimizationStrategy for QuantumOptimization {
-    fn name(&self) -> &'static str { "QuantumOptimization" }
+    fn name(&self) -> &'static str {
+        "QuantumOptimization"
+    }
 
-    async fn optimize(&self, metrics: &PerformanceMetrics) -> Result<OptimizationResult, PerformanceError> {
+    async fn optimize(
+        &self,
+        metrics: &PerformanceMetrics,
+    ) -> Result<OptimizationResult, PerformanceError> {
         // Apply quantum coherence optimization
         let performance_gain = if metrics.latency_microseconds > 10_000 {
             2.5 * self.quantum_coherence_factor
@@ -403,9 +426,14 @@ impl CognitiveAmplificationStrategy {
 
 #[async_trait::async_trait]
 impl OptimizationStrategy for CognitiveAmplificationStrategy {
-    fn name(&self) -> &'static str { "CognitiveAmplification" }
+    fn name(&self) -> &'static str {
+        "CognitiveAmplification"
+    }
 
-    async fn optimize(&self, metrics: &PerformanceMetrics) -> Result<OptimizationResult, PerformanceError> {
+    async fn optimize(
+        &self,
+        metrics: &PerformanceMetrics,
+    ) -> Result<OptimizationResult, PerformanceError> {
         let cognitive_gain = if metrics.snr_performance < 75.0 {
             self.ultra_thinking_multiplier // Major amplification needed
         } else {
@@ -442,9 +470,14 @@ impl SimultaneousMultiThreading {
 
 #[async_trait::async_trait]
 impl OptimizationStrategy for SimultaneousMultiThreading {
-    fn name(&self) -> &'static str { "SimultaneousMultiThreading" }
+    fn name(&self) -> &'static str {
+        "SimultaneousMultiThreading"
+    }
 
-    async fn optimize(&self, metrics: &PerformanceMetrics) -> Result<OptimizationResult, PerformanceError> {
+    async fn optimize(
+        &self,
+        metrics: &PerformanceMetrics,
+    ) -> Result<OptimizationResult, PerformanceError> {
         let threading_gain = if metrics.operations_per_second < 100.0 {
             self.thread_multiplier // Major throughput improvement
         } else {
@@ -481,9 +514,14 @@ impl AdaptiveResourceAllocation {
 
 #[async_trait::async_trait]
 impl OptimizationStrategy for AdaptiveResourceAllocation {
-    fn name(&self) -> &'static str { "AdaptiveResourceAllocation" }
+    fn name(&self) -> &'static str {
+        "AdaptiveResourceAllocation"
+    }
 
-    async fn optimize(&self, metrics: &PerformanceMetrics) -> Result<OptimizationResult, PerformanceError> {
+    async fn optimize(
+        &self,
+        metrics: &PerformanceMetrics,
+    ) -> Result<OptimizationResult, PerformanceError> {
         let resource_gain = if metrics.memory_usage > 0.8 || metrics.cpu_utilization > 0.85 {
             self.adaptation_factor // Major resource optimization needed
         } else {
@@ -524,11 +562,14 @@ impl UltraThinkingAmplifier {
 
 #[async_trait::async_trait]
 impl CognitiveAmplifier for UltraThinkingAmplifier {
-    fn name(&self) -> &'static str { "UltraThinkingAmplifier" }
+    fn name(&self) -> &'static str {
+        "UltraThinkingAmplifier"
+    }
 
     async fn amplify(&self, input: &SynthesisInput) -> Result<AmplifiedOutput, CognitiveError> {
         // Simulate ultra-thinking cognitive processing
-        let cognitive_gain = input.cognitive_context.ultra_thinking_intensity * self.amplification_factor;
+        let cognitive_gain =
+            input.cognitive_context.ultra_thinking_intensity * self.amplification_factor;
         let performance_gain = cognitive_gain * 0.8;
         let quality_improvement = cognitive_gain * 0.2;
 
@@ -537,8 +578,8 @@ impl CognitiveAmplifier for UltraThinkingAmplifier {
             model: "ultra-thinking-amplified".to_string(),
             json: serde_json::json!({"ultra_amplified": true, "cognitive_gain": cognitive_gain}),
             scores: crate::CandidateScores {
-                accuracy: cognitive_gain / 5.0,  // Normalized cognitive gain
-                safety: 0.95,  // High safety for ultra-thinking
+                accuracy: cognitive_gain / 5.0, // Normalized cognitive gain
+                safety: 0.95,                   // High safety for ultra-thinking
                 efficiency: performance_gain / 4.0,
                 ihsan: quality_improvement,
                 snr: Some(cognitive_gain * 2.0),
@@ -552,8 +593,12 @@ impl CognitiveAmplifier for UltraThinkingAmplifier {
             original_output: OrchestratorResult {
                 winner: ultra_candidate,
                 telemetry: Telemetry {
-                    sli_metrics: Sli { json_compliance_rate: 1.0 },
-                    quality_metrics: Quality { accuracy_uplift: quality_improvement },
+                    sli_metrics: Sli {
+                        json_compliance_rate: 1.0,
+                    },
+                    quality_metrics: Quality {
+                        accuracy_uplift: quality_improvement,
+                    },
                 },
             },
             cognitive_gain,
@@ -583,7 +628,9 @@ impl QuantumCoherenceAmplifier {
 
 #[async_trait::async_trait]
 impl CognitiveAmplifier for QuantumCoherenceAmplifier {
-    fn name(&self) -> &'static str { "QuantumCoherenceAmplifier" }
+    fn name(&self) -> &'static str {
+        "QuantumCoherenceAmplifier"
+    }
 
     async fn amplify(&self, input: &SynthesisInput) -> Result<AmplifiedOutput, CognitiveError> {
         let coherence_level = input.cognitive_context.quantum_coherence;
@@ -596,8 +643,8 @@ impl CognitiveAmplifier for QuantumCoherenceAmplifier {
             model: "quantum-coherence-amplified".to_string(),
             json: serde_json::json!({"quantum_amplified": true, "coherence_level": coherence_level, "cognitive_gain": cognitive_gain}),
             scores: crate::CandidateScores {
-                accuracy: coherence_level * 0.9,  // High accuracy for coherent processing
-                safety: 0.99,  // Exceptional safety
+                accuracy: coherence_level * 0.9, // High accuracy for coherent processing
+                safety: 0.99,                    // Exceptional safety
                 efficiency: performance_gain / 3.0,
                 ihsan: quality_improvement,
                 snr: Some(cognitive_gain * 1.5),
@@ -610,8 +657,12 @@ impl CognitiveAmplifier for QuantumCoherenceAmplifier {
             original_output: OrchestratorResult {
                 winner: quantum_candidate,
                 telemetry: Telemetry {
-                    sli_metrics: Sli { json_compliance_rate: 0.98 },
-                    quality_metrics: Quality { accuracy_uplift: quality_improvement },
+                    sli_metrics: Sli {
+                        json_compliance_rate: 0.98,
+                    },
+                    quality_metrics: Quality {
+                        accuracy_uplift: quality_improvement,
+                    },
                 },
             },
             cognitive_gain,
@@ -641,7 +692,9 @@ impl EthicalResonanceAmplifier {
 
 #[async_trait::async_trait]
 impl CognitiveAmplifier for EthicalResonanceAmplifier {
-    fn name(&self) -> &'static str { "EthicalResonanceAmplifier" }
+    fn name(&self) -> &'static str {
+        "EthicalResonanceAmplifier"
+    }
 
     async fn amplify(&self, input: &SynthesisInput) -> Result<AmplifiedOutput, CognitiveError> {
         let ethical_resonance = input.cognitive_context.ethical_resonance;
@@ -654,8 +707,8 @@ impl CognitiveAmplifier for EthicalResonanceAmplifier {
             model: "ethical-resonance-amplified".to_string(),
             json: serde_json::json!({"ethical_amplified": true, "ethical_resonance": ethical_resonance, "cognitive_gain": cognitive_gain}),
             scores: crate::CandidateScores {
-                accuracy: ethical_resonance * 0.95,  // Ethics-driven accuracy
-                safety: 0.995,  // Maximum safety for ethical processing
+                accuracy: ethical_resonance * 0.95, // Ethics-driven accuracy
+                safety: 0.995,                      // Maximum safety for ethical processing
                 efficiency: performance_gain / 2.5, // Balanced efficiency
                 ihsan: quality_improvement,
                 snr: Some(cognitive_gain * 1.8), // High SNR for ethical decisions
@@ -668,8 +721,12 @@ impl CognitiveAmplifier for EthicalResonanceAmplifier {
             original_output: OrchestratorResult {
                 winner: ethical_candidate,
                 telemetry: Telemetry {
-                    sli_metrics: Sli { json_compliance_rate: 0.99 },
-                    quality_metrics: Quality { accuracy_uplift: quality_improvement },
+                    sli_metrics: Sli {
+                        json_compliance_rate: 0.99,
+                    },
+                    quality_metrics: Quality {
+                        accuracy_uplift: quality_improvement,
+                    },
                 },
             },
             cognitive_gain,
@@ -753,9 +810,11 @@ impl AdaptiveLearningEngine {
         let mut patterns = self.performance_patterns.write().unwrap();
 
         for result in results {
-            patterns.entry(result.strategy_name.clone())
+            patterns
+                .entry(result.strategy_name.clone())
                 .and_modify(|pattern| {
-                    pattern.average_performance_gain = (pattern.average_performance_gain + result.performance_gain) / 2.0;
+                    pattern.average_performance_gain =
+                        (pattern.average_performance_gain + result.performance_gain) / 2.0;
                     pattern.samples += 1;
                 })
                 .or_insert(PerformancePattern {
@@ -820,7 +879,7 @@ pub enum CognitiveError {
 pub fn calculate_revolutionary_multiplier(
     performance_gain: f32,
     cognitive_amplification: f32,
-    quality_improvement: f32
+    quality_improvement: f32,
 ) -> f32 {
     performance_gain * cognitive_amplification * (1.0 + quality_improvement)
 }
@@ -832,9 +891,8 @@ pub fn measure_system_coherence(components: &[f32]) -> f32 {
     }
 
     let mean = components.iter().sum::<f32>() / components.len() as f32;
-    let variance = components.iter()
-        .map(|x| (x - mean).powi(2))
-        .sum::<f32>() / components.len() as f32;
+    let variance =
+        components.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / components.len() as f32;
 
     // Coherence = 1 / (1 + variance) - higher coherence = lower variance
     1.0 / (1.0 + variance)
