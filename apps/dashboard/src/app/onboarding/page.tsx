@@ -403,7 +403,7 @@ export default function OnboardingPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label htmlFor="ihsan-range" className="block text-sm font-medium mb-2">
                     Starting Ihsan Score: <span className="text-bizra-gold">{profileData.ihsan}</span>
                   </label>
                   <p className="text-xs text-white/40 mb-3">
@@ -411,12 +411,14 @@ export default function OnboardingPage() {
                     Start at 75 and grow through positive impact.
                   </p>
                   <input
+                    id="ihsan-range"
                     type="range"
                     min="50"
                     max="100"
                     value={profileData.ihsan}
                     onChange={(e) => setProfileData(prev => ({ ...prev, ihsan: e.target.value }))}
                     className="w-full accent-bizra-gold"
+                    aria-label="Ihsan score slider"
                   />
                   <div className="flex justify-between text-xs text-white/30 mt-1">
                     <span>50</span>

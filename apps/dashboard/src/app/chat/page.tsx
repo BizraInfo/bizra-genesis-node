@@ -402,7 +402,9 @@ export default function ChatPage() {
           )}
           
           <form onSubmit={handleSubmit} className="relative">
+            <label htmlFor="chat-input" className="sr-only">Type your message to PAT</label>
             <textarea
+              id="chat-input"
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -415,6 +417,8 @@ export default function ChatPage() {
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
+              title="Send message"
+              aria-label="Send message"
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-bizra-gold flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-bizra-gold-light transition-colors"
             >
               <Send className="w-4 h-4 text-bizra-black" />

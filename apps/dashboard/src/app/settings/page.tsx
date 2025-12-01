@@ -206,10 +206,11 @@ export default function SettingsPage() {
 
                 {/* Weekly Time */}
                 <div>
-                  <label className="block text-white/80 font-medium mb-2">
+                  <label htmlFor="weekly-time-slider" className="block text-white/80 font-medium mb-2">
                     Weekly Time Available: {Math.floor(weeklyTime / 60)}h {weeklyTime % 60}m
                   </label>
                   <input
+                    id="weekly-time-slider"
                     type="range"
                     min="60"
                     max="2400"
@@ -217,6 +218,7 @@ export default function SettingsPage() {
                     value={weeklyTime}
                     onChange={(e) => setWeeklyTime(parseInt(e.target.value))}
                     className="w-full accent-amber-500"
+                    aria-label="Weekly time available slider"
                   />
                   <div className="flex justify-between text-white/40 text-sm mt-1">
                     <span>1 hour</span>

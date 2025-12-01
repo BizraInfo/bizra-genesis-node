@@ -157,6 +157,8 @@ export default function PlanPage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => navigateDay(-7)}
+              title="Previous week"
+              aria-label="Navigate to previous week"
               className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -170,6 +172,8 @@ export default function PlanPage() {
             
             <button
               onClick={() => navigateDay(7)}
+              title="Next week"
+              aria-label="Navigate to next week"
               className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
             >
               <ChevronRight className="w-5 h-5" />
@@ -257,7 +261,9 @@ export default function PlanPage() {
           {/* Add Task Input */}
           <div className="p-4 border-b border-white/10">
             <div className="flex gap-2">
+              <label htmlFor="new-task-input" className="sr-only">New task</label>
               <input
+                id="new-task-input"
                 type="text"
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
@@ -268,6 +274,8 @@ export default function PlanPage() {
               <button
                 onClick={addTask}
                 disabled={!newTask.trim()}
+                title="Add task"
+                aria-label="Add new task"
                 className="px-4 py-2 rounded-lg bg-bizra-gold text-bizra-black font-medium text-sm disabled:opacity-50 hover:bg-bizra-gold-light transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -349,10 +357,18 @@ export default function PlanPage() {
                   </div>
                   
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <button className="p-1.5 rounded hover:bg-white/10 transition-colors text-white/30 hover:text-white">
+                    <button 
+                      title="Edit task"
+                      aria-label="Edit task"
+                      className="p-1.5 rounded hover:bg-white/10 transition-colors text-white/30 hover:text-white"
+                    >
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button className="p-1.5 rounded hover:bg-white/10 transition-colors text-white/30 hover:text-red-400">
+                    <button 
+                      title="Delete task"
+                      aria-label="Delete task"
+                      className="p-1.5 rounded hover:bg-white/10 transition-colors text-white/30 hover:text-red-400"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

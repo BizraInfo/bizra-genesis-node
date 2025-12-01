@@ -63,6 +63,8 @@ function ResourceSlider({ label, icon: Icon, value, max, onChange, unit, color, 
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          aria-label={`${label} allocation slider`}
+          title={`Allocate ${label}: ${value} ${unit}`}
         />
       </div>
       
