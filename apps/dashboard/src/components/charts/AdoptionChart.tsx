@@ -96,7 +96,7 @@ const AdoptionChart: React.FC = () => {
         callbacks: {
           title: (context: TooltipItem<'line'>[]) => `Year: ${context[0].label}`,
           label: (context: TooltipItem<'line'>) => {
-            const value = context.parsed.y;
+            const value = context.parsed.y ?? 0;
             return `Projected Users: ${value.toLocaleString()}`;
           },
         },

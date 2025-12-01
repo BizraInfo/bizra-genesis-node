@@ -32,6 +32,7 @@ import {
   ArcElement,
   Filler,
   TimeScale,
+  ChartOptions as ChartJsOptions,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 import { Cpu, Zap, Activity } from 'lucide-react';
@@ -171,7 +172,8 @@ interface ChartOptions {
       bodyFont?: { family?: string };
     };
   };
-  scales?: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  scales?: any;
 }
 
 // Performance-optimized chart component
@@ -212,11 +214,11 @@ const OptimizedChart: React.FC<{
   const MemoizedChart = useMemo(() => {
     switch (type) {
       case 'line':
-        return <Line data={data} options={chartOptions} />;
+        return <Line data={data} options={chartOptions as ChartJsOptions<'line'>} />;
       case 'bar':
-        return <Bar data={data} options={chartOptions} />;
+        return <Bar data={data} options={chartOptions as ChartJsOptions<'bar'>} />;
       case 'doughnut':
-        return <Doughnut data={data} options={chartOptions} />;
+        return <Doughnut data={data} options={chartOptions as ChartJsOptions<'doughnut'>} />;
       default:
         return null;
     }

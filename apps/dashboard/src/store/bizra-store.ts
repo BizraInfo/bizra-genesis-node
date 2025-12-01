@@ -605,8 +605,8 @@ export const useBIZRAStore = create<BIZRAStore>()(
               const data = (await response.json()) as SessionRefreshResponse;
 
               set((state) => {
-                state.user.session.token = data.token;
-                state.user.session.expires_at = data.expires_at;
+                state.user.session.token = data.token ?? null;
+                state.user.session.expires_at = data.expires_at ?? null;
                 if (data.refresh_token) {
                   state.user.session.refresh_token = data.refresh_token;
                 }

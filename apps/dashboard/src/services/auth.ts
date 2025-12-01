@@ -9,7 +9,8 @@ import {
   LoginCredentials,
   RegisterData,
   AuthError,
-  AuthErrorCode
+  AuthErrorCode,
+  UserRole
 } from '../types/auth'
 import { API_BASE as CONFIG_API_BASE } from '../config'
 
@@ -586,9 +587,9 @@ class AuthService {
       firstName: safeString(record.firstName, ''),
       lastName: safeString(record.lastName, ''),
       avatar: typeof record.avatar === 'string' ? record.avatar : undefined,
-      role: safeString(record.role, 'user'),
+      role: safeString(record.role, 'user') as UserRole,
       preferences: {
-        theme: safeString(prefs.theme, 'auto'),
+        theme: safeString(prefs.theme, 'auto') as 'light' | 'dark' | 'auto',
         language: safeString(prefs.language, 'en'),
         timezone: safeString(prefs.timezone, 'UTC'),
         notifications: {
@@ -599,7 +600,7 @@ class AuthService {
           systemAlerts: safeBoolean(notifs.systemAlerts, true)
         },
         privacy: {
-          profileVisibility: safeString(privacy.profileVisibility, 'private'),
+          profileVisibility: safeString(privacy.profileVisibility, 'private') as 'public' | 'private' | 'team',
           dataSharing: safeBoolean(privacy.dataSharing, false),
           analytics: safeBoolean(privacy.analytics, true)
         }

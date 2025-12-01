@@ -492,8 +492,9 @@ class AnalyticsTracker {
       filtered = filtered.filter((e) => e.type === options.type);
     }
 
-    if (options?.since) {
-      filtered = filtered.filter((e) => e.timestamp >= options.since);
+    if (options?.since !== undefined) {
+      const since = options.since;
+      filtered = filtered.filter((e) => e.timestamp >= since);
     }
 
     return filtered;

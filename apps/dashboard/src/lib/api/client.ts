@@ -345,12 +345,12 @@ class CacheManager {
     let pruned = 0;
     const now = Date.now();
 
-    for (const [key, entry] of this.cache.entries()) {
+    Array.from(this.cache.entries()).forEach(([key, entry]) => {
       if (now - entry.timestamp > entry.ttl) {
         this.cache.delete(key);
         pruned++;
       }
-    }
+    });
 
     return pruned;
   }

@@ -119,6 +119,7 @@ export class WebSocketClient {
   private reconnectDelayMs = 1000
   private readonly maxReconnectDelayMs = 30000
   private isAuthenticated = false
+  private shouldReconnect = true
   private readonly messageHandlers: Map<MessageType, Set<MessageHandler>> = new Map()
   private readonly errorHandlers: Set<ErrorHandler> = new Set()
   private readonly connectHandlers: Set<ConnectionHandler> = new Set()
@@ -192,7 +193,7 @@ export class WebSocketClient {
   }
 
   disconnect(): void {
-    this.maxReconnectAttempts = 0
+    this.shouldReconnect = false
     if (this.ws) {
       this.ws.close()
     }
@@ -322,8 +323,10 @@ export class WebSocketClient {
   }
 
   private attemptReconnect(): void {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      this.emitError(new Error('Max reconnection attempts reached'))
+    if (!this.shouldReconnect || this.reconnectAttempts >= this.maxReconnectAttempts) {
+      if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+        this.emitError(new Error('Max reconnection attempts reached'))
+      }
       return
     }
 

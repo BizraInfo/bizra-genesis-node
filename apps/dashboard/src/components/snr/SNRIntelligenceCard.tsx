@@ -42,13 +42,13 @@ export function SNRIntelligenceCard({ className = '', showWaveform = true }: SNR
   // Generate waveform data based on SNR
   const waveformData = useMemo<number[]>(() => {
     if (!snr) {
-      return Array.from<number>({ length: 32 }, () => 0.5)
+      return Array.from<unknown, number>({ length: 32 }, () => 0.5)
     }
 
     const baseAmplitude = snr.consensusClarity / 2
     const noise = 1 - snr.decisionQuality
 
-    return Array.from({ length: 32 }, (_v, i) => {
+    return Array.from<unknown, number>({ length: 32 }, (_v, i) => {
       const signal = Math.sin(i * 0.3) * baseAmplitude
       const noiseValue = (Math.random() - 0.5) * noise * 0.3
       return 0.5 + signal + noiseValue

@@ -23,7 +23,7 @@ import {
   ArrowRight,
   XCircle,
 } from 'lucide-react'
-import { inviteService, InviteValidationResult, InviteError } from '../../services/invite'
+import { inviteService, InviteValidationResult, InviteServiceError } from '../../services/invite'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPES
@@ -112,7 +112,7 @@ const InviteCodePage: React.FC = () => {
         setPageState('invalid')
       }
     } catch (err) {
-      const inviteError = err as InviteError
+      const inviteError = err as InviteServiceError
       setError(inviteError.message || 'Failed to validate invite code')
       setErrorCode(inviteError.code || 'UNKNOWN_ERROR')
       setPageState('invalid')
@@ -272,7 +272,7 @@ const InviteCodePage: React.FC = () => {
         setPageState('error')
       }
     } catch (err) {
-      const inviteError = err as InviteError
+      const inviteError = err as InviteServiceError
       setError(inviteError.message || 'Failed to create account')
       setErrorCode(inviteError.code || 'UNKNOWN_ERROR')
       setPageState('error')

@@ -128,6 +128,25 @@ export function useRealtimeData<T = unknown>(
     [transform, onError]
   );
 
+  // Heartbeat for connection health monitoring
+  const startHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) { return; }
+
+    heartbeatIntervalRef.current = setInterval(() => {
+      if (clientRef.current?.isWebSocketConnected()) {
+        lastPingRef.current = Date.now();
+        clientRef.current.sendWsMessage('ping', { timestamp: lastPingRef.current });
+      }
+    }, 30000); // Ping every 30 seconds
+  }, []);
+
+  const stopHeartbeat = useCallback(() => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+  }, []);
+
   // Connection management
   const connect = useCallback(() => {
     if (!clientRef.current || !enabled) { return; }
@@ -182,25 +201,6 @@ export function useRealtimeData<T = unknown>(
       clientRef.current.connectWebSocket();
     }
   }, [channel, enabled, handleData, onConnect, onDisconnect, onError, startHeartbeat, stopHeartbeat]);
-
-  // Heartbeat for connection health monitoring
-  const startHeartbeat = useCallback(() => {
-    if (heartbeatIntervalRef.current) { return; }
-
-    heartbeatIntervalRef.current = setInterval(() => {
-      if (clientRef.current?.isWebSocketConnected()) {
-        lastPingRef.current = Date.now();
-        clientRef.current.sendWsMessage('ping', { timestamp: lastPingRef.current });
-      }
-    }, 30000); // Ping every 30 seconds
-  }, []);
-
-  const stopHeartbeat = useCallback(() => {
-    if (heartbeatIntervalRef.current) {
-      clearInterval(heartbeatIntervalRef.current);
-      heartbeatIntervalRef.current = null;
-    }
-  }, []);
 
   // Reconnect handler
   const reconnect = useCallback(() => {

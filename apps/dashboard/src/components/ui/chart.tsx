@@ -195,7 +195,9 @@ function ChartTooltipContent({
     const value = !labelKey && typeof label === 'string' ? config[label]?.label || label : itemConfig?.label
 
     if (labelFormatter) {
-      return <div className={cn('font-medium', labelClassName)}>{labelFormatter(value, normalizedPayload)}</div>
+      // Cast to any to satisfy Recharts formatter type which expects Payload[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return <div className={cn('font-medium', labelClassName)}>{labelFormatter(value, normalizedPayload as any)}</div>
     }
 
     if (!value) {
@@ -245,7 +247,9 @@ function ChartTooltipContent({
               )}
             >
               {formatter && value !== null ? (
-                formatter(value, itemName, item, index)
+                // Cast item to satisfy Recharts formatter which expects Payload type with 5 args
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter(value, itemName, item as any, index, normalizedPayload as any)
               ) : (
                 <>
                   {itemConfig?.icon ? (

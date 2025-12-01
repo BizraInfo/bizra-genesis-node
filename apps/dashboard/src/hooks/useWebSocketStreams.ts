@@ -65,6 +65,7 @@ interface SystemMessagePayload {
   notification_type?: 'info' | 'success' | 'warning' | 'error'
   severity?: 'info' | 'success' | 'warning' | 'error'
   title?: string
+  message?: string
   read?: boolean
 }
 
@@ -99,12 +100,19 @@ export function useAgentStream() {
 
   // Convert AgentResponse to AgentStatusEvent
   const processAgentResponse = useCallback((response: AgentResponse) => {
+    const agentName = typeof response.metadata?.agent_name === 'string' 
+      ? response.metadata.agent_name 
+      : response.agent_id
+    const progress = typeof response.metadata?.progress === 'number' 
+      ? response.metadata.progress 
+      : undefined
+    
     const status: AgentStatusEvent = {
       agent_id: response.agent_id,
-      agent_name: response.metadata?.agent_name || response.agent_id,
+      agent_name: agentName,
       status: response.is_streaming ? 'streaming' : response.is_complete ? 'idle' : 'processing',
       current_task: response.content,
-      progress: response.metadata?.progress,
+      progress,
       last_update: Date.now()
     }
 

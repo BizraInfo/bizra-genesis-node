@@ -527,9 +527,9 @@ export class BIZRACache {
     await this.l2.delete(key);
 
     // Remove from tag index
-    for (const keys of this.tagIndex.values()) {
+    Array.from(this.tagIndex.values()).forEach((keys) => {
       keys.delete(key);
-    }
+    });
   }
 
   async invalidateByTag(tag: string): Promise<number> {
@@ -537,7 +537,8 @@ export class BIZRACache {
     if (!keys) {return 0;}
 
     let invalidated = 0;
-    for (const key of keys) {
+    const keysArray = Array.from(keys);
+    for (const key of keysArray) {
       this.l1.delete(key);
       await this.l2.delete(key);
       invalidated++;
