@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* BIZRA Sovereign Brand Colors */
+  --bizra-gold: #D4AF37;
+  --bizra-gold-light: #F4E4B5;
+  --bizra-gold-dark: #8B7355;
+  
+  --bizra-black: #0A0A0A;
+  --bizra-dark: #121212;
+  --bizra-surface: #1A1A1A;
+  --bizra-border: #2A2A2A;
+  
+  --bizra-primary: #D4AF37;
+  --bizra-secondary: #8B7355;
+  --bizra-accent: #F4E4B5;
+  
+  /* Status Colors */
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-error: #EF4444;
+  --status-info: #3B82F6;
+  
+  /* PAT Agent Colors */
+  --pat-master-reasoner: #8B5CF6;
+  --pat-memory-architect: #06B6D4;
+  --pat-creative-synthesizer: #F43F5E;
+  --pat-data-analyzer: #22C55E;
+  --pat-communicator: #3B82F6;
+  --pat-execution-planner: #F97316;
+  --pat-ethics-guardian: #D4AF37;
+}
+
+@layer base {
+  * {
+    @apply border-[--bizra-border];
+  }
+  
+  body {
+    @apply bg-[--bizra-black] text-white antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  ::selection {
+    @apply bg-[--bizra-gold]/30 text-[--bizra-gold-light];
+  }
+}
+
+@layer components {
+  /* Glass morphism panels */
+  .glass-panel {
+    @apply bg-gradient-to-br from-white/5 to-white/0 
+           backdrop-blur-xl border border-white/10 
+           rounded-2xl shadow-2xl;
+  }
+  
+  .glass-panel-gold {
+    @apply bg-gradient-to-br from-[--bizra-gold]/5 to-transparent 
+           backdrop-blur-xl border border-[--bizra-gold]/20 
+           rounded-2xl shadow-2xl shadow-[--bizra-gold]/5;
+  }
+  
+  /* Sovereign glow effects */
+  .glow-gold {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3),
+                0 0 40px rgba(212, 175, 55, 0.1);
+  }
+  
+  .glow-gold-intense {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.5),
+                0 0 60px rgba(212, 175, 55, 0.2),
+                0 0 90px rgba(212, 175, 55, 0.1);
+  }
+  
+  /* Genesis pulse animation */
+  .genesis-pulse {
+    animation: genesis-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes genesis-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
+  }
+  
+  /* Synapse connection lines */
+  .synapse-line {
+    background: linear-gradient(90deg, 
+      transparent, 
+      var(--bizra-gold) 20%, 
+      var(--bizra-gold) 80%, 
+      transparent);
+    height: 1px;
+    animation: synapse-flow 3s linear infinite;
+  }
+  
+  @keyframes synapse-flow {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Text gradients */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-[--bizra-gold-light] via-[--bizra-gold] to-[--bizra-gold-dark]
+           bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-sovereign {
+    @apply bg-gradient-to-r from-[--bizra-gold] via-[--bizra-accent] to-[--bizra-gold]
+           bg-clip-text text-transparent;
+  }
+  
+  /* Button variants */
+  .btn-sovereign {
+    @apply bg-gradient-to-r from-[--bizra-gold-dark] via-[--bizra-gold] to-[--bizra-gold-dark]
+           text-[--bizra-black] font-semibold px-6 py-3 rounded-xl
+           hover:shadow-lg hover:shadow-[--bizra-gold]/30
+           transition-all duration-300 ease-out
+           active:scale-95;
+  }
+  
+  .btn-glass {
+    @apply glass-panel px-6 py-3 text-white
+           hover:border-[--bizra-gold]/50 hover:text-[--bizra-gold]
+           transition-all duration-300 ease-out;
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-300 ease-out
+           hover:transform hover:-translate-y-1
+           hover:shadow-xl hover:shadow-[--bizra-gold]/10
+           hover:border-[--bizra-gold]/30;
+  }
+  
+  /* Status badges */
+  .badge-success { @apply bg-[--status-success]/20 text-[--status-success] border-[--status-success]/30; }
+  .badge-warning { @apply bg-[--status-warning]/20 text-[--status-warning] border-[--status-warning]/30; }
+  .badge-error { @apply bg-[--status-error]/20 text-[--status-error] border-[--status-error]/30; }
+  .badge-info { @apply bg-[--status-info]/20 text-[--status-info] border-[--status-info]/30; }
+  
+  /* Scrollbar styling */
+  .scrollbar-sovereign {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bizra-gold) transparent;
+  }
+  
+  .scrollbar-sovereign::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-sovereign::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-sovereign::-webkit-scrollbar-thumb {
+    background: var(--bizra-gold);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-sovereign::-webkit-scrollbar-thumb:hover {
+    background: var(--bizra-gold-light);
+  }
+}
+
+@layer utilities {
+  /* Grid patterns */
+  .grid-pattern {
+    background-image: 
+      linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  
+  /* Animated border */
+  .animated-border {
+    background: linear-gradient(90deg, 
+      var(--bizra-gold), 
+      var(--bizra-gold-light), 
+      var(--bizra-gold), 
+      var(--bizra-gold-dark), 
+      var(--bizra-gold));
+    background-size: 200% 100%;
+    animation: border-flow 3s linear infinite;
+  }
+  
+  @keyframes border-flow {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+}

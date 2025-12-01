@@ -1,0 +1,73 @@
+{
+  "name": "bizra-node0",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BIZRA Node0 - Genesis Node Monorepo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bizra/bizra-genesis-node.git"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "test:coverage": "turbo run test:coverage",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "prepare": "husky install",
+    "precommit": "lint-staged",
+    "commitlint": "commitlint --edit",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch",
+    "security:audit": "npm audit && cd backend && cargo audit",
+    "docker:build": "docker compose -f docker/docker-compose.node0.yml build",
+    "docker:up": "docker compose -f docker/docker-compose.node0.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.node0.yml down",
+    "docker:logs": "docker compose -f docker/docker-compose.node0.yml logs -f"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.5.9",
+    "standard-version": "^9.5.0",
+    "turbo": "^1.11.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ],
+    "*.rs": [
+      "cargo fmt --manifest-path backend/Cargo.toml --"
+    ]
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.12.1"
+}

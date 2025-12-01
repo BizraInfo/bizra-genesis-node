@@ -1,0 +1,25 @@
+{
+  "name": "bizra-node0-bridge",
+  "version": "1.0.0",
+  "description": "BIZRA Node0 Telemetry Bridge - WebSocket server for real-time metrics",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  },
+  "author": "BIZRA Foundation",
+  "license": "MIT"
+}

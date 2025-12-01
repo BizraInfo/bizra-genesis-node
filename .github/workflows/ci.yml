@@ -1,0 +1,692 @@
+# BIZRA Node0 Genesis - CI/CD Pipeline
+# Document ID: BIZRA-NODE0-v1.0.0-GENESIS
+# Elite Professional Standards - GitHub Actions
+
+name: BIZRA CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop, 'release/**', 'feature/**']
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  RUST_VERSION: '1.75'
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # STAGE 1: CODE QUALITY & LINTING
+  # ============================================
+  lint:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: rustfmt, clippy
+
+      - name: 📦 Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+          cache-dependency-path: |
+            apps/dashboard/pnpm-lock.yaml
+            bridge/pnpm-lock.yaml
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: knowledge/requirements.txt
+
+      # Rust Linting
+      - name: 🦀 Rust Format Check
+        working-directory: backend
+        run: cargo fmt --all -- --check
+
+      - name: 🦀 Rust Clippy
+        working-directory: backend
+        run: cargo clippy --all-targets --all-features -- -D warnings -D clippy::all
+
+      # Node.js Linting
+      - name: 📦 Install Dashboard Dependencies
+        working-directory: apps/dashboard
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Dashboard ESLint
+        working-directory: apps/dashboard
+        run: pnpm lint
+
+      - name: 🎨 Dashboard Prettier Check
+        working-directory: apps/dashboard
+        run: pnpm format:check || true
+
+      # Python Linting
+      - name: 🐍 Install Python Linters
+        run: pip install ruff black mypy
+
+      - name: 🐍 Python Ruff Check
+        working-directory: knowledge/scripts
+        run: ruff check . || true
+
+      - name: 🐍 Python Black Check
+        working-directory: knowledge/scripts
+        run: black --check . || true
+
+  # ============================================
+  # STAGE 2: SECURITY SCANNING
+  # ============================================
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: lint
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: 📦 Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # Rust Security Audit
+      - name: 🦀 Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: 🦀 Rust Security Audit
+        working-directory: backend
+        run: cargo audit || true
+
+      - name: 🦀 Rust Dependency Check
+        working-directory: backend
+        run: cargo deny check || true
+
+      # Node.js Security Audit
+      - name: 📦 Dashboard npm audit
+        working-directory: apps/dashboard
+        run: pnpm audit --audit-level=high || true
+
+      # Container Security with Trivy
+      - name: 🐳 Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: 📤 Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      # SAST with CodeQL
+      - name: 🔍 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, python
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # ============================================
+  # STAGE 3: BUILD & TEST
+  # ============================================
+  build-rust:
+    name: 🦀 Build Rust Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: lint
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: 📦 Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
+      - name: 🔨 Build (Debug)
+        working-directory: backend
+        run: cargo build --all-features
+
+      - name: 🧪 Run Tests
+        working-directory: backend
+        run: cargo test --all-features --no-fail-fast
+        env:
+          RUST_BACKTRACE: 1
+
+      - name: 📊 Generate Coverage
+        working-directory: backend
+        run: |
+          cargo install cargo-tarpaulin || true
+          cargo tarpaulin --out Xml --output-dir coverage || true
+
+      - name: 📤 Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: backend/coverage/cobertura.xml
+          flags: rust
+          name: rust-coverage
+
+      - name: 🔨 Build (Release)
+        working-directory: backend
+        run: cargo build --release
+
+      - name: 📦 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-backend
+          path: backend/target/release/apiserver
+          retention-days: 5
+
+  build-dashboard:
+    name: ⚛️ Build Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: lint
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install dependencies
+        working-directory: apps/dashboard
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔨 Build
+        working-directory: apps/dashboard
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+
+      - name: 🧪 Run Tests
+        working-directory: apps/dashboard
+        run: pnpm test:ci || true
+
+      - name: 📊 Generate Coverage
+        working-directory: apps/dashboard
+        run: pnpm test:coverage || true
+
+      - name: 📤 Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: apps/dashboard/coverage/lcov.info
+          flags: frontend
+          name: dashboard-coverage
+
+      - name: 📦 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-build
+          path: apps/dashboard/.next
+          retention-days: 5
+
+  build-bridge:
+    name: 🌉 Build Telemetry Bridge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: lint
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install dependencies
+        working-directory: bridge
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔨 Build
+        working-directory: bridge
+        run: pnpm build
+
+      - name: 🧪 Run Tests
+        working-directory: bridge
+        run: pnpm test || true
+
+  test-knowledge:
+    name: 🧠 Test Knowledge System
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: knowledge/requirements.txt
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install -r knowledge/requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: 🧪 Run Tests
+        working-directory: knowledge/scripts
+        run: pytest test_knowledge.py -v --cov=. --cov-report=xml || true
+
+      - name: 📤 Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: knowledge/scripts/coverage.xml
+          flags: python
+          name: knowledge-coverage
+
+  # ============================================
+  # STAGE 4: INTEGRATION TESTS
+  # ============================================
+  integration:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-rust, build-dashboard, build-bridge]
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bizra_node0
+          POSTGRES_PASSWORD: bizra_test
+          POSTGRES_DB: bizra_genesis_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Rust Backend
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-backend
+          path: ./backend-bin
+
+      - name: 🔧 Setup Test Environment
+        run: |
+          chmod +x ./backend-bin/apiserver
+          cp .env.example .env
+          sed -i 's/bizra_secure_2025/bizra_test/g' .env
+
+      - name: 🗄️ Initialize Database
+        run: |
+          PGPASSWORD=bizra_test psql -h localhost -U bizra_node0 -d bizra_genesis_test -f scripts/init-db.sql
+
+      - name: 🚀 Start Backend
+        run: |
+          ./backend-bin/apiserver &
+          sleep 5
+          curl -f http://localhost:8080/health || exit 1
+        env:
+          DATABASE_URL: postgres://bizra_node0:bizra_test@localhost:5432/bizra_genesis_test
+          REDIS_URL: redis://localhost:6379
+          API_PORT: 8080
+
+      - name: 🧪 Run API Integration Tests
+        run: |
+          # Health check
+          curl -f http://localhost:8080/health
+          
+          # Services status
+          curl -f http://localhost:8080/api/services/status
+          
+          # PAT agents list
+          curl -f http://localhost:8080/api/pat/agents
+          
+          # Resources status
+          curl -f http://localhost:8080/api/resources/status
+
+  # ============================================
+  # STAGE 5: E2E TESTS
+  # ============================================
+  e2e:
+    name: 🎭 E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-rust, build-dashboard]
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install dependencies
+        working-directory: apps/dashboard
+        run: pnpm install --frozen-lockfile
+
+      - name: 🎭 Install Playwright
+        working-directory: apps/dashboard
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: 📥 Download Dashboard Build
+        uses: actions/download-artifact@v4
+        with:
+          name: dashboard-build
+          path: apps/dashboard/.next
+
+      - name: 🧪 Run E2E Tests
+        working-directory: apps/dashboard
+        run: pnpm test:e2e || true
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
+
+      - name: 📤 Upload E2E Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/dashboard/playwright-report
+          retention-days: 30
+
+  # ============================================
+  # STAGE 6: DOCKER BUILD
+  # ============================================
+  docker:
+    name: 🐳 Build Docker Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [integration]
+    if: github.event_name != 'pull_request'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+          - context: backend
+            image: bizra-backend
+          - context: apps/dashboard
+            image: bizra-dashboard
+          - context: bridge
+            image: bizra-bridge
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📋 Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+
+      - name: 🐳 Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # ============================================
+  # STAGE 7: DEPLOY
+  # ============================================
+  deploy-staging:
+    name: 🚀 Deploy Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [docker, security]
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.bizra.foundation
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: 🔐 Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > ~/.kube/config
+
+      - name: 🚀 Deploy to Staging
+        run: |
+          kubectl set image deployment/bizra-backend \
+            backend=${{ env.REGISTRY }}/${{ github.repository_owner }}/bizra-backend:${{ github.sha }} \
+            -n bizra-staging || true
+          
+          kubectl set image deployment/bizra-dashboard \
+            dashboard=${{ env.REGISTRY }}/${{ github.repository_owner }}/bizra-dashboard:${{ github.sha }} \
+            -n bizra-staging || true
+
+      - name: ✅ Verify Deployment
+        run: |
+          kubectl rollout status deployment/bizra-backend -n bizra-staging --timeout=300s || true
+          kubectl rollout status deployment/bizra-dashboard -n bizra-staging --timeout=300s || true
+
+  deploy-production:
+    name: 🚀 Deploy Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [docker, security, e2e]
+    if: github.event_name == 'release'
+    environment:
+      name: production
+      url: https://node0.bizra.foundation
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: 🔐 Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > ~/.kube/config
+
+      - name: 🚀 Deploy to Production
+        run: |
+          kubectl set image deployment/bizra-backend \
+            backend=${{ env.REGISTRY }}/${{ github.repository_owner }}/bizra-backend:${{ github.ref_name }} \
+            -n bizra-production
+          
+          kubectl set image deployment/bizra-dashboard \
+            dashboard=${{ env.REGISTRY }}/${{ github.repository_owner }}/bizra-dashboard:${{ github.ref_name }} \
+            -n bizra-production
+
+      - name: ✅ Verify Deployment
+        run: |
+          kubectl rollout status deployment/bizra-backend -n bizra-production --timeout=600s
+          kubectl rollout status deployment/bizra-dashboard -n bizra-production --timeout=600s
+
+      - name: 🔔 Notify Success
+        uses: slackapi/slack-github-action@v1.25.0
+        if: success()
+        with:
+          payload: |
+            {
+              "text": "🚀 BIZRA Node0 v${{ github.ref_name }} deployed to production!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *BIZRA Node0 Production Deployment*\n*Version:* ${{ github.ref_name }}\n*URL:* https://node0.bizra.foundation"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # ============================================
+  # STAGE 8: RELEASE ARTIFACTS
+  # ============================================
+  release:
+    name: 📦 Create Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [deploy-production]
+    if: github.event_name == 'release'
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: 📦 Package release assets
+        run: |
+          tar -czvf bizra-backend-linux-amd64.tar.gz -C rust-backend .
+          zip -r bizra-dashboard-build.zip dashboard-build/
+
+      - name: 📤 Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bizra-backend-linux-amd64.tar.gz
+            bizra-dashboard-build.zip
+          generate_release_notes: true

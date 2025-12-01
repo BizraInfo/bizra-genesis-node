@@ -1,0 +1,140 @@
+# BIZRA Node0 - Pre-commit Configuration
+# Document ID: BIZRA-NODE0-v1.0.0-GENESIS
+#
+# Elite Code Quality Gates:
+# - Linting before commit
+# - Formatting validation
+# - Type checking
+# - Security scanning
+
+repos:
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(pnpm-lock\.yaml|\.lock)$
+      - id: end-of-file-fixer
+        exclude: ^(pnpm-lock\.yaml|\.lock)$
+      - id: check-yaml
+        args: ['--unsafe']
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: pnpm-lock\.yaml
+
+  # Commit message formatting
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.13.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # Rust hooks
+  - repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+      - id: fmt
+        name: Rust Format
+        entry: cargo fmt --manifest-path backend/Cargo.toml --
+        pass_filenames: false
+      - id: cargo-check
+        name: Rust Check
+        entry: cargo check --manifest-path backend/Cargo.toml
+        pass_filenames: false
+
+  # Local hooks (project-specific)
+  - repo: local
+    hooks:
+      # TypeScript/JavaScript linting
+      - id: eslint
+        name: ESLint
+        language: system
+        entry: npx eslint --fix
+        files: \.(ts|tsx|js|jsx)$
+        exclude: ^(node_modules|\.next|dist)/
+        types: [file]
+
+      # Prettier formatting
+      - id: prettier
+        name: Prettier
+        language: system
+        entry: npx prettier --write
+        files: \.(ts|tsx|js|jsx|json|css|md|yaml|yml)$
+        exclude: ^(node_modules|\.next|dist|pnpm-lock\.yaml)/
+        types: [file]
+
+      # TypeScript type checking
+      - id: typescript
+        name: TypeScript Check
+        language: system
+        entry: npx tsc --noEmit
+        files: \.(ts|tsx)$
+        pass_filenames: false
+
+      # Rust clippy
+      - id: clippy
+        name: Rust Clippy
+        language: system
+        entry: cargo clippy --manifest-path backend/Cargo.toml -- -D warnings
+        files: \.rs$
+        pass_filenames: false
+
+      # Rust audit
+      - id: cargo-audit
+        name: Cargo Audit
+        language: system
+        entry: cargo audit --file backend/Cargo.lock
+        files: ^backend/Cargo\.(toml|lock)$
+        pass_filenames: false
+        stages: [push]
+
+      # NPM audit
+      - id: npm-audit
+        name: NPM Audit
+        language: system
+        entry: npm audit --audit-level=moderate
+        files: ^apps/dashboard/package\.json$
+        pass_filenames: false
+        stages: [push]
+
+      # Check for console.log
+      - id: no-console-log
+        name: No console.log
+        language: pygrep
+        entry: 'console\.log\('
+        files: \.(ts|tsx)$
+        exclude: ^(.*\.test\.|.*\.spec\.)
+        types: [file]
+
+      # Check for TODO/FIXME
+      - id: check-todos
+        name: Check TODOs
+        language: pygrep
+        entry: '(TODO|FIXME|XXX|HACK):'
+        files: \.(ts|tsx|rs)$
+        types: [file]
+        stages: [manual]
+
+# Configuration
+default_language_version:
+  python: python3
+
+default_stages: [commit]
+
+fail_fast: false
+
+minimum_pre_commit_version: '3.0.0'

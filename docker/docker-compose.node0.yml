@@ -1,0 +1,63 @@
+# BIZRA Node0 - Docker Compose Configuration (v1.0.1 Minimal)
+# Document ID: BIZRA-NODE0-v1.0.1-GENESIS
+# Infrastructure Layer (Layer 1: The Body)
+#
+# v1.0.1 Changes:
+# - Minimal stack: Postgres + Redis only
+# - Ollama runs as host service (Windows app)
+# - Neo4j/Qdrant moved to optional Phase 2+
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database - Primary storage for PoI Ledger, User Profiles, Asset Registry
+  postgres:
+    image: postgres:16-alpine
+    container_name: bizra-node0-db
+    environment:
+      POSTGRES_USER: bizra_node0
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bizra_secure_2025}
+      POSTGRES_DB: bizra_genesis
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bizra_node0 -d bizra_genesis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - bizra-network
+    restart: unless-stopped
+
+  # Redis - Hot state cache, message bus for SAT agents
+  redis:
+    image: redis:7-alpine
+    container_name: bizra-node0-redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - bizra-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    name: bizra-node0-pgdata
+  redisdata:
+    name: bizra-node0-redisdata
+
+networks:
+  bizra-network:
+    name: bizra-genesis-network
+    driver: bridge

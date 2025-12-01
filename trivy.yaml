@@ -1,0 +1,88 @@
+# BIZRA Node0 - Security Scanning Configuration
+# Document ID: BIZRA-NODE0-v1.0.0-GENESIS
+#
+# Trivy vulnerability scanner configuration
+# Elite security standards
+
+# Vulnerability database
+db:
+  repository: ghcr.io/aquasecurity/trivy-db
+  download-only: false
+
+# Scanning targets
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+    - license
+
+# Severity levels to report
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+
+# Ignore unfixed vulnerabilities
+ignore-unfixed: false
+
+# Output format
+format: table
+
+# Exit code configuration
+exit-code: 1
+
+# Timeout
+timeout: 10m
+
+# Cache configuration
+cache-dir: /tmp/trivy-cache
+
+# Vulnerability settings
+vulnerability:
+  type:
+    - os
+    - library
+  ignore-statuses:
+    - not_affected
+    - will_not_fix
+
+# Secret scanning
+secret:
+  config: trivy-secret.yaml
+
+# Misconfiguration scanning
+misconfiguration:
+  policy-bundle-repository: ghcr.io/aquasecurity/trivy-policies:0
+  trace: false
+
+# License scanning
+license:
+  full: true
+  ignored:
+    - MIT
+    - Apache-2.0
+    - BSD-2-Clause
+    - BSD-3-Clause
+    - ISC
+    - MPL-2.0
+  forbidden:
+    - GPL-3.0
+    - AGPL-3.0
+
+# Skip specific files
+skip-files:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/node_modules/**"
+  - "**/.git/**"
+
+# Skip directories
+skip-dirs:
+  - node_modules
+  - .git
+  - .next
+  - dist
+  - coverage
+  - test-results

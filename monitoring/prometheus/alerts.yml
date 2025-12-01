@@ -1,0 +1,214 @@
+# BIZRA Node0 - Prometheus Alert Rules
+# Document ID: BIZRA-NODE0-v1.0.0-GENESIS
+#
+# Elite Alerting Standards
+
+groups:
+  # Service Health Alerts
+  - name: service_health
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="bizra-api"}[5m])) by (le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API latency detected"
+          description: "95th percentile latency is above 1 second for the past 5 minutes."
+
+      - alert: APIHighErrorRate
+        expr: sum(rate(http_requests_total{job="bizra-api",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="bizra-api"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API error rate"
+          description: "More than 5% of requests are failing with 5xx errors."
+
+  # Resource Alerts
+  - name: resources
+    interval: 1m
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 85% for more than 10 minutes."
+
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 95% for more than 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 85% for more than 10 minutes."
+
+      - alert: CriticalMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 95
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical memory usage on {{ $labels.instance }}"
+          description: "Memory usage is above 95% for more than 5 minutes."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Less than 15% disk space remaining on root partition."
+
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Less than 5% disk space remaining on root partition."
+
+  # Database Alerts
+  - name: database
+    interval: 30s
+    rules:
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is unreachable."
+
+      - alert: PostgresHighConnections
+        expr: pg_stat_activity_count / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High PostgreSQL connections"
+          description: "PostgreSQL is using more than 80% of max connections."
+
+      - alert: PostgresSlowQueries
+        expr: rate(pg_stat_statements_seconds_total[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow PostgreSQL queries detected"
+          description: "Average query time is above 1 second."
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis server is unreachable."
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis is using more than 90% of max memory."
+
+  # LLM/Ollama Alerts
+  - name: ollama
+    interval: 1m
+    rules:
+      - alert: OllamaDown
+        expr: up{job="ollama"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Ollama is down"
+          description: "Ollama LLM server is unreachable."
+
+      - alert: OllamaHighLatency
+        expr: ollama_request_duration_seconds > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Ollama inference latency"
+          description: "Ollama inference is taking more than 30 seconds."
+
+      - alert: OllamaHighGPUMemory
+        expr: ollama_gpu_memory_used_bytes / ollama_gpu_memory_total_bytes > 0.95
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High GPU memory usage"
+          description: "Ollama is using more than 95% of GPU memory."
+
+  # BIZRA-Specific Alerts
+  - name: bizra_metrics
+    interval: 30s
+    rules:
+      - alert: LowIhsanScore
+        expr: avg(bizra_poi_ihsan_score) < 0.7
+        for: 1h
+        labels:
+          severity: info
+        annotations:
+          summary: "Low average Ihsan score"
+          description: "Average Ihsan score has been below 0.7 for the past hour."
+
+      - alert: PoIVerificationBacklog
+        expr: sum(bizra_poi_events_unverified) > 100
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PoI verification backlog"
+          description: "More than 100 PoI events are awaiting verification."
+
+      - alert: PATAgentError
+        expr: rate(bizra_pat_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PAT agent errors detected"
+          description: "PAT agent error rate is above 10% for the past 5 minutes."
+
+      - alert: KnowledgeGraphStale
+        expr: time() - bizra_knowledge_last_update_timestamp > 86400
+        for: 1h
+        labels:
+          severity: info
+        annotations:
+          summary: "Knowledge graph not updated"
+          description: "Knowledge graph has not been updated in the past 24 hours."

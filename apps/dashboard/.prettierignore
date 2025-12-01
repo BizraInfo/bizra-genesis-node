@@ -1,0 +1,39 @@
+# BIZRA Node0 - Prettier Ignore
+# Document ID: BIZRA-NODE0-v1.0.0-GENESIS
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Coverage & reports
+coverage/
+reports/
+
+# Auto-generated
+*.min.js
+*.min.css
+*.map
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Public assets
+public/
+
+# Environment
+.env*
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Test artifacts
+test-results/
+playwright-report/

@@ -1,0 +1,154 @@
+# BIZRA Node0 - Dashboard Deployment
+# Document ID: BIZRA-NODE0-v1.0.0-GENESIS
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bizra-dashboard
+  namespace: bizra-node0
+  labels:
+    app: bizra-dashboard
+    app.kubernetes.io/name: bizra-dashboard
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: bizra-node0
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: bizra-dashboard
+  template:
+    metadata:
+      labels:
+        app: bizra-dashboard
+        app.kubernetes.io/name: bizra-dashboard
+    spec:
+      serviceAccountName: bizra-dashboard
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: dashboard
+          image: bizra/node0-dashboard:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://bizra-api:8080"
+            - name: NEXT_TELEMETRY_DISABLED
+              value: "1"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: 128Mi
+            limits:
+              cpu: "500m"
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: next-cache
+              mountPath: /app/.next/cache
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: next-cache
+          emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: bizra-dashboard
+                topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bizra-dashboard
+  namespace: bizra-node0
+  labels:
+    app: bizra-dashboard
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: bizra-dashboard
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bizra-dashboard
+  namespace: bizra-node0
+  labels:
+    app: bizra-dashboard
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: bizra-dashboard-hpa
+  namespace: bizra-node0
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bizra-dashboard
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: bizra-dashboard-pdb
+  namespace: bizra-node0
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: bizra-dashboard
