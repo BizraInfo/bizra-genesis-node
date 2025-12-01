@@ -64,7 +64,7 @@ redis = { version = "1.0.0-rc.4", features = ["tokio-comp", "connection-manager"
 # Auth & Security
 bcrypt = "0.15"
 jsonwebtoken = "9.2"
-validator = { version = "0.19", features = ["derive"] }
+validator = { version = "0.20", features = ["derive"] }
 regex = "1.10"
 lazy_static = "1.4"
 
