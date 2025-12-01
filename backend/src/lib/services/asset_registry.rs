@@ -2,9 +2,10 @@
 //! 
 //! Indexes and manages all files Node0 can access.
 
+use md5::{Md5, Digest};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use tokio::fs;
 use uuid::Uuid;
 
@@ -188,9 +189,11 @@ impl AssetRegistry {
             .map(|t| chrono::DateTime::<chrono::Utc>::from(t))
             .unwrap_or_else(|_| chrono::Utc::now());
 
-        // Calculate content hash
+        // Calculate content hash using MD5
         let content = fs::read(&path).await?;
-        let content_hash = format!("{:x}", md5::compute(&content));
+        let mut hasher = Md5::new();
+        hasher.update(&content);
+        let content_hash = format!("{:x}", hasher.finalize());
 
         // Insert or update in database
         let asset = sqlx::query_as!(

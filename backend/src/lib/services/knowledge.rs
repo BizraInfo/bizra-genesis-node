@@ -3,7 +3,6 @@
 //! Provides knowledge retrieval from the Hypergraph RAG system
 //! for SAPE agents and other backend services.
 
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process::Command;
 use serde::{Deserialize, Serialize};

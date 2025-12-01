@@ -4,7 +4,7 @@
 //! Used during onboarding to recommend resource allocation.
 
 use serde::{Deserialize, Serialize};
-use sysinfo::{System, Disks, Networks};
+use sysinfo::{System, Disks};
 
 /// Complete environment snapshot
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -115,7 +115,7 @@ impl EnvSnapshot {
                 .unwrap_or_else(|| "Unknown CPU".into()),
             cores: sys.physical_core_count().unwrap_or(0),
             threads: sys.cpus().len(),
-            usage_percent: sys.global_cpu_usage(),
+            usage_percent: sys.global_cpu_info().cpu_usage(),
             frequency_mhz: sys.cpus().first()
                 .map(|c| c.frequency())
                 .unwrap_or(0),

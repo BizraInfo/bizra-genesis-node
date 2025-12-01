@@ -5,8 +5,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
-use std::sync::Arc;
-use crate::lib::services::knowledge::{HypergraphClient, knowledge_client};
+use crate::lib::services::knowledge::knowledge_client;
 
 /// PAT Agent roles
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -360,7 +359,7 @@ impl PatOrchestrator {
     /// Calculate Ihsan (excellence) score for a response
     fn calculate_ihsan_score(&self, response: &str, latency_ms: u64) -> f64 {
         // Base score
-        let mut score = 0.80;
+        let mut score: f64 = 0.80;
 
         // Length factor (reasonable responses are better)
         let word_count = response.split_whitespace().count();

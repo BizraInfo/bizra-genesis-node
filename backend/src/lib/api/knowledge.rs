@@ -3,7 +3,7 @@
 //! REST API for knowledge queries from the Hypergraph RAG system.
 
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::Json,
     routing::{get, post},
@@ -11,7 +11,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use crate::lib::services::knowledge::{HypergraphClient, KnowledgeResult, KnowledgeError};
+use crate::lib::services::knowledge::HypergraphClient;
 
 /// Application state containing knowledge client
 pub struct KnowledgeState {
