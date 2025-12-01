@@ -72,7 +72,7 @@ lazy_static = "1.4"
 ts-rs = "7.1"
 tower_governor = "0.3"
 tower = { version = "0.4", features = ["util"] }
-tower-http = { version = "0.5", features = ["cors", "trace"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
 totp-rs = "5.5"
 base32 = "0.5"
 urlencoding = "2.1"
