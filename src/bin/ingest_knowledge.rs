@@ -28,6 +28,7 @@ struct Document {
 }
 
 #[derive(Debug, sqlx::FromRow)]
+#[allow(dead_code)]
 struct KnowledgeEntry {
     id: uuid::Uuid,
     content: String,
@@ -108,7 +109,7 @@ async fn process_documents(
             entry
                 .path()
                 .extension()
-                .map_or(false, |ext| ext == "json" || ext == "md")
+                .is_some_and(|ext| ext == "json" || ext == "md")
         })
         .collect::<Vec<_>>();
 

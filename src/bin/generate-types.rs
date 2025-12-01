@@ -8,6 +8,7 @@ use std::fs;
 use std::path::Path;
 
 // Import our WebSocket types (this will trigger code generation)
+#[allow(unused_imports)]
 use bizra_genesis_node::websocket::types::*;
 
 /// Wrapper to force type generation for all WebSocket types
