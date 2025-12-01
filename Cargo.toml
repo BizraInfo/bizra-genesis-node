@@ -71,7 +71,7 @@ lazy_static = "1.4"
 # Type generation for TypeScript frontend
 ts-rs = "7.1"
 tower_governor = "0.3"
-tower = { version = "0.4", features = ["util"] }
+tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 totp-rs = "5.5"
 base32 = "0.5"
@@ -110,7 +110,7 @@ indicatif = "0.17"
 criterion = { version = "0.5", features = ["async_tokio"] }
 proptest = "1.4"
 quickcheck = "1.0"
-tower = "0.4"  # For telemetry HTTP testing
+tower = "0.5"  # For telemetry HTTP testing
 tempfile = "3.8"  # For validation API testing
 http = "1.0"  # For axum request testing
 serde_yaml = "0.9"  # For SLO validation tests
