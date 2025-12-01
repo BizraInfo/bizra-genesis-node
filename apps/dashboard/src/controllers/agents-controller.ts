@@ -31,6 +31,24 @@ export interface AgentListData {
   lastUpdated: number;
 }
 
+interface AgentStatusUpdateMessage {
+  type: 'AGENT_STATUS_UPDATE';
+  agentId: string;
+  status: Agent['status'];
+}
+
+interface AgentMetricsUpdateMessage {
+  type: 'AGENT_METRICS_UPDATE';
+  agentId: string;
+  metrics: Partial<Agent['metrics']>;
+}
+
+interface AgentListRefreshMessage {
+  type: 'AGENT_LIST_REFRESH';
+}
+
+type AgentWebSocketMessage = AgentStatusUpdateMessage | AgentMetricsUpdateMessage | AgentListRefreshMessage;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Configuration
 // ─────────────────────────────────────────────────────────────────────────────
@@ -68,11 +86,11 @@ async function fetchAgentsAPI(): Promise<AgentListData> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Failed to fetch agents' }));
+    const errorData = (await response.json().catch(() => ({ message: 'Failed to fetch agents' }))) as { message?: string };
     throw new Error(errorData.message || `HTTP ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as { agents?: Agent[] };
 
   return {
     agents: data.agents || [],
@@ -143,13 +161,15 @@ export function updateAgentMetrics(agentId: string, metrics: Partial<Agent['metr
 // WebSocket Integration
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function handleAgentWebSocketMessage(message: any) {
-  if (message.type === 'AGENT_STATUS_UPDATE') {
-    updateAgentStatus(message.agentId, message.status);
-  } else if (message.type === 'AGENT_METRICS_UPDATE') {
-    updateAgentMetrics(message.agentId, message.metrics);
-  } else if (message.type === 'AGENT_LIST_REFRESH') {
-    refreshAgents();
+export function handleAgentWebSocketMessage(message: unknown) {
+  const msg = message as AgentWebSocketMessage;
+
+  if (msg.type === 'AGENT_STATUS_UPDATE') {
+    updateAgentStatus(msg.agentId, msg.status);
+  } else if (msg.type === 'AGENT_METRICS_UPDATE') {
+    updateAgentMetrics(msg.agentId, msg.metrics);
+  } else if (msg.type === 'AGENT_LIST_REFRESH') {
+    void refreshAgents();
   }
 }
 

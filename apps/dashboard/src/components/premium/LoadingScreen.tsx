@@ -43,7 +43,7 @@ export function LoadingScreen({
 
   // Agent activation simulation
   useEffect(() => {
-    if (isComplete) return;
+    if (isComplete) {return;}
 
     const interval = setInterval(() => {
       setAgentCount((prev) => {

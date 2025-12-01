@@ -114,7 +114,7 @@ class L1MemoryCache {
 
   has(key: string): boolean {
     const entry = this.cache.get(key);
-    if (!entry) return false;
+    if (!entry) {return false;}
     return Date.now() - entry.timestamp <= entry.ttl;
   }
 
@@ -189,13 +189,13 @@ class L2IndexedDBCache {
   }
 
   private async ensureInitialized(): Promise<boolean> {
-    if (!this.initPromise) return false;
+    if (!this.initPromise) {return false;}
     await this.initPromise;
     return this.db !== null;
   }
 
   async get<T>(key: string): Promise<T | null> {
-    if (!(await this.ensureInitialized())) return null;
+    if (!(await this.ensureInitialized())) {return null;}
 
     return new Promise((resolve) => {
       const transaction = this.db!.transaction(this.storeName, 'readonly');
@@ -231,7 +231,7 @@ class L2IndexedDBCache {
   }
 
   async set<T>(key: string, data: T, options: CacheOptions = {}): Promise<void> {
-    if (!(await this.ensureInitialized())) return;
+    if (!(await this.ensureInitialized())) {return;}
 
     const shouldCompress =
       options.compress && JSON.stringify(data).length > 1024;
@@ -257,7 +257,7 @@ class L2IndexedDBCache {
   }
 
   async delete(key: string): Promise<boolean> {
-    if (!(await this.ensureInitialized())) return false;
+    if (!(await this.ensureInitialized())) {return false;}
 
     return new Promise((resolve) => {
       const transaction = this.db!.transaction(this.storeName, 'readwrite');
@@ -270,7 +270,7 @@ class L2IndexedDBCache {
   }
 
   async deleteByTags(tags: string[]): Promise<number> {
-    if (!(await this.ensureInitialized())) return 0;
+    if (!(await this.ensureInitialized())) {return 0;}
 
     return new Promise((resolve) => {
       let deleted = 0;
@@ -296,7 +296,7 @@ class L2IndexedDBCache {
   }
 
   async clear(): Promise<void> {
-    if (!(await this.ensureInitialized())) return;
+    if (!(await this.ensureInitialized())) {return;}
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(this.storeName, 'readwrite');
@@ -309,7 +309,7 @@ class L2IndexedDBCache {
   }
 
   async getSize(): Promise<number> {
-    if (!(await this.ensureInitialized())) return 0;
+    if (!(await this.ensureInitialized())) {return 0;}
 
     return new Promise((resolve) => {
       const transaction = this.db!.transaction(this.storeName, 'readonly');
@@ -322,7 +322,7 @@ class L2IndexedDBCache {
   }
 
   async gc(): Promise<number> {
-    if (!(await this.ensureInitialized())) return 0;
+    if (!(await this.ensureInitialized())) {return 0;}
 
     return new Promise((resolve) => {
       let deleted = 0;
@@ -391,7 +391,7 @@ class L3ServiceWorkerCache {
   }
 
   async get(url: string): Promise<Response | null> {
-    if (typeof caches === 'undefined') return null;
+    if (typeof caches === 'undefined') {return null;}
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -403,7 +403,7 @@ class L3ServiceWorkerCache {
   }
 
   async set(url: string, response: Response, ttl?: number): Promise<void> {
-    if (typeof caches === 'undefined') return;
+    if (typeof caches === 'undefined') {return;}
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -428,7 +428,7 @@ class L3ServiceWorkerCache {
   }
 
   async delete(url: string): Promise<boolean> {
-    if (typeof caches === 'undefined') return false;
+    if (typeof caches === 'undefined') {return false;}
 
     try {
       const cache = await caches.open(this.cacheName);
@@ -439,7 +439,7 @@ class L3ServiceWorkerCache {
   }
 
   async clear(): Promise<void> {
-    if (typeof caches === 'undefined') return;
+    if (typeof caches === 'undefined') {return;}
 
     try {
       await caches.delete(this.cacheName);
@@ -534,7 +534,7 @@ export class BIZRACache {
 
   async invalidateByTag(tag: string): Promise<number> {
     const keys = this.tagIndex.get(tag);
-    if (!keys) return 0;
+    if (!keys) {return 0;}
 
     let invalidated = 0;
     for (const key of keys) {
@@ -549,7 +549,7 @@ export class BIZRACache {
 
   async invalidateByPattern(pattern: string): Promise<number> {
     const regex = new RegExp(pattern);
-    let invalidated = 0;
+    const invalidated = 0;
 
     // This would require iterating through L2 which is expensive
     // For now, we focus on L1 pattern invalidation
@@ -573,7 +573,7 @@ export class BIZRACache {
     const promises = entries.map(async ({ key, fetcher, options }) => {
       // Check if already cached
       const existing = await this.get(key);
-      if (existing !== null) return;
+      if (existing !== null) {return;}
 
       try {
         const data = await fetcher();

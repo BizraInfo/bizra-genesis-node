@@ -120,7 +120,7 @@ class DeviceFingerprintCollector {
   }
 
   private getScreenResolution(): string {
-    if (typeof screen === 'undefined') return '';
+    if (typeof screen === 'undefined') {return '';}
     return `${screen.width}x${screen.height}x${screen.colorDepth}`;
   }
 
@@ -143,12 +143,12 @@ class DeviceFingerprintCollector {
   }
 
   private async getCanvasFingerprint(): Promise<string> {
-    if (typeof document === 'undefined') return '';
+    if (typeof document === 'undefined') {return '';}
 
     try {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      if (!ctx) return '';
+      if (!ctx) {return '';}
 
       // Draw various elements
       ctx.textBaseline = 'top';
@@ -167,15 +167,15 @@ class DeviceFingerprintCollector {
   }
 
   private getWebGLFingerprint(): string {
-    if (typeof document === 'undefined') return '';
+    if (typeof document === 'undefined') {return '';}
 
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (!gl) return '';
+      if (!gl) {return '';}
 
       const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
-      if (!debugInfo) return '';
+      if (!debugInfo) {return '';}
 
       const vendor = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
       const renderer = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
@@ -193,7 +193,7 @@ class DeviceFingerprintCollector {
       'Wingdings', 'Helvetica', 'Monaco', 'Roboto', 'Open Sans'
     ];
 
-    if (typeof document === 'undefined') return [];
+    if (typeof document === 'undefined') {return [];}
 
     const available: string[] = [];
     const baseFonts = ['monospace', 'sans-serif', 'serif'];
@@ -221,7 +221,7 @@ class DeviceFingerprintCollector {
           detected = true;
         }
       });
-      if (detected) available.push(font);
+      if (detected) {available.push(font);}
     });
 
     document.body.removeChild(span);
@@ -229,7 +229,7 @@ class DeviceFingerprintCollector {
   }
 
   private getPlugins(): string[] {
-    if (typeof navigator === 'undefined' || !navigator.plugins) return [];
+    if (typeof navigator === 'undefined' || !navigator.plugins) {return [];}
 
     const plugins: string[] = [];
     for (let i = 0; i < navigator.plugins.length; i++) {
@@ -273,7 +273,7 @@ class TokenManager {
   }
 
   private loadFromStorage(): void {
-    if (typeof localStorage === 'undefined') return;
+    if (typeof localStorage === 'undefined') {return;}
 
     try {
       const stored = localStorage.getItem(this.storageKey);
@@ -289,7 +289,7 @@ class TokenManager {
   }
 
   private saveToStorage(): void {
-    if (typeof localStorage === 'undefined') return;
+    if (typeof localStorage === 'undefined') {return;}
 
     try {
       const tokens: Record<string, SecurityToken> = {};
@@ -317,7 +317,7 @@ class TokenManager {
   getToken(type: SecurityToken['type']): string | null {
     const token = this.tokens.get(type);
     
-    if (!token) return null;
+    if (!token) {return null;}
     
     // Check expiration
     if (Date.now() >= token.expiresAt) {
@@ -463,6 +463,7 @@ class InputSanitizer {
 
   sanitizeFilename(input: string): string {
     return input
+      // eslint-disable-next-line no-control-regex -- Intentional control char removal for filename safety
       .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
       .replace(/^\.+/, '')
       .slice(0, 255);
@@ -533,7 +534,7 @@ class CSRFProtection {
   }
 
   validateToken(token: string): boolean {
-    if (typeof sessionStorage === 'undefined') return false;
+    if (typeof sessionStorage === 'undefined') {return false;}
     return token === sessionStorage.getItem(this.tokenKey);
   }
 
@@ -852,7 +853,7 @@ export class BIZRASecurity {
   // ===========================================================================
 
   isOriginTrusted(origin: string): boolean {
-    if (this.config.trustedOrigins.length === 0) return true;
+    if (this.config.trustedOrigins.length === 0) {return true;}
     return this.config.trustedOrigins.includes(origin);
   }
 
@@ -880,11 +881,11 @@ export class BIZRASecurity {
   }
 
   getCurrentSession(): Session | null {
-    if (typeof sessionStorage === 'undefined') return null;
+    if (typeof sessionStorage === 'undefined') {return null;}
 
     try {
       const stored = sessionStorage.getItem('bizra_session');
-      if (!stored) return null;
+      if (!stored) {return null;}
 
       const session = JSON.parse(stored) as Session;
 

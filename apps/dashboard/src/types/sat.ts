@@ -16,7 +16,7 @@ export interface SatOutboxItem {
   created_at: string;
   updated_at: string;
   published_at?: string | null;
-  engagement_metrics?: Record<string, any> | null;
+  engagement_metrics?: Record<string, unknown> | null;
 }
 
 export interface SatRecommendation {
@@ -33,7 +33,7 @@ export interface SatActivity {
   id: string;
   agent_type: string;
   action_type: string;
-  action_details?: Record<string, any> | null;
+  action_details?: Record<string, unknown> | null;
   impact_score?: number | null;
   created_at: string;
 }

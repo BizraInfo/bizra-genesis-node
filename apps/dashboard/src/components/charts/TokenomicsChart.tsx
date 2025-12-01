@@ -3,7 +3,7 @@
  * Polar area chart showing BIZRA token distribution (Flower of Allocation)
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -12,6 +12,9 @@ import {
   Filler,
   Tooltip,
   Legend,
+  TooltipItem,
+  ChartEvent,
+  ActiveElement
 } from 'chart.js';
 import { PolarArea } from 'react-chartjs-2';
 import { BRAND } from '../../constants/brand';
@@ -57,7 +60,7 @@ const TokenomicsChart: React.FC = () => {
         cornerRadius: 8,
         displayColors: true,
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<'polarArea'>) => {
             const label = context.label || '';
             const value = context.parsed.r;
             return `${label}: ${value}%`;
@@ -94,8 +97,10 @@ const TokenomicsChart: React.FC = () => {
       animateRotate: true,
       animateScale: true,
     },
-    onHover: (event: any, elements: any) => {
-      event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
+    onHover: (event: ChartEvent, elements: ActiveElement[]) => {
+      if (event.native?.target) {
+        (event.native.target as HTMLElement).style.cursor = elements.length > 0 ? 'pointer' : 'default';
+      }
     },
   };
 

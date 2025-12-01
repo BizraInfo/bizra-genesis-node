@@ -13,7 +13,7 @@
  * @version 2.0.0
  */
 
-import { useEffect, useCallback, useRef, useState, useMemo } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { getBIZRAClient, BIZRAAPIClient } from '../lib/api/client';
 import { SACRED_FREQUENCIES } from '../lib/design-system';
 
@@ -92,7 +92,7 @@ export function useRealtimeData<T = unknown>(
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastPingRef = useRef<number>(0);
 
-  const [rawData, setRawData] = useState<T | null>(initialData as T | null);
+  const [rawData, setRawData] = useState<T | null>(initialData);
   const [error, setError] = useState<Error | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>({
     status: 'disconnected',
@@ -102,7 +102,8 @@ export function useRealtimeData<T = unknown>(
   });
 
   // Apply debouncing if specified
-  const data = debounceMs > 0 ? useDebouncedValue(rawData, debounceMs) : rawData;
+  const debouncedData = useDebouncedValue(rawData, debounceMs);
+  const data = debounceMs > 0 ? debouncedData : rawData;
 
   // Initialize client
   useEffect(() => {
@@ -129,7 +130,7 @@ export function useRealtimeData<T = unknown>(
 
   // Connection management
   const connect = useCallback(() => {
-    if (!clientRef.current || !enabled) return;
+    if (!clientRef.current || !enabled) { return; }
 
     setConnectionState((prev) => ({ ...prev, status: 'connecting' }));
 
@@ -157,7 +158,7 @@ export function useRealtimeData<T = unknown>(
       stopHeartbeat();
     });
 
-    const unsubError = clientRef.current.on('ws:error', (errorData) => {
+    const unsubError = clientRef.current.on('ws:error', () => {
       const wsError = new Error('WebSocket error');
       setError(wsError);
       onError?.(wsError);
@@ -180,11 +181,11 @@ export function useRealtimeData<T = unknown>(
     if (!clientRef.current.isWebSocketConnected()) {
       clientRef.current.connectWebSocket();
     }
-  }, [channel, enabled, handleData, onConnect, onDisconnect, onError]);
+  }, [channel, enabled, handleData, onConnect, onDisconnect, onError, startHeartbeat, stopHeartbeat]);
 
   // Heartbeat for connection health monitoring
   const startHeartbeat = useCallback(() => {
-    if (heartbeatIntervalRef.current) return;
+    if (heartbeatIntervalRef.current) { return; }
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (clientRef.current?.isWebSocketConnected()) {
@@ -423,7 +424,7 @@ export function useConnectionStatus(): {
   });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') { return; }
 
     const handleOnline = () => setStatus((prev) => ({ ...prev, isOnline: true }));
     const handleOffline = () => setStatus((prev) => ({ ...prev, isOnline: false }));
@@ -530,13 +531,15 @@ export function usePolling<T>(options: PollingOptions<T>): {
   }, [fetcher, onError]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) { return; }
 
     // Initial fetch
-    fetch();
+    void fetch();
 
     // Set up polling
-    intervalRef.current = setInterval(fetch, interval);
+    intervalRef.current = setInterval(() => {
+      void fetch();
+    }, interval);
 
     return () => {
       if (intervalRef.current) {

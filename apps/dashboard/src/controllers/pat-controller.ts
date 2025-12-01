@@ -36,7 +36,7 @@ class PatController {
       throw new Error(`Failed to fetch PAT dashboard data: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<PatDashboardResponse> = await response.json();
+    const apiResponse = (await response.json()) as ApiResponse<PatDashboardResponse>;
 
     if (!apiResponse.success) {
       throw new Error(apiResponse.message || 'Unknown error occurred');
@@ -67,7 +67,7 @@ class PatController {
       throw new Error(`Failed to update focus: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<UpdateFocusResponse> = await response.json();
+    const apiResponse = (await response.json()) as ApiResponse<UpdateFocusResponse>;
 
     if (!apiResponse.success) {
       throw new Error(apiResponse.message || 'Failed to update focus');
@@ -86,7 +86,7 @@ class PatController {
     // Base efficacy from focus confidence and team health
     const focusScore = coreFocus.confidence;
     const teamHealth = teamStatus.systemHealth === 'excellent' ? 1.0 :
-                       teamStatus.systemHealth === 'good' ? 0.7 : 0.4;
+      teamStatus.systemHealth === 'good' ? 0.7 : 0.4;
 
     // Weekly growth contribution (log scale to normalize)
     const growthMultiplier = 1 + Math.log(1 + weeklyImpact.growthRate / 100) / Math.log(2);
@@ -98,10 +98,10 @@ class PatController {
 
     // Sacred computation: transcendental but bounded
     const efficacy = (focusScore * 0.3 +
-                     teamHealth * 0.25 +
-                     teamEfficiency * 0.25 +
-                     Math.min(growthMultiplier * 0.2, 0.2)
-                    );
+      teamHealth * 0.25 +
+      teamEfficiency * 0.25 +
+      Math.min(growthMultiplier * 0.2, 0.2)
+    );
 
     return Math.min(1.0, Math.max(0.0, efficacy));
   }
@@ -127,12 +127,12 @@ class PatController {
       Math.min(milestones / 20, 1.0) * 0.15
     );
 
-    if (totalScore >= 0.95) {return { level: 'enlightened', progress: totalScore };}
-    if (totalScore >= 0.85) {return { level: 'mastery', progress: totalScore };}
-    if (totalScore >= 0.75) {return { level: 'transcendence', progress: totalScore };}
-    if (totalScore >= 0.60) {return { level: 'integration', progress: totalScore };}
-    if (totalScore >= 0.45) {return { level: 'awakening', progress: totalScore };}
-    if (totalScore >= 0.25) {return { level: 'social', progress: totalScore };}
+    if (totalScore >= 0.95) { return { level: 'enlightened', progress: totalScore }; }
+    if (totalScore >= 0.85) { return { level: 'mastery', progress: totalScore }; }
+    if (totalScore >= 0.75) { return { level: 'transcendence', progress: totalScore }; }
+    if (totalScore >= 0.60) { return { level: 'integration', progress: totalScore }; }
+    if (totalScore >= 0.45) { return { level: 'awakening', progress: totalScore }; }
+    if (totalScore >= 0.25) { return { level: 'social', progress: totalScore }; }
 
     return { level: 'material', progress: totalScore };
   }
@@ -164,7 +164,7 @@ class PatController {
   }
 
   private generateFocusPrompt(data: PatDashboardData): string {
-    const { focusText, confidence, description } = data.coreFocus;
+    const { confidence } = data.coreFocus;
     const consciousnessLevel = this.determineConsciousnessLevel(data);
 
     if (confidence < 0.6) {
@@ -184,8 +184,8 @@ class PatController {
       agent => agent.status !== 'active'
     ).length;
 
-    if (systemHealth === 'excellent' && trustLevel > 0.8) {return 'optimal';}
-    if (systemHealth === 'needs-attention' || inactiveAgents > 2) {return 'needs-attention';}
+    if (systemHealth === 'excellent' && trustLevel > 0.8) { return 'optimal'; }
+    if (systemHealth === 'needs-attention' || inactiveAgents > 2) { return 'needs-attention'; }
 
     return 'critical';
   }

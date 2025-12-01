@@ -16,7 +16,18 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { SACRED_FREQUENCIES, BIZRA_COLORS } from '../lib/design-system';
+import { SACRED_FREQUENCIES } from '../lib/design-system';
+
+type AgentSyncResponse = {
+  pat?: Partial<AgentState['pat']>
+  sat?: Partial<AgentState['sat']>
+}
+
+type SessionRefreshResponse = {
+  token?: string
+  expires_at?: number
+  refresh_token?: string | null
+}
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -318,11 +329,11 @@ export const useBIZRAStore = create<BIZRAStore>()(
               state.consciousness.level = Math.max(0, Math.min(100, level));
               
               // Update awakening stage based on level
-              if (level >= 90) state.consciousness.awakening_stage = 'enlightened';
-              else if (level >= 70) state.consciousness.awakening_stage = 'aware';
-              else if (level >= 50) state.consciousness.awakening_stage = 'awakening';
-              else if (level >= 25) state.consciousness.awakening_stage = 'stirring';
-              else state.consciousness.awakening_stage = 'dormant';
+              if (level >= 90) {state.consciousness.awakening_stage = 'enlightened';}
+              else if (level >= 70) {state.consciousness.awakening_stage = 'aware';}
+              else if (level >= 50) {state.consciousness.awakening_stage = 'awakening';}
+              else if (level >= 25) {state.consciousness.awakening_stage = 'stirring';}
+              else {state.consciousness.awakening_stage = 'dormant';}
             });
           },
 
@@ -386,11 +397,11 @@ export const useBIZRAStore = create<BIZRAStore>()(
             try {
               // Simulated API call - replace with actual implementation
               const response = await fetch('/api/agents');
-              const data = await response.json();
+              const data = (await response.json()) as AgentSyncResponse;
 
               set((state) => {
-                if (data.pat) Object.assign(state.agents.pat, data.pat);
-                if (data.sat) Object.assign(state.agents.sat, data.sat);
+                if (data.pat) {Object.assign(state.agents.pat, data.pat);}
+                if (data.sat) {Object.assign(state.agents.sat, data.sat);}
                 state.agents.last_sync = Date.now();
               });
             } catch (error) {
@@ -517,17 +528,38 @@ export const useBIZRAStore = create<BIZRAStore>()(
 
           login: (userData: Partial<UserState> & { token: string }) => {
             set((state) => {
+              const { id, email, name, avatar, role, permissions, preferences } = userData;
+
               state.user.authenticated = true;
               state.user.session.token = userData.token;
-              
-              if (userData.id) state.user.id = userData.id;
-              if (userData.email) state.user.email = userData.email;
-              if (userData.name) state.user.name = userData.name;
-              if (userData.avatar) state.user.avatar = userData.avatar;
-              if (userData.role) state.user.role = userData.role;
-              if (userData.permissions) state.user.permissions = userData.permissions;
-              if (userData.preferences) {
-                Object.assign(state.user.preferences, userData.preferences);
+
+              if (typeof id === 'string') {
+                state.user.id = id;
+              }
+              if (typeof email === 'string') {
+                state.user.email = email;
+              }
+              if (typeof name === 'string') {
+                state.user.name = name;
+              }
+              if (typeof avatar === 'string') {
+                state.user.avatar = avatar;
+              }
+              if (role) {
+                state.user.role = role;
+              }
+              if (Array.isArray(permissions)) {
+                state.user.permissions = [...permissions];
+              }
+              if (preferences) {
+                state.user.preferences = {
+                  ...state.user.preferences,
+                  ...preferences,
+                  notifications: {
+                    ...state.user.preferences.notifications,
+                    ...preferences.notifications,
+                  },
+                };
               }
             });
           },
@@ -570,7 +602,7 @@ export const useBIZRAStore = create<BIZRAStore>()(
                 return false;
               }
 
-              const data = await response.json();
+              const data = (await response.json()) as SessionRefreshResponse;
 
               set((state) => {
                 state.user.session.token = data.token;
@@ -600,12 +632,25 @@ export const useBIZRAStore = create<BIZRAStore>()(
 
           hydrate: (newState: Partial<BIZRAStoreState>) => {
             set((state) => {
-              if (newState.consciousness) Object.assign(state.consciousness, newState.consciousness);
-              if (newState.agents) Object.assign(state.agents, newState.agents);
-              if (newState.blockchain) Object.assign(state.blockchain, newState.blockchain);
-              if (newState.impact) Object.assign(state.impact, newState.impact);
-              if (newState.ui) Object.assign(state.ui, newState.ui);
-              if (newState.user) Object.assign(state.user, newState.user);
+              if (newState.consciousness) {Object.assign(state.consciousness, newState.consciousness);}
+              if (newState.agents) {Object.assign(state.agents, newState.agents);}
+              if (newState.blockchain) {Object.assign(state.blockchain, newState.blockchain);}
+              if (newState.impact) {Object.assign(state.impact, newState.impact);}
+              if (newState.ui) {Object.assign(state.ui, newState.ui);}
+              if (newState.user) {
+                const incomingUser = newState.user;
+                Object.assign(state.user, incomingUser);
+                if (incomingUser?.preferences) {
+                  state.user.preferences = {
+                    ...state.user.preferences,
+                    ...incomingUser.preferences,
+                    notifications: {
+                      ...state.user.preferences.notifications,
+                      ...incomingUser.preferences.notifications,
+                    },
+                  };
+                }
+              }
             });
           },
         })),

@@ -76,6 +76,11 @@ export interface GenesisTelemetry {
   db_pool_status: DbPoolStatus
 }
 
+interface TelemetryMessage {
+  message_type: string
+  payload: GenesisTelemetry
+}
+
 /** Connection status for the telemetry stream */
 export type TelemetryConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error'
 
@@ -92,9 +97,9 @@ export type IhsanVisualState = 'excellence' | 'stable' | 'attention' | 'degraded
  * @returns Visual state for UI rendering
  */
 export function getIhsanVisualState(score: number): IhsanVisualState {
-  if (score >= 0.95) {return 'excellence'}
-  if (score >= 0.85) {return 'stable'}
-  if (score >= 0.70) {return 'attention'}
+  if (score >= 0.95) { return 'excellence' }
+  if (score >= 0.85) { return 'stable' }
+  if (score >= 0.70) { return 'attention' }
   return 'degraded'
 }
 
@@ -127,9 +132,9 @@ export function formatUptime(seconds: number): string {
   const minutes = Math.floor((seconds % 3600) / 60)
 
   const parts: string[] = []
-  if (days > 0) {parts.push(`${days}d`)}
-  if (hours > 0) {parts.push(`${hours}h`)}
-  if (minutes > 0 || parts.length === 0) {parts.push(`${minutes}m`)}
+  if (days > 0) { parts.push(`${days}d`) }
+  if (hours > 0) { parts.push(`${hours}h`) }
+  if (minutes > 0 || parts.length === 0) { parts.push(`${minutes}m`) }
 
   return parts.join(' ')
 }
@@ -246,7 +251,7 @@ export function useTelemetryStream(options: UseTelemetryStreamOptions = {}): Use
   const connect = useCallback(() => {
     // Don't connect if already connected or connecting
     if (wsRef.current?.readyState === WebSocket.OPEN ||
-        wsRef.current?.readyState === WebSocket.CONNECTING) {
+      wsRef.current?.readyState === WebSocket.CONNECTING) {
       return
     }
 
@@ -257,7 +262,6 @@ export function useTelemetryStream(options: UseTelemetryStreamOptions = {}): Use
       wsRef.current = ws
 
       ws.onopen = () => {
-        console.log('✅ [Telemetry] WebSocket connected to', wsUrl)
         setStatus('connected')
         reconnectAttemptsRef.current = 0
 
@@ -271,26 +275,24 @@ export function useTelemetryStream(options: UseTelemetryStreamOptions = {}): Use
 
       ws.onmessage = (event) => {
         try {
-          const message = JSON.parse(event.data)
+          const message = JSON.parse(event.data) as TelemetryMessage
 
           // Handle telemetry update messages from the bridge
           if (message.message_type === 'telemetry_update' && message.payload) {
-            setTelemetry(message.payload as GenesisTelemetry)
+            setTelemetry(message.payload)
             setLastUpdateTime(Date.now())
             setLastUpdateAge(0)
           }
-        } catch (error) {
-          console.error('[Telemetry] Failed to parse message:', error)
+        } catch {
+          // Silent failure for parse errors
         }
       }
 
-      ws.onerror = (event) => {
-        console.error('[Telemetry] WebSocket error:', event)
+      ws.onerror = () => {
         setStatus('error')
       }
 
       ws.onclose = (event) => {
-        console.log('[Telemetry] WebSocket closed:', event.code, event.reason)
         wsRef.current = null
         cleanup()
 
@@ -299,7 +301,6 @@ export function useTelemetryStream(options: UseTelemetryStreamOptions = {}): Use
           reconnectAttemptsRef.current++
 
           const delay = reconnectDelay * Math.pow(2, reconnectAttemptsRef.current - 1)
-          console.log(`[Telemetry] Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`)
 
           reconnectTimeoutRef.current = setTimeout(() => {
             connect()
@@ -308,8 +309,7 @@ export function useTelemetryStream(options: UseTelemetryStreamOptions = {}): Use
           setStatus('disconnected')
         }
       }
-    } catch (error) {
-      console.error('[Telemetry] Failed to create WebSocket:', error)
+    } catch {
       setStatus('error')
     }
   }, [wsUrl, autoReconnect, maxReconnectAttempts, reconnectDelay, cleanup, lastUpdateTime])
@@ -337,7 +337,7 @@ export function useTelemetryStream(options: UseTelemetryStreamOptions = {}): Use
         wsRef.current = null
       }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [connect, cleanup])
 
   // Derive Ihsan visual state
   const ihsanState = telemetry ? getIhsanVisualState(telemetry.ihsan_score) : 'stable'

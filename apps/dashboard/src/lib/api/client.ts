@@ -115,7 +115,7 @@ class CircuitBreaker {
   }
 
   private shouldAttemptReset(): boolean {
-    if (!this.state.lastFailure) return true;
+    if (!this.state.lastFailure) {return true;}
     return Date.now() - this.state.lastFailure >= this.resetTimeout;
   }
 
@@ -243,7 +243,7 @@ class RequestQueue {
 
       // Sort by priority (descending) and timestamp (ascending)
       this.queue.sort((a, b) => {
-        if (b.priority !== a.priority) return b.priority - a.priority;
+        if (b.priority !== a.priority) {return b.priority - a.priority;}
         return a.timestamp - b.timestamp;
       });
 
@@ -252,12 +252,12 @@ class RequestQueue {
   }
 
   private async processQueue(): Promise<void> {
-    if (this.processing) return;
+    if (this.processing) {return;}
     this.processing = true;
 
     while (this.queue.length > 0 && this.activeRequests < this.concurrency) {
       const request = this.queue.shift();
-      if (!request) break;
+      if (!request) {break;}
 
       this.activeRequests++;
 
@@ -305,7 +305,7 @@ class CacheManager {
   get<T>(key: string): T | null {
     const entry = this.cache.get(key) as CacheEntry<T> | undefined;
 
-    if (!entry) return null;
+    if (!entry) {return null;}
 
     if (Date.now() - entry.timestamp > entry.ttl) {
       this.cache.delete(key);
@@ -653,7 +653,7 @@ export class BIZRAAPIClient {
   // ===========================================================================
 
   connectWebSocket(url?: string): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {return;}
 
     const wsURL = url || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3002';
 

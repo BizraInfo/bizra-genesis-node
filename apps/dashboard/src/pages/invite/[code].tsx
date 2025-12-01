@@ -46,6 +46,19 @@ type PageState = 'loading' | 'valid' | 'invalid' | 'form' | 'submitting' | 'succ
 // INVITE CODE PAGE COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
+const getStatusMessage = (status: string): string => {
+  switch (status) {
+    case 'accepted':
+      return 'This invite has already been used to create an account.'
+    case 'expired':
+      return 'This invite has expired. Please request a new invite.'
+    case 'revoked':
+      return 'This invite has been revoked and is no longer valid.'
+    default:
+      return 'This invite code is invalid.'
+  }
+}
+
 const InviteCodePage: React.FC = () => {
   const router = useRouter()
   const { code } = router.query
@@ -55,7 +68,7 @@ const InviteCodePage: React.FC = () => {
   const [inviteData, setInviteData] = useState<InviteValidationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [errorCode, setErrorCode] = useState<string | null>(null)
-  
+
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -66,7 +79,7 @@ const InviteCodePage: React.FC = () => {
     acceptTerms: false,
     acceptPrivacy: false,
   })
-  
+
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -83,7 +96,7 @@ const InviteCodePage: React.FC = () => {
 
     try {
       const result = await inviteService.validateInvite(inviteCode)
-      
+
       if (result.valid && result.status !== 'accepted' && result.status !== 'expired' && result.status !== 'revoked') {
         setInviteData(result)
         // Pre-fill email if provided
@@ -108,7 +121,7 @@ const InviteCodePage: React.FC = () => {
 
   useEffect(() => {
     if (code && typeof code === 'string' && code.length > 0) {
-      validateInviteCode(code)
+      void validateInviteCode(code)
     }
   }, [code, validateInviteCode])
 
@@ -118,23 +131,23 @@ const InviteCodePage: React.FC = () => {
 
   const calculatePasswordStrength = (password: string): number => {
     let strength = 0
-    if (password.length >= 8) strength += 25
-    if (/[A-Z]/.test(password)) strength += 25
-    if (/[a-z]/.test(password)) strength += 25
-    if (/[0-9]/.test(password)) strength += 15
-    if (/[^A-Za-z0-9]/.test(password)) strength += 10
+    if (password.length >= 8) { strength += 25 }
+    if (/[A-Z]/.test(password)) { strength += 25 }
+    if (/[a-z]/.test(password)) { strength += 25 }
+    if (/[0-9]/.test(password)) { strength += 15 }
+    if (/[^A-Za-z0-9]/.test(password)) { strength += 10 }
     return Math.min(strength, 100)
   }
 
   const getPasswordStrengthColor = () => {
-    if (passwordStrength < 40) return 'var(--color-error, #ef4444)'
-    if (passwordStrength < 70) return 'var(--color-warning, #f59e0b)'
-    return 'var(--color-success, #22c55e)'
+    if (passwordStrength < 40) { return 'red' }
+    if (passwordStrength < 70) { return 'amber' }
+    return 'green'
   }
 
   const getPasswordStrengthText = () => {
-    if (passwordStrength < 40) return 'Weak'
-    if (passwordStrength < 70) return 'Fair'
+    if (passwordStrength < 40) { return 'Weak' }
+    if (passwordStrength < 70) { return 'Fair' }
     return 'Strong'
   }
 
@@ -252,7 +265,7 @@ const InviteCodePage: React.FC = () => {
         setPageState('success')
         // Redirect to dashboard after success
         setTimeout(() => {
-          router.push('/dashboard')
+          void router.push('/dashboard')
         }, 2000)
       } else {
         setError(result.message || 'Failed to create account')
@@ -270,18 +283,7 @@ const InviteCodePage: React.FC = () => {
   // HELPER FUNCTIONS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  const getStatusMessage = (status: string): string => {
-    switch (status) {
-      case 'accepted':
-        return 'This invite has already been used to create an account.'
-      case 'expired':
-        return 'This invite has expired. Please request a new invite.'
-      case 'revoked':
-        return 'This invite has been revoked and is no longer valid.'
-      default:
-        return 'This invite code is invalid.'
-    }
-  }
+
 
   const getErrorIcon = () => {
     switch (errorCode) {
@@ -423,7 +425,7 @@ const InviteCodePage: React.FC = () => {
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="registration-form">
+        <form onSubmit={(e) => void handleSubmit(e)} className="registration-form">
           {/* Name Fields */}
           <div className="form-row">
             <div className="form-group">
@@ -532,13 +534,12 @@ const InviteCodePage: React.FC = () => {
               <div className="password-strength">
                 <div className="strength-bar">
                   <motion.div
-                    className="strength-fill"
+                    className={`strength-fill bg-${getPasswordStrengthColor()}-500`}
                     initial={{ width: 0 }}
                     animate={{ width: `${passwordStrength}%` }}
-                    style={{ backgroundColor: getPasswordStrengthColor() }}
                   />
                 </div>
-                <span className="strength-text" style={{ color: getPasswordStrengthColor() }}>
+                <span className={`strength-text text-${getPasswordStrengthColor()}-500`}>
                   {getPasswordStrengthText()}
                 </span>
               </div>

@@ -45,6 +45,17 @@ export interface MetricsData {
   timestamp: number;
 }
 
+export type MetricsWebSocketMessage =
+  | {
+    type: 'METRICS_UPDATE';
+    system?: Partial<SystemMetrics>;
+    poi?: Partial<PoIMetrics>;
+    rewards?: Partial<RewardMetrics>;
+  }
+  | {
+    type: 'METRICS_REFRESH';
+  };
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Configuration
 // ─────────────────────────────────────────────────────────────────────────────
@@ -83,11 +94,11 @@ async function fetchMetricsAPI(): Promise<MetricsData> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Failed to fetch metrics' }));
+    const errorData = (await response.json().catch(() => ({ message: 'Failed to fetch metrics' }))) as { message?: string };
     throw new Error(errorData.message || `HTTP ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as Partial<MetricsData>;
 
   return {
     system: data.system || {
@@ -135,11 +146,11 @@ export function startMetricsPolling() {
   }
 
   // Initial fetch
-  refreshMetrics();
+  void refreshMetrics();
 
   // Start polling
   pollingInterval = setInterval(() => {
-    refreshMetrics();
+    void refreshMetrics();
   }, POLLING_INTERVAL);
 
   console.log(`📊 Metrics polling started (interval: ${POLLING_INTERVAL}ms)`);
@@ -157,28 +168,30 @@ export function stopMetricsPolling() {
 // WebSocket Integration
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function handleMetricsWebSocketMessage(message: any) {
-  if (message.type === 'METRICS_UPDATE') {
+export function handleMetricsWebSocketMessage(message: unknown) {
+  const msg = message as MetricsWebSocketMessage;
+
+  if (msg.type === 'METRICS_UPDATE') {
     // Update specific metrics without full refresh
     const store = useMetricsStore.getState();
     const currentData = store.data;
 
     if (!currentData) {
-      refreshMetrics();
+      void refreshMetrics();
       return;
     }
 
     const updatedData: MetricsData = {
       ...currentData,
-      ...(message.system && { system: { ...currentData.system, ...message.system } }),
-      ...(message.poi && { poi: { ...currentData.poi, ...message.poi } }),
-      ...(message.rewards && { rewards: { ...currentData.rewards, ...message.rewards } }),
+      ...(msg.system && { system: { ...currentData.system, ...msg.system } }),
+      ...(msg.poi && { poi: { ...currentData.poi, ...msg.poi } }),
+      ...(msg.rewards && { rewards: { ...currentData.rewards, ...msg.rewards } }),
       timestamp: Date.now(),
     };
 
     store.succeed(updatedData);
-  } else if (message.type === 'METRICS_REFRESH') {
-    refreshMetrics();
+  } else if (msg.type === 'METRICS_REFRESH') {
+    void refreshMetrics();
   }
 }
 

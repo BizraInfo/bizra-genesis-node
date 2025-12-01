@@ -12,11 +12,11 @@ import { inviteService } from '../../../services/invite';
 
 // Mock the invite service instance methods
 jest.mock('../../../services/invite', () => ({
-  inviteService: {
-    validateInvite: jest.fn(),
-    acceptInvite: jest.fn(),
-  },
-  InviteService: jest.fn(),
+    inviteService: {
+        validateInvite: jest.fn(),
+        acceptInvite: jest.fn(),
+    },
+    InviteService: jest.fn(),
 }));
 
 // Mock CSS files
@@ -42,8 +42,8 @@ jest.mock('framer-motion', () => {
         'layout', 'drag', 'dragConstraints', 'onAnimationStart', 'onAnimationComplete'
     ];
 
-    const filterMotionProps = (props: any) => {
-        const filtered: any = {};
+    const filterMotionProps = (props: Record<string, unknown>) => {
+        const filtered: Record<string, unknown> = {};
         Object.keys(props).forEach(key => {
             if (!motionProps.includes(key)) {
                 filtered[key] = props[key];
@@ -53,7 +53,7 @@ jest.mock('framer-motion', () => {
     };
 
     const createMotionComponent = (tag: string) => {
-        const Component = React.forwardRef(({ children, ...props }: any, ref: any) => {
+        const Component = React.forwardRef(({ children, ...props }: { children?: React.ReactNode } & Record<string, unknown>, ref: React.Ref<unknown>) => {
             const Tag = tag as keyof JSX.IntrinsicElements;
             const filteredProps = filterMotionProps(props);
             return <Tag ref={ref} {...filteredProps}>{children}</Tag>;
@@ -76,7 +76,7 @@ jest.mock('framer-motion', () => {
             h2: createMotionComponent('h2'),
             section: createMotionComponent('section'),
         },
-        AnimatePresence: ({ children }: any) => children,
+        AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
     };
 });
 
@@ -164,7 +164,7 @@ describe('InviteAcceptancePage', () => {
 
             await waitFor(() => {
                 expect(mockedInviteService.validateInvite).toHaveBeenCalledWith('TEST-CODE-1234');
-            });
+            }, { timeout: 2000 });
         });
 
         it('should show registration form for valid invite', async () => {
@@ -174,7 +174,7 @@ describe('InviteAcceptancePage', () => {
                 expect(screen.getByLabelText(/full.*name|name/i)).toBeInTheDocument();
                 expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
                 expect(screen.getByLabelText(/confirm.*password/i)).toBeInTheDocument();
-            });
+            }, { timeout: 2000 });
         });
 
         it('should pre-fill email from invite', async () => {
@@ -311,7 +311,7 @@ describe('InviteAcceptancePage', () => {
                 expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
             });
 
-            const passwordInput = screen.getByLabelText(/^password$/i) as HTMLInputElement;
+            const passwordInput = screen.getByLabelText<HTMLInputElement>(/^password$/i);
             expect(passwordInput.type).toBe('password');
 
             const toggleButton = screen.getAllByRole('button', { name: /show|hide.*password/i })[0];

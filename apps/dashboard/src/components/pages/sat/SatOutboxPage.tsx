@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { SatOutboxItem as SatOutboxItemType, SatRecommendation } from '../../../types/sat';
 import { SacredDashboard } from '../../sacred/SacredDashboard';
+import { toast } from 'react-hot-toast';
 import {
   fetchSatOutbox,
   approveOutboxItem,
@@ -23,7 +24,7 @@ export const SatOutboxPage: React.FC = () => {
 
   // Load SAT content on mount
   useEffect(() => {
-    loadSatData();
+    void loadSatData();
   }, []);
 
   const loadSatData = async () => {
@@ -55,7 +56,7 @@ export const SatOutboxPage: React.FC = () => {
         )
       );
     } catch (err) {
-      alert(SAT_ERRORS.APPROVAL_ERROR);
+      toast.error(SAT_ERRORS.APPROVAL_ERROR);
       console.error('Approval error:', err);
     }
   };
@@ -69,7 +70,7 @@ export const SatOutboxPage: React.FC = () => {
         )
       );
     } catch (err) {
-      alert(SAT_ERRORS.APPROVAL_ERROR);
+      toast.error(SAT_ERRORS.APPROVAL_ERROR);
       console.error('Rejection error:', err);
     }
   };
@@ -83,7 +84,7 @@ export const SatOutboxPage: React.FC = () => {
         )
       );
     } catch (err) {
-      alert(SAT_ERRORS.PUBLISH_ERROR);
+      toast.error(SAT_ERRORS.PUBLISH_ERROR);
       console.error('Publish error:', err);
     }
   };
@@ -105,7 +106,7 @@ export const SatOutboxPage: React.FC = () => {
           <div className="text-xl mb-4">SAT Connection Lost</div>
           <div className="text-sm">{error}</div>
           <button
-            onClick={loadSatData}
+            onClick={() => void loadSatData()}
             className="mt-4 px-4 py-2 bg-gold-600 hover:bg-gold-500 rounded-lg transition-colors"
           >
             Reconnect
@@ -150,9 +151,9 @@ export const SatOutboxPage: React.FC = () => {
                   <SatOutboxItemComponent
                     key={item.id}
                     item={item}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
-                    onPublish={handlePublish}
+                    onApprove={(id) => void handleApprove(id)}
+                    onReject={(id) => void handleReject(id)}
+                    onPublish={(id) => void handlePublish(id)}
                   />
                 ))}
               </div>
@@ -236,13 +237,13 @@ const SatOutboxItemComponent: React.FC<SatOutboxItemProps> = ({
         {item.status === 'draft' && (
           <>
             <button
-              onClick={() => onApprove(item.id)}
+              onClick={() => void onApprove(item.id)}
               className="px-3 py-2 text-sm rounded-lg border border-emerald-500 text-emerald-300 hover:bg-emerald-500/10 transition-colors"
             >
               Approve
             </button>
             <button
-              onClick={() => onReject(item.id)}
+              onClick={() => void onReject(item.id)}
               className="px-3 py-2 text-sm rounded-lg border border-rose-500 text-rose-300 hover:bg-rose-500/10 transition-colors"
             >
               Reject
@@ -252,7 +253,7 @@ const SatOutboxItemComponent: React.FC<SatOutboxItemProps> = ({
 
         {item.status === 'approved' && (
           <button
-            onClick={() => onPublish(item.id)}
+            onClick={() => void onPublish(item.id)}
             className="px-3 py-2 text-sm rounded-lg border border-blue-500 text-blue-300 hover:bg-blue-500/10 transition-colors"
           >
             Mark Published

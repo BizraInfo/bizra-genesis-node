@@ -101,7 +101,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               </motion.div>
 
               <h1>Access Denied</h1>
-              <p>You don't have permission to access this resource.</p>
+              <p>You don&apos;t have permission to access this resource.</p>
 
               <div className="access-details">
                 <div className="detail-item">

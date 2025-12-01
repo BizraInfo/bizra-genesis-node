@@ -60,7 +60,7 @@ export const RewardsDashboard: React.FC = () => {
   const [lastDistribution, setLastDistribution] = useState<EpochDistributionSummary | null>(null);
 
   useEffect(() => {
-    loadEpochs();
+    void loadEpochs();
   }, []);
 
   async function loadEpochs() {
@@ -69,43 +69,38 @@ export const RewardsDashboard: React.FC = () => {
       setError(null);
       const data = await rewardsApi.listEpochs();
       setEpochs(data);
-    } catch (e: any) {
-      setError(e.message ?? 'Failed to load reward epochs');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to load reward epochs';
+      setError(message);
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDistributeEpoch(epochId: string) {
-    if (!confirm('Confirm epoch distribution? This action is atomic and irreversible.')) {
-      return;
-    }
-
     try {
       setActionInProgress(epochId);
       setError(null);
       const result = await rewardsApi.distributeEpoch(epochId);
       setLastDistribution(result);
       await loadEpochs();
-    } catch (e: any) {
-      setError(e.message ?? 'Failed to distribute epoch');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to distribute epoch';
+      setError(message);
     } finally {
       setActionInProgress(null);
     }
   }
 
   async function handleSubmitSettlement(epochId: string) {
-    if (!confirm('Submit settlement batch to ledger?')) {
-      return;
-    }
-
     try {
       setActionInProgress(epochId);
       setError(null);
       await rewardsApi.submitSettlement(epochId);
       await loadEpochs();
-    } catch (e: any) {
-      setError(e.message ?? 'Failed to submit settlement');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to submit settlement';
+      setError(message);
     } finally {
       setActionInProgress(null);
     }
@@ -114,7 +109,7 @@ export const RewardsDashboard: React.FC = () => {
   const stats = React.useMemo(() => {
     const active = epochs.filter(e => e.status === 'active').length;
     const distributed = epochs.filter(e => e.status === 'distributed').length;
-    const totalPool = epochs.reduce((sum, e) => sum + parseFloat(e.totalPool || '0'), 0);
+    const totalPool = epochs.reduce((sum, e) => sum + parseFloat(e.totalPool ?? '0'), 0);
     return { active, distributed, totalPool, totalEpochs: epochs.length };
   }, [epochs]);
 
@@ -226,7 +221,7 @@ export const RewardsDashboard: React.FC = () => {
                     <td className="py-3 px-4">
                       {epoch.status === 'active' && (
                         <button
-                          onClick={() => handleDistributeEpoch(epoch.id)}
+                          onClick={() => void handleDistributeEpoch(epoch.id)}
                           disabled={actionInProgress === epoch.id}
                           className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-sm rounded transition-colors"
                         >
@@ -235,7 +230,7 @@ export const RewardsDashboard: React.FC = () => {
                       )}
                       {epoch.status === 'distributed' && !epoch.settlementBatchId && (
                         <button
-                          onClick={() => handleSubmitSettlement(epoch.id)}
+                          onClick={() => void handleSubmitSettlement(epoch.id)}
                           disabled={actionInProgress === epoch.id}
                           className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white text-sm rounded transition-colors"
                         >

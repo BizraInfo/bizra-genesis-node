@@ -24,12 +24,12 @@ const OnboardingWizard: React.FC = () => {
     { id: 'complete', title: 'Ready!', component: CompleteStep }
   ]
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (currentStepIndex < steps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1)
     } else {
       // Complete onboarding
-      navigate('/dashboard')
+      void navigate('/dashboard')
     }
   }
 
@@ -101,7 +101,7 @@ const OnboardingWizard: React.FC = () => {
 
         <button
           className="btn btn-primary"
-          onClick={handleNext}
+          onClick={() => void handleNext()}
         >
           {currentStepIndex === steps.length - 1 ? (
             <>
@@ -125,7 +125,7 @@ const OnboardingWizard: React.FC = () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface StepProps {
-  onNext: () => void
+  onNext: () => void | Promise<void>
   onPrevious: () => void
   canGoBack: boolean
   isLastStep: boolean
@@ -310,7 +310,7 @@ const PreferencesStep: React.FC<StepProps> = () => {
     analytics: true
   })
 
-  const handlePreferenceChange = (key: string, value: any) => {
+  const handlePreferenceChange = (key: string, value: boolean | 'light' | 'dark' | 'auto') => {
     const newPreferences = { ...preferences, [key]: value }
     setPreferences(newPreferences)
     updateUserData({ preferences: newPreferences })
@@ -336,7 +336,7 @@ const PreferencesStep: React.FC<StepProps> = () => {
               <button
                 key={option.value}
                 className={`theme-option ${preferences.theme === option.value ? 'selected' : ''}`}
-                onClick={() => handlePreferenceChange('theme', option.value)}
+                onClick={() => handlePreferenceChange('theme', option.value as 'light' | 'dark' | 'auto')}
               >
                 {option.label}
               </button>
@@ -430,7 +430,7 @@ const CompleteStep: React.FC<StepProps> = () => {
         >
           🎉
         </motion.div>
-        <h1>You're all set!</h1>
+        <h1>You&apos;re all set!</h1>
         <p>Welcome to the future of AI synthesis</p>
       </div>
 

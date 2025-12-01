@@ -6,7 +6,7 @@
 
 import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Radio, Target, Shield, Waves, Eye, Gauge } from 'lucide-react'
+import { Radio, Target, Shield, Waves, Eye } from 'lucide-react'
 import { useMetricsDashboard, getSNRColor, formatSNRClarity } from '../../hooks/useMetricsDashboard'
 
 interface SNRIntelligenceCardProps {
@@ -29,24 +29,26 @@ export function SNRIntelligenceCard({ className = '', showWaveform = true }: SNR
 
   // Calculate signal quality indicator
   const signalQuality = useMemo(() => {
-    if (!snr) return { label: 'Initializing', color: '#64748b', level: 0 }
+    if (!snr) {return { label: 'Initializing', color: '#64748b', level: 0 }}
     
     const clarity = snr.consensusClarity
-    if (clarity >= 1.5) return { label: 'Crystal Clear', color: '#fbbf24', level: 100 }
-    if (clarity >= 1.0) return { label: 'Excellent', color: '#10b981', level: 80 }
-    if (clarity >= 0.7) return { label: 'Good', color: '#06b6d4', level: 60 }
-    if (clarity >= 0.4) return { label: 'Moderate', color: '#f59e0b', level: 40 }
+    if (clarity >= 1.5) {return { label: 'Crystal Clear', color: '#fbbf24', level: 100 }}
+    if (clarity >= 1.0) {return { label: 'Excellent', color: '#10b981', level: 80 }}
+    if (clarity >= 0.7) {return { label: 'Good', color: '#06b6d4', level: 60 }}
+    if (clarity >= 0.4) {return { label: 'Moderate', color: '#f59e0b', level: 40 }}
     return { label: 'Weak Signal', color: '#ef4444', level: 20 }
   }, [snr])
 
   // Generate waveform data based on SNR
-  const waveformData = useMemo(() => {
-    if (!snr) return Array(32).fill(0.5)
-    
+  const waveformData = useMemo<number[]>(() => {
+    if (!snr) {
+      return Array.from<number>({ length: 32 }, () => 0.5)
+    }
+
     const baseAmplitude = snr.consensusClarity / 2
     const noise = 1 - snr.decisionQuality
-    
-    return Array(32).fill(0).map((_, i) => {
+
+    return Array.from({ length: 32 }, (_v, i) => {
       const signal = Math.sin(i * 0.3) * baseAmplitude
       const noiseValue = (Math.random() - 0.5) * noise * 0.3
       return 0.5 + signal + noiseValue

@@ -165,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) 
       }
     }
 
-    checkExistingAuth()
+    void checkExistingAuth()
   }, [])
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -227,7 +227,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) 
       const timeSinceActivity = Date.now() - state.lastActivity
 
       if (timeSinceActivity > sessionTimeout) {
-        logout()
+        void logout()
         toast.error('Session expired due to inactivity')
       }
     }
@@ -297,7 +297,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) 
 
     const checkTokenRefresh = () => {
       if (authService.isTokenExpired()) {
-        refreshToken()
+        void refreshToken()
       }
     }
 

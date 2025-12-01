@@ -26,7 +26,7 @@ export interface POIMetrics {
   attemptsTotal: number
   successTotal: number
   failureTotal: number
-  scoreDistribution: Record<string, any>
+  scoreDistribution: Record<string, number>
 }
 
 /** Thompson Sampling routing metrics group */
@@ -38,7 +38,7 @@ export interface RoutingMetrics {
 
 /** Quality gate metrics group */
 export interface QualityMetrics {
-  ihsanScores: Record<string, any>
+  ihsanScores: Record<string, number>
   ihsanPasses: number
   ihsanRejections: number
   passRate: number
@@ -48,16 +48,16 @@ export interface QualityMetrics {
 export interface DatabaseMetrics {
   activeConnections: number
   idleConnections: number
-  queryDurations: Record<string, any>
+  queryDurations: Record<string, number>
   operationsTotal: Record<string, number>
-  errorsTotal: Record<string, any>
+  errorsTotal: Record<string, number>
   migrationsApplied: number
 }
 
 /** Cache metrics group */
 export interface CacheMetrics {
   hitRate: number
-  operations: Record<string, any>
+  operations: Record<string, number>
   avgDurationSeconds: number
 }
 
@@ -181,7 +181,7 @@ export function useMetricsDashboard(options: UseMetricsDashboardOptions = {}): U
         setMetrics(data.formatted)
         setLastUpdateTime(Date.now())
         setLastUpdateAge(0)
-        console.log('📈 [Metrics] Updated via REST API')
+        // console.log('📈 [Metrics] Updated via REST API')
       }
     } catch (error) {
       console.warn('⚠️ [Metrics] REST fetch failed:', (error as Error).message)
@@ -192,13 +192,13 @@ export function useMetricsDashboard(options: UseMetricsDashboardOptions = {}): U
   }, [apiEndpoint, status])
 
   // WebSocket message handler
-  const handleWebSocketMessage = useCallback((message: any) => {
+  const handleWebSocketMessage = useCallback((message: { message_type: MessageType; payload?: unknown }) => {
     if (message.message_type === MessageType.MetricsDashboardUpdate && message.payload) {
       setMetrics(message.payload as FormattedMetricsDashboard)
       setLastUpdateTime(Date.now())
       setLastUpdateAge(0)
       setStatus('connected')
-      console.log('📈 [Metrics] Updated via WebSocket')
+      // console.log('📈 [Metrics] Updated via WebSocket')
     }
   }, [])
 
@@ -212,19 +212,19 @@ export function useMetricsDashboard(options: UseMetricsDashboardOptions = {}): U
     if (!connected || !client) {
       if (fetchInitialData && status === 'connecting') {
         // Fallback to REST when WebSocket not available
-        fetchMetrics()
+        void fetchMetrics()
       }
       return
     }
 
     setStatus('connected')
-    console.log('📈 [Metrics] WebSocket connected, listening for updates')
+    // console.log('📈 [Metrics] WebSocket connected, listening for updates')
 
     client.on(MessageType.MetricsDashboardUpdate, handleWebSocketMessage)
 
     // Fetch initial data if available
     if (fetchInitialData) {
-      fetchMetrics()
+      void fetchMetrics()
     }
 
     return () => {

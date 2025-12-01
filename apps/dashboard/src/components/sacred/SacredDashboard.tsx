@@ -229,7 +229,7 @@ export function SacredDashboard({
                   </h2>
                   <div className="prose prose-invert max-w-none">
                     <p className="text-lg text-slate-300 italic mb-6">
-                      "Say: 'My Salat and my sacrifice and my life and my death are only for Allah, Lord of the worlds.'"
+                      &quot;Say: &lsquo;My Salat and my sacrifice and my life and my death are only for Allah, Lord of the worlds.&rsquo;&quot;
                     </p>
                     <p className="text-slate-400">
                       BIZRA Genesis emerges from complete surrender. Through Ramadan fasting and architectural prayer,

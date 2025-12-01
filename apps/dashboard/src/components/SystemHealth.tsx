@@ -16,7 +16,7 @@ import {
   XCircle
 } from 'lucide-react'
 import { Line } from 'react-chartjs-2'
-import styles from '../styles/SystemHealth.module.css'
+
 
 interface SystemMetrics {
   api_latency_ms: number
@@ -58,7 +58,7 @@ const SystemHealth: React.FC = () => {
       try {
         const response = await fetch('/api/metrics/system')
         if (response.ok) {
-          const data = await response.json()
+          const data = (await response.json()) as SystemMetrics
           setMetrics(data)
 
           // Update history (keep last 20 points)
@@ -67,8 +67,7 @@ const SystemHealth: React.FC = () => {
 
           setIsLoading(false)
         }
-      } catch (error) {
-        console.error('Failed to fetch metrics:', error)
+      } catch {
         // Use mock data for development
         setMetrics({
           api_latency_ms: 45 + Math.random() * 30,
@@ -84,10 +83,10 @@ const SystemHealth: React.FC = () => {
     }
 
     // Initial fetch
-    fetchMetrics()
+    void fetchMetrics()
 
     // Poll every 2 seconds
-    const interval = setInterval(fetchMetrics, 2000)
+    const interval = setInterval(() => void fetchMetrics(), 2000)
 
     return () => clearInterval(interval)
   }, [])
@@ -98,10 +97,10 @@ const SystemHealth: React.FC = () => {
       try {
         const response = await fetch('/api/metrics/nodes')
         if (response.ok) {
-          const data = await response.json()
+          const data = (await response.json()) as NodeStatus[]
           setNodes(data)
         }
-      } catch (_error) {
+      } catch {
         // Use mock data
         setNodes([
           {
@@ -129,8 +128,8 @@ const SystemHealth: React.FC = () => {
       }
     }
 
-    fetchNodes()
-    const interval = setInterval(fetchNodes, 5000)
+    void fetchNodes()
+    const interval = setInterval(() => void fetchNodes(), 5000)
 
     return () => clearInterval(interval)
   }, [])
@@ -231,12 +230,12 @@ const SystemHealth: React.FC = () => {
           transition={{ delay: 0 }}
         >
           <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(212, 175, 55, 0.1)' }}>
-              <Clock size={24} color="#d4af37" />
+            <div className="card-icon bg-gold-500/10">
+              <Clock size={24} className="text-gold-500" />
             </div>
             <div className="card-title">
               <h3>API Latency</h3>
-              <span className="card-status" style={{ color: apiLatencyStatus.color }}>
+              <span className={`card-status ${apiLatencyStatus.color === '#10b981' ? 'text-emerald-500' : apiLatencyStatus.color === '#f59e0b' ? 'text-amber-500' : 'text-red-500'}`}>
                 <apiLatencyStatus.icon size={14} />
                 {apiLatencyStatus.label}
               </span>
@@ -259,12 +258,12 @@ const SystemHealth: React.FC = () => {
           transition={{ delay: 0.1 }}
         >
           <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
-              <Zap size={24} color="#3b82f6" />
+            <div className="card-icon bg-blue-500/10">
+              <Zap size={24} className="text-blue-500" />
             </div>
             <div className="card-title">
               <h3>Consensus Latency</h3>
-              <span className="card-status" style={{ color: consensusLatencyStatus.color }}>
+              <span className={`card-status ${consensusLatencyStatus.color === '#10b981' ? 'text-emerald-500' : consensusLatencyStatus.color === '#f59e0b' ? 'text-amber-500' : 'text-red-500'}`}>
                 <consensusLatencyStatus.icon size={14} />
                 {consensusLatencyStatus.label}
               </span>
@@ -275,7 +274,7 @@ const SystemHealth: React.FC = () => {
             <span className="card-unit">ms</span>
           </div>
           <div className="card-trend">
-            <TrendingUp size={16} color="#10b981" />
+            <TrendingUp size={16} className="text-emerald-500" />
             <span>12% faster</span>
           </div>
         </motion.div>
@@ -288,12 +287,12 @@ const SystemHealth: React.FC = () => {
           transition={{ delay: 0.2 }}
         >
           <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
-              <AlertTriangle size={24} color="#ef4444" />
+            <div className="card-icon bg-red-500/10">
+              <AlertTriangle size={24} className="text-red-500" />
             </div>
             <div className="card-title">
               <h3>Error Rate</h3>
-              <span className="card-status" style={{ color: errorRateStatus.color }}>
+              <span className={`card-status ${errorRateStatus.color === '#10b981' ? 'text-emerald-500' : errorRateStatus.color === '#f59e0b' ? 'text-amber-500' : 'text-red-500'}`}>
                 <errorRateStatus.icon size={14} />
                 {errorRateStatus.label}
               </span>
@@ -316,12 +315,12 @@ const SystemHealth: React.FC = () => {
           transition={{ delay: 0.3 }}
         >
           <div className="card-header">
-            <div className="card-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-              <Activity size={24} color="#10b981" />
+            <div className="card-icon bg-emerald-500/10">
+              <Activity size={24} className="text-emerald-500" />
             </div>
             <div className="card-title">
               <h3>Uptime</h3>
-              <span className="card-status" style={{ color: '#10b981' }}>
+              <span className="card-status text-emerald-500">
                 <CheckCircle size={14} />
                 Online
               </span>
@@ -392,11 +391,10 @@ const SystemHealth: React.FC = () => {
               <span className="node-metric">
                 <div className="metric-bar">
                   <div
-                    className="metric-fill"
                     style={{
-                      width: `${node.cpu_usage}%`,
-                      background: node.cpu_usage > 80 ? '#ef4444' : node.cpu_usage > 60 ? '#f59e0b' : '#10b981'
+                      width: `${node.cpu_usage}%`
                     }}
+                    className={`metric-fill ${node.cpu_usage > 80 ? 'bg-red-500' : node.cpu_usage > 60 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                   />
                 </div>
                 {node.cpu_usage}%
@@ -404,11 +402,10 @@ const SystemHealth: React.FC = () => {
               <span className="node-metric">
                 <div className="metric-bar">
                   <div
-                    className="metric-fill"
                     style={{
-                      width: `${node.memory_usage}%`,
-                      background: node.memory_usage > 80 ? '#ef4444' : node.memory_usage > 60 ? '#f59e0b' : '#10b981'
+                      width: `${node.memory_usage}%`
                     }}
+                    className={`metric-fill ${node.memory_usage > 80 ? 'bg-red-500' : node.memory_usage > 60 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                   />
                 </div>
                 {node.memory_usage}%

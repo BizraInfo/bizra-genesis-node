@@ -7,7 +7,7 @@ import React from 'react'
 import { useAgentStream, useConsensusStream } from '../hooks'
 import { useWebSocket } from '../contexts/WebSocketContext'
 import { Activity, TrendingUp, Users, Zap, Clock, CheckCircle, AlertCircle } from 'lucide-react'
-import styles from '../styles/RealtimeStatusPanel.module.css'
+// styles import removed - using inline styles instead
 
 const RealtimeStatusPanel: React.FC = () => {
   const agentStatuses = useAgentStream()

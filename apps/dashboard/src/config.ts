@@ -14,23 +14,11 @@ const getEnvVar = (key: string, fallback: string): string => {
   return fallback;
 };
 
-// For Vite environment, we need to handle import.meta.env
-// This is done via a separate module that's only loaded in browser context
-let viteEnv: Record<string, string> = {};
-
-// Only try to access import.meta.env in non-test environment
-// We use eval to prevent Jest from statically analyzing import.meta
-if (!isTestEnv && typeof window !== 'undefined') {
-  try {
-    // Dynamic access to avoid Jest parse error
-    const importMeta = new Function('return typeof import.meta !== "undefined" ? import.meta : null')();
-    if (importMeta?.env) {
-      viteEnv = importMeta.env;
-    }
-  } catch {
-    // Silently fail - running in environment without import.meta
-  }
-}
+// For Vite environment, we need to handle import.meta.env without dynamic eval
+const viteEnv: Record<string, string> =
+  !isTestEnv && typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env
+    ? (import.meta as unknown as { env?: Record<string, string> }).env!
+    : {};
 
 // Combined getter that checks both sources
 const getConfig = (key: string, fallback: string): string => {

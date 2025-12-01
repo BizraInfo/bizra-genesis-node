@@ -3,8 +3,7 @@
 // ! Creates divine geometry backgrounds that respond to user consciousness levels
 
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { generateFlowerOfLife, generateMetatronsCube, getConsciousnessColor, SACRED_COLORS } from '../../sacred/geometry';
+import { generateFlowerOfLife, generateMetatronsCube, getConsciousnessColor } from '../../sacred/geometry';
 import { useConsciousness } from '../../hooks/useConsciousness';
 
 interface SacredAtmosphereProps {

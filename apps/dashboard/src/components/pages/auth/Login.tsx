@@ -23,7 +23,7 @@ export const Login: React.FC = () => {
 
         try {
             await login(formData)
-            navigate('/dashboard')
+            void navigate('/dashboard')
         } catch (error) {
             // Error is handled by AuthContext/AuthService
             console.error('Login failed', error)
@@ -53,7 +53,7 @@ export const Login: React.FC = () => {
                         <p className="text-gray-400">Sign in to access your Genesis Node</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
                         <SacredInput
                             label="Email"
                             type="email"
@@ -101,7 +101,7 @@ export const Login: React.FC = () => {
                         </SacredButton>
 
                         <div className="text-center text-sm text-gray-400 mt-6">
-                            Don't have an account?{' '}
+                            Don&apos;t have an account?{' '}
                             <Link to="/register" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
                                 Register for Genesis
                             </Link>

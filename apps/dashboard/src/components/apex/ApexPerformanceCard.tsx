@@ -5,9 +5,9 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 import React, { useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Brain, Cpu, Sparkles, TrendingUp, Activity } from 'lucide-react'
-import { useMetricsDashboard, type ApexMetrics } from '../../hooks/useMetricsDashboard'
+import { motion } from 'framer-motion'
+import { Zap, Brain, Cpu, Sparkles, TrendingUp } from 'lucide-react'
+import { useMetricsDashboard } from '../../hooks/useMetricsDashboard'
 
 interface ApexPerformanceCardProps {
   className?: string
@@ -32,15 +32,23 @@ export function ApexPerformanceCard({ className = '', compact = false }: ApexPer
 
   // Calculate visual intensity based on performance
   const intensity = useMemo(() => {
-    if (!apex) return 0.3
+    if (!apex) {
+      return 0.3
+    }
     return Math.min(1, apex.capabilityMultiplier / 50) // Normalize to 0-1
   }, [apex])
 
   // Dynamic gradient based on performance
   const gradientColors = useMemo(() => {
-    if (!apex) return ['#1e3a5f', '#0f172a']
-    if (apex.capabilityMultiplier >= 20) return ['#fbbf24', '#f59e0b', '#d97706'] // Gold
-    if (apex.capabilityMultiplier >= 10) return ['#06b6d4', '#0891b2', '#0e7490'] // Cyan
+    if (!apex) {
+      return ['#1e3a5f', '#0f172a']
+    }
+    if (apex.capabilityMultiplier >= 20) {
+      return ['#fbbf24', '#f59e0b', '#d97706'] // Gold
+    }
+    if (apex.capabilityMultiplier >= 10) {
+      return ['#06b6d4', '#0891b2', '#0e7490'] // Cyan
+    }
     return ['#6366f1', '#4f46e5', '#4338ca'] // Indigo
   }, [apex])
 
@@ -70,7 +78,7 @@ export function ApexPerformanceCard({ className = '', compact = false }: ApexPer
     >
       {/* Animated background particles */}
       <div className="apex-card__particles">
-        {[...Array(6)].map((_, i) => (
+        {Array.from({ length: 6 }, (_, i) => (
           <motion.div
             key={i}
             className="apex-card__particle"
@@ -203,7 +211,7 @@ export function ApexPerformanceCard({ className = '', compact = false }: ApexPer
           <span>Neural Activity</span>
         </div>
         <div className="apex-card__neural-waves">
-          {[...Array(12)].map((_, i) => (
+          {Array.from({ length: 12 }, (_, i) => (
             <motion.div
               key={i}
               className="apex-card__neural-bar"

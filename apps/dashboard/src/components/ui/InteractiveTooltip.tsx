@@ -6,17 +6,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info, TrendingUp, Zap, Shield } from 'lucide-react';
-import { BRAND } from '../../constants/brand';
+
+export interface TooltipStat {
+  label: string;
+  value: string;
+  trend?: 'up' | 'down' | 'neutral';
+}
 
 interface TooltipContent {
   title: string;
   description: string;
   icon?: React.ReactNode;
-  stats?: Array<{
-    label: string;
-    value: string;
-    trend?: 'up' | 'down' | 'neutral';
-  }>;
+  stats?: TooltipStat[];
   action?: {
     label: string;
     onClick: () => void;
@@ -166,8 +167,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
                                 stat.trend === 'up'
                                   ? 'text-green-400'
                                   : stat.trend === 'down'
-                                  ? 'text-red-400'
-                                  : 'text-white/40'
+                                    ? 'text-red-400'
+                                    : 'text-white/40'
                               }
                             />
                           </motion.div>
@@ -215,7 +216,7 @@ export const InfoTooltip: React.FC<Omit<InteractiveTooltipProps, 'content'> & { 
   />
 );
 
-export const PerformanceTooltip: React.FC<Omit<InteractiveTooltipProps, 'content'> & { metrics: any[] }> = ({
+export const PerformanceTooltip: React.FC<Omit<InteractiveTooltipProps, 'content'> & { metrics: TooltipStat[] }> = ({
   metrics,
   ...props
 }) => (

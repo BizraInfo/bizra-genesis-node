@@ -16,6 +16,55 @@ import { API_BASE as CONFIG_API_BASE } from '../config'
 const API_BASE = `${CONFIG_API_BASE  }/api/v1`
 
 // ═══════════════════════════════════════════════════════════════════════════
+// API RESPONSE TYPES
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface ApiUserData {
+  id: string
+  email: string
+  username: string
+  firstName: string
+  lastName: string
+  avatar?: string
+  role?: string
+  preferences?: {
+    theme?: string
+    language?: string
+    timezone?: string
+    notifications?: {
+      email?: boolean
+      push?: boolean
+      synthesisComplete?: boolean
+      agentActivity?: boolean
+      systemAlerts?: boolean
+    }
+    privacy?: {
+      profileVisibility?: string
+      dataSharing?: boolean
+      analytics?: boolean
+    }
+  }
+  createdAt: string
+  lastLoginAt: string
+  isEmailVerified?: boolean
+  isActive?: boolean
+}
+
+interface ApiUserResponse {
+  success: boolean
+  data: ApiUserData
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const safeString = (value: unknown, fallback: string): string =>
+  typeof value === 'string' ? value : fallback
+
+const safeBoolean = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -394,7 +443,7 @@ class AuthService {
   }
 
   async getCurrentUser(): Promise<User> {
-    const data = await this.httpClient.get<{ success: boolean; data: any }>(`${API_BASE}/auth/me`)
+    const data = await this.httpClient.get<ApiUserResponse>(`${API_BASE}/auth/me`)
 
     if (!data.success) {
       throw new Error('Failed to get current user')
@@ -404,7 +453,7 @@ class AuthService {
   }
 
   async updateProfile(updates: Partial<User>): Promise<User> {
-    const data = await this.httpClient.put<{ success: boolean; data: any }>(
+    const data = await this.httpClient.put<ApiUserResponse>(
       `${API_BASE}/auth/profile`,
       updates
     )
@@ -503,7 +552,7 @@ class AuthService {
     return this.tokenManager.getRemainingTime()
   }
 
-  private createAuthError(code: AuthErrorCode, message: string, details?: Record<string, any>): AuthError {
+  private createAuthError(code: AuthErrorCode, message: string, details?: Record<string, unknown>): AuthError {
     return { code, message, details }
   }
 
@@ -524,36 +573,41 @@ class AuthService {
     }
   }
 
-  private transformUserData(data: any): User {
+  private transformUserData(data: unknown): User {
+    const record = isRecord(data) ? data : {}
+    const prefs = isRecord(record.preferences) ? record.preferences : {}
+    const notifs = isRecord(prefs.notifications) ? prefs.notifications : {}
+    const privacy = isRecord(prefs.privacy) ? prefs.privacy : {}
+
     return {
-      id: data.id,
-      email: data.email,
-      username: data.username,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      avatar: data.avatar,
-      role: data.role || 'user',
+      id: safeString(record.id, ''),
+      email: safeString(record.email, ''),
+      username: safeString(record.username, ''),
+      firstName: safeString(record.firstName, ''),
+      lastName: safeString(record.lastName, ''),
+      avatar: typeof record.avatar === 'string' ? record.avatar : undefined,
+      role: safeString(record.role, 'user'),
       preferences: {
-        theme: data.preferences?.theme || 'auto',
-        language: data.preferences?.language || 'en',
-        timezone: data.preferences?.timezone || 'UTC',
+        theme: safeString(prefs.theme, 'auto'),
+        language: safeString(prefs.language, 'en'),
+        timezone: safeString(prefs.timezone, 'UTC'),
         notifications: {
-          email: data.preferences?.notifications?.email ?? true,
-          push: data.preferences?.notifications?.push ?? true,
-          synthesisComplete: data.preferences?.notifications?.synthesisComplete ?? true,
-          agentActivity: data.preferences?.notifications?.agentActivity ?? false,
-          systemAlerts: data.preferences?.notifications?.systemAlerts ?? true
+          email: safeBoolean(notifs.email, true),
+          push: safeBoolean(notifs.push, true),
+          synthesisComplete: safeBoolean(notifs.synthesisComplete, true),
+          agentActivity: safeBoolean(notifs.agentActivity, false),
+          systemAlerts: safeBoolean(notifs.systemAlerts, true)
         },
         privacy: {
-          profileVisibility: data.preferences?.privacy?.profileVisibility || 'private',
-          dataSharing: data.preferences?.privacy?.dataSharing ?? false,
-          analytics: data.preferences?.privacy?.analytics ?? true
+          profileVisibility: safeString(privacy.profileVisibility, 'private'),
+          dataSharing: safeBoolean(privacy.dataSharing, false),
+          analytics: safeBoolean(privacy.analytics, true)
         }
       },
-      createdAt: new Date(data.createdAt),
-      lastLoginAt: new Date(data.lastLoginAt),
-      isEmailVerified: data.isEmailVerified || false,
-      isActive: data.isActive !== false
+      createdAt: new Date(typeof record.createdAt === 'string' ? record.createdAt : Date.now()),
+      lastLoginAt: new Date(typeof record.lastLoginAt === 'string' ? record.lastLoginAt : Date.now()),
+      isEmailVerified: safeBoolean(record.isEmailVerified, false),
+      isActive: record.isActive !== false
     }
   }
 }

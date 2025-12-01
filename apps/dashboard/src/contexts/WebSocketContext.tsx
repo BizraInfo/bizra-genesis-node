@@ -3,7 +3,7 @@
 // ║  React context for WebSocket connection management                       ║
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import {
   WebSocketClient,
   getWebSocketClient,
@@ -22,7 +22,7 @@ interface WebSocketContextType {
   authenticated: boolean
   connect: () => Promise<void>
   disconnect: () => void
-  sendAgentMessage: (agentId: string, content: string, metadata?: any) => void
+  sendAgentMessage: (agentId: string, content: string, metadata?: Record<string, unknown>) => void
   onAgentResponse: (handler: (response: AgentResponse) => void) => () => void
   onTypingIndicator: (handler: (indicator: TypingIndicator) => void) => () => void
   onPresenceUpdate: (handler: (update: PresenceUpdate) => void) => () => void
@@ -45,7 +45,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const [connected, setConnected] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
 
-  const connect = async () => {
+  const connect = useCallback(async () => {
     try {
       if (!token) {
         throw new Error('No authentication token available')
@@ -57,13 +57,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       console.error('Failed to connect:', error)
       throw error
     }
-  }
+  }, [client, token])
 
-  const disconnect = () => {
+  const disconnect = useCallback(() => {
     client.disconnect()
     setConnected(false)
     setAuthenticated(false)
-  }
+  }, [client])
 
   useEffect(() => {
     // Set up connection handlers
@@ -84,7 +84,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
     // Auto-connect if user is authenticated
     if (isAuthenticated && token && !connected) {
-      connect()
+      void connect()
     }
 
     return () => {
@@ -95,13 +95,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   useEffect(() => {
     // Re-connect when authentication status changes
     if (isAuthenticated && token && !connected) {
-      connect()
+      void connect()
     } else if (!isAuthenticated && connected) {
       disconnect()
     }
   }, [isAuthenticated, token, connected, connect, disconnect])
 
-  const sendAgentMessage = (agentId: string, content: string, metadata?: any) => {
+  const sendAgentMessage = (agentId: string, content: string, metadata?: Record<string, unknown>) => {
     if (!connected || !authenticated) {
       throw new Error('WebSocket not connected or authenticated')
     }

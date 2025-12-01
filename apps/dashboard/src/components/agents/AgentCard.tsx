@@ -11,7 +11,19 @@ interface AgentCardProps {
 
 export const AgentCard: React.FC<AgentCardProps> = ({ agent, onToggleStatus }) => {
     const isActive = agent.status === 'working';
-    const isIdle = agent.status === 'idle';
+    const _isIdle = agent.status === 'idle'; // Prefixed with _ to indicate intentionally unused
+
+    const statusStyles: Record<string, string> = {
+        working: "border-green-500/30 bg-green-500/10 text-green-500",
+        idle: "border-yellow-500/30 bg-yellow-500/10 text-yellow-500",
+        offline: "border-red-500/30 bg-red-500/10 text-red-500"
+    };
+
+    const pulseColors: Record<string, string> = {
+        working: "bg-green-500",
+        idle: "bg-yellow-500",
+        offline: "bg-red-500"
+    };
 
     return (
         <motion.div
@@ -49,12 +61,10 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent, onToggleStatus }) =
 
                 <div className={cn(
                     "flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border",
-                    isActive ? "border-green-500/30 bg-green-500/10 text-green-500" :
-                        isIdle ? "border-yellow-500/30 bg-yellow-500/10 text-yellow-500" :
-                            "border-red-500/30 bg-red-500/10 text-red-500"
+                    statusStyles[agent.status] ?? statusStyles.offline
                 )}>
                     <span className={cn("h-1.5 w-1.5 rounded-full animate-pulse",
-                        isActive ? "bg-green-500" : isIdle ? "bg-yellow-500" : "bg-red-500"
+                        pulseColors[agent.status] ?? pulseColors.offline
                     )} />
                     {agent.status.toUpperCase()}
                 </div>
@@ -87,7 +97,7 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent, onToggleStatus }) =
                         <span>Current Operation</span>
                     </div>
                     <p className="text-sm font-medium text-foreground truncate">
-                        {agent.currentTask || "Awaiting instructions..."}
+                        {agent.currentTask ?? "Awaiting instructions..."}
                     </p>
                 </div>
             </div>

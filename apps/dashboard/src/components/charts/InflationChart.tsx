@@ -3,7 +3,7 @@
  * Visualizes the comparison between BIZRA stability and fiat currency decay
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -87,22 +87,6 @@ const InflationChart: React.FC = () => {
       tooltip: {
         backgroundColor: BRAND.colors.navy[800],
         titleColor: BRAND.colors.gold[500],
-        bodyColor: BRAND.colors.text.primary,
-        borderColor: BRAND.colors.gold[500],
-        borderWidth: 1,
-        cornerRadius: 8,
-        displayColors: true,
-        callbacks: {
-          label: (context: any) => {
-            const label = context.dataset.label || '';
-            const value = context.parsed.y;
-            return `${label}: ${value}%`;
-          },
-        },
-      },
-    },
-    scales: {
-      y: {
         beginAtZero: false,
         grid: {
           color: 'rgba(255, 255, 255, 0.05)',
@@ -114,7 +98,7 @@ const InflationChart: React.FC = () => {
             family: BRAND.fonts.mono,
             size: 11,
           },
-          callback: (value: any) => `${value}%`,
+          callback: (value: string | number) => `${value}%`,
         },
         border: {
           display: false,

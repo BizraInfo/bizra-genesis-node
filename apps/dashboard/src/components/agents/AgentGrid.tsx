@@ -11,7 +11,7 @@ export const AgentGrid: React.FC = () => {
 
     useEffect(() => {
         if (status === SynapseStatus.IDLE) {
-            agentsJourney.fetchAgents();
+            void agentsJourney.fetchAgents();
         }
 
         // Track socket status for UI indicator
@@ -25,8 +25,8 @@ export const AgentGrid: React.FC = () => {
         return () => unsubscribe();
     }, [status]);
 
-    const handleToggleStatus = async (id: string) => {
-        await agentsJourney.toggleAgentStatus(id);
+    const handleToggleStatus = (id: string) => {
+        void agentsJourney.toggleAgentStatus(id);
     };
 
     if (status === SynapseStatus.LOADING) {
@@ -45,7 +45,7 @@ export const AgentGrid: React.FC = () => {
                 <p className="text-lg font-medium">Failed to load agents</p>
                 <p className="text-sm text-muted-foreground">{error?.message}</p>
                 <button
-                    onClick={() => agentsJourney.fetchAgents()}
+                    onClick={() => void agentsJourney.fetchAgents()}
                     className="rounded-md bg-secondary px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary/80"
                 >
                     Retry Connection
@@ -58,8 +58,8 @@ export const AgentGrid: React.FC = () => {
         <div className="space-y-4">
             <div className="flex items-center justify-end">
                 <div className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium border ${socketStatus === SocketStatus.CONNECTED
-                        ? 'border-green-500/30 bg-green-500/10 text-green-500'
-                        : 'border-yellow-500/30 bg-yellow-500/10 text-yellow-500'
+                    ? 'border-green-500/30 bg-green-500/10 text-green-500'
+                    : 'border-yellow-500/30 bg-yellow-500/10 text-yellow-500'
                     }`}>
                     {socketStatus === SocketStatus.CONNECTED ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
                     <span>{socketStatus === SocketStatus.CONNECTED ? 'LIVE UPLINK' : 'SIMULATION MODE'}</span>

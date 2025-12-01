@@ -100,28 +100,28 @@ export const PoIDashboard: React.FC = () => {
           poiApi.getPoiAttestations({ limit: 50 }) as Promise<PoiRecord[]>,
         ]);
 
-        if (cancelled) {return;}
+        if (cancelled) { return; }
 
         setSummary(summaryData);
         setAttestations(attestationData);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!cancelled) {
-          setError(e.message ?? 'Failed to load PoI data');
+          setError(e instanceof Error ? e.message : 'Failed to load PoI data');
         }
       } finally {
-        if (!cancelled) {setLoading(false);}
+        if (!cancelled) { setLoading(false); }
       }
     }
 
-    loadData();
+    void loadData();
     return () => { cancelled = true; };
   }, []);
 
   // Compute filtered attestations
   const filteredAttestations = useMemo(() => {
     return attestations.filter((attestation) => {
-      if (domainFilter && attestation.impactDomain !== domainFilter) {return false;}
-      if (statusFilter !== 'all' && attestation.status !== statusFilter) {return false;}
+      if (domainFilter && attestation.impactDomain !== domainFilter) { return false; }
+      if (statusFilter !== 'all' && attestation.status !== statusFilter) { return false; }
       return true;
     });
   }, [attestations, domainFilter, statusFilter]);
@@ -133,10 +133,10 @@ export const PoIDashboard: React.FC = () => {
 
   // Calculate verification success rate
   const verificationRate = useMemo(() => {
-    if (!summary) {return '—';}
-    if (summary.totalAttestations === 0) {return '—';}
+    if (!summary) { return '—'; }
+    if (summary.totalAttestations === 0) { return '—'; }
     const rate = (summary.verifiedAttestations / summary.totalAttestations) * 100;
-    return `${rate.toFixed(1)  }%`;
+    return `${rate.toFixed(1)}%`;
   }, [summary]);
 
   if (loading && !summary) {
@@ -178,7 +178,7 @@ export const PoIDashboard: React.FC = () => {
         <div className="text-center space-y-4">
           <Activity className="w-16 h-16 text-slate-500 mx-auto" />
           <h2 className="text-xl font-serif text-slate-200">No PoI Data Available</h2>
-          <p className="text-slate-400">Genesis Node hasn't received any impact attestations yet.</p>
+          <p className="text-slate-400">Genesis Node hasn&apos;t received any impact attestations yet.</p>
         </div>
       </div>
     );

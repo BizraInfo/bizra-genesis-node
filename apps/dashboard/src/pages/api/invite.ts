@@ -20,7 +20,7 @@ interface InvitationResponse {
 }
 
 // Mock database - in production, this would be a real database
-let invitationQueue: InvitationRequest[] = [];
+const invitationQueue: InvitationRequest[] = [];
 const MAX_INVITATIONS = 100;
 const RESERVED_SPOTS = 53; // Already taken
 

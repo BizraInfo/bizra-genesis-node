@@ -59,7 +59,7 @@ export function GlassCard({
         transition: { duration: 0.3 },
       } : undefined}
       style={glowOnHover ? {
-        // @ts-ignore - CSS custom properties
+        // @ts-expect-error - CSS custom properties are not typed
         '--glow-opacity': 0,
       } : undefined}
       onHoverStart={() => {

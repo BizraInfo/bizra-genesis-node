@@ -67,10 +67,10 @@ function HeroSectionComponent({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {return;}
 
     const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
+    if (!ctx) {return;}
 
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -106,8 +106,8 @@ function HeroSectionComponent({
         p.y += p.speedY;
 
         // Bounce off edges
-        if (p.x < 0 || p.x > width) p.speedX *= -1;
-        if (p.y < 0 || p.y > height) p.speedY *= -1;
+        if (p.x < 0 || p.x > width) {p.speedX *= -1;}
+        if (p.y < 0 || p.y > height) {p.speedY *= -1;}
 
         // Draw particle
         ctx.fillStyle = `rgba(${GOLD_COLOR}, ${p.opacity})`;

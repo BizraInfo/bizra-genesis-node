@@ -78,7 +78,7 @@ export interface AuthState {
 export interface AuthError {
   code: AuthErrorCode
   message: string
-  details?: Record<string, any>
+  details?: Record<string, unknown>
 }
 
 export type AuthErrorCode =

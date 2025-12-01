@@ -37,7 +37,7 @@ function useAnimatedCounter(target: number, duration: number = 2000) {
     let animationFrame: number;
 
     const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
+      if (!startTime) {startTime = timestamp;}
       const progress = Math.min((timestamp - startTime) / duration, 1);
       setCount(Math.floor(progress * target));
 

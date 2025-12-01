@@ -39,8 +39,8 @@ export function validatePassword(password: string): PasswordValidation {
     errors.push('Password must be at least 8 characters long')
   } else {
     score += 25
-    if (password.length >= 12) {score += 10}
-    if (password.length >= 16) {score += 10}
+    if (password.length >= 12) { score += 10 }
+    if (password.length >= 16) { score += 10 }
   }
 
   // Uppercase check
@@ -73,11 +73,11 @@ export function validatePassword(password: string): PasswordValidation {
 
   // Determine strength
   let strength: PasswordValidation['strength']
-  if (score < 40) {strength = 'weak'}
-  else if (score < 60) {strength = 'fair'}
-  else if (score < 80) {strength = 'good'}
-  else if (score < 95) {strength = 'strong'}
-  else {strength = 'very strong'}
+  if (score < 40) { strength = 'weak' }
+  else if (score < 60) { strength = 'fair' }
+  else if (score < 80) { strength = 'good' }
+  else if (score < 95) { strength = 'strong' }
+  else { strength = 'very strong' }
 
   return {
     valid: errors.length === 0,
@@ -155,7 +155,7 @@ export function validateCreditCard(cardNumber: string): boolean {
 
     if (isEven) {
       digit *= 2
-      if (digit > 9) {digit -= 9}
+      if (digit > 9) { digit -= 9 }
     }
 
     sum += digit
@@ -255,7 +255,7 @@ export function validateFileSize(fileSize: number, maxSize: number): boolean {
  * validateRequiredFields({ name: 'John', email: 'john@example.com' }, ['name', 'email']) // { valid: true, missing: [] }
  * validateRequiredFields({ name: 'John' }, ['name', 'email']) // { valid: false, missing: ['email'] }
  */
-export function validateRequiredFields<T extends Record<string, any>>(
+export function validateRequiredFields<T extends Record<string, unknown>>(
   obj: T,
   requiredFields: (keyof T)[]
 ): { valid: boolean; missing: (keyof T)[] } {

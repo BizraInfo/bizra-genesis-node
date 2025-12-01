@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
-import { BRAND } from '../../constants/brand';
+// BRAND import removed - not currently used
 
 interface TourStep {
   id: string;
@@ -59,7 +59,7 @@ const tourSteps: TourStep[] = [
         </p>
         <div className="bg-navy-800/50 p-3 rounded-lg">
           <div className="text-gold-400 text-sm font-medium">BIZRA Solution:</div>
-          <div className="text-white/70 text-sm">Algorithmic scarcity restores the "Gold Standard"</div>
+          <div className="text-white/70 text-sm">Algorithmic scarcity restores the &quot;Gold Standard&quot;</div>
         </div>
       </div>
     ),
@@ -73,7 +73,7 @@ const tourSteps: TourStep[] = [
     content: (
       <div className="space-y-3">
         <p className="text-white/80">
-          BIZRA's tokenomics follow sacred geometry principles with balanced distribution.
+          BIZRA&apos;s tokenomics follow sacred geometry principles with balanced distribution.
         </p>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">

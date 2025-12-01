@@ -5,6 +5,9 @@
 
 import { API_BASE } from '../config';
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
 // ════════════════════════════════════════════════════════════════════════════
 // ERROR HANDLING
 // ════════════════════════════════════════════════════════════════════════════
@@ -60,9 +63,11 @@ class RewardsApiClient {
         let errorCode: string | undefined;
 
         try {
-          const errorBody = await response.json();
-          if (errorBody.message) {errorMessage = errorBody.message;}
-          if (errorBody.error) {errorCode = errorBody.error;}
+          const errorBody = (await response.json()) as unknown;
+          if (isRecord(errorBody)) {
+            if (typeof errorBody.message === 'string') {errorMessage = errorBody.message;}
+            if (typeof errorBody.error === 'string') {errorCode = errorBody.error;}
+          }
           errorData = errorBody;
         } catch {
           // Ignore JSON parse error for error responses

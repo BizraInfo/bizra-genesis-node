@@ -149,7 +149,7 @@ const PasswordStrengthMeter = ({ password }: { password: string }) => {
   const strength = calculatePasswordStrength(password);
   const { label, color } = getStrengthLabel(strength);
 
-  if (!password) return null;
+  if (!password) {return null;}
 
   return (
     <motion.div
@@ -279,7 +279,7 @@ export default function PremiumInvitePage() {
 
   // Validate invite code
   useEffect(() => {
-    if (!code) return;
+    if (!code) {return;}
 
     const validateInvite = async () => {
       setFlowState('validating');
@@ -345,7 +345,7 @@ export default function PremiumInvitePage() {
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!validateForm()) return;
+      if (!validateForm()) {return;}
 
       setFlowState('submitting');
 

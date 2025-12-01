@@ -61,11 +61,11 @@ async function loginAPI(credentials: LoginCredentials): Promise<AuthData> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Login failed' }));
+    const errorData = (await response.json().catch(() => ({ message: 'Login failed' }))) as { message?: string };
     throw new Error(errorData.message || `HTTP ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as { token: string; user: { id: string; email: string; roles: string[] } };
   return {
     token: data.token,
     user: {
@@ -89,7 +89,7 @@ async function refreshTokenAPI(token: string): Promise<AuthData> {
     throw new Error('Token refresh failed');
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as { token: string; user: AuthData['user'] };
   return {
     token: data.token,
     user: data.user,
@@ -104,7 +104,7 @@ export async function login(credentials: LoginCredentials) {
   return executeJourney(useAuthStore.getState(), () => loginAPI(credentials));
 }
 
-export async function logout() {
+export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   useAuthStore.getState().reset();
 }
@@ -125,7 +125,7 @@ export async function refreshAuth() {
 export function initializeAuth() {
   const token = localStorage.getItem(TOKEN_KEY);
   if (token) {
-    refreshAuth(); // Auto-refresh on app start
+    void refreshAuth(); // Auto-refresh on app start
   }
 }
 

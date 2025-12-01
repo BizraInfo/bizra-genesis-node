@@ -80,7 +80,7 @@ export default function OnboardingPage() {
   }, [currentStage, router]);
 
   useEffect(() => {
-    if (isComplete) return;
+    if (isComplete) {return;}
     
     const stage = journeyStages[currentStage];
     const interval = setInterval(() => {

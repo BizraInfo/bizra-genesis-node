@@ -36,14 +36,14 @@ declare module '@react-three/postprocessing' {
   // Noise effect
   export interface NoiseProps extends PostProcessingProps {
     premultiply?: boolean;
-    blendFunction?: any;
+    blendFunction?: unknown;
   }
   export const Noise: (props: NoiseProps) => ReactElement | null;
 
   // Generic pass for other effects
   export interface PassProps extends PostProcessingProps {
-    args?: any[];
-    [key: string]: any;
+    args?: unknown[];
+    [key: string]: unknown;
   }
 
   // Allow any other postprocessing components to be imported
@@ -53,8 +53,8 @@ declare module '@react-three/postprocessing' {
 
   // SelectiveBloom for advanced bloom control
   export const SelectiveBloom: (props: PostProcessingProps & {
-    lights?: any[];
-    selection?: any[];
+    lights?: unknown[];
+    selection?: unknown[];
     selectionLayer?: number;
   }) => ReactElement | null;
 

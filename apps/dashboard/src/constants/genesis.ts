@@ -329,20 +329,20 @@ export const INVITE_TYPES = {
  * Calculate password strength score (0-100)
  */
 export function calculatePasswordStrength(password: string): number {
-  if (!password) return 0;
+  if (!password) {return 0;}
   
   let score = 0;
   
   // Length scoring
-  if (password.length >= 8) score += 20;
-  if (password.length >= 12) score += 10;
-  if (password.length >= 16) score += 10;
+  if (password.length >= 8) {score += 20;}
+  if (password.length >= 12) {score += 10;}
+  if (password.length >= 16) {score += 10;}
   
   // Character variety scoring
-  if (/[a-z]/.test(password)) score += 15;
-  if (/[A-Z]/.test(password)) score += 15;
-  if (/[0-9]/.test(password)) score += 15;
-  if (/[^a-zA-Z0-9]/.test(password)) score += 15;
+  if (/[a-z]/.test(password)) {score += 15;}
+  if (/[A-Z]/.test(password)) {score += 15;}
+  if (/[0-9]/.test(password)) {score += 15;}
+  if (/[^a-zA-Z0-9]/.test(password)) {score += 15;}
   
   return Math.min(score, 100);
 }

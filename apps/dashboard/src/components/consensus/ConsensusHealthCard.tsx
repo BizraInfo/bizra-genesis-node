@@ -5,9 +5,9 @@
 // ╚═══════════════════════════════════════════════════════════════════════════╝
 
 import React, { useMemo, useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Heart, Users, Clock, CheckCircle2, AlertTriangle, Zap, Activity } from 'lucide-react'
-import { useMetricsDashboard, getHealthColor } from '../../hooks/useMetricsDashboard'
+import { useMetricsDashboard } from '../../hooks/useMetricsDashboard'
 
 interface ConsensusHealthCardProps {
   className?: string
@@ -40,24 +40,42 @@ export function ConsensusHealthCard({ className = '', showHeartbeat = true }: Co
 
   // Health status calculation
   const healthStatus = useMemo(() => {
-    if (!consensus) return { status: 'unknown', label: 'Initializing', color: '#64748b', icon: Clock }
+    if (!consensus) {
+      return { status: 'unknown', label: 'Initializing', color: '#64748b', icon: Clock }
+    }
     
     const health = consensus.health
-    if (health >= 0.95) return { status: 'excellent', label: 'Excellent', color: '#10b981', icon: CheckCircle2 }
-    if (health >= 0.85) return { status: 'healthy', label: 'Healthy', color: '#06b6d4', icon: Heart }
-    if (health >= 0.70) return { status: 'attention', label: 'Attention', color: '#f59e0b', icon: AlertTriangle }
+    if (health >= 0.95) {
+      return { status: 'excellent', label: 'Excellent', color: '#10b981', icon: CheckCircle2 }
+    }
+    if (health >= 0.85) {
+      return { status: 'healthy', label: 'Healthy', color: '#06b6d4', icon: Heart }
+    }
+    if (health >= 0.70) {
+      return { status: 'attention', label: 'Attention', color: '#f59e0b', icon: AlertTriangle }
+    }
     return { status: 'critical', label: 'Critical', color: '#ef4444', icon: AlertTriangle }
   }, [consensus])
 
   // Latency grade
   const latencyGrade = useMemo(() => {
-    if (!consensus) return { grade: '-', color: '#64748b', label: 'N/A' }
+    if (!consensus) {
+      return { grade: '-', color: '#64748b', label: 'N/A' }
+    }
     
     const latencyMs = consensus.avgLatencyMicroseconds / 1000
-    if (latencyMs < 10) return { grade: 'A+', color: '#10b981', label: 'Ultra-fast' }
-    if (latencyMs < 50) return { grade: 'A', color: '#22c55e', label: 'Excellent' }
-    if (latencyMs < 100) return { grade: 'B', color: '#06b6d4', label: 'Good' }
-    if (latencyMs < 250) return { grade: 'C', color: '#f59e0b', label: 'Moderate' }
+    if (latencyMs < 10) {
+      return { grade: 'A+', color: '#10b981', label: 'Ultra-fast' }
+    }
+    if (latencyMs < 50) {
+      return { grade: 'A', color: '#22c55e', label: 'Excellent' }
+    }
+    if (latencyMs < 100) {
+      return { grade: 'B', color: '#06b6d4', label: 'Good' }
+    }
+    if (latencyMs < 250) {
+      return { grade: 'C', color: '#f59e0b', label: 'Moderate' }
+    }
     return { grade: 'D', color: '#ef4444', label: 'Slow' }
   }, [consensus])
 
@@ -258,7 +276,7 @@ export function ConsensusHealthCard({ className = '', showHeartbeat = true }: Co
       <div className="consensus-card__activity-bar">
         <div className="consensus-card__activity-label">System Activity</div>
         <div className="consensus-card__activity-waves">
-          {[...Array(20)].map((_, i) => (
+          {Array.from({ length: 20 }, (_, i) => (
             <motion.div
               key={i}
               className="consensus-card__activity-segment"

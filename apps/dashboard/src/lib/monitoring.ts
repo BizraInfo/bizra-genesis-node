@@ -139,7 +139,7 @@ class WebVitalsCollector {
   }
 
   private observeLCP(): void {
-    if (!('PerformanceObserver' in window)) return;
+    if (!('PerformanceObserver' in window)) {return;}
 
     try {
       const observer = new PerformanceObserver((entryList) => {
@@ -163,7 +163,7 @@ class WebVitalsCollector {
   }
 
   private observeFID(): void {
-    if (!('PerformanceObserver' in window)) return;
+    if (!('PerformanceObserver' in window)) {return;}
 
     try {
       const observer = new PerformanceObserver((entryList) => {
@@ -190,10 +190,10 @@ class WebVitalsCollector {
   }
 
   private observeCLS(): void {
-    if (!('PerformanceObserver' in window)) return;
+    if (!('PerformanceObserver' in window)) {return;}
 
     let clsValue = 0;
-    let clsEntries: PerformanceEntry[] = [];
+    const clsEntries: PerformanceEntry[] = [];
 
     try {
       const observer = new PerformanceObserver((entryList) => {
@@ -223,7 +223,7 @@ class WebVitalsCollector {
   }
 
   private observeFCP(): void {
-    if (!('PerformanceObserver' in window)) return;
+    if (!('PerformanceObserver' in window)) {return;}
 
     try {
       const observer = new PerformanceObserver((entryList) => {
@@ -249,7 +249,7 @@ class WebVitalsCollector {
   }
 
   private observeTTFB(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {return;}
 
     const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     
@@ -269,13 +269,13 @@ class WebVitalsCollector {
 
   private getRating(metric: keyof typeof WEB_VITALS_THRESHOLDS, value: number): 'good' | 'needs-improvement' | 'poor' {
     const thresholds = WEB_VITALS_THRESHOLDS[metric];
-    if (value <= thresholds.good) return 'good';
-    if (value <= thresholds.poor) return 'needs-improvement';
+    if (value <= thresholds.good) {return 'good';}
+    if (value <= thresholds.poor) {return 'needs-improvement';}
     return 'poor';
   }
 
   private getNavigationType(): string {
-    if (typeof window === 'undefined') return 'unknown';
+    if (typeof window === 'undefined') {return 'unknown';}
     
     const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     return navigationEntry?.type || 'unknown';
@@ -421,15 +421,15 @@ class AnalyticsTracker {
   }
 
   private setupPageViewTracking(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {return;}
 
     // Track initial page view
     this.trackPageView(window.location.pathname);
 
     // Track navigation changes
-    const originalPushState = history.pushState;
+    const originalPushState = history.pushState.bind(history);
     history.pushState = (...args) => {
-      originalPushState.apply(history, args);
+      originalPushState(...args);
       this.trackPageView(window.location.pathname);
     };
 
@@ -777,7 +777,7 @@ export class BIZRAMonitoring {
   // ===========================================================================
 
   private startReporting(): void {
-    if (!this.config.reportingEndpoint) return;
+    if (!this.config.reportingEndpoint) {return;}
 
     this.reportingInterval = setInterval(() => {
       this.sendReport();
@@ -785,7 +785,7 @@ export class BIZRAMonitoring {
   }
 
   private async sendReport(): Promise<void> {
-    if (!this.config.reportingEndpoint) return;
+    if (!this.config.reportingEndpoint) {return;}
 
     const report = {
       timestamp: Date.now(),

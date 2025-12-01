@@ -9,10 +9,12 @@ import { useOnboardingStore } from "@/store/use-onboarding-store"
 import { ArrowRight, Shield, ShieldAlert, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+type PrivacyLevel = "standard" | "enhanced" | "maximum"
+
 export function ProfileStep() {
   const { setStep, setUserProfile } = useOnboardingStore()
   const [name, setName] = useState("")
-  const [privacy, setPrivacy] = useState<"standard" | "enhanced" | "maximum">("enhanced")
+  const [privacy, setPrivacy] = useState<PrivacyLevel>("enhanced")
 
   const handleContinue = () => {
     if (!name) {return}
@@ -49,7 +51,7 @@ export function ProfileStep() {
           <Label className="text-lg">Privacy Level</Label>
           <RadioGroup
             value={privacy}
-            onValueChange={(v: any) => setPrivacy(v)}
+            onValueChange={(value) => setPrivacy(value as PrivacyLevel)}
             className="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             <PrivacyOption
@@ -87,7 +89,15 @@ export function ProfileStep() {
   )
 }
 
-function PrivacyOption({ value, icon, title, desc, selected }: any) {
+interface PrivacyOptionProps {
+  value: PrivacyLevel
+  icon: React.ReactNode
+  title: string
+  desc: string
+  selected: boolean
+}
+
+function PrivacyOption({ value, icon, title, desc, selected }: PrivacyOptionProps) {
   return (
     <div className="relative">
       <RadioGroupItem value={value} id={value} className="peer sr-only" />

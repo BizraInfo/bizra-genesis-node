@@ -2,9 +2,9 @@
 import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 
-// Mock Vite's import.meta.env for Jest
-// @ts-ignore
-global.importMetaEnv = {
+type ImportMetaEnvMock = Record<string, string | boolean>;
+
+const importMetaEnv: ImportMetaEnvMock = {
   VITE_API_URL: 'http://localhost:3000',
   VITE_WS_URL: 'ws://localhost:3000',
   MODE: 'test',
@@ -13,11 +13,11 @@ global.importMetaEnv = {
   SSR: false,
 };
 
+(globalThis as typeof globalThis & { importMetaEnv: ImportMetaEnvMock }).importMetaEnv = importMetaEnv;
+
 // Provide import.meta polyfill
-// @ts-ignore
-if (typeof globalThis.import === 'undefined') {
-  // @ts-ignore
-  globalThis.import = { meta: { env: global.importMetaEnv } };
+if (typeof (globalThis as unknown as { import?: { meta: { env: ImportMetaEnvMock } } }).import === 'undefined') {
+  (globalThis as unknown as { import: { meta: { env: ImportMetaEnvMock } } }).import = { meta: { env: importMetaEnv } };
 }
 
 // Polyfill TextEncoder/TextDecoder for Node.js environment
@@ -31,13 +31,14 @@ if (typeof global.TextDecoder === 'undefined') {
 
 // Polyfill fetch for Node.js environment if not available
 if (typeof global.fetch === 'undefined') {
-  global.fetch = jest.fn(() =>
+  const mockFetch: typeof fetch = () =>
     Promise.resolve({
       ok: true,
       json: () => Promise.resolve({}),
       text: () => Promise.resolve(''),
-    })
-  ) as jest.Mock;
+    } as Response)
+
+  global.fetch = mockFetch
 }
 
 // Polyfill Response for Node.js environment
@@ -60,7 +61,14 @@ if (typeof global.Response === 'undefined') {
     }
 
     text() {
-      return Promise.resolve(String(this.body || ''));
+      const val = this.body;
+      if (typeof val === 'string') { return Promise.resolve(val); }
+      if (val === null || val === undefined) { return Promise.resolve(''); }
+      try {
+        return Promise.resolve(JSON.stringify(val));
+      } catch {
+        return Promise.resolve('');
+      }
     }
   } as unknown as typeof Response;
 }
@@ -73,7 +81,7 @@ if (typeof global.Request === 'undefined') {
 
     constructor(input: string, init?: { method?: string }) {
       this.url = input;
-      this.method = init?.method || 'GET';
+      this.method = init?.method ?? 'GET';
     }
   } as unknown as typeof Request;
 }
@@ -102,7 +110,7 @@ global.IntersectionObserver = class IntersectionObserver {
     return [];
   }
   unobserve() {}
-} as any;
+} as unknown as typeof IntersectionObserver;
 
 // Mock ResizeObserver (used by some chart/responsive components)
 global.ResizeObserver = class ResizeObserver {
@@ -110,7 +118,7 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-} as any;
+} as unknown as typeof ResizeObserver;
 
 // Mock BroadcastChannel (used for cross-tab communication)
 global.BroadcastChannel = class BroadcastChannel {
@@ -198,21 +206,24 @@ if (typeof global.WebSocket === 'undefined') {
 }
 
 // Suppress console errors in tests (optional, remove if you want to see them)
-const originalError = console.error;
+const originalError = console.error
+type ConsoleArgs = ReadonlyArray<unknown>
+
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: ConsoleArgs) => {
+    const [first] = args
     if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('Warning: ReactDOM.render') ||
-        args[0].includes('Warning: useLayoutEffect') ||
-        args[0].includes('Not implemented: HTMLFormElement.prototype.submit'))
+      typeof first === 'string' &&
+      (first.includes('Warning: ReactDOM.render') ||
+        first.includes('Warning: useLayoutEffect') ||
+        first.includes('Not implemented: HTMLFormElement.prototype.submit'))
     ) {
-      return;
+      return
     }
-    originalError.call(console, ...args);
-  };
-});
+    originalError(...(args as Parameters<typeof originalError>))
+  }
+})
 
 afterAll(() => {
-  console.error = originalError;
-});
+  console.error = originalError
+})

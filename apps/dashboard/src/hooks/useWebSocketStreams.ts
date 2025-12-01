@@ -26,7 +26,7 @@ export interface ConsensusUpdateEvent {
   agents_voted: number
   total_agents: number
   confidence_score?: number
-  result?: any
+  result?: unknown
   timestamp: number
 }
 
@@ -35,7 +35,7 @@ export interface MetricUpdateEvent {
   value: number
   unit: string
   timestamp: number
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 export interface NotificationEvent {
@@ -45,6 +45,31 @@ export interface NotificationEvent {
   message: string
   timestamp: number
   read: boolean
+}
+
+interface SystemMessagePayload {
+  type?: string
+  id?: string
+  consensus_id?: string
+  status?: 'pending' | 'in_progress' | 'completed' | 'failed'
+  agents_voted?: number
+  total_agents?: number
+  confidence_score?: number
+  result?: unknown
+  timestamp?: number
+  metric_type?: 'latency' | 'throughput' | 'error_rate' | 'consensus_time'
+  value?: number
+  unit?: string
+  metadata?: Record<string, unknown>
+  notification_id?: string
+  notification_type?: 'info' | 'success' | 'warning' | 'error'
+  severity?: 'info' | 'success' | 'warning' | 'error'
+  title?: string
+  read?: boolean
+}
+
+interface SystemMessage {
+  payload: SystemMessagePayload
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -114,7 +139,7 @@ export function useAgentStream() {
   }, [])
 
   useEffect(() => {
-    if (!connected) {return}
+    if (!connected) { return }
 
     const unsubscribe = onAgentResponse(processAgentResponse)
 
@@ -156,16 +181,17 @@ export function useConsensusStream(maxHistory: number = 10) {
   const [consensusHistory, setConsensusHistory] = useState<ConsensusUpdateEvent[]>([])
 
   useEffect(() => {
-    if (!connected || !client) {return}
+    if (!connected || !client) { return }
 
     // Listen for system messages that contain consensus updates
-    const handler = (message: any) => {
-      const payload = message.payload
+    const handler = (message: unknown) => {
+      const sysMsg = message as SystemMessage
+      const payload = sysMsg.payload
 
       // Check if this is a consensus update
       if (payload.type === 'consensus_update' || payload.consensus_id) {
         const update: ConsensusUpdateEvent = {
-          consensus_id: payload.consensus_id || payload.id,
+          consensus_id: payload.consensus_id || payload.id || '',
           status: payload.status || 'in_progress',
           agents_voted: payload.agents_voted || 0,
           total_agents: payload.total_agents || 18,
@@ -213,15 +239,20 @@ export function useMetricStream(metricTypes?: string[]) {
   const [metrics, setMetrics] = useState<Record<string, MetricUpdateEvent>>({})
 
   useEffect(() => {
-    if (!connected || !client) {return}
+    if (!connected || !client) { return }
 
-    const handler = (message: any) => {
-      const payload = message.payload
+    const handler = (message: unknown) => {
+      const sysMsg = message as SystemMessage
+      const payload = sysMsg.payload
 
       if (payload.type === 'metric_update' || payload.metric_type) {
+        // Ensure metric_type is valid
+        const metricType = payload.metric_type as MetricUpdateEvent['metric_type']
+        if (!metricType) { return }
+
         const metric: MetricUpdateEvent = {
-          metric_type: payload.metric_type,
-          value: payload.value,
+          metric_type: metricType,
+          value: payload.value || 0,
           unit: payload.unit || '',
           timestamp: payload.timestamp || Date.now(),
           metadata: payload.metadata
@@ -265,17 +296,18 @@ export function useNotificationStream(maxNotifications: number = 50) {
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    if (!connected || !client) {return}
+    if (!connected || !client) { return }
 
-    const handler = (message: any) => {
-      const payload = message.payload
+    const handler = (message: unknown) => {
+      const sysMsg = message as SystemMessage
+      const payload = sysMsg.payload
 
       if (payload.type === 'notification' || payload.notification_id) {
         const notification: NotificationEvent = {
           notification_id: payload.notification_id || `notif-${Date.now()}`,
           type: payload.notification_type || payload.severity || 'info',
           title: payload.title || 'Notification',
-          message: payload.message,
+          message: payload.message || '',
           timestamp: payload.timestamp || Date.now(),
           read: false
         }

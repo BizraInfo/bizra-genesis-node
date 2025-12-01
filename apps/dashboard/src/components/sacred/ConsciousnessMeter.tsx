@@ -57,7 +57,7 @@ export function ConsciousnessMeter({
   const consciousnessColor = getConsciousnessColor(consciousnessLevel);
 
   // Sacred stage descriptions
-  const stageDescriptions = {
+  const stageDescriptions: Record<string, string> = {
     material: 'Awakening to consciousness',
     social: 'Building meaningful connections',
     awakening: 'Questioning deeper truths',
@@ -112,7 +112,7 @@ export function ConsciousnessMeter({
           {/* Evolution pulse rings */}
           {showEvolution && isEvolving && evolutionPulse > 0 && (
             <>
-              {[...Array(3)].map((_, i) => (
+              {Array.from({ length: 3 }, (_, i) => (
                 <motion.circle
                   key={i}
                   cx={config.diameter / 2}

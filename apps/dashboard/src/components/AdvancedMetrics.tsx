@@ -67,21 +67,41 @@ const useRealTimeData = (endpoint: string, interval: number = 1000) => {
   const [data, setData] = useState<MetricData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval>;
     let isMounted = true;
 
     const fetchData = async () => {
       try {
         const response = await fetch(`${endpoint}?limit=100`);
-        if (!response.ok) {throw new Error(`HTTP ${response.status}`);}
-        
-        const newData: MetricData[] = await response.json();
-        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const json = (await response.json()) as unknown;
+        const newData = Array.isArray(json)
+          ? json
+              .map((item) => {
+                const rawId = (item as { id?: unknown }).id;
+                const id =
+                  typeof rawId === 'string'
+                    ? rawId
+                    : typeof rawId === 'number'
+                      ? String(rawId)
+                      : `metric-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+                const timestamp = Number((item as { timestamp?: unknown }).timestamp ?? Date.now());
+                const value = Number((item as { value?: unknown }).value ?? 0);
+                const type = (item as { type?: MetricData['type'] }).type ?? 'cpu';
+                const metadata = (item as { metadata?: Record<string, unknown> }).metadata ?? {};
+
+                return { id, timestamp, value, type, metadata };
+              })
+              .filter((item) => !Number.isNaN(item.timestamp) && !Number.isNaN(item.value))
+          : [];
+
         if (isMounted) {
-          setData(prev => {
-            // Keep only last 1000 data points for memory optimization
+          setData((prev) => {
             const combined = [...prev, ...newData];
             return combined.slice(-1000);
           });
@@ -95,12 +115,12 @@ const useRealTimeData = (endpoint: string, interval: number = 1000) => {
       }
     };
 
-    // Initial fetch
-    fetchData();
-    
-    // Set up polling
-    intervalId = setInterval(fetchData, interval);
-    
+    void fetchData();
+
+    const intervalId = setInterval(() => {
+      void fetchData();
+    }, interval);
+
     return () => {
       isMounted = false;
       clearInterval(intervalId);
@@ -151,7 +171,7 @@ interface ChartOptions {
       bodyFont?: { family?: string };
     };
   };
-  scales?: Record<string, any>;
+  scales?: Record<string, unknown>;
 }
 
 // Performance-optimized chart component
@@ -320,12 +340,15 @@ export const AdvancedMetrics: React.FC = () => {
   // Real-time performance indicators
   const performanceIndicators = useMemo(() => {
     const latest = consensusData[consensusData.length - 1];
+    const latencySlice = consensusData
+      .filter(d => d.type === 'latency')
+      .slice(-10);
+    const latencyAvgRaw =
+      latencySlice.reduce((sum, d) => sum + d.value, 0) /
+      (latencySlice.length || 1);
     return {
-      consensusOps: latest?.value || 0,
-      avgLatency: consensusData
-        .filter(d => d.type === 'latency')
-        .slice(-10)
-        .reduce((sum, d) => sum + d.value, 0) / 10 || 0,
+      consensusOps: latest?.value ?? 0,
+      avgLatency: Number.isFinite(latencyAvgRaw) ? latencyAvgRaw : 0,
       systemHealth: systemData
         .filter(d => d.type === 'cpu')
         .slice(-1)[0]?.value < 80 ? 'healthy' : 'warning',

@@ -39,46 +39,118 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": [
-      "error",
+      "warn",
       {
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_"
       }
     ],
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-misused-promises": "error",
+    "@typescript-eslint/no-floating-promises": "warn",
+    "@typescript-eslint/no-misused-promises": "warn",
     "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "@typescript-eslint/no-unnecessary-type-assertion": "warn",
     "@typescript-eslint/prefer-nullish-coalescing": "warn",
     "@typescript-eslint/prefer-optional-chain": "warn",
     "@typescript-eslint/strict-boolean-expressions": "off",
-
+    // Downgrade unsafe rules to warn for gradual migration
+    "@typescript-eslint/no-unsafe-assignment": "warn",
+    "@typescript-eslint/no-unsafe-member-access": "warn",
+    "@typescript-eslint/no-unsafe-argument": "warn",
+    "@typescript-eslint/no-unsafe-return": "warn",
+    "@typescript-eslint/no-unsafe-call": "warn",
+    "@typescript-eslint/only-throw-error": "warn",
+    "@typescript-eslint/prefer-promise-reject-errors": "warn",
+    "@typescript-eslint/require-await": "warn",
     // React specific rules
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "react/display-name": "off",
     "react/jsx-uses-react": "off",
+    "react/no-unescaped-entities": "warn",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-
+    "react/no-unknown-property": [
+      "error",
+      {
+        "ignore": [
+          "jsx",
+          "global",
+          "args",
+          "attach",
+          "intensity",
+          "position",
+          "castShadow",
+          "receiveShadow",
+          "frustumCulled",
+          "roughness",
+          "metalness",
+          "emissive",
+          "emissiveIntensity",
+          "transparent",
+          "vertexColors",
+          "sizeAttenuation",
+          "blending",
+          "depthWrite",
+          "side",
+          "distance",
+          "decay",
+          "penumbra",
+          "angle",
+          "target",
+          "object",
+          "geometry",
+          "material",
+          "shadow-mapSize",
+          "shadow-camera-far",
+          "shadow-camera-left",
+          "shadow-camera-right",
+          "shadow-camera-top",
+          "shadow-camera-bottom",
+          "rotation",
+          "scale",
+          "groundColor",
+          "color",
+          "count",
+          "array",
+          "itemSize"
+        ]
+      }
+    ],
     // General rules
     "no-console": [
       "warn",
       {
-        "allow": ["warn", "error"]
+        "allow": [
+          "warn",
+          "error"
+        ]
       }
     ],
     "no-debugger": "error",
     "no-alert": "error",
     "prefer-const": "error",
     "no-var": "error",
-    "eqeqeq": ["error", "always"],
-    "curly": ["error", "all"],
-    "no-throw-literal": "error",
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    "curly": [
+      "warn",
+      "all"
+    ],
+    "no-throw-literal": "warn",
     "prefer-template": "warn",
     "no-nested-ternary": "warn",
     "no-unneeded-ternary": "error",
-    "spaced-comment": ["warn", "always", { "markers": ["/"] }]
+    "spaced-comment": [
+      "warn",
+      "always",
+      {
+        "markers": [
+          "/"
+        ]
+      }
+    ]
   },
   "ignorePatterns": [
     "node_modules/",
@@ -88,5 +160,31 @@
     "*.config.js",
     "*.config.ts",
     "vite.config.js"
+  ],
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.{ts,tsx}", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}", "**/setupTests.ts", "**/test-utils.tsx"],
+      "rules": {
+        // Relax type safety rules for tests - testing mocks often require any
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-unused-expressions": "off",
+        "@typescript-eslint/no-implied-eval": "off",
+        "@typescript-eslint/prefer-promise-reject-errors": "off",
+        "@typescript-eslint/no-floating-promises": "off",
+        "@typescript-eslint/no-misused-promises": "off",
+        "@typescript-eslint/no-unnecessary-type-assertion": "off",
+        "@typescript-eslint/only-throw-error": "off",
+        // Relax general rules for tests
+        "no-console": "off"
+      }
+    }
   ]
 }

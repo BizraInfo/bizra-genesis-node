@@ -46,7 +46,7 @@ export const Register: React.FC = () => {
         try {
             await register(formData)
             toast.success('Registration successful! Please log in.')
-            navigate('/login')
+            void navigate('/login')
         } catch (error) {
             console.error('Registration failed', error)
             // Error handling is already done in AuthService (throwing AuthError), 
@@ -89,7 +89,7 @@ export const Register: React.FC = () => {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
                         {step === 1 && (
                             <motion.div
                                 initial={{ opacity: 0, x: 20 }}

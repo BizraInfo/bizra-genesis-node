@@ -85,7 +85,7 @@ export function CosmicBackground({
 
   // Animation loop
   useFrame((state) => {
-    if (!pointsRef.current) return;
+    if (!pointsRef.current) {return;}
 
     const elapsed = state.clock.getElapsedTime();
 
@@ -142,10 +142,10 @@ export function CosmicBackground2D({
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {return;}
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {return;}
 
     const particles: Array<{
       x: number;
@@ -188,10 +188,10 @@ export function CosmicBackground2D({
         particle.y += particle.speedY;
 
         // Wrap around edges
-        if (particle.x < 0) particle.x = canvas.width;
-        if (particle.x > canvas.width) particle.x = 0;
-        if (particle.y < 0) particle.y = canvas.height;
-        if (particle.y > canvas.height) particle.y = 0;
+        if (particle.x < 0) {particle.x = canvas.width;}
+        if (particle.x > canvas.width) {particle.x = 0;}
+        if (particle.y < 0) {particle.y = canvas.height;}
+        if (particle.y > canvas.height) {particle.y = 0;}
 
         // Draw particle with glow
         ctx.beginPath();

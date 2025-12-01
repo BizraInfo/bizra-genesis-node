@@ -6,7 +6,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { ChevronUp, ChevronDown } from 'lucide-react';
-import { BRAND } from '../../constants/brand';
 
 interface Section {
   id: string;
@@ -31,17 +30,8 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({
   });
 
   const [activeSection, setActiveSection] = useState<string>('');
-  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('down');
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-
-    const updateScrollDirection = () => {
-      const scrollY = window.scrollY;
-      setScrollDirection(scrollY > lastScrollY ? 'down' : 'up');
-      lastScrollY = scrollY;
-    };
-
     const updateActiveSection = () => {
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
@@ -59,7 +49,6 @@ export const ScrollProgress: React.FC<ScrollProgressProps> = ({
     };
 
     const handleScroll = () => {
-      updateScrollDirection();
       updateActiveSection();
     };
 

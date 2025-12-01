@@ -3,7 +3,7 @@
  * Line chart showing projected global adoption using Fibonacci/golden ratio modeling
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +14,8 @@ import {
   Tooltip,
   Legend,
   Filler,
+  ScriptableContext,
+  TooltipItem,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { BRAND } from '../../constants/brand';
@@ -53,7 +55,7 @@ const AdoptionChart: React.FC = () => {
         label: 'Projected Users',
         data: userData,
         borderColor: BRAND.colors.gold[500],
-        backgroundColor: (context: any) => {
+        backgroundColor: (context: ScriptableContext<'line'>) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 400);
           gradient.addColorStop(0, `rgba(201, 169, 98, 0.3)`);
@@ -92,8 +94,8 @@ const AdoptionChart: React.FC = () => {
         cornerRadius: 8,
         displayColors: false,
         callbacks: {
-          title: (context: any) => `Year: ${context[0].label}`,
-          label: (context: any) => {
+          title: (context: TooltipItem<'line'>[]) => `Year: ${context[0].label}`,
+          label: (context: TooltipItem<'line'>) => {
             const value = context.parsed.y;
             return `Projected Users: ${value.toLocaleString()}`;
           },
@@ -113,13 +115,14 @@ const AdoptionChart: React.FC = () => {
             family: BRAND.fonts.mono,
             size: 11,
           },
-          callback: (value: any) => {
-            if (value >= 1000000) {
-              return `${(value / 1000000).toFixed(1)}M`;
-            } else if (value >= 1000) {
-              return `${(value / 1000).toFixed(0)}K`;
+          callback: (value: string | number) => {
+            const numValue = typeof value === 'string' ? parseFloat(value) : value;
+            if (numValue >= 1000000) {
+              return `${(numValue / 1000000).toFixed(1)}M`;
+            } else if (numValue >= 1000) {
+              return `${(numValue / 1000).toFixed(0)}K`;
             }
-            return value.toString();
+            return numValue.toString();
           },
         },
         border: {
@@ -151,7 +154,7 @@ const AdoptionChart: React.FC = () => {
     animation: {
       duration: 3000,
       easing: 'easeInOutQuart' as const,
-      delay: (context: any) => context.dataIndex * 50, // Stagger animation
+      delay: (context: ScriptableContext<'line'>) => context.dataIndex * 50, // Stagger animation
     },
   };
 
