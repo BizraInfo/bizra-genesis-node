@@ -1,0 +1,74 @@
+# Dependabot Security & Version Updates Configuration
+# Professional Elite Standard - Automated Dependency Management
+
+version: 2
+updates:
+  # Frontend (Next.js Dashboard)
+  - package-ecosystem: "npm"
+    directory: "/apps/dashboard"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "BizraInfo"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "security"
+    commit-message:
+      prefix: "deps(dashboard)"
+    groups:
+      # Group minor/patch updates to reduce noise
+      production-dependencies:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "@radix-ui/*"
+          - "recharts"
+          - "zustand"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "@typescript-eslint/*"
+          - "jest"
+          - "@testing-library/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Backend (Rust)
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "BizraInfo"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "rust"
+    commit-message:
+      prefix: "deps(rust)"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci(deps)"
