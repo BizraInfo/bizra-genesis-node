@@ -23,6 +23,35 @@
       "secondary": "और जानें"
     }
   },
+  "invitation": {
+    "title": "आमंत्रण कोड दर्ज करें",
+    "subtitle": "BIZRA प्राइवेट बीटा में है। जुड़ने के लिए अपना आमंत्रण कोड दर्ज करें।",
+    "placeholder": "अपना आमंत्रण कोड दर्ज करें",
+    "validate": "कोड सत्यापित करें",
+    "validating": "सत्यापित हो रहा है...",
+    "success": "स्वागत है, अग्रदूत!",
+    "successDesc": "आप पहले 1,000 संप्रभुओं में से उपयोगकर्ता #{{number}} हैं।",
+    "tier": {
+      "genesis": "जेनेसिस अग्रदूत",
+      "early": "प्रारंभिक अपनाने वाला",
+      "standard": "संप्रभु सदस्य"
+    },
+    "noCode": "कोड नहीं है?",
+    "requestAccess": "पहुंच का अनुरोध करें",
+    "requestHint": "प्रारंभिक पहुंच के लिए GitHub या X पर @BizraInfo से संपर्क करें",
+    "publicPhase": "सार्वजनिक पहुंच अब उपलब्ध है!",
+    "publicPhaseDesc": "BIZRA अब सभी के लिए खुला है। कोई आमंत्रण आवश्यक नहीं।",
+    "errors": {
+      "invalidCode": "अमान्य आमंत्रण कोड। कृपया जांचें और पुनः प्रयास करें।",
+      "codeInactive": "यह कोड अब सक्रिय नहीं है।",
+      "codeExhausted": "इस कोड ने अपने अधिकतम उपयोग तक पहुंच लिया है।",
+      "required": "कृपया आमंत्रण कोड दर्ज करें"
+    },
+    "stats": {
+      "remaining": "चरण 1 में {{count}} स्थान शेष",
+      "pioneers": "{{count}} अग्रदूत शामिल हो गए हैं"
+    }
+  },
   "onboarding": {
     "language": {
       "title": "अपनी भाषा चुनें",
@@ -143,6 +172,107 @@
         "name": "नैतिकता संरक्षक",
         "description": "नैतिक संरेखण और मूल्य संगति"
       }
+    }
+  },
+  "installer": {
+    "header": "संप्रभु OS इंस्टॉलर",
+    "welcome": {
+      "title": "संप्रभुता में आपका स्वागत है",
+      "description": "अपनी मशीन को संप्रभु AI नोड में बदलें। आपका डेटा आपका है। आपका AI आपकी सेवा करता है। आपका प्रभाव मूल्य कमाता है।",
+      "features": {
+        "zeroCloud": "जीरो क्लाउड",
+        "zeroCloudDesc": "सब कुछ आपके हार्डवेयर पर स्थानीय रूप से चलता है",
+        "agents": "7 AI एजेंट",
+        "agentsDesc": "आपकी व्यक्तिगत एजेंट टीम (PAT)",
+        "impact": "प्रभाव का प्रमाण",
+        "impactDesc": "वास्तविक कार्य के लिए SEED टोकन कमाएं"
+      },
+      "scanButton": "मेरे सिस्टम को स्कैन करें"
+    },
+    "scanning": {
+      "title": "आपके सिस्टम का विश्लेषण",
+      "description": "हार्डवेयर क्षमताओं का पता लगाना...",
+      "progress": "प्रगति"
+    },
+    "results": {
+      "title": "सिस्टम विश्लेषण पूर्ण",
+      "description": "आपका हार्डवेयर BIZRA Node0 की आवश्यकताओं से अधिक है",
+      "ready": "पूर्ण संप्रभुता के लिए तैयार",
+      "readyDesc": "आपका सिस्टम सभी 7 PAT एजेंट + DeepSeek R1 + पूर्ण HyperGraph RAG चला सकता है",
+      "selectModels": "AI मॉडल चुनें"
+    },
+    "models": {
+      "title": "अपने AI मॉडल चुनें",
+      "description": "हमने आपके हार्डवेयर की शक्ति के आधार पर सर्वश्रेष्ठ मॉडल की सिफारिश की है",
+      "recommended": "अनुशंसित",
+      "optional": "वैकल्पिक",
+      "size": "आकार",
+      "vram": "आवश्यक VRAM",
+      "selectedModels": "चयनित मॉडल",
+      "totalSize": "कुल आकार"
+    },
+    "profile": {
+      "title": "अपनी प्रोफ़ाइल बनाएं",
+      "description": "अपने संप्रभु AI अनुभव को अनुकूलित करें",
+      "identity": "पहचान",
+      "yourName": "आपका नाम",
+      "namePlaceholder": "अपना नाम दर्ज करें",
+      "nameHint": "आपके PAT एजेंट इसका उपयोग इंटरैक्शन को वैयक्तिकृत करने के लिए करेंगे",
+      "installPath": "इंस्टॉलेशन पथ",
+      "requiresSpace": "{{size}} खाली जगह चाहिए",
+      "privacyLevel": "गोपनीयता स्तर",
+      "privacyMaximum": "अधिकतम — सभी प्रोसेसिंग डिवाइस पर",
+      "privacyHigh": "उच्च — न्यूनतम क्लाउड सुविधाएं",
+      "privacyBalanced": "संतुलित — कुछ क्लाउड सुधार",
+      "privacyHint": "आपकी स्पष्ट सहमति के बिना डेटा कभी नहीं निकलता",
+      "patTeam": "आपकी व्यक्तिगत एजेंट टीम",
+      "generateInstaller": "इंस्टॉलर जेनरेट करें"
+    },
+    "installing": {
+      "title": "एकीकृत इंस्टॉलर बना रहे हैं",
+      "description": "आपका व्यक्तिगत BIZRA संप्रभु OS पैकेज बना रहे हैं",
+      "phases": {
+        "scan": "सिस्टम विश्लेषण",
+        "scanDesc": "हार्डवेयर क्षमताओं का विश्लेषण",
+        "core": "कोर रनटाइम",
+        "coreDesc": "BIZRA कर्नेल और Node0 इंस्टॉल करना",
+        "models": "AI मॉडल",
+        "modelsDesc": "मॉडल और एडेप्टर डाउनलोड करना",
+        "tools": "MCP टूल्स",
+        "toolsDesc": "87 संप्रभु टूल्स इंस्टॉल करना",
+        "agents": "PAT एजेंट",
+        "agentsDesc": "व्यक्तिगत AI टीम कॉन्फ़िगर करना",
+        "rag": "ज्ञान आधार",
+        "ragDesc": "HyperGraph RAG आरंभ करना",
+        "finalize": "अंतिम चरण",
+        "finalizeDesc": "सुरक्षित और अनुकूलित करना"
+      }
+    },
+    "complete": {
+      "title": "इंस्टॉलर तैयार!",
+      "description": "आपका व्यक्तिगत BIZRA संप्रभु OS पैकेज पूर्ण है",
+      "details": "इंस्टॉलर विवरण",
+      "installerName": "इंस्टॉलर का नाम",
+      "fileSize": "फ़ाइल का आकार",
+      "version": "संस्करण",
+      "aiModels": "AI मॉडल",
+      "downloadTime": "अनुमानित डाउनलोड समय",
+      "privacyLevel": "गोपनीयता स्तर",
+      "modelsIncluded": "शामिल मॉडल",
+      "whatsIncluded": "क्या शामिल है",
+      "startOver": "फिर से शुरू करें",
+      "downloadInstall": "डाउनलोड और इंस्टॉल"
+    },
+    "hardware": {
+      "cpu": "CPU",
+      "gpu": "GPU",
+      "ram": "RAM",
+      "storage": "स्टोरेज",
+      "network": "नेटवर्क",
+      "os": "OS",
+      "cores": "कोर",
+      "available": "उपलब्ध",
+      "free": "फ्री"
     }
   },
   "common": {

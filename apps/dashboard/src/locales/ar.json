@@ -37,6 +37,35 @@
       }
     }
   },
+  "invitation": {
+    "title": "أدخل رمز الدعوة",
+    "subtitle": "بِزرة في مرحلة بيتا الخاصة. أدخل رمز الدعوة للانضمام.",
+    "placeholder": "أدخل رمز الدعوة",
+    "validate": "تحقق من الرمز",
+    "validating": "جاري التحقق...",
+    "success": "مرحباً أيها الرائد!",
+    "successDesc": "أنت المستخدم رقم #{{number}} من أول ١٠٠٠ سيادي.",
+    "tier": {
+      "genesis": "رائد البداية",
+      "early": "متبني مبكر",
+      "standard": "عضو سيادي"
+    },
+    "noCode": "ليس لديك رمز؟",
+    "requestAccess": "طلب الوصول",
+    "requestHint": "تواصل مع @BizraInfo على GitHub أو X للوصول المبكر",
+    "publicPhase": "الوصول العام متاح الآن!",
+    "publicPhaseDesc": "بِزرة مفتوحة الآن للجميع. لا تحتاج دعوة.",
+    "errors": {
+      "invalidCode": "رمز دعوة غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
+      "codeInactive": "هذا الرمز لم يعد نشطاً.",
+      "codeExhausted": "هذا الرمز وصل للحد الأقصى من الاستخدامات.",
+      "required": "يرجى إدخال رمز الدعوة"
+    },
+    "stats": {
+      "remaining": "{{count}} مكان متبقي في المرحلة الأولى",
+      "pioneers": "{{count}} رائد انضموا"
+    }
+  },
   "onboarding": {
     "language": {
       "title": "اختر لغتك",
@@ -128,29 +157,113 @@
     }
   },
   "installer": {
-    "title": "تثبيت العقدة",
-    "steps": {
-      "scan": "فحص النظام",
-      "results": "نتائج الفحص",
-      "profile": "إعداد الملف",
-      "models": "اختيار النماذج",
-      "complete": "اكتمل التثبيت"
+    "header": "مُثَبِّت نظام السيادة",
+    "welcome": {
+      "title": "مرحباً في السيادة",
+      "description": "حوّل جهازك إلى عقدة ذكاء اصطناعي سيادية. بياناتك تبقى لك. ذكاؤك يخدمك. تأثيرك يكسب قيمة.",
+      "features": {
+        "zeroCloud": "بدون سحابة",
+        "zeroCloudDesc": "كل شيء يعمل محلياً على جهازك",
+        "agents": "٧ وكلاء ذكاء",
+        "agentsDesc": "فريق الوكلاء الشخصي (PAT)",
+        "impact": "إثبات التأثير",
+        "impactDesc": "اكسب رموز SEED من العمل الحقيقي"
+      },
+      "scanButton": "افحص نظامي"
     },
-    "hardware": {
-      "cpu": "المعالج",
-      "ram": "الذاكرة",
-      "gpu": "كرت الشاشة",
-      "storage": "التخزين",
-      "compatible": "متوافق",
-      "notCompatible": "غير متوافق"
+    "scanning": {
+      "title": "جاري تحليل نظامك",
+      "description": "اكتشاف قدرات الجهاز...",
+      "progress": "التقدم"
+    },
+    "results": {
+      "title": "اكتمل تحليل النظام",
+      "description": "جهازك يتجاوز المتطلبات لعقدة BIZRA Node0",
+      "ready": "جاهز للسيادة الكاملة",
+      "readyDesc": "نظامك يمكنه تشغيل جميع وكلاء PAT السبعة + DeepSeek R1 + HyperGraph RAG الكامل",
+      "selectModels": "اختر نماذج الذكاء"
     },
     "models": {
-      "title": "اختر نماذجك",
-      "description": "بناءً على جهازك، نوصي بهذه النماذج:",
+      "title": "اختر نماذج الذكاء الاصطناعي",
+      "description": "اخترنا لك أفضل النماذج بناءً على قوة جهازك",
       "recommended": "موصى به",
       "optional": "اختياري",
       "size": "الحجم",
-      "vram": "ذاكرة الفيديو المطلوبة"
+      "vram": "ذاكرة الفيديو المطلوبة",
+      "selectedModels": "النماذج المختارة",
+      "totalSize": "الحجم الإجمالي"
+    },
+    "profile": {
+      "title": "أنشئ ملفك الشخصي",
+      "description": "خصّص تجربة الذكاء الاصطناعي السيادية",
+      "identity": "الهوية",
+      "yourName": "اسمك",
+      "namePlaceholder": "أدخل اسمك",
+      "nameHint": "سيستخدم وكلاء PAT هذا لتخصيص التفاعلات",
+      "installPath": "مسار التثبيت",
+      "requiresSpace": "يتطلب {{size}} مساحة حرة",
+      "privacyLevel": "مستوى الخصوصية",
+      "privacyMaximum": "أقصى — كل المعالجة على الجهاز",
+      "privacyHigh": "عالي — ميزات سحابية محدودة",
+      "privacyBalanced": "متوازن — بعض التحسينات السحابية",
+      "privacyHint": "البيانات لا تغادر بدون موافقتك الصريحة",
+      "patTeam": "فريق وكلائك الشخصي",
+      "generateInstaller": "إنشاء المُثبِّت"
+    },
+    "installing": {
+      "title": "إنشاء المُثبِّت الموحد",
+      "description": "إنشاء حزمة نظام BIZRA السيادية المخصصة لك",
+      "phases": {
+        "scan": "تحليل النظام",
+        "scanDesc": "تحليل قدرات الجهاز",
+        "core": "النواة الأساسية",
+        "coreDesc": "تثبيت نواة BIZRA وعقدة Node0",
+        "models": "نماذج الذكاء",
+        "modelsDesc": "تحميل النماذج والمحولات",
+        "tools": "أدوات MCP",
+        "toolsDesc": "تثبيت ٨٧ أداة سيادية",
+        "agents": "وكلاء PAT",
+        "agentsDesc": "تهيئة فريق الذكاء الشخصي",
+        "rag": "قاعدة المعرفة",
+        "ragDesc": "تهيئة HyperGraph RAG",
+        "finalize": "الإنهاء",
+        "finalizeDesc": "تأمين وتحسين"
+      }
+    },
+    "complete": {
+      "title": "المُثبِّت جاهز!",
+      "description": "اكتملت حزمة نظام BIZRA السيادية المخصصة لك",
+      "details": "تفاصيل المُثبِّت",
+      "installerName": "اسم المُثبِّت",
+      "fileSize": "حجم الملف",
+      "version": "الإصدار",
+      "aiModels": "نماذج الذكاء",
+      "downloadTime": "وقت التحميل التقريبي",
+      "privacyLevel": "مستوى الخصوصية",
+      "modelsIncluded": "النماذج المضمنة",
+      "whatsIncluded": "ماذا يتضمن",
+      "startOver": "البدء من جديد",
+      "downloadInstall": "تحميل وتثبيت",
+      "downloadStarted": "بدأ التحميل!",
+      "runScript": "قم بتشغيل ملف PowerShell الذي تم تحميله لإكمال التثبيت",
+      "goToDashboard": "الذهاب إلى لوحة التحكم",
+      "preparing": "جاري التحضير...",
+      "howToInstall": "كيفية التثبيت",
+      "step1": "اضغط على \"تحميل وتثبيت\" للحصول على سكريبت المُثبِّت",
+      "step2": "انقر بزر الفأرة الأيمن على ملف .ps1 واختر \"تشغيل بـ PowerShell\"",
+      "step3": "اتبع التعليمات على الشاشة لإكمال الإعداد",
+      "adminNote": "قد تحتاج لتشغيل PowerShell كمسؤول للتثبيت الكامل"
+    },
+    "hardware": {
+      "cpu": "المعالج",
+      "gpu": "كرت الشاشة",
+      "ram": "الذاكرة",
+      "storage": "التخزين",
+      "network": "الشبكة",
+      "os": "نظام التشغيل",
+      "cores": "أنوية",
+      "available": "متاح",
+      "free": "حر"
     }
   },
   "agents": {

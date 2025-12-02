@@ -37,6 +37,35 @@
       }
     }
   },
+  "invitation": {
+    "title": "Enter Invitation Code",
+    "subtitle": "BIZRA is in private beta. Enter your invitation code to join.",
+    "placeholder": "Enter your invitation code",
+    "validate": "Validate Code",
+    "validating": "Validating...",
+    "success": "Welcome, Pioneer!",
+    "successDesc": "You are user #{{number}} of the first 1,000 sovereigns.",
+    "tier": {
+      "genesis": "Genesis Pioneer",
+      "early": "Early Adopter",
+      "standard": "Sovereign Member"
+    },
+    "noCode": "Don't have a code?",
+    "requestAccess": "Request Access",
+    "requestHint": "Contact @BizraInfo on GitHub or X for early access",
+    "publicPhase": "Public Access Now Available!",
+    "publicPhaseDesc": "BIZRA is now open to everyone. No invitation required.",
+    "errors": {
+      "invalidCode": "Invalid invitation code. Please check and try again.",
+      "codeInactive": "This code is no longer active.",
+      "codeExhausted": "This code has reached its maximum uses.",
+      "required": "Please enter an invitation code"
+    },
+    "stats": {
+      "remaining": "{{count}} spots remaining in Phase 1",
+      "pioneers": "{{count}} pioneers have joined"
+    }
+  },
   "onboarding": {
     "language": {
       "title": "Choose Your Language",
@@ -128,29 +157,113 @@
     }
   },
   "installer": {
-    "title": "Node Installation",
-    "steps": {
-      "scan": "System Scan",
-      "results": "Hardware Results",
-      "profile": "Profile Setup",
-      "models": "Model Selection",
-      "complete": "Installation Complete"
+    "header": "SOVEREIGN OS INSTALLER",
+    "welcome": {
+      "title": "Welcome to Sovereignty",
+      "description": "Transform your machine into a sovereign AI node. Your data stays yours. Your AI serves you. Your impact earns value.",
+      "features": {
+        "zeroCloud": "Zero Cloud",
+        "zeroCloudDesc": "Everything runs locally on your hardware",
+        "agents": "7 AI Agents",
+        "agentsDesc": "Your Personal Agentic Team (PAT)",
+        "impact": "Proof of Impact",
+        "impactDesc": "Earn SEED tokens for real work"
+      },
+      "scanButton": "Scan My System"
     },
-    "hardware": {
-      "cpu": "CPU",
-      "ram": "RAM",
-      "gpu": "GPU",
-      "storage": "Storage",
-      "compatible": "Compatible",
-      "notCompatible": "Not Compatible"
+    "scanning": {
+      "title": "Analyzing Your System",
+      "description": "Detecting hardware capabilities...",
+      "progress": "Progress"
+    },
+    "results": {
+      "title": "System Analysis Complete",
+      "description": "Your hardware exceeds requirements for BIZRA Node0",
+      "ready": "Ready for Full Sovereignty",
+      "readyDesc": "Your system can run all 7 PAT agents + DeepSeek R1 + Full HyperGraph RAG",
+      "selectModels": "Select AI Models"
     },
     "models": {
-      "title": "Select Your Models",
-      "description": "Based on your hardware, we recommend these models:",
+      "title": "Select Your AI Models",
+      "description": "We've recommended the best models based on your hardware power",
       "recommended": "Recommended",
       "optional": "Optional",
       "size": "Size",
-      "vram": "VRAM Required"
+      "vram": "VRAM Required",
+      "selectedModels": "Selected Models",
+      "totalSize": "Total size"
+    },
+    "profile": {
+      "title": "Create Your Profile",
+      "description": "Customize your sovereign AI experience",
+      "identity": "Identity",
+      "yourName": "Your Name",
+      "namePlaceholder": "Enter your name",
+      "nameHint": "Your PAT agents will use this to personalize interactions",
+      "installPath": "Installation Path",
+      "requiresSpace": "Requires {{size}} free space",
+      "privacyLevel": "Privacy Level",
+      "privacyMaximum": "Maximum — All processing on-device",
+      "privacyHigh": "High — Minimal cloud features",
+      "privacyBalanced": "Balanced — Some cloud enhancements",
+      "privacyHint": "Data never leaves without your explicit consent",
+      "patTeam": "Your Personal Agentic Team",
+      "generateInstaller": "Generate Installer"
+    },
+    "installing": {
+      "title": "Generating Unified Installer",
+      "description": "Creating your personalized BIZRA Sovereign OS package",
+      "phases": {
+        "scan": "System Analysis",
+        "scanDesc": "Analyzing hardware capabilities",
+        "core": "Core Runtime",
+        "coreDesc": "Installing BIZRA kernel & Node0",
+        "models": "AI Models",
+        "modelsDesc": "Downloading models & adapters",
+        "tools": "MCP Tools",
+        "toolsDesc": "Installing 87 sovereign tools",
+        "agents": "PAT Agents",
+        "agentsDesc": "Configuring personal AI team",
+        "rag": "Knowledge Base",
+        "ragDesc": "Initializing HyperGraph RAG",
+        "finalize": "Finalization",
+        "finalizeDesc": "Securing & optimizing"
+      }
+    },
+    "complete": {
+      "title": "Installer Ready!",
+      "description": "Your personalized BIZRA Sovereign OS package is complete",
+      "details": "Installer Details",
+      "installerName": "Installer Name",
+      "fileSize": "File Size",
+      "version": "Version",
+      "aiModels": "AI Models",
+      "downloadTime": "Est. Download Time",
+      "privacyLevel": "Privacy Level",
+      "modelsIncluded": "Models included",
+      "whatsIncluded": "What's Included",
+      "startOver": "Start Over",
+      "downloadInstall": "Download & Install",
+      "downloadStarted": "Download Started!",
+      "runScript": "Run the downloaded PowerShell script to complete installation",
+      "goToDashboard": "Go to Dashboard",
+      "preparing": "Preparing...",
+      "howToInstall": "How to Install",
+      "step1": "Click \"Download & Install\" to get the installer script",
+      "step2": "Right-click the downloaded .ps1 file and select \"Run with PowerShell\"",
+      "step3": "Follow the on-screen instructions to complete setup",
+      "adminNote": "You may need to run PowerShell as Administrator for full installation"
+    },
+    "hardware": {
+      "cpu": "CPU",
+      "gpu": "GPU",
+      "ram": "RAM",
+      "storage": "Storage",
+      "network": "Network",
+      "os": "OS",
+      "cores": "cores",
+      "available": "available",
+      "free": "free"
     }
   },
   "agents": {

@@ -23,6 +23,35 @@
       "secondary": "了解更多"
     }
   },
+  "invitation": {
+    "title": "输入邀请码",
+    "subtitle": "BIZRA正在私密测试中。输入您的邀请码加入。",
+    "placeholder": "输入您的邀请码",
+    "validate": "验证代码",
+    "validating": "验证中...",
+    "success": "欢迎，先驱者！",
+    "successDesc": "您是首批1000位主权者中的第{{number}}位。",
+    "tier": {
+      "genesis": "创世先驱",
+      "early": "早期采用者",
+      "standard": "主权成员"
+    },
+    "noCode": "没有邀请码？",
+    "requestAccess": "申请访问",
+    "requestHint": "在GitHub或X上联系@BizraInfo获取早期访问",
+    "publicPhase": "公开访问现已开放！",
+    "publicPhaseDesc": "BIZRA现在向所有人开放。无需邀请。",
+    "errors": {
+      "invalidCode": "无效的邀请码。请检查后重试。",
+      "codeInactive": "此邀请码已失效。",
+      "codeExhausted": "此邀请码已达到最大使用次数。",
+      "required": "请输入邀请码"
+    },
+    "stats": {
+      "remaining": "第一阶段还剩{{count}}个名额",
+      "pioneers": "{{count}}位先驱者已加入"
+    }
+  },
   "onboarding": {
     "language": {
       "title": "选择您的语言",
@@ -143,6 +172,107 @@
         "name": "伦理守护者",
         "description": "伦理对齐和价值一致性"
       }
+    }
+  },
+  "installer": {
+    "header": "主权操作系统安装程序",
+    "welcome": {
+      "title": "欢迎来到主权世界",
+      "description": "将您的机器转变为主权AI节点。您的数据归您所有。您的AI为您服务。您的影响力创造价值。",
+      "features": {
+        "zeroCloud": "零云端",
+        "zeroCloudDesc": "一切都在您的硬件上本地运行",
+        "agents": "7个AI代理",
+        "agentsDesc": "您的个人代理团队 (PAT)",
+        "impact": "影响力证明",
+        "impactDesc": "通过实际工作赚取SEED代币"
+      },
+      "scanButton": "扫描我的系统"
+    },
+    "scanning": {
+      "title": "正在分析您的系统",
+      "description": "检测硬件能力...",
+      "progress": "进度"
+    },
+    "results": {
+      "title": "系统分析完成",
+      "description": "您的硬件超出BIZRA Node0的要求",
+      "ready": "已准备好完全主权",
+      "readyDesc": "您的系统可以运行所有7个PAT代理 + DeepSeek R1 + 完整HyperGraph RAG",
+      "selectModels": "选择AI模型"
+    },
+    "models": {
+      "title": "选择您的AI模型",
+      "description": "我们根据您的硬件性能推荐了最佳模型",
+      "recommended": "推荐",
+      "optional": "可选",
+      "size": "大小",
+      "vram": "所需显存",
+      "selectedModels": "已选模型",
+      "totalSize": "总大小"
+    },
+    "profile": {
+      "title": "创建您的档案",
+      "description": "自定义您的主权AI体验",
+      "identity": "身份",
+      "yourName": "您的名字",
+      "namePlaceholder": "输入您的名字",
+      "nameHint": "您的PAT代理将使用此名称来个性化互动",
+      "installPath": "安装路径",
+      "requiresSpace": "需要 {{size}} 可用空间",
+      "privacyLevel": "隐私级别",
+      "privacyMaximum": "最高 — 所有处理都在设备上进行",
+      "privacyHigh": "高 — 最小化云功能",
+      "privacyBalanced": "均衡 — 一些云端增强",
+      "privacyHint": "未经您明确同意，数据永不外传",
+      "patTeam": "您的个人代理团队",
+      "generateInstaller": "生成安装程序"
+    },
+    "installing": {
+      "title": "正在生成统一安装程序",
+      "description": "正在创建您的个性化BIZRA主权操作系统包",
+      "phases": {
+        "scan": "系统分析",
+        "scanDesc": "分析硬件能力",
+        "core": "核心运行时",
+        "coreDesc": "安装BIZRA内核和Node0",
+        "models": "AI模型",
+        "modelsDesc": "下载模型和适配器",
+        "tools": "MCP工具",
+        "toolsDesc": "安装87个主权工具",
+        "agents": "PAT代理",
+        "agentsDesc": "配置个人AI团队",
+        "rag": "知识库",
+        "ragDesc": "初始化HyperGraph RAG",
+        "finalize": "完成",
+        "finalizeDesc": "安全和优化"
+      }
+    },
+    "complete": {
+      "title": "安装程序就绪！",
+      "description": "您的个性化BIZRA主权操作系统包已完成",
+      "details": "安装程序详情",
+      "installerName": "安装程序名称",
+      "fileSize": "文件大小",
+      "version": "版本",
+      "aiModels": "AI模型",
+      "downloadTime": "预计下载时间",
+      "privacyLevel": "隐私级别",
+      "modelsIncluded": "包含的模型",
+      "whatsIncluded": "包含内容",
+      "startOver": "重新开始",
+      "downloadInstall": "下载并安装"
+    },
+    "hardware": {
+      "cpu": "CPU",
+      "gpu": "GPU",
+      "ram": "内存",
+      "storage": "存储",
+      "network": "网络",
+      "os": "操作系统",
+      "cores": "核心",
+      "available": "可用",
+      "free": "空闲"
     }
   },
   "common": {

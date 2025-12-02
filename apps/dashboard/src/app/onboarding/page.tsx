@@ -22,11 +22,24 @@ import {
   User,
   ScrollText,
   Eye,
-  Globe
+  Globe,
+  Key,
+  ExternalLink,
+  PartyPopper,
+  Users
 } from 'lucide-react';
 
 import { BizraLogoAnimated, SacredGeometryBackground } from '@/components/brand';
 import { useI18n, LANGUAGES, type LanguageCode } from '@/lib/i18n';
+import { 
+  validateInvitationCode, 
+  useInvitationCode as applyInvitationCode, 
+  hasValidInvitation, 
+  isPublicPhase,
+  getInvitationStats,
+  getCurrentInvitation,
+  type InvitationCode
+} from '@/lib/invitation';
 
 // Types for lazy-loaded modules
 interface CovenantAxiom {
@@ -104,8 +117,37 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Invitation state
+  const [invitationCode, setInvitationCode] = useState('');
+  const [invitationValidated, setInvitationValidated] = useState(false);
+  const [invitationError, setInvitationError] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+  const [userNumber, setUserNumber] = useState<number | null>(null);
+  const [userTier, setUserTier] = useState<InvitationCode['tier'] | null>(null);
+  const [invitationStats, setInvitationStats] = useState<ReturnType<typeof getInvitationStats> | null>(null);
+  const [publicPhase, setPublicPhase] = useState(false);
+  
   // Lazy-loaded covenant axioms
   const [axioms, setAxioms] = useState<readonly CovenantAxiom[]>([]);
+  
+  // Check invitation status on mount
+  useEffect(() => {
+    const checkInvitation = () => {
+      const isPublic = isPublicPhase();
+      setPublicPhase(isPublic);
+      setInvitationStats(getInvitationStats());
+      
+      if (isPublic || hasValidInvitation()) {
+        setInvitationValidated(true);
+        const existing = getCurrentInvitation();
+        if (existing) {
+          setUserNumber(existing.userNumber || null);
+          setUserTier(existing.tier || null);
+        }
+      }
+    };
+    checkInvitation();
+  }, []);
   
   // Load axioms when entering covenant step
   useEffect(() => {
@@ -113,6 +155,33 @@ export default function OnboardingPage() {
       loadSystemAxioms().then(setAxioms);
     }
   }, [step, axioms.length]);
+  
+  // Validate invitation code
+  const handleValidateCode = useCallback(async () => {
+    if (!invitationCode.trim()) {
+      setInvitationError(t('invitation.errors.required'));
+      return;
+    }
+    
+    setIsValidating(true);
+    setInvitationError(null);
+    
+    // Simulate network delay
+    await new Promise(r => setTimeout(r, 800));
+    
+    const result = applyInvitationCode(invitationCode.trim(), profileData.displayName || 'Anonymous');
+    
+    if (result.success) {
+      setInvitationValidated(true);
+      setUserNumber(result.userNumber || null);
+      setUserTier(result.tier || null);
+      setInvitationStats(getInvitationStats());
+    } else {
+      setInvitationError(t(result.error || 'invitation.errors.invalidCode'));
+    }
+    
+    setIsValidating(false);
+  }, [invitationCode, profileData.displayName, t]);
   
   // Get current question ID
   const currentQuestionId = QUESTION_IDS[questionIndex];
@@ -243,11 +312,11 @@ export default function OnboardingPage() {
                 <p className="text-lg text-white/70 mb-2">
                   {t('onboarding.language.titleAr')}
                 </p>
-                <p className="text-sm text-white/50 mb-8">
+                <p className="text-sm text-white/50 mb-6">
                   {t('onboarding.language.subtitle')}
                 </p>
                 
-                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8">
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6">
                   {(Object.entries(LANGUAGES) as [LanguageCode, typeof LANGUAGES[LanguageCode]][]).map(([code, lang]) => (
                     <button
                       key={code}
@@ -273,13 +342,144 @@ export default function OnboardingPage() {
                   ))}
                 </div>
                 
-                <button
-                  onClick={() => setStep('intro')}
-                  className="btn-sovereign w-full max-w-md mx-auto flex items-center justify-center gap-2"
-                >
-                  {t('onboarding.language.continue')}
-                  <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
-                </button>
+                {/* Invitation Section */}
+                <div className="border-t border-white/10 pt-6 mt-6">
+                  {publicPhase ? (
+                    // Public phase - no invitation needed
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-center"
+                    >
+                      <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
+                        <PartyPopper className="w-5 h-5" />
+                        <span className="font-semibold">{t('invitation.publicPhase')}</span>
+                      </div>
+                      <p className="text-sm text-white/50">{t('invitation.publicPhaseDesc')}</p>
+                    </motion.div>
+                  ) : invitationValidated ? (
+                    // Invitation validated - show success
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 rounded-xl bg-green-500/10 border border-green-500/30"
+                    >
+                      <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
+                        <Check className="w-5 h-5" />
+                        <span className="font-semibold">{t('invitation.success')}</span>
+                      </div>
+                      {userNumber && (
+                        <p className="text-sm text-white/70">
+                          {t('invitation.successDesc', { number: String(userNumber) })}
+                        </p>
+                      )}
+                      {userTier && (
+                        <div className="mt-2 inline-block px-3 py-1 rounded-full bg-bizra-gold/20 border border-bizra-gold/30 text-bizra-gold text-sm">
+                          {t(`invitation.tier.${userTier}`)}
+                        </div>
+                      )}
+                    </motion.div>
+                  ) : (
+                    // Need invitation - show input
+                    <div className="max-w-md mx-auto">
+                      <div className={`flex items-center gap-2 mb-3 justify-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <Key className="w-5 h-5 text-bizra-gold" />
+                        <h3 className="font-semibold text-lg">{t('invitation.title')}</h3>
+                      </div>
+                      <p className="text-sm text-white/50 mb-4">{t('invitation.subtitle')}</p>
+                      
+                      {invitationStats && (
+                        <div className={`flex justify-center gap-4 text-xs text-white/40 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <span className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <Users className="w-3 h-3" />
+                            {t('invitation.stats.pioneers', { count: String(invitationStats.totalUsers) })}
+                          </span>
+                          <span>
+                            {t('invitation.stats.remaining', { count: String(invitationStats.maxPhase1Users - invitationStats.totalUsers) })}
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <Key className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 ${isRTL ? 'right-4' : 'left-4'}`} />
+                          <input
+                            type="text"
+                            value={invitationCode}
+                            onChange={(e) => {
+                              setInvitationCode(e.target.value.toUpperCase());
+                              setInvitationError(null);
+                            }}
+                            placeholder={t('invitation.placeholder')}
+                            className={`w-full py-3 rounded-xl bg-white/5 border transition-all font-mono tracking-wider text-center ${
+                              invitationError 
+                                ? 'border-red-500/50 focus:border-red-500' 
+                                : 'border-white/10 focus:border-bizra-gold'
+                            } focus:outline-none focus:ring-1 focus:ring-bizra-gold/50 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
+                            dir="ltr"
+                            onKeyDown={(e) => e.key === 'Enter' && handleValidateCode()}
+                          />
+                        </div>
+                        
+                        {invitationError && (
+                          <motion.p
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-red-400 text-sm"
+                          >
+                            {invitationError}
+                          </motion.p>
+                        )}
+                        
+                        <button
+                          onClick={handleValidateCode}
+                          disabled={isValidating || !invitationCode.trim()}
+                          className={`w-full btn-sovereign py-3 flex items-center justify-center gap-2 disabled:opacity-50 ${isRTL ? 'flex-row-reverse' : ''}`}
+                        >
+                          {isValidating ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              {t('invitation.validating')}
+                            </>
+                          ) : (
+                            <>
+                              <Key className="w-5 h-5" />
+                              {t('invitation.validate')}
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      
+                      {/* No code hint */}
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <p className="text-sm text-white/40 mb-2">{t('invitation.noCode')}</p>
+                        <a
+                          href="https://github.com/BizraInfo"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`inline-flex items-center gap-2 text-bizra-gold hover:text-bizra-gold/80 text-sm transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          {t('invitation.requestAccess')}
+                        </a>
+                        <p className="text-xs text-white/30 mt-1">{t('invitation.requestHint')}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Continue button - only show if invitation validated or public phase */}
+                {(invitationValidated || publicPhase) && (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => setStep('intro')}
+                    className={`mt-6 btn-sovereign w-full max-w-md mx-auto flex items-center justify-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                  >
+                    {t('onboarding.language.continue')}
+                    <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+                  </motion.button>
+                )}
               </div>
             </motion.div>
           )}

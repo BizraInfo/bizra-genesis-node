@@ -7,13 +7,22 @@ import {
   Cpu, HardDrive, MemoryStick, Layers, Network, Shield,
   ChevronRight, ChevronLeft, Check, Loader2, Download,
   User, FolderOpen, Lock, Brain, Wrench, Database,
-  Users, Monitor, Sparkles, Zap, Package, Globe
+  Users, Monitor, Sparkles, Zap, Package, Globe,
+  Play, Terminal, AlertCircle
 } from 'lucide-react';
 import { BizraLogoAnimated, SacredGeometryBackground, GlassCard } from '@/components/brand';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import { SmartModelSelector } from '@/components/installer/smart-model-selector';
 import { useI18n } from '@/lib/i18n';
 import { type HardwareProfile, type AIModel, generateModelConfig } from '@/lib/model-registry';
+import { 
+  downloadInstaller, 
+  generateInstallerPackage,
+  markInstalled,
+  isInstalled,
+  type InstallerPackage,
+  type InstallConfig
+} from '@/lib/installer-service';
 
 // Types
 interface SystemSpecs {
@@ -68,11 +77,25 @@ export default function InstallerPage() {
   const [completedPhases, setCompletedPhases] = useState<string[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [modelConfig, setModelConfig] = useState<ReturnType<typeof generateModelConfig> | null>(null);
-  const [profile, setProfile] = useState({
+  const [installerPackage, setInstallerPackage] = useState<InstallerPackage | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadComplete, setDownloadComplete] = useState(false);
+  const [profile, setProfile] = useState<{
+    name: string;
+    installPath: string;
+    privacyLevel: 'maximum' | 'high' | 'balanced';
+  }>({
     name: '',
     installPath: 'C:\\Program Files\\BIZRA\\',
     privacyLevel: 'maximum'
   });
+
+  // Check if already installed on mount
+  useEffect(() => {
+    if (isInstalled()) {
+      // Could redirect to dashboard or show "already installed" message
+    }
+  }, []);
 
   // Simulated system scan
   const runSystemScan = useCallback(async () => {
@@ -150,9 +173,49 @@ export default function InstallerPage() {
     }
     
     setInstallProgress(100);
+    
+    // Generate installer package
+    if (hardwareProfile && modelConfig) {
+      const config: InstallConfig = {
+        userName: profile.name,
+        installPath: profile.installPath,
+        privacyLevel: profile.privacyLevel as 'maximum' | 'high' | 'balanced',
+        selectedModels: selectedModels,
+        hardwareProfile: hardwareProfile,
+      };
+      
+      const pkg = generateInstallerPackage(config, modelConfig.models);
+      setInstallerPackage(pkg);
+    }
+    
     await new Promise(r => setTimeout(r, 1000));
     setStep('complete');
-  }, []);
+  }, [hardwareProfile, modelConfig, profile, selectedModels]);
+
+  // Handle download
+  const handleDownload = useCallback(() => {
+    if (!installerPackage) return;
+    
+    setIsDownloading(true);
+    
+    // Trigger real download
+    const config: InstallConfig = {
+      userName: profile.name,
+      installPath: profile.installPath,
+      privacyLevel: profile.privacyLevel as 'maximum' | 'high' | 'balanced',
+      selectedModels: selectedModels,
+      hardwareProfile: hardwareProfile!,
+    };
+    
+    downloadInstaller(config);
+    
+    // Mark installation as started
+    setTimeout(() => {
+      setIsDownloading(false);
+      setDownloadComplete(true);
+      markInstalled(config);
+    }, 1500);
+  }, [installerPackage, profile, selectedModels, hardwareProfile]);
 
   return (
     <div className="min-h-screen bg-bizra-black text-white relative overflow-hidden">
@@ -165,7 +228,7 @@ export default function InstallerPage() {
             <BizraLogoAnimated size="sm" />
             <div className={isRTL ? 'text-right' : ''}>
               <h1 className="font-serif text-xl text-gradient-gold tracking-widest">BIZRA</h1>
-              <p className="text-[10px] text-white/40 font-mono">SOVEREIGN OS INSTALLER</p>
+              <p className="text-[10px] text-white/40 font-mono">{t('installer.header')}</p>
             </div>
           </div>
           <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
@@ -189,7 +252,7 @@ export default function InstallerPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-center py-12"
+              className={`text-center py-12 ${isRTL ? 'text-right' : ''}`}
             >
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -206,7 +269,7 @@ export default function InstallerPage() {
                 transition={{ delay: 0.5 }}
                 className="text-4xl md:text-5xl font-serif mb-4 text-gradient-gold"
               >
-                Welcome to Sovereignty
+                {t('installer.welcome.title')}
               </motion.h1>
               
               <motion.p
@@ -215,8 +278,7 @@ export default function InstallerPage() {
                 transition={{ delay: 0.7 }}
                 className="text-lg text-white/60 max-w-2xl mx-auto mb-8"
               >
-                Transform your machine into a sovereign AI node. Your data stays yours.
-                Your AI serves you. Your impact earns value.
+                {t('installer.welcome.description')}
               </motion.p>
               
               <motion.div
@@ -226,9 +288,9 @@ export default function InstallerPage() {
                 className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
               >
                 {[
-                  { icon: Shield, title: 'Zero Cloud', desc: 'Everything runs locally on your hardware' },
-                  { icon: Brain, title: '7 AI Agents', desc: 'Your Personal Agentic Team (PAT)' },
-                  { icon: Zap, title: 'Proof of Impact', desc: 'Earn SEED tokens for real work' },
+                  { icon: Shield, title: t('installer.welcome.features.zeroCloud'), desc: t('installer.welcome.features.zeroCloudDesc') },
+                  { icon: Brain, title: t('installer.welcome.features.agents'), desc: t('installer.welcome.features.agentsDesc') },
+                  { icon: Zap, title: t('installer.welcome.features.impact'), desc: t('installer.welcome.features.impactDesc') },
                 ].map((feature, i) => (
                   <GlassCard key={i} className="p-6 text-center">
                     <feature.icon className="w-10 h-10 text-bizra-gold mx-auto mb-4" />
@@ -243,11 +305,11 @@ export default function InstallerPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.1 }}
                 onClick={runSystemScan}
-                className="btn-sovereign px-12 py-4 text-lg flex items-center gap-3 mx-auto"
+                className={`btn-sovereign px-12 py-4 text-lg flex items-center gap-3 mx-auto ${isRTL ? 'flex-row-reverse' : ''}`}
               >
                 <Cpu className="w-5 h-5" />
-                Scan My System
-                <ChevronRight className="w-5 h-5" />
+                {t('installer.welcome.scanButton')}
+                <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
               </motion.button>
             </motion.div>
           )}
@@ -259,7 +321,7 @@ export default function InstallerPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-center py-20"
+              className={`text-center py-20 ${isRTL ? 'text-right' : ''}`}
             >
               <div className="relative w-48 h-48 mx-auto mb-12">
                 {/* Animated rings */}
@@ -289,12 +351,12 @@ export default function InstallerPage() {
                 </div>
               </div>
               
-              <h2 className="text-2xl font-serif mb-4">Analyzing Your System</h2>
-              <p className="text-white/50 mb-8">Detecting hardware capabilities...</p>
+              <h2 className="text-2xl font-serif mb-4">{t('installer.scanning.title')}</h2>
+              <p className="text-white/50 mb-8">{t('installer.scanning.description')}</p>
               
               <div className="max-w-md mx-auto">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-white/60">Progress</span>
+                <div className={`flex justify-between text-sm mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <span className="text-white/60">{t('installer.scanning.progress')}</span>
                   <span className="text-bizra-gold font-mono">{scanProgress}%</span>
                 </div>
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -315,27 +377,27 @@ export default function InstallerPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="text-center mb-12">
+              <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center">
                   <Check className="w-8 h-8 text-green-400" />
                 </div>
-                <h2 className="text-3xl font-serif mb-2">System Analysis Complete</h2>
-                <p className="text-white/60">Your hardware exceeds requirements for BIZRA Node0</p>
+                <h2 className="text-3xl font-serif mb-2">{t('installer.results.title')}</h2>
+                <p className="text-white/60">{t('installer.results.description')}</p>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                 {[
-                  { icon: Cpu, label: 'CPU', value: systemSpecs.cpu.name, sub: `${systemSpecs.cpu.cores} cores @ ${systemSpecs.cpu.speed}` },
-                  { icon: Layers, label: 'GPU', value: systemSpecs.gpu.name, sub: `${systemSpecs.gpu.vram} VRAM • CUDA ${systemSpecs.gpu.cuda ? '✓' : '✗'}` },
-                  { icon: MemoryStick, label: 'RAM', value: systemSpecs.ram.total, sub: `${systemSpecs.ram.available} available` },
-                  { icon: HardDrive, label: 'Storage', value: systemSpecs.storage.total, sub: `${systemSpecs.storage.available} free` },
-                  { icon: Network, label: 'Network', value: systemSpecs.network.type, sub: systemSpecs.network.speed },
-                  { icon: Monitor, label: 'OS', value: systemSpecs.os.name, sub: systemSpecs.os.version },
+                  { icon: Cpu, label: t('installer.hardware.cpu'), value: systemSpecs.cpu.name, sub: `${systemSpecs.cpu.cores} ${t('installer.hardware.cores')} @ ${systemSpecs.cpu.speed}` },
+                  { icon: Layers, label: t('installer.hardware.gpu'), value: systemSpecs.gpu.name, sub: `${systemSpecs.gpu.vram} VRAM • CUDA ${systemSpecs.gpu.cuda ? '✓' : '✗'}` },
+                  { icon: MemoryStick, label: t('installer.hardware.ram'), value: systemSpecs.ram.total, sub: `${systemSpecs.ram.available} ${t('installer.hardware.available')}` },
+                  { icon: HardDrive, label: t('installer.hardware.storage'), value: systemSpecs.storage.total, sub: `${systemSpecs.storage.available} ${t('installer.hardware.free')}` },
+                  { icon: Network, label: t('installer.hardware.network'), value: systemSpecs.network.type, sub: systemSpecs.network.speed },
+                  { icon: Monitor, label: t('installer.hardware.os'), value: systemSpecs.os.name, sub: systemSpecs.os.version },
                 ].map((spec, i) => (
                   <GlassCard key={i} className="p-4">
-                    <div className="flex items-start gap-3">
+                    <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <spec.icon className="w-8 h-8 text-bizra-gold flex-shrink-0" />
-                      <div>
+                      <div className={isRTL ? 'text-right' : ''}>
                         <p className="text-xs text-white/40 uppercase tracking-wider">{spec.label}</p>
                         <p className="font-semibold text-sm">{spec.value}</p>
                         <p className="text-xs text-white/50">{spec.sub}</p>
@@ -346,33 +408,33 @@ export default function InstallerPage() {
               </div>
               
               <GlassCard variant="gold" className="p-6 mb-8">
-                <div className="flex items-center gap-4">
+                <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div className="w-12 h-12 rounded-full bg-bizra-gold/20 flex items-center justify-center">
                     <Sparkles className="w-6 h-6 text-bizra-gold" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-lg">Ready for Full Sovereignty</h3>
+                  <div className={isRTL ? 'text-right' : ''}>
+                    <h3 className="font-semibold text-lg">{t('installer.results.ready')}</h3>
                     <p className="text-white/60 text-sm">
-                      Your system can run all 7 PAT agents + DeepSeek R1 + Full HyperGraph RAG
+                      {t('installer.results.readyDesc')}
                     </p>
                   </div>
                 </div>
               </GlassCard>
               
-              <div className="flex justify-between">
+              <div className={`flex justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => setStep('welcome')}
-                  className="btn-glass flex items-center gap-2"
+                  className={`btn-glass flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Back
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('common.back')}
                 </button>
                 <button
                   onClick={() => setStep('models')}
-                  className="btn-sovereign flex items-center gap-2"
+                  className={`btn-sovereign flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  Select AI Models
-                  <ChevronRight className="w-4 h-4" />
+                  {t('installer.results.selectModels')}
+                  <ChevronRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
                 </button>
               </div>
             </motion.div>
@@ -388,13 +450,10 @@ export default function InstallerPage() {
             >
               <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
                 <h2 className="text-3xl font-serif mb-2">
-                  {locale === 'ar' ? 'اختر نماذج الذكاء الاصطناعي' : 'Select Your AI Models'}
+                  {t('installer.models.title')}
                 </h2>
                 <p className="text-white/60">
-                  {locale === 'ar' 
-                    ? 'اخترنا لك أفضل النماذج بناءً على قوة جهازك'
-                    : 'We\'ve recommended the best models based on your hardware power'
-                  }
+                  {t('installer.models.description')}
                 </p>
               </div>
               
@@ -403,13 +462,13 @@ export default function InstallerPage() {
                 onModelsSelected={handleModelsSelected}
               />
               
-              <div className="flex justify-start mt-6">
+              <div className={`flex justify-start mt-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => setStep('results')}
-                  className="btn-glass flex items-center gap-2"
+                  className={`btn-glass flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  {locale === 'ar' ? 'رجوع' : 'Back'}
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('common.back')}
                 </button>
               </div>
             </motion.div>
@@ -425,10 +484,10 @@ export default function InstallerPage() {
             >
               <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
                 <h2 className="text-3xl font-serif mb-2">
-                  {locale === 'ar' ? 'إعداد ملفك الشخصي' : 'Create Your Profile'}
+                  {t('installer.profile.title')}
                 </h2>
                 <p className="text-white/60">
-                  {locale === 'ar' ? 'خصص تجربة الذكاء الاصطناعي السيادي' : 'Customize your sovereign AI experience'}
+                  {t('installer.profile.description')}
                 </p>
               </div>
               
@@ -437,31 +496,31 @@ export default function InstallerPage() {
                 <GlassCard className="p-6">
                   <h3 className={`font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <User className="w-5 h-5 text-bizra-gold" />
-                    {locale === 'ar' ? 'الهوية' : 'Identity'}
+                    {t('installer.profile.identity')}
                   </h3>
                   
                   <div className="space-y-6">
                     <div>
                       <label className={`block text-sm font-medium mb-2 ${isRTL ? 'text-right' : ''}`}>
-                        {locale === 'ar' ? 'اسمك' : 'Your Name'}
+                        {t('installer.profile.yourName')}
                       </label>
                       <input
                         type="text"
                         value={profile.name}
                         onChange={(e) => setProfile(p => ({ ...p, name: e.target.value }))}
-                        placeholder={locale === 'ar' ? 'أدخل اسمك' : 'Enter your name'}
+                        placeholder={t('installer.profile.namePlaceholder')}
                         dir={isRTL ? 'rtl' : 'ltr'}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-bizra-gold focus:outline-none focus:ring-1 focus:ring-bizra-gold/50 transition-all"
                       />
                       <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
-                        {locale === 'ar' ? 'سيستخدم وكلاء PAT هذا لتخصيص التفاعلات' : 'Your PAT agents will use this to personalize interactions'}
+                        {t('installer.profile.nameHint')}
                       </p>
                     </div>
                     
                     <div>
                       <label className={`block text-sm font-medium mb-2 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <FolderOpen className="w-4 h-4" />
-                        {locale === 'ar' ? 'مسار التثبيت' : 'Installation Path'}
+                        {t('installer.profile.installPath')}
                       </label>
                       <input
                         type="text"
@@ -470,26 +529,27 @@ export default function InstallerPage() {
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 font-mono text-sm"
                       />
                       <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
-                        {locale === 'ar' ? `يتطلب ${modelConfig?.totalSize || '~50GB'} مساحة حرة` : `Requires ${modelConfig?.totalSize || '~50GB'} free space`}
+                        {t('installer.profile.requiresSpace', { size: modelConfig?.totalSize || '~50GB' })}
                       </p>
                     </div>
                     
                     <div>
                       <label className={`block text-sm font-medium mb-2 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <Lock className="w-4 h-4" />
-                        {locale === 'ar' ? 'مستوى الخصوصية' : 'Privacy Level'}
+                        {t('installer.profile.privacyLevel')}
                       </label>
                       <select
                         value={profile.privacyLevel}
-                        onChange={(e) => setProfile(p => ({ ...p, privacyLevel: e.target.value }))}
+                        onChange={(e) => setProfile(p => ({ ...p, privacyLevel: e.target.value as 'maximum' | 'high' | 'balanced' }))}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-bizra-gold focus:outline-none text-white"
+                        aria-label={t('installer.profile.privacyLevel')}
                       >
-                        <option value="maximum">{locale === 'ar' ? 'أقصى — كل المعالجة على الجهاز' : 'Maximum — All processing on-device'}</option>
-                        <option value="high">{locale === 'ar' ? 'عالي — ميزات سحابية محدودة' : 'High — Minimal cloud features'}</option>
-                        <option value="balanced">{locale === 'ar' ? 'متوازن — بعض التحسينات السحابية' : 'Balanced — Some cloud enhancements'}</option>
+                        <option value="maximum">{t('installer.profile.privacyMaximum')}</option>
+                        <option value="high">{t('installer.profile.privacyHigh')}</option>
+                        <option value="balanced">{t('installer.profile.privacyBalanced')}</option>
                       </select>
                       <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
-                        {locale === 'ar' ? 'البيانات لا تغادر أبداً بدون موافقتك الصريحة' : 'Data never leaves without your explicit consent'}
+                        {t('installer.profile.privacyHint')}
                       </p>
                     </div>
                   </div>
@@ -499,7 +559,7 @@ export default function InstallerPage() {
                     <div className="mt-6 pt-6 border-t border-white/10">
                       <h4 className={`text-sm font-medium mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <Brain className="w-4 h-4 text-bizra-gold" />
-                        {locale === 'ar' ? 'النماذج المختارة' : 'Selected Models'}
+                        {t('installer.models.selectedModels')}
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {modelConfig.models.map(model => (
@@ -509,7 +569,7 @@ export default function InstallerPage() {
                         ))}
                       </div>
                       <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
-                        {locale === 'ar' ? `الحجم الكلي: ${modelConfig.totalSize}` : `Total size: ${modelConfig.totalSize}`}
+                        {t('installer.models.totalSize')}: {modelConfig.totalSize}
                       </p>
                     </div>
                   )}
@@ -519,7 +579,7 @@ export default function InstallerPage() {
                 <GlassCard className="p-6">
                   <h3 className={`font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <Users className="w-5 h-5 text-bizra-gold" />
-                    {locale === 'ar' ? 'فريقك الشخصي من الوكلاء' : 'Your Personal Agentic Team'}
+                    {t('installer.profile.patTeam')}
                   </h3>
                   
                   <div className="space-y-3">
@@ -546,20 +606,20 @@ export default function InstallerPage() {
                 </GlassCard>
               </div>
               
-              <div className="flex justify-between">
+              <div className={`flex justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => setStep('models')}
-                  className="btn-glass flex items-center gap-2"
+                  className={`btn-glass flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  {locale === 'ar' ? 'رجوع' : 'Back'}
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('common.back')}
                 </button>
                 <button
                   onClick={runInstallation}
                   disabled={!profile.name}
-                  className="btn-sovereign flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`btn-sovereign flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  {locale === 'ar' ? 'إنشاء المثبت' : 'Generate Installer'}
+                  {t('installer.profile.generateInstaller')}
                   <Package className="w-4 h-4" />
                 </button>
               </div>
@@ -574,14 +634,18 @@ export default function InstallerPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-serif mb-2">Generating Unified Installer</h2>
-                <p className="text-white/60">Creating your personalized BIZRA Sovereign OS package</p>
+              <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
+                <h2 className="text-3xl font-serif mb-2">{t('installer.installing.title')}</h2>
+                <p className="text-white/60">{t('installer.installing.description')}</p>
               </div>
               
               <GlassCard className="p-8 mb-8">
-                <div className="flex justify-between text-sm mb-3">
-                  <span className="text-white/60">{INSTALLATION_PHASES[currentPhase]?.name || 'Complete'}</span>
+                <div className={`flex justify-between text-sm mb-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <span className="text-white/60">
+                    {currentPhase < INSTALLATION_PHASES.length 
+                      ? t(`installer.installing.phases.${INSTALLATION_PHASES[currentPhase]?.id}`) 
+                      : t('installer.complete.title')}
+                  </span>
                   <span className="text-bizra-gold font-mono">{Math.round(installProgress)}%</span>
                 </div>
                 <div className="h-3 bg-white/10 rounded-full overflow-hidden mb-8">
@@ -599,7 +663,7 @@ export default function InstallerPage() {
                     return (
                       <div
                         key={phase.id}
-                        className={`flex items-center gap-4 p-4 rounded-lg transition-all ${
+                        className={`flex items-center gap-4 p-4 rounded-lg transition-all ${isRTL ? 'flex-row-reverse' : ''} ${
                           isActive ? 'bg-bizra-gold/10 border border-bizra-gold/30' :
                           isComplete ? 'bg-white/5 opacity-60' : 'bg-white/5'
                         }`}
@@ -616,9 +680,13 @@ export default function InstallerPage() {
                             <span className="text-xs font-bold">{i + 1}</span>
                           )}
                         </div>
-                        <div className="flex-1">
-                          <p className={`font-medium ${isActive ? 'text-bizra-gold' : ''}`}>{phase.name}</p>
-                          <p className="text-sm text-white/40">{phase.desc}</p>
+                        <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
+                          <p className={`font-medium ${isActive ? 'text-bizra-gold' : ''}`}>
+                            {t(`installer.installing.phases.${phase.id}`)}
+                          </p>
+                          <p className="text-sm text-white/40">
+                            {t(`installer.installing.phases.${phase.id}Desc`)}
+                          </p>
                         </div>
                         <span className="text-xs text-white/30 font-mono">{phase.duration}</span>
                       </div>
@@ -637,7 +705,7 @@ export default function InstallerPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
             >
-              <div className="text-center mb-12">
+              <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -647,24 +715,24 @@ export default function InstallerPage() {
                   <Check className="w-12 h-12 text-green-400" />
                 </motion.div>
                 
-                <h2 className="text-4xl font-serif mb-4 text-gradient-gold">Installer Ready!</h2>
-                <p className="text-white/60 text-lg">Your personalized BIZRA Sovereign OS package is complete</p>
+                <h2 className="text-4xl font-serif mb-4 text-gradient-gold">{t('installer.complete.title')}</h2>
+                <p className="text-white/60 text-lg">{t('installer.complete.description')}</p>
               </div>
               
               <GlassCard variant="gold" className="p-8 mb-8">
                 <h3 className={`font-semibold text-xl mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <Package className="w-6 h-6" />
-                  {locale === 'ar' ? 'تفاصيل المثبت' : 'Installer Details'}
+                  {t('installer.complete.details')}
                 </h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: locale === 'ar' ? 'اسم المثبت' : 'Installer Name', value: `BIZRA-${profile.name || 'User'}-Genesis.exe` },
-                    { label: locale === 'ar' ? 'حجم الملف' : 'File Size', value: modelConfig?.totalSize || '4.2 GB' },
-                    { label: locale === 'ar' ? 'الإصدار' : 'Version', value: 'v2.2.0-genesis' },
-                    { label: locale === 'ar' ? 'النماذج' : 'AI Models', value: modelConfig ? `${modelConfig.models.length} model(s)` : '1 model' },
-                    { label: locale === 'ar' ? 'وقت التحميل المقدر' : 'Est. Download Time', value: modelConfig?.estimatedDownloadTime || '~15 minutes' },
-                    { label: locale === 'ar' ? 'مستوى الخصوصية' : 'Privacy Level', value: profile.privacyLevel === 'maximum' ? (locale === 'ar' ? 'أقصى (محلي 100%)' : 'Maximum (100% Local)') : profile.privacyLevel },
+                    { label: t('installer.complete.installerName'), value: `BIZRA-${profile.name || 'User'}-Genesis.exe` },
+                    { label: t('installer.complete.fileSize'), value: modelConfig?.totalSize || '4.2 GB' },
+                    { label: t('installer.complete.version'), value: 'v2.2.0-genesis' },
+                    { label: t('installer.complete.aiModels'), value: modelConfig ? `${modelConfig.models.length} model(s)` : '1 model' },
+                    { label: t('installer.complete.downloadTime'), value: modelConfig?.estimatedDownloadTime || '~15 minutes' },
+                    { label: t('installer.complete.privacyLevel'), value: profile.privacyLevel === 'maximum' ? t('installer.profile.privacyMaximum') : profile.privacyLevel },
                   ].map((item, i) => (
                     <div key={i} className={`flex justify-between py-3 border-b border-white/10 last:border-0 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <span className="text-white/50">{item.label}</span>
@@ -677,7 +745,7 @@ export default function InstallerPage() {
                 {modelConfig && modelConfig.models.length > 0 && (
                   <div className="mt-6 pt-4 border-t border-white/10">
                     <p className={`text-xs text-white/40 mb-2 ${isRTL ? 'text-right' : ''}`}>
-                      {locale === 'ar' ? 'النماذج المثبتة:' : 'Models included:'}
+                      {t('installer.complete.modelsIncluded')}:
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {modelConfig.models.map(model => (
@@ -691,7 +759,7 @@ export default function InstallerPage() {
               </GlassCard>
               
               <GlassCard className="p-6 mb-8">
-                <h4 className="font-semibold mb-4">What&apos;s Included</h4>
+                <h4 className={`font-semibold mb-4 ${isRTL ? 'text-right' : ''}`}>{t('installer.complete.whatsIncluded')}</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {[
                     { icon: Brain, label: 'Qwen2.5-8B Planner', desc: 'With BIZRA fine-tuning' },
@@ -701,7 +769,7 @@ export default function InstallerPage() {
                     { icon: Users, label: '7 PAT Agents', desc: 'Your personal AI team' },
                     { icon: Monitor, label: 'Desktop Integration', desc: 'Node-Zero overlay' },
                   ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white/5">
+                    <div key={i} className={`flex items-start gap-3 p-3 rounded-lg bg-white/5 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
                       <item.icon className="w-5 h-5 text-bizra-gold flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium text-sm">{item.label}</p>
@@ -712,22 +780,86 @@ export default function InstallerPage() {
                 </div>
               </GlassCard>
               
-              <div className="flex justify-center gap-4">
+              <div className={`flex justify-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => setStep('welcome')}
-                  className="btn-glass flex items-center gap-2"
+                  className={`btn-glass flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Start Over
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('installer.complete.startOver')}
                 </button>
-                <button
-                  onClick={() => router.push('/onboarding')}
-                  className="btn-sovereign px-8 py-4 text-lg flex items-center gap-3"
-                >
-                  <Download className="w-5 h-5" />
-                  Download & Install (4.2 GB)
-                </button>
+                
+                {downloadComplete ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-center"
+                    >
+                      <div className={`flex items-center gap-2 text-green-400 mb-2 justify-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <Check className="w-5 h-5" />
+                        <span className="font-semibold">{t('installer.complete.downloadStarted') || 'Download Started!'}</span>
+                      </div>
+                      <p className="text-sm text-white/60">
+                        {t('installer.complete.runScript') || 'Run the downloaded PowerShell script to complete installation'}
+                      </p>
+                    </motion.div>
+                    <button
+                      onClick={() => router.push('/home')}
+                      className={`btn-sovereign px-8 py-4 text-lg flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}
+                    >
+                      <Play className="w-5 h-5" />
+                      {t('installer.complete.goToDashboard') || 'Go to Dashboard'}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                    className={`btn-sovereign px-8 py-4 text-lg flex items-center gap-3 disabled:opacity-70 ${isRTL ? 'flex-row-reverse' : ''}`}
+                  >
+                    {isDownloading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        {t('installer.complete.preparing') || 'Preparing...'}
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5" />
+                        {t('installer.complete.downloadInstall')} ({installerPackage?.fileSize || modelConfig?.totalSize || '4.2 GB'})
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
+              
+              {/* Installation Instructions */}
+              <GlassCard className="p-6 mt-8">
+                <h4 className={`font-semibold mb-4 flex items-center gap-2 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
+                  <Terminal className="w-5 h-5 text-bizra-gold" />
+                  {t('installer.complete.howToInstall') || 'How to Install'}
+                </h4>
+                <div className={`space-y-3 ${isRTL ? 'text-right' : ''}`}>
+                  <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <div className="w-6 h-6 rounded-full bg-bizra-gold/20 flex items-center justify-center text-bizra-gold text-sm font-bold flex-shrink-0">1</div>
+                    <p className="text-white/70">{t('installer.complete.step1') || 'Click "Download & Install" to get the installer script'}</p>
+                  </div>
+                  <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <div className="w-6 h-6 rounded-full bg-bizra-gold/20 flex items-center justify-center text-bizra-gold text-sm font-bold flex-shrink-0">2</div>
+                    <p className="text-white/70">{t('installer.complete.step2') || 'Right-click the downloaded .ps1 file and select "Run with PowerShell"'}</p>
+                  </div>
+                  <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <div className="w-6 h-6 rounded-full bg-bizra-gold/20 flex items-center justify-center text-bizra-gold text-sm font-bold flex-shrink-0">3</div>
+                    <p className="text-white/70">{t('installer.complete.step3') || 'Follow the on-screen instructions to complete setup'}</p>
+                  </div>
+                </div>
+                <div className={`mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 ${isRTL ? 'text-right' : ''}`}>
+                  <p className={`text-sm text-yellow-400/80 flex items-start gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <span>{t('installer.complete.adminNote') || 'You may need to run PowerShell as Administrator for full installation'}</span>
+                  </p>
+                </div>
+              </GlassCard>
             </motion.div>
           )}
 
