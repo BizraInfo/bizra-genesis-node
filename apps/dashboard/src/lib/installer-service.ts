@@ -403,11 +403,12 @@ try {
     $jsonConfig | Out-File "$BizraConfig\\bizra.json" -Encoding UTF8
     Write-Log "Configuration saved to $BizraConfig\\bizra.json" "INFO" "Green"
 
-    # 5. Install Mock Runtime (Node0 Simulation)
-    Write-Log "Installing Node0 Runtime Environment..." "INFO" "Cyan"
+    # 5. Install Node0 Runtime (Nexus Bridge)
+    Write-Log "Installing Node0 Runtime Environment (Nexus Bridge)..." "INFO" "Cyan"
     
-    # Create a simple Node.js script to act as the runtime
+    # Create the Nexus Bridge runtime (Node.js HTTP Server)
     $runtimeScript = @"
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
@@ -425,6 +426,44 @@ try {
     console.error('Failed to load config:', e.message);
 }
 
+// --- Nexus Bridge (Local API) ---
+const PORT = 3001;
+
+const server = http.createServer((req, res) => {
+    // CORS Headers (Allow Dashboard Access)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
+    // Endpoints
+    if (req.url === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            status: 'online',
+            version: config.node?.version || '2.2.0',
+            mode: config.node?.mode || 'genesis',
+            uptime: process.uptime(),
+            hardware: config.hardware,
+            agent_status: 'active'
+        }));
+        return;
+    }
+
+    res.writeHead(404);
+    res.end(JSON.stringify({ error: 'Not Found' }));
+});
+
+server.listen(PORT, () => {
+    console.log(\`[NEXUS] Bridge active on http://localhost:\${PORT}\`);
+    console.log('[NEXUS] Ready for Dashboard connection.');
+});
+
 console.log('Starting P2P Network Interface...');
 console.log('Listening on port ' + (config.network?.p2p_port || 4001));
 
@@ -436,11 +475,6 @@ agents.forEach(agent => {
 
 console.log('BIZRA Node is ONLINE and RUNNING.');
 console.log('Press Ctrl+C to stop.');
-
-// Keep alive
-setInterval(() => {
-    // Heartbeat
-}, 10000);
 "@
     
     $runtimeScript | Out-File "$BizraBin\\node0-runtime.js" -Encoding UTF8

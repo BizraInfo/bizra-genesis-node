@@ -13,8 +13,10 @@ import {
   Activity,
   Database,
   BookOpen,
-  Globe
+  Globe,
+  Cpu
 } from 'lucide-react';
+import { useNodeLink } from '@/hooks/use-node-link';
 
 const navItems = [
   { href: '/home', icon: Home, label: 'Home' },
@@ -30,6 +32,7 @@ const navItems = [
 
 export function BizraNavbar() {
   const pathname = usePathname();
+  const { status } = useNodeLink();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-xl bg-bizra-black/80 border-b border-white/5">
@@ -71,9 +74,22 @@ export function BizraNavbar() {
 
         {/* Status Indicator */}
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-white/40">
-            <span className="w-2 h-2 rounded-full bg-bizra-teal animate-pulse" />
-            <span>SYNAPSE_ACTIVE</span>
+          <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+            <div className="flex items-center gap-2 text-xs font-mono">
+              <span className={`w-2 h-2 rounded-full ${status.online ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse' : 'bg-red-500/50'}`} />
+              <span className={status.online ? 'text-green-400' : 'text-white/40'}>
+                {status.online ? 'NODE_ONLINE' : 'NODE_OFFLINE'}
+              </span>
+            </div>
+            {status.online && status.hardware && (
+              <>
+                <div className="w-px h-3 bg-white/10" />
+                <div className="flex items-center gap-1.5 text-xs text-white/60" title={status.hardware.gpu_name}>
+                  <Cpu className="w-3 h-3" />
+                  <span>{status.hardware.cpu_cores}C</span>
+                </div>
+              </>
+            )}
           </div>
           
           <Link href="/settings">
