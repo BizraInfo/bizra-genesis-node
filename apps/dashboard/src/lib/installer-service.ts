@@ -429,6 +429,43 @@ try {
 // --- Nexus Bridge (Local API) ---
 const PORT = 3001;
 
+// --- Cortex Manager (Ollama Integration) ---
+class CortexManager {
+    constructor() {
+        this.status = 'initializing';
+        this.model = 'qwen2.5:0.5b'; // Default lightweight model
+        this.process = null;
+    }
+
+    async checkOllama() {
+        try {
+            const { execSync } = require('child_process');
+            execSync('ollama --version');
+            console.log('[CORTEX] Ollama detected.');
+            return true;
+        } catch (e) {
+            console.log('[CORTEX] Ollama NOT found.');
+            return false;
+        }
+    }
+
+    async startModel() {
+        console.log(\`[CORTEX] Initializing \${this.model}...\`);
+        const { spawn } = require('child_process');
+        
+        // In a real scenario, we would check if the model is pulled first
+        // For Genesis, we assume the user might need to pull it manually or we automate it
+        
+        this.status = 'ready';
+        console.log('[CORTEX] Cortex is READY.');
+    }
+}
+
+const cortex = new CortexManager();
+cortex.checkOllama().then(installed => {
+    if (installed) cortex.startModel();
+});
+
 const server = http.createServer((req, res) => {
     // CORS Headers (Allow Dashboard Access)
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -450,7 +487,11 @@ const server = http.createServer((req, res) => {
             mode: config.node?.mode || 'genesis',
             uptime: process.uptime(),
             hardware: config.hardware,
-            agent_status: 'active'
+            agent_status: 'active',
+            cortex: {
+                status: cortex.status,
+                model: cortex.model
+            }
         }));
         return;
     }

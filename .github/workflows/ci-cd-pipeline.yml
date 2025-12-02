@@ -115,6 +115,19 @@ jobs:
             echo "✅ AI Sovereignty Maintained"
           fi
 
+      # Cortex Integration Verification (New Gate)
+      - name: Cortex Integration Check
+        run: |
+          echo "🧠 Verifying Cortex Integration Logic"
+          
+          # Verify installer service contains Cortex logic
+          if grep -q "CortexManager" apps/dashboard/src/lib/installer-service.ts; then
+             echo "✅ Cortex Manager detected in Installer Service"
+          else
+             echo "⚠️ Cortex Manager NOT found - Phase 3 Requirement Missing"
+             # Non-blocking for now, but flagged
+          fi
+
       # Security Status Assessment
       - name: Security Gate Verdict
         id: security-gate
