@@ -23,6 +23,128 @@
       "secondary": "了解更多"
     }
   },
+  "onboarding": {
+    "language": {
+      "title": "选择您的语言",
+      "titleAr": "اختر لغتك",
+      "subtitle": "为您的BIZRA体验选择语言",
+      "continue": "继续"
+    },
+    "welcome": {
+      "title": "欢迎来到您的创世之旅",
+      "subtitle": "您即将成为主权AI的架构师。",
+      "description": "这个仪式将使您的思想与网络对齐。",
+      "cta": "开始仪式"
+    },
+    "steps": {
+      "covenant": "契约",
+      "covenantDesc": "接受创世法则",
+      "seedTest": "种子测试",
+      "seedTestDesc": "关于您本质的4个问题",
+      "patSelection": "PAT选择",
+      "patSelectionDesc": "选择您的主要AI代理",
+      "identity": "身份",
+      "identityDesc": "封存您的主权档案"
+    },
+    "covenant": {
+      "title": "创世契约",
+      "description": "这些是治理BIZRA网络的神圣法则。请仔细阅读。",
+      "accept": "我接受契约",
+      "checkbox": "我已阅读并接受创世契约。"
+    },
+    "seedTest": {
+      "title": "种子测试",
+      "description": "回答这些问题以个性化您的AI体验。",
+      "questionOf": "问题 {{current}} / {{total}}",
+      "previous": "上一题",
+      "questions": {
+        "goal": {
+          "question": "您使用AI辅助的主要目标是什么？",
+          "productivity": "提高生产力",
+          "learning": "学习新技能",
+          "creative": "创意项目",
+          "analysis": "数据分析"
+        },
+        "style": {
+          "question": "您喜欢如何接收信息？",
+          "detailed": "详细解释",
+          "concise": "简洁直接",
+          "visual": "视觉示例",
+          "interactive": "互动对话"
+        },
+        "pace": {
+          "question": "什么节奏最适合您？",
+          "fast": "快速高效",
+          "thorough": "全面彻底",
+          "adaptive": "适应情境",
+          "patient": "耐心支持"
+        },
+        "domain": {
+          "question": "您最感兴趣的领域是什么？",
+          "tech": "技术与代码",
+          "business": "商业与策略",
+          "creative": "艺术与设计",
+          "research": "研究与学习"
+        }
+      }
+    },
+    "patSelection": {
+      "title": "选择您的主要PAT代理",
+      "description": "根据您的回答，我们推荐 {{agent}}。您随时可以更改。",
+      "recommended": "推荐"
+    },
+    "profile": {
+      "title": "完善您的个人资料",
+      "description": "在BIZRA网络中设置您的主权身份。",
+      "displayName": "显示名称",
+      "displayNamePlaceholder": "输入您的名字",
+      "ihsanScore": "起始Ihsan分数",
+      "ihsanDescription": "Ihsan衡量您的道德卓越和贡献质量。从75开始，通过积极影响增长。",
+      "summary": "您的选择摘要",
+      "primaryPat": "主要PAT",
+      "goals": "目标",
+      "style": "风格",
+      "notSet": "未设置",
+      "completeSetup": "完成设置",
+      "creatingProfile": "创建资料中..."
+    },
+    "complete": {
+      "title": "创世完成！",
+      "description": "您的主权AI档案已创建。正在准备节点安装..."
+    }
+  },
+  "agents": {
+    "roles": {
+      "MasterReasoner": {
+        "name": "主推理者",
+        "description": "深度分析思维和复杂问题解决"
+      },
+      "MemoryArchitect": {
+        "name": "记忆架构师",
+        "description": "个人上下文和知识保留"
+      },
+      "CreativeSynthesizer": {
+        "name": "创意合成器",
+        "description": "创意构思和内容生成"
+      },
+      "DataAnalyzer": {
+        "name": "数据分析师",
+        "description": "数据处理和模式识别"
+      },
+      "Communicator": {
+        "name": "沟通者",
+        "description": "自然对话和写作"
+      },
+      "ExecutionPlanner": {
+        "name": "执行规划者",
+        "description": "任务编排和调度"
+      },
+      "EthicsGuardian": {
+        "name": "伦理守护者",
+        "description": "伦理对齐和价值一致性"
+      }
+    }
+  },
   "common": {
     "next": "下一步",
     "back": "返回",

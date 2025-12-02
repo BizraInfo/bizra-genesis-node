@@ -56,102 +56,36 @@ const Starfield = dynamic(() => import('@/components/Starfield'), {
 
 type PatAgent = 'MasterReasoner' | 'MemoryArchitect' | 'CreativeSynthesizer' | 'DataAnalyzer' | 'Communicator' | 'ExecutionPlanner' | 'EthicsGuardian';
 
-// Seed Test Questions based on blueprint
-const seedQuestions = [
-  {
-    id: 'goal',
-    question: "What's your primary goal with AI assistance?",
-    options: [
-      { value: 'productivity', label: 'Boost Productivity', icon: Target },
-      { value: 'learning', label: 'Learn New Skills', icon: BookOpen },
-      { value: 'creative', label: 'Creative Projects', icon: Palette },
-      { value: 'analysis', label: 'Data Analysis', icon: BarChart2 },
-    ]
-  },
-  {
-    id: 'style',
-    question: 'How do you prefer to receive information?',
-    options: [
-      { value: 'detailed', label: 'Detailed Explanations', icon: BookOpen },
-      { value: 'concise', label: 'Brief & Direct', icon: MessageCircle },
-      { value: 'visual', label: 'Visual Examples', icon: Palette },
-      { value: 'interactive', label: 'Interactive Dialogue', icon: Brain },
-    ]
-  },
-  {
-    id: 'pace',
-    question: 'What pace works best for you?',
-    options: [
-      { value: 'fast', label: 'Fast & Efficient', icon: Target },
-      { value: 'thorough', label: 'Thorough & Complete', icon: Check },
-      { value: 'adaptive', label: 'Adaptive to Context', icon: Brain },
-      { value: 'patient', label: 'Patient & Supportive', icon: Shield },
-    ]
-  },
-  {
-    id: 'domain',
-    question: 'Which domain interests you most?',
-    options: [
-      { value: 'tech', label: 'Technology & Code', icon: Brain },
-      { value: 'business', label: 'Business & Strategy', icon: BarChart2 },
-      { value: 'creative', label: 'Arts & Design', icon: Palette },
-      { value: 'research', label: 'Research & Learning', icon: BookOpen },
-    ]
-  },
-];
+// Question IDs for translation mapping
+const QUESTION_IDS = ['goal', 'style', 'pace', 'domain'] as const;
+type QuestionId = typeof QUESTION_IDS[number];
 
-// PAT Agent definitions matching backend
-const patAgents: { id: PatAgent; name: string; description: string; icon: React.ElementType; color: string }[] = [
-  { 
-    id: 'MasterReasoner', 
-    name: 'Master Reasoner', 
-    description: 'Deep analytical thinking, complex problem decomposition, logical synthesis',
-    icon: Brain,
-    color: 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-  },
-  { 
-    id: 'MemoryArchitect', 
-    name: 'Memory Architect', 
-    description: 'Personal context management, knowledge retention, preference learning',
-    icon: BookOpen,
-    color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
-  },
-  { 
-    id: 'CreativeSynthesizer', 
-    name: 'Creative Synthesizer', 
-    description: 'Creative ideation, content generation, artistic exploration',
-    icon: Palette,
-    color: 'bg-pink-500/20 text-pink-400 border-pink-500/30'
-  },
-  { 
-    id: 'DataAnalyzer', 
-    name: 'Data Analyzer', 
-    description: 'Data processing, pattern recognition, statistical insights',
-    icon: BarChart2,
-    color: 'bg-green-500/20 text-green-400 border-green-500/30'
-  },
-  { 
-    id: 'Communicator', 
-    name: 'Communicator', 
-    description: 'Natural conversation, email composition, professional writing',
-    icon: MessageCircle,
-    color: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-  },
-  { 
-    id: 'ExecutionPlanner', 
-    name: 'Execution Planner', 
-    description: 'Task orchestration, schedule optimization, resource allocation',
-    icon: Target,
-    color: 'bg-orange-500/20 text-orange-400 border-orange-500/30'
-  },
-  { 
-    id: 'EthicsGuardian', 
-    name: 'Ethics Guardian', 
-    description: 'Ethical alignment, bias detection, value consistency',
-    icon: Shield,
-    color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-  },
-];
+// Option values for each question
+const QUESTION_OPTIONS: Record<QuestionId, string[]> = {
+  goal: ['productivity', 'learning', 'creative', 'analysis'],
+  style: ['detailed', 'concise', 'visual', 'interactive'],
+  pace: ['fast', 'thorough', 'adaptive', 'patient'],
+  domain: ['tech', 'business', 'creative', 'research'],
+};
+
+// Icons for each option
+const OPTION_ICONS: Record<string, React.ElementType> = {
+  productivity: Target,
+  learning: BookOpen,
+  creative: Palette,
+  analysis: BarChart2,
+  detailed: BookOpen,
+  concise: MessageCircle,
+  visual: Palette,
+  interactive: Brain,
+  fast: Target,
+  thorough: Check,
+  adaptive: Brain,
+  patient: Shield,
+  tech: Brain,
+  business: BarChart2,
+  research: BookOpen,
+};
 
 type Step = 'language' | 'intro' | 'covenant' | 'seed-test' | 'pat-selection' | 'profile' | 'complete';
 
@@ -180,16 +114,18 @@ export default function OnboardingPage() {
     }
   }, [step, axioms.length]);
   
+  // Get current question ID
+  const currentQuestionId = QUESTION_IDS[questionIndex];
+  
   const handleAnswerSelect = useCallback((value: string) => {
-    const question = seedQuestions[questionIndex];
-    setAnswers(prev => ({ ...prev, [question.id]: value }));
+    setAnswers(prev => ({ ...prev, [currentQuestionId]: value }));
     
-    if (questionIndex < seedQuestions.length - 1) {
+    if (questionIndex < QUESTION_IDS.length - 1) {
       setTimeout(() => setQuestionIndex(prev => prev + 1), 300);
     } else {
       setTimeout(() => setStep('pat-selection'), 500);
     }
-  }, [questionIndex]);
+  }, [questionIndex, currentQuestionId]);
   
   const recommendedAgent = useCallback((): PatAgent => {
     // Simple recommendation logic based on seed test answers
@@ -204,9 +140,48 @@ export default function OnboardingPage() {
     return 'Communicator';
   }, [answers]);
   
+  // PAT Agent definitions with translations
+  const patAgents: { id: PatAgent; icon: React.ElementType; color: string }[] = [
+    { 
+      id: 'MasterReasoner', 
+      icon: Brain,
+      color: 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+    },
+    { 
+      id: 'MemoryArchitect', 
+      icon: BookOpen,
+      color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
+    },
+    { 
+      id: 'CreativeSynthesizer', 
+      icon: Palette,
+      color: 'bg-pink-500/20 text-pink-400 border-pink-500/30'
+    },
+    { 
+      id: 'DataAnalyzer', 
+      icon: BarChart2,
+      color: 'bg-green-500/20 text-green-400 border-green-500/30'
+    },
+    { 
+      id: 'Communicator', 
+      icon: MessageCircle,
+      color: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+    },
+    { 
+      id: 'ExecutionPlanner', 
+      icon: Target,
+      color: 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+    },
+    { 
+      id: 'EthicsGuardian', 
+      icon: Shield,
+      color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+    },
+  ];
+  
   const handleComplete = async () => {
     if (!selectedPat || !profileData.displayName) {
-      setError('Please complete all fields');
+      setError(t('common.error'));
       return;
     }
     
@@ -263,13 +238,13 @@ export default function OnboardingPage() {
                 </div>
                 
                 <h1 className="text-3xl font-bold mb-2 text-gradient-sovereign">
-                  Choose Your Language
+                  {t('onboarding.language.title')}
                 </h1>
                 <p className="text-lg text-white/70 mb-2">
-                  اختر لغتك
+                  {t('onboarding.language.titleAr')}
                 </p>
                 <p className="text-sm text-white/50 mb-8">
-                  Select the language for your BIZRA experience
+                  {t('onboarding.language.subtitle')}
                 </p>
                 
                 <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8">
@@ -302,7 +277,7 @@ export default function OnboardingPage() {
                   onClick={() => setStep('intro')}
                   className="btn-sovereign w-full max-w-md mx-auto flex items-center justify-center gap-2"
                 >
-                  {locale === 'ar' ? 'استمرار' : 'Continue'}
+                  {t('onboarding.language.continue')}
                   <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
                 </button>
               </div>
@@ -324,39 +299,36 @@ export default function OnboardingPage() {
                 <BizraLogoAnimated size="xl" className="mx-auto mb-6" />
                 
                 <h1 className="text-3xl font-bold mb-4 text-gradient-sovereign text-center">
-                  {locale === 'ar' ? 'مرحباً في رحلتك' : 'Welcome to Your Genesis'}
+                  {t('onboarding.welcome.title')}
                 </h1>
                 
                 <p className="text-lg text-white/70 mb-8 text-center">
-                  {locale === 'ar' 
-                    ? 'أنت على وشك أن تصبح مهندساً للذكاء الاصطناعي السيادي. هذه الرحلة ستربط عقلك بالشبكة.'
-                    : 'You are about to become an Architect of sovereign AI. This ritual will align your mind with the network.'
-                  }
+                  {t('onboarding.welcome.subtitle')} {t('onboarding.welcome.description')}
                 </p>
                 
                 <div className="space-y-3 text-left mb-8">
                   <StepPreview 
                     number={1} 
-                    label={locale === 'ar' ? 'الميثاق' : 'The Covenant'} 
-                    description={locale === 'ar' ? 'اقبل قوانين البداية' : 'Accept the Genesis Laws'} 
+                    label={t('onboarding.steps.covenant')} 
+                    description={t('onboarding.steps.covenantDesc')} 
                     isRTL={isRTL}
                   />
                   <StepPreview 
                     number={2} 
-                    label={locale === 'ar' ? 'اختبار البذرة' : 'Seed Test'} 
-                    description={locale === 'ar' ? '4 أسئلة عن جوهرك' : '4 questions about your essence'} 
+                    label={t('onboarding.steps.seedTest')} 
+                    description={t('onboarding.steps.seedTestDesc')} 
                     isRTL={isRTL}
                   />
                   <StepPreview 
                     number={3} 
-                    label={locale === 'ar' ? 'اختيار PAT' : 'PAT Selection'} 
-                    description={locale === 'ar' ? 'اختر وكيل الذكاء الرئيسي' : 'Choose your primary AI agent'} 
+                    label={t('onboarding.steps.patSelection')} 
+                    description={t('onboarding.steps.patSelectionDesc')} 
                     isRTL={isRTL}
                   />
                   <StepPreview 
                     number={4} 
-                    label={locale === 'ar' ? 'الهوية' : 'Identity'} 
-                    description={locale === 'ar' ? 'ختم ملفك السيادي' : 'Seal your sovereign profile'} 
+                    label={t('onboarding.steps.identity')} 
+                    description={t('onboarding.steps.identityDesc')} 
                     isRTL={isRTL}
                   />
                 </div>
@@ -373,7 +345,7 @@ export default function OnboardingPage() {
                     onClick={() => setStep('covenant')}
                     className="btn-sovereign flex-1 flex items-center justify-center gap-2"
                   >
-                    {locale === 'ar' ? 'ابدأ الرحلة' : 'Begin The Ritual'}
+                    {t('onboarding.welcome.cta')}
                     <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
                   </button>
                 </div>
@@ -388,20 +360,20 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="glass-panel p-8"
+              className={`glass-panel p-8 ${isRTL ? 'text-right' : ''}`}
+              dir={isRTL ? 'rtl' : 'ltr'}
             >
-              <div className="flex items-center gap-3 mb-6">
+              <div className={`flex items-center gap-3 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <ScrollText className="w-8 h-8 text-bizra-gold" />
-                <h2 className="text-2xl font-bold">The Genesis Covenant</h2>
+                <h2 className="text-2xl font-bold">{t('onboarding.covenant.title')}</h2>
               </div>
               
               <p className="text-white/60 mb-6">
-                These are the sacred laws that govern the BIZRA Network.
-                Read them carefully. They define your relationship with sovereign AI.
+                {t('onboarding.covenant.description')}
               </p>
               
               {/* Axioms Display */}
-              <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-sovereign pr-2 mb-6">
+              <div className={`space-y-4 max-h-[300px] overflow-y-auto scrollbar-sovereign mb-6 ${isRTL ? 'pl-2' : 'pr-2'}`}>
                 {axioms.length === 0 ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 animate-spin text-bizra-gold" />
@@ -409,15 +381,15 @@ export default function OnboardingPage() {
                 ) : axioms.map((axiom, index) => (
                   <motion.div
                     key={axiom.id}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     className="p-4 rounded-xl bg-white/5 border border-white/10"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <Eye className="w-5 h-5 text-bizra-gold flex-shrink-0 mt-0.5" />
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className={`flex items-center gap-2 mb-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <h4 className="font-semibold text-bizra-gold">{axiom.title}</h4>
                           <span className="text-xs text-white/40 font-arabic">{axiom.arabic}</span>
                         </div>
@@ -431,7 +403,7 @@ export default function OnboardingPage() {
               
               {/* Acceptance Checkbox */}
               <div className="p-4 rounded-xl bg-bizra-gold/5 border border-bizra-gold/20 mb-6">
-                <label className="flex items-start gap-3 cursor-pointer">
+                <label className={`flex items-start gap-3 cursor-pointer ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <input
                     type="checkbox"
                     checked={covenantAccepted}
@@ -439,27 +411,25 @@ export default function OnboardingPage() {
                     className="mt-1 w-5 h-5 rounded border-bizra-gold/50 bg-transparent checked:bg-bizra-gold"
                   />
                   <span className="text-sm text-white/80">
-                    I have read and accept the Genesis Covenant. I understand that these principles
-                    guide all interactions within the BIZRA Network, and I commit to upholding them
-                    as an Architect of sovereign AI.
+                    {t('onboarding.covenant.checkbox')}
                   </span>
                 </label>
               </div>
               
-              <div className="flex gap-3">
+              <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => setStep('intro')}
-                  className="btn-glass flex items-center gap-1"
+                  className={`btn-glass flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Back
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('common.back')}
                 </button>
                 <button
                   onClick={() => setStep('seed-test')}
                   disabled={!covenantAccepted}
-                  className="btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  I Accept The Covenant
+                  {t('onboarding.covenant.accept')}
                   <Shield className="w-5 h-5" />
                 </button>
               </div>
@@ -473,17 +443,24 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="glass-panel p-8"
+              className={`glass-panel p-8 ${isRTL ? 'text-right' : ''}`}
+              dir={isRTL ? 'rtl' : 'ltr'}
             >
               {/* Progress */}
-              <div className="flex items-center gap-2 mb-8">
-                <span className="text-sm text-white/50">Question {questionIndex + 1} of {seedQuestions.length}</span>
+              <div className={`flex items-center gap-2 mb-8 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <span className="text-sm text-white/50">
+                  {t('onboarding.seedTest.questionOf', { 
+                    current: String(questionIndex + 1), 
+                    total: String(QUESTION_IDS.length) 
+                  })}
+                </span>
                 <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-bizra-gold"
                     initial={{ width: 0 }}
-                    animate={{ width: `${((questionIndex + 1) / seedQuestions.length) * 100}%` }}
+                    animate={{ width: `${((questionIndex + 1) / QUESTION_IDS.length) * 100}%` }}
                     transition={{ duration: 0.3 }}
+                    style={{ [isRTL ? 'marginRight' : 'marginLeft']: 0 }}
                   />
                 </div>
               </div>
@@ -491,30 +468,31 @@ export default function OnboardingPage() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={questionIndex}
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
                 >
                   <h2 className="text-2xl font-bold mb-6">
-                    {seedQuestions[questionIndex].question}
+                    {t(`onboarding.seedTest.questions.${currentQuestionId}.question`)}
                   </h2>
                   
                   <div className="grid grid-cols-2 gap-4">
-                    {seedQuestions[questionIndex].options.map((option) => {
-                      const isSelected = answers[seedQuestions[questionIndex].id] === option.value;
+                    {QUESTION_OPTIONS[currentQuestionId].map((optionValue) => {
+                      const isSelected = answers[currentQuestionId] === optionValue;
+                      const Icon = OPTION_ICONS[optionValue] || Sparkles;
                       return (
                         <button
-                          key={option.value}
-                          onClick={() => handleAnswerSelect(option.value)}
-                          className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                          key={optionValue}
+                          onClick={() => handleAnswerSelect(optionValue)}
+                          className={`p-4 rounded-xl border transition-all duration-200 ${isRTL ? 'text-right' : 'text-left'} ${
                             isSelected
                               ? 'border-bizra-gold bg-bizra-gold/10'
                               : 'border-white/10 hover:border-bizra-gold/50 hover:bg-white/5'
                           }`}
                         >
-                          <option.icon className={`w-6 h-6 mb-2 ${isSelected ? 'text-bizra-gold' : 'text-white/50'}`} />
+                          <Icon className={`w-6 h-6 mb-2 ${isSelected ? 'text-bizra-gold' : 'text-white/50'}`} />
                           <span className={`font-medium ${isSelected ? 'text-bizra-gold' : ''}`}>
-                            {option.label}
+                            {t(`onboarding.seedTest.questions.${currentQuestionId}.${optionValue}`)}
                           </span>
                         </button>
                       );
@@ -526,10 +504,10 @@ export default function OnboardingPage() {
               {questionIndex > 0 && (
                 <button
                   onClick={() => setQuestionIndex(prev => prev - 1)}
-                  className="mt-6 text-white/50 hover:text-white flex items-center gap-1"
+                  className={`mt-6 text-white/50 hover:text-white flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('onboarding.seedTest.previous')}
                 </button>
               )}
             </motion.div>
@@ -542,16 +520,17 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="glass-panel p-8"
+              className={`glass-panel p-8 ${isRTL ? 'text-right' : ''}`}
+              dir={isRTL ? 'rtl' : 'ltr'}
             >
-              <h2 className="text-2xl font-bold mb-2">Select Your Primary PAT Agent</h2>
+              <h2 className="text-2xl font-bold mb-2">{t('onboarding.patSelection.title')}</h2>
               <p className="text-white/50 mb-6">
-                Based on your answers, we recommend <span className="text-bizra-gold font-medium">
-                {patAgents.find(a => a.id === recommendedAgent())?.name}
-                </span>. You can always switch later.
+                {t('onboarding.patSelection.description', { 
+                  agent: t(`agents.roles.${recommendedAgent()}.name`) 
+                })}
               </p>
               
-              <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-sovereign pr-2">
+              <div className={`space-y-3 max-h-[400px] overflow-y-auto scrollbar-sovereign ${isRTL ? 'pl-2' : 'pr-2'}`}>
                 {patAgents.map((agent) => {
                   const isRecommended = agent.id === recommendedAgent();
                   const isSelected = selectedPat === agent.id;
@@ -560,7 +539,7 @@ export default function OnboardingPage() {
                     <button
                       key={agent.id}
                       onClick={() => setSelectedPat(agent.id)}
-                      className={`w-full p-4 rounded-xl border text-left transition-all duration-200 flex items-start gap-4 ${
+                      className={`w-full p-4 rounded-xl border transition-all duration-200 flex items-start gap-4 ${isRTL ? 'flex-row-reverse text-right' : 'text-left'} ${
                         isSelected
                           ? 'border-bizra-gold bg-bizra-gold/10'
                           : 'border-white/10 hover:border-white/30 hover:bg-white/5'
@@ -570,17 +549,19 @@ export default function OnboardingPage() {
                         <agent.icon className="w-6 h-6" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <span className={`font-semibold ${isSelected ? 'text-bizra-gold' : ''}`}>
-                            {agent.name}
+                            {t(`agents.roles.${agent.id}.name`)}
                           </span>
                           {isRecommended && (
                             <span className="text-xs px-2 py-0.5 rounded-full bg-bizra-gold/20 text-bizra-gold border border-bizra-gold/30">
-                              Recommended
+                              {t('onboarding.patSelection.recommended')}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-white/50 mt-1">{agent.description}</p>
+                        <p className="text-sm text-white/50 mt-1">
+                          {t(`agents.roles.${agent.id}.description`)}
+                        </p>
                       </div>
                       {isSelected && (
                         <Check className="w-5 h-5 text-bizra-gold flex-shrink-0" />
@@ -590,24 +571,24 @@ export default function OnboardingPage() {
                 })}
               </div>
               
-              <div className="flex gap-3 mt-6">
+              <div className={`flex gap-3 mt-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => {
                     setStep('seed-test');
-                    setQuestionIndex(seedQuestions.length - 1);
+                    setQuestionIndex(QUESTION_IDS.length - 1);
                   }}
-                  className="btn-glass flex items-center gap-1"
+                  className={`btn-glass flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Back
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('common.back')}
                 </button>
                 <button
                   onClick={() => setStep('profile')}
                   disabled={!selectedPat}
-                  className="btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className={`btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  Continue
-                  <ChevronRight className="w-5 h-5" />
+                  {t('common.next')}
+                  <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
                 </button>
               </div>
             </motion.div>
@@ -620,35 +601,36 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="glass-panel p-8"
+              className={`glass-panel p-8 ${isRTL ? 'text-right' : ''}`}
+              dir={isRTL ? 'rtl' : 'ltr'}
             >
-              <h2 className="text-2xl font-bold mb-2">Complete Your Profile</h2>
+              <h2 className="text-2xl font-bold mb-2">{t('onboarding.profile.title')}</h2>
               <p className="text-white/50 mb-6">
-                Set up your sovereign identity in the BIZRA network.
+                {t('onboarding.profile.description')}
               </p>
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Display Name</label>
+                  <label className="block text-sm font-medium mb-2">{t('onboarding.profile.displayName')}</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                    <User className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-white/30 ${isRTL ? 'right-3' : 'left-3'}`} />
                     <input
                       type="text"
                       value={profileData.displayName}
                       onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
-                      placeholder="Enter your name"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-bizra-gold focus:outline-none focus:ring-1 focus:ring-bizra-gold/50 transition-all"
+                      placeholder={t('onboarding.profile.displayNamePlaceholder')}
+                      className={`w-full py-3 rounded-xl bg-white/5 border border-white/10 focus:border-bizra-gold focus:outline-none focus:ring-1 focus:ring-bizra-gold/50 transition-all ${isRTL ? 'pr-10 pl-4 text-right' : 'pl-10 pr-4'}`}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </div>
                 
                 <div>
                   <label htmlFor="ihsan-range" className="block text-sm font-medium mb-2">
-                    Starting Ihsan Score: <span className="text-bizra-gold">{profileData.ihsan}</span>
+                    {t('onboarding.profile.ihsanScore')}: <span className="text-bizra-gold">{profileData.ihsan}</span>
                   </label>
                   <p className="text-xs text-white/40 mb-3">
-                    Ihsan (إحسان) measures your ethical excellence and contribution quality. 
-                    Start at 75 and grow through positive impact.
+                    {t('onboarding.profile.ihsanDescription')}
                   </p>
                   <input
                     id="ihsan-range"
@@ -659,20 +641,33 @@ export default function OnboardingPage() {
                     onChange={(e) => setProfileData(prev => ({ ...prev, ihsan: e.target.value }))}
                     className="w-full accent-bizra-gold"
                     aria-label="Ihsan score slider"
+                    dir="ltr"
                   />
-                  <div className="flex justify-between text-xs text-white/30 mt-1">
+                  <div className={`flex justify-between text-xs text-white/30 mt-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <span>50</span>
-                    <span>75 (Default)</span>
+                    <span>75</span>
                     <span>100</span>
                   </div>
                 </div>
                 
                 <div className="p-4 rounded-xl bg-bizra-gold/5 border border-bizra-gold/20">
-                  <h4 className="font-medium text-bizra-gold mb-2">Your Selection Summary</h4>
+                  <h4 className="font-medium text-bizra-gold mb-2">{t('onboarding.profile.summary')}</h4>
                   <div className="text-sm text-white/70 space-y-1">
-                    <p>Primary PAT: <span className="text-white">{patAgents.find(a => a.id === selectedPat)?.name}</span></p>
-                    <p>Goals: <span className="text-white capitalize">{answers.goal || 'Not set'}</span></p>
-                    <p>Style: <span className="text-white capitalize">{answers.style || 'Not set'}</span></p>
+                    <p>
+                      {t('onboarding.profile.primaryPat')}: <span className="text-white">
+                        {selectedPat ? t(`agents.roles.${selectedPat}.name`) : t('onboarding.profile.notSet')}
+                      </span>
+                    </p>
+                    <p>
+                      {t('onboarding.profile.goals')}: <span className="text-white capitalize">
+                        {answers.goal ? t(`onboarding.seedTest.questions.goal.${answers.goal}`) : t('onboarding.profile.notSet')}
+                      </span>
+                    </p>
+                    <p>
+                      {t('onboarding.profile.style')}: <span className="text-white capitalize">
+                        {answers.style ? t(`onboarding.seedTest.questions.style.${answers.style}`) : t('onboarding.profile.notSet')}
+                      </span>
+                    </p>
                   </div>
                 </div>
                 
@@ -681,27 +676,27 @@ export default function OnboardingPage() {
                 )}
               </div>
               
-              <div className="flex gap-3 mt-6">
+              <div className={`flex gap-3 mt-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <button
                   onClick={() => setStep('pat-selection')}
-                  className="btn-glass flex items-center gap-1"
+                  className={`btn-glass flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Back
+                  <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  {t('common.back')}
                 </button>
                 <button
                   onClick={handleComplete}
                   disabled={isSubmitting || !profileData.displayName}
-                  className="btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50"
+                  className={`btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Creating Profile...
+                      {t('onboarding.profile.creatingProfile')}
                     </>
                   ) : (
                     <>
-                      Complete Setup
+                      {t('onboarding.profile.completeSetup')}
                       <Check className="w-5 h-5" />
                     </>
                   )}
@@ -730,9 +725,9 @@ export default function OnboardingPage() {
               </motion.div>
               
               <div className="relative z-10">
-                <h2 className="text-2xl font-bold mb-2 text-gradient-gold">Genesis Complete!</h2>
+                <h2 className="text-2xl font-bold mb-2 text-gradient-gold">{t('onboarding.complete.title')}</h2>
                 <p className="text-white/70 mb-6">
-                  Your sovereign AI profile has been created. Preparing your Node installation...
+                  {t('onboarding.complete.description')}
                 </p>
                 
                 <div className="flex justify-center">

@@ -38,25 +38,93 @@
     }
   },
   "onboarding": {
+    "language": {
+      "title": "Choose Your Language",
+      "titleAr": "اختر لغتك",
+      "subtitle": "Select the language for your BIZRA experience",
+      "continue": "Continue"
+    },
     "welcome": {
       "title": "Welcome to Your Genesis",
       "subtitle": "You are about to become an Architect of sovereign AI.",
       "description": "This ritual will align your mind with the network.",
       "cta": "Begin The Ritual"
     },
+    "steps": {
+      "covenant": "The Covenant",
+      "covenantDesc": "Accept the Genesis Laws",
+      "seedTest": "Seed Test",
+      "seedTestDesc": "4 questions about your essence",
+      "patSelection": "PAT Selection",
+      "patSelectionDesc": "Choose your primary AI agent",
+      "identity": "Identity",
+      "identityDesc": "Seal your sovereign profile"
+    },
     "covenant": {
       "title": "The Genesis Covenant",
-      "description": "These are the sacred laws that govern the BIZRA Network.",
+      "description": "These are the sacred laws that govern the BIZRA Network. Read them carefully. They define your relationship with sovereign AI.",
       "accept": "I Accept The Covenant",
-      "checkbox": "I have read and accept the Genesis Covenant."
+      "checkbox": "I have read and accept the Genesis Covenant. I understand that these principles guide all interactions within the BIZRA Network, and I commit to upholding them as an Architect of sovereign AI."
     },
     "seedTest": {
       "title": "Seed Test",
-      "description": "Answer these questions to personalize your AI experience."
+      "description": "Answer these questions to personalize your AI experience.",
+      "questionOf": "Question {{current}} of {{total}}",
+      "previous": "Previous",
+      "questions": {
+        "goal": {
+          "question": "What's your primary goal with AI assistance?",
+          "productivity": "Boost Productivity",
+          "learning": "Learn New Skills",
+          "creative": "Creative Projects",
+          "analysis": "Data Analysis"
+        },
+        "style": {
+          "question": "How do you prefer to receive information?",
+          "detailed": "Detailed Explanations",
+          "concise": "Brief & Direct",
+          "visual": "Visual Examples",
+          "interactive": "Interactive Dialogue"
+        },
+        "pace": {
+          "question": "What pace works best for you?",
+          "fast": "Fast & Efficient",
+          "thorough": "Thorough & Complete",
+          "adaptive": "Adaptive to Context",
+          "patient": "Patient & Supportive"
+        },
+        "domain": {
+          "question": "Which domain interests you most?",
+          "tech": "Technology & Code",
+          "business": "Business & Strategy",
+          "creative": "Arts & Design",
+          "research": "Research & Learning"
+        }
+      }
+    },
+    "patSelection": {
+      "title": "Select Your Primary PAT Agent",
+      "description": "Based on your answers, we recommend {{agent}}. You can always switch later.",
+      "recommended": "Recommended"
+    },
+    "profile": {
+      "title": "Complete Your Profile",
+      "description": "Set up your sovereign identity in the BIZRA network.",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Enter your name",
+      "ihsanScore": "Starting Ihsan Score",
+      "ihsanDescription": "Ihsan (إحسان) measures your ethical excellence and contribution quality. Start at 75 and grow through positive impact.",
+      "summary": "Your Selection Summary",
+      "primaryPat": "Primary PAT",
+      "goals": "Goals",
+      "style": "Style",
+      "notSet": "Not set",
+      "completeSetup": "Complete Setup",
+      "creatingProfile": "Creating Profile..."
     },
     "complete": {
       "title": "Genesis Complete!",
-      "description": "Your sovereign AI profile has been created."
+      "description": "Your sovereign AI profile has been created. Preparing your Node installation..."
     }
   },
   "installer": {

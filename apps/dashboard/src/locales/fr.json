@@ -23,6 +23,128 @@
       "secondary": "En Savoir Plus"
     }
   },
+  "onboarding": {
+    "language": {
+      "title": "Choisissez Votre Langue",
+      "titleAr": "اختر لغتك",
+      "subtitle": "Sélectionnez la langue pour votre expérience BIZRA",
+      "continue": "Continuer"
+    },
+    "welcome": {
+      "title": "Bienvenue dans Votre Genèse",
+      "subtitle": "Vous êtes sur le point de devenir un Architecte de l'IA souveraine.",
+      "description": "Ce rituel alignera votre esprit avec le réseau.",
+      "cta": "Commencer le Rituel"
+    },
+    "steps": {
+      "covenant": "Le Pacte",
+      "covenantDesc": "Acceptez les Lois de la Genèse",
+      "seedTest": "Test Initial",
+      "seedTestDesc": "4 questions sur votre essence",
+      "patSelection": "Sélection PAT",
+      "patSelectionDesc": "Choisissez votre agent IA principal",
+      "identity": "Identité",
+      "identityDesc": "Scellez votre profil souverain"
+    },
+    "covenant": {
+      "title": "Le Pacte de la Genèse",
+      "description": "Ce sont les lois sacrées qui régissent le Réseau BIZRA. Lisez-les attentivement.",
+      "accept": "J'Accepte le Pacte",
+      "checkbox": "J'ai lu et j'accepte le Pacte de la Genèse."
+    },
+    "seedTest": {
+      "title": "Test Initial",
+      "description": "Répondez à ces questions pour personnaliser votre expérience IA.",
+      "questionOf": "Question {{current}} sur {{total}}",
+      "previous": "Précédent",
+      "questions": {
+        "goal": {
+          "question": "Quel est votre objectif principal avec l'assistance IA ?",
+          "productivity": "Augmenter la Productivité",
+          "learning": "Apprendre de Nouvelles Compétences",
+          "creative": "Projets Créatifs",
+          "analysis": "Analyse de Données"
+        },
+        "style": {
+          "question": "Comment préférez-vous recevoir les informations ?",
+          "detailed": "Explications Détaillées",
+          "concise": "Bref et Direct",
+          "visual": "Exemples Visuels",
+          "interactive": "Dialogue Interactif"
+        },
+        "pace": {
+          "question": "Quel rythme vous convient le mieux ?",
+          "fast": "Rapide et Efficace",
+          "thorough": "Complet et Approfondi",
+          "adaptive": "Adaptatif au Contexte",
+          "patient": "Patient et Encourageant"
+        },
+        "domain": {
+          "question": "Quel domaine vous intéresse le plus ?",
+          "tech": "Technologie et Code",
+          "business": "Business et Stratégie",
+          "creative": "Arts et Design",
+          "research": "Recherche et Apprentissage"
+        }
+      }
+    },
+    "patSelection": {
+      "title": "Sélectionnez Votre Agent PAT Principal",
+      "description": "Selon vos réponses, nous recommandons {{agent}}. Vous pouvez toujours changer plus tard.",
+      "recommended": "Recommandé"
+    },
+    "profile": {
+      "title": "Complétez Votre Profil",
+      "description": "Configurez votre identité souveraine dans le réseau BIZRA.",
+      "displayName": "Nom d'Affichage",
+      "displayNamePlaceholder": "Entrez votre nom",
+      "ihsanScore": "Score Ihsan Initial",
+      "ihsanDescription": "Ihsan mesure votre excellence éthique et la qualité de vos contributions.",
+      "summary": "Résumé de Vos Choix",
+      "primaryPat": "PAT Principal",
+      "goals": "Objectifs",
+      "style": "Style",
+      "notSet": "Non défini",
+      "completeSetup": "Terminer la Configuration",
+      "creatingProfile": "Création du Profil..."
+    },
+    "complete": {
+      "title": "Genèse Complète !",
+      "description": "Votre profil IA souverain a été créé. Préparation de l'installation du Nœud..."
+    }
+  },
+  "agents": {
+    "roles": {
+      "MasterReasoner": {
+        "name": "Raisonneur Maître",
+        "description": "Pensée analytique approfondie et résolution de problèmes complexes"
+      },
+      "MemoryArchitect": {
+        "name": "Architecte Mémoire",
+        "description": "Contexte personnel et rétention des connaissances"
+      },
+      "CreativeSynthesizer": {
+        "name": "Synthétiseur Créatif",
+        "description": "Idéation créative et génération de contenu"
+      },
+      "DataAnalyzer": {
+        "name": "Analyseur de Données",
+        "description": "Traitement des données et reconnaissance de motifs"
+      },
+      "Communicator": {
+        "name": "Communicateur",
+        "description": "Conversation naturelle et rédaction"
+      },
+      "ExecutionPlanner": {
+        "name": "Planificateur d'Exécution",
+        "description": "Orchestration des tâches et planification"
+      },
+      "EthicsGuardian": {
+        "name": "Gardien Éthique",
+        "description": "Alignement éthique et cohérence des valeurs"
+      }
+    }
+  },
   "common": {
     "next": "Suivant",
     "back": "Retour",
