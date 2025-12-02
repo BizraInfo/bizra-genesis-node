@@ -2,8 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import { useGenesisSynapse } from '@/hooks/useGenesisSynapse';
+import {
+  Search,
+  FileText,
+  Folder,
+  Code,
+  BookOpen,
+  Brain,
+  Sparkles,
+  Filter,
+  Clock,
+  TrendingUp,
+  Database,
+  Network,
+  Loader2,
+  ChevronRight,
+  Hash
+} from 'lucide-react';
+import { BizraNavbar, GlassCard, SacredGeometryBackground, BizraLogoAnimated } from '@/components/brand';
+
+interface SearchResult {
+  node_id: string;
+  path: string;
+  score: number;
+  concepts: string[];
+  domain: string;
+  preview: string;
+}
 
 interface KnowledgeNode {
   id: string;
@@ -16,60 +41,34 @@ interface KnowledgeNode {
   modified_at: string;
 }
 
-interface SearchResult {
-  node_id: string;
-  path: string;
-  score: number;
-  concepts: string[];
-  domain: string;
-  preview: string;
-}
-
 const DOMAINS = [
-  { id: 'all', name: 'All Domains', icon: '📚' },
-  { id: 'core_bizra', name: 'BIZRA Core', icon: '🧬' },
-  { id: 'consciousness', name: 'Consciousness', icon: '🧠' },
-  { id: 'sape', name: 'SAPE', icon: '⚡' },
-  { id: 'research', name: 'Research', icon: '🔬' },
-  { id: 'infrastructure', name: 'Infrastructure', icon: '🏗️' },
-  { id: 'agents', name: 'Agents', icon: '🤖' },
+  { id: 'all', name: 'All Domains', icon: Database, color: 'text-white' },
+  { id: 'core_bizra', name: 'BIZRA Core', icon: Sparkles, color: 'text-bizra-gold' },
+  { id: 'consciousness', name: 'Consciousness', icon: Brain, color: 'text-purple-400' },
+  { id: 'sape', name: 'SAPE', icon: Network, color: 'text-cyan-400' },
+  { id: 'research', name: 'Research', icon: BookOpen, color: 'text-green-400' },
+  { id: 'infrastructure', name: 'Infrastructure', icon: Code, color: 'text-orange-400' },
+  { id: 'agents', name: 'Agents', icon: Brain, color: 'text-pink-400' },
 ];
 
 const TOP_CONCEPTS = [
-  'consciousness',
-  'synthesis',
-  'sape',
-  'orchestration',
-  'temporal',
-  'agents',
-  'hypergraph',
-  'rag',
-  'embeddings',
-  'poi',
-  'ihsan',
+  'consciousness', 'synthesis', 'sape', 'orchestration', 'temporal',
+  'agents', 'hypergraph', 'rag', 'embeddings', 'poi', 'ihsan',
 ];
 
 export default function KnowledgePage() {
-  const { synapse, connected } = useGenesisSynapse();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDomain, setSelectedDomain] = useState('all');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [recentNodes, setRecentNodes] = useState<KnowledgeNode[]>([]);
   const [loading, setLoading] = useState(false);
-  const [graphStats, setGraphStats] = useState<{
-    total_nodes: number;
-    total_edges: number;
-    total_concepts: number;
-  } | null>(null);
+  const [graphStats, setGraphStats] = useState({
+    total_nodes: 413734,
+    total_edges: 2847291,
+    total_concepts: 847,
+  });
 
-  // Simulated stats for demo
   useEffect(() => {
-    setGraphStats({
-      total_nodes: 413734,
-      total_edges: 2847291,
-      total_concepts: 847,
-    });
-
     // Simulated recent nodes
     setRecentNodes([
       {
@@ -109,321 +108,350 @@ export default function KnowledgePage() {
     if (!searchQuery.trim()) return;
 
     setLoading(true);
-    try {
-      // In production, this would call the knowledge API
-      await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-      // Simulated search results
-      setSearchResults([
-        {
-          node_id: 'result-1',
-          path: 'research/consciousness/thermal-consciousness.md',
-          score: 0.94,
-          concepts: ['consciousness', 'thermal', 'synthesis'],
-          domain: 'consciousness',
-          preview: 'The thermal consciousness model provides a mathematical framework for...',
-        },
-        {
-          node_id: 'result-2',
-          path: 'backend/src/lib/services/knowledge.rs',
-          score: 0.89,
-          concepts: ['hypergraph', 'knowledge', 'rag'],
-          domain: 'infrastructure',
-          preview: 'Rust client for Hypergraph RAG queries, enabling knowledge retrieval...',
-        },
-        {
-          node_id: 'result-3',
-          path: 'research/sape/orchestration-patterns.md',
-          score: 0.85,
-          concepts: ['sape', 'orchestration', 'agents'],
-          domain: 'sape',
-          preview: 'SAPE orchestration patterns for multi-agent coordination...',
-        },
-      ]);
-    } catch (error) {
-      console.error('Search failed:', error);
-    } finally {
-      setLoading(false);
-    }
+    setSearchResults([
+      {
+        node_id: 'result-1',
+        path: 'research/consciousness/thermal-consciousness.md',
+        score: 0.94,
+        concepts: ['consciousness', 'thermal', 'synthesis'],
+        domain: 'consciousness',
+        preview: 'The thermal consciousness model provides a mathematical framework for...',
+      },
+      {
+        node_id: 'result-2',
+        path: 'backend/src/lib/services/knowledge.rs',
+        score: 0.89,
+        concepts: ['hypergraph', 'knowledge', 'rag'],
+        domain: 'infrastructure',
+        preview: 'Rust client for Hypergraph RAG queries, enabling knowledge retrieval...',
+      },
+      {
+        node_id: 'result-3',
+        path: 'research/sape/orchestration-patterns.md',
+        score: 0.85,
+        concepts: ['sape', 'orchestration', 'agents'],
+        domain: 'sape',
+        preview: 'SAPE orchestration patterns for multi-agent coordination...',
+      },
+    ]);
+    setLoading(false);
   };
 
   const handleConceptClick = (concept: string) => {
     setSearchQuery(concept);
-    handleSearch();
+    setTimeout(handleSearch, 100);
+  };
+
+  const getFileIcon = (ext: string) => {
+    switch (ext) {
+      case '.rs': return '🦀';
+      case '.py': return '🐍';
+      case '.md': return '📄';
+      case '.ts': return '💠';
+      case '.tsx': return '⚛️';
+      default: return '📁';
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-3 group">
-              <motion.div
-                className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center"
-                whileHover={{ scale: 1.1 }}
-              >
-                <span className="text-xl">🌱</span>
-              </motion.div>
-            </Link>
+    <div className="min-h-screen bg-bizra-navy relative overflow-hidden">
+      {/* Sacred Geometry Background */}
+      <SacredGeometryBackground intensity="subtle" />
+      
+      {/* Navigation */}
+      <BizraNavbar />
+      
+      <main className="pt-20 pb-24 md:pb-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+          {/* Header with Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
             <div>
-              <h1 className="text-xl font-bold text-white">Knowledge Base</h1>
-              <p className="text-white/40 text-sm">Explore the Hypergraph RAG</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-gradient-sovereign mb-2">
+                Knowledge Base
+              </h1>
+              <p className="text-white/60">
+                Explore the Hypergraph RAG
+              </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            {graphStats && (
-              <div className="flex gap-4 text-sm">
-                <span className="text-white/40">
-                  <span className="text-amber-400 font-bold">{graphStats.total_nodes.toLocaleString()}</span> nodes
-                </span>
-                <span className="text-white/40">
-                  <span className="text-amber-400 font-bold">{graphStats.total_edges.toLocaleString()}</span> edges
-                </span>
-                <span className="text-white/40">
-                  <span className="text-amber-400 font-bold">{graphStats.total_concepts}</span> concepts
-                </span>
+            
+            {/* Stats */}
+            <div className="flex gap-4 text-sm">
+              <div className="glass-panel px-4 py-2 rounded-xl">
+                <span className="text-bizra-gold font-bold">{graphStats.total_nodes.toLocaleString()}</span>
+                <span className="text-white/40 ml-1">nodes</span>
               </div>
-            )}
-            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
-          </div>
-        </div>
-      </header>
+              <div className="glass-panel px-4 py-2 rounded-xl">
+                <span className="text-bizra-gold font-bold">{graphStats.total_edges.toLocaleString()}</span>
+                <span className="text-white/40 ml-1">edges</span>
+              </div>
+              <div className="glass-panel px-4 py-2 rounded-xl">
+                <span className="text-bizra-gold font-bold">{graphStats.total_concepts}</span>
+                <span className="text-white/40 ml-1">concepts</span>
+              </div>
+            </div>
+          </motion.div>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Search Section */}
-        <section className="mb-8">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search your knowledge... (e.g., 'consciousness architecture', 'SAPE orchestration')"
-              className="w-full px-6 py-4 bg-slate-800/50 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 transition-all text-lg"
-            />
-            <button
-              onClick={handleSearch}
-              disabled={loading}
-              className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl text-white font-medium hover:opacity-90 disabled:opacity-50 transition-all"
-            >
-              {loading ? 'Searching...' : 'Search'}
-            </button>
-          </div>
+          {/* Search Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8"
+          >
+            <GlassCard className="p-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Search your knowledge... (e.g., 'consciousness architecture', 'SAPE orchestration')"
+                  className="w-full pl-12 pr-32 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-bizra-gold focus:ring-1 focus:ring-bizra-gold/50 transition-all text-lg"
+                />
+                <button
+                  onClick={handleSearch}
+                  disabled={loading}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 btn-sovereign py-2 px-6"
+                >
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Search'}
+                </button>
+              </div>
 
-          {/* Domain filters */}
-          <div className="flex gap-2 mt-4 flex-wrap">
-            {DOMAINS.map((domain) => (
-              <button
-                key={domain.id}
-                onClick={() => setSelectedDomain(domain.id)}
-                className={`px-4 py-2 rounded-xl text-sm transition-all flex items-center gap-2 ${
-                  selectedDomain === domain.id
-                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                    : 'bg-slate-800/50 text-white/60 border border-white/10 hover:border-white/30'
-                }`}
+              {/* Domain Filters */}
+              <div className="flex gap-2 mt-4 flex-wrap">
+                {DOMAINS.map((domain) => (
+                  <button
+                    key={domain.id}
+                    onClick={() => setSelectedDomain(domain.id)}
+                    className={`px-4 py-2 rounded-xl text-sm transition-all flex items-center gap-2 ${
+                      selectedDomain === domain.id
+                        ? 'bg-bizra-gold/20 text-bizra-gold border border-bizra-gold/30'
+                        : 'bg-white/5 text-white/60 border border-white/10 hover:border-white/30'
+                    }`}
+                  >
+                    <domain.icon className={`w-4 h-4 ${selectedDomain === domain.id ? 'text-bizra-gold' : domain.color}`} />
+                    <span>{domain.name}</span>
+                  </button>
+                ))}
+              </div>
+            </GlassCard>
+          </motion.section>
+
+          {/* Quick Concepts */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <h2 className="text-white/60 text-sm font-medium mb-3 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              Popular Concepts
+            </h2>
+            <div className="flex gap-2 flex-wrap">
+              {TOP_CONCEPTS.map((concept) => (
+                <button
+                  key={concept}
+                  onClick={() => handleConceptClick(concept)}
+                  className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white/60 hover:text-bizra-gold hover:border-bizra-gold/30 transition-all text-sm flex items-center gap-1"
+                >
+                  <Hash className="w-3 h-3" />
+                  {concept}
+                </button>
+              ))}
+            </div>
+          </motion.section>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Search Results */}
+              <AnimatePresence>
+                {searchResults.length > 0 && (
+                  <motion.section
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <h2 className="text-white font-medium mb-4 flex items-center gap-2">
+                      <Search className="w-5 h-5 text-bizra-gold" />
+                      Search Results ({searchResults.length})
+                    </h2>
+                    <div className="space-y-3">
+                      {searchResults.map((result, index) => (
+                        <motion.div
+                          key={result.node_id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <GlassCard className="p-4 hover:border-bizra-gold/30 transition-all cursor-pointer group">
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{getFileIcon(result.path.split('.').pop() || '')}</span>
+                                <div>
+                                  <h3 className="text-white font-medium group-hover:text-bizra-gold transition-colors">
+                                    {result.path.split('/').pop()}
+                                  </h3>
+                                  <p className="text-white/40 text-sm font-mono">{result.path}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-md text-xs font-medium">
+                                  {Math.round(result.score * 100)}% match
+                                </span>
+                                <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-bizra-gold transition-colors" />
+                              </div>
+                            </div>
+                            <p className="text-white/60 text-sm mb-3">{result.preview}</p>
+                            <div className="flex gap-2 flex-wrap">
+                              {result.concepts.map((concept) => (
+                                <span
+                                  key={concept}
+                                  className="px-2 py-0.5 bg-bizra-gold/10 text-bizra-gold rounded text-xs"
+                                >
+                                  {concept}
+                                </span>
+                              ))}
+                            </div>
+                          </GlassCard>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.section>
+                )}
+              </AnimatePresence>
+
+              {/* Recent Files */}
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
               >
-                <span>{domain.icon}</span>
-                <span>{domain.name}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Quick Concepts */}
-        <section className="mb-8">
-          <h2 className="text-white/60 text-sm font-medium mb-3">Popular Concepts</h2>
-          <div className="flex gap-2 flex-wrap">
-            {TOP_CONCEPTS.map((concept) => (
-              <button
-                key={concept}
-                onClick={() => handleConceptClick(concept)}
-                className="px-3 py-1.5 bg-slate-800/50 border border-white/10 rounded-lg text-white/60 hover:text-amber-400 hover:border-amber-500/30 transition-all text-sm"
-              >
-                #{concept}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Search Results / Recent */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Search Results */}
-            {searchResults.length > 0 && (
-              <section>
                 <h2 className="text-white font-medium mb-4 flex items-center gap-2">
-                  <span>🔍</span>
-                  Search Results ({searchResults.length})
+                  <Clock className="w-5 h-5 text-white/60" />
+                  Recently Modified
                 </h2>
-                <div className="space-y-4">
-                  {searchResults.map((result) => (
-                    <motion.div
-                      key={result.node_id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-4 bg-slate-800/50 rounded-xl border border-white/10 hover:border-amber-500/30 transition-all group"
+                <div className="space-y-3">
+                  {recentNodes.map((node) => (
+                    <GlassCard
+                      key={node.id}
+                      className="p-4 hover:border-white/20 transition-all cursor-pointer"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="text-white font-medium group-hover:text-amber-400 transition-colors">
-                            {result.path.split('/').pop()}
-                          </h3>
-                          <p className="text-white/40 text-sm font-mono">{result.path}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{getFileIcon(node.extension)}</span>
+                          <div>
+                            <h3 className="text-white font-medium">{node.name}</h3>
+                            <p className="text-white/40 text-sm font-mono">{node.path}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-md text-xs">
-                            {Math.round(result.score * 100)}% match
+                        <div className="text-right">
+                          <span className="text-white/40 text-sm">
+                            {new Date(node.modified_at).toLocaleDateString()}
                           </span>
+                          <p className="text-white/30 text-xs">
+                            {(node.size_bytes / 1024).toFixed(1)} KB
+                          </p>
                         </div>
                       </div>
-                      <p className="text-white/60 text-sm mb-3">{result.preview}</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {result.concepts.map((concept) => (
-                          <span
-                            key={concept}
-                            className="px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded text-xs"
-                          >
-                            {concept}
-                          </span>
-                        ))}
-                      </div>
-                    </motion.div>
+                    </GlassCard>
                   ))}
                 </div>
-              </section>
-            )}
+              </motion.section>
+            </div>
 
-            {/* Recent Files */}
-            <section>
-              <h2 className="text-white font-medium mb-4 flex items-center gap-2">
-                <span>📂</span>
-                Recently Modified
-              </h2>
-              <div className="space-y-3">
-                {recentNodes.map((node) => (
-                  <div
-                    key={node.id}
-                    className="p-4 bg-slate-800/30 rounded-xl border border-white/5 hover:border-white/20 transition-all"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">
-                          {node.extension === '.rs'
-                            ? '🦀'
-                            : node.extension === '.py'
-                            ? '🐍'
-                            : node.extension === '.md'
-                            ? '📄'
-                            : '📁'}
-                        </span>
-                        <div>
-                          <h3 className="text-white font-medium">{node.name}</h3>
-                          <p className="text-white/40 text-sm font-mono">{node.path}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-white/40 text-sm">
-                          {new Date(node.modified_at).toLocaleDateString()}
-                        </span>
-                        <p className="text-white/30 text-xs">
-                          {(node.size_bytes / 1024).toFixed(1)} KB
-                        </p>
-                      </div>
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Graph Visualization */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+                    <Network className="w-5 h-5 text-bizra-gold" />
+                    Knowledge Graph
+                  </h3>
+                  <div className="aspect-square bg-bizra-navy/50 rounded-xl flex items-center justify-center border border-white/5 relative overflow-hidden">
+                    <SacredGeometryBackground intensity="medium" />
+                    <div className="text-center relative z-10">
+                      <BizraLogoAnimated size="lg" className="mx-auto mb-4" />
+                      <p className="text-white/40 text-sm">
+                        Graph visualization
+                        <br />
+                        coming soon
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </section>
-          </div>
+                </GlassCard>
+              </motion.div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Graph Visualization Placeholder */}
-            <section className="p-6 bg-slate-800/50 rounded-xl border border-white/10">
-              <h3 className="text-white font-medium mb-4 flex items-center gap-2">
-                <span>🕸️</span>
-                Knowledge Graph
-              </h3>
-              <div className="aspect-square bg-slate-900/50 rounded-lg flex items-center justify-center border border-white/5">
-                <div className="text-center">
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.1, 1],
-                      opacity: [0.5, 1, 0.5],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                    }}
-                    className="text-6xl mb-4"
-                  >
-                    🧬
-                  </motion.div>
-                  <p className="text-white/40 text-sm">
-                    Graph visualization
-                    <br />
-                    coming soon
-                  </p>
-                </div>
-              </div>
-            </section>
+              {/* Concept Cloud */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-bizra-gold" />
+                    Concept Cloud
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {TOP_CONCEPTS.map((concept, i) => (
+                      <motion.span
+                        key={concept}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.5 + i * 0.05 }}
+                        className="px-3 py-1.5 bg-gradient-to-r from-bizra-gold/10 to-orange-500/10 border border-bizra-gold/20 rounded-full text-bizra-gold text-sm cursor-pointer hover:bg-bizra-gold/20 transition-all"
+                        style={{ fontSize: `${Math.max(0.75, 1 - i * 0.03)}rem` }}
+                        onClick={() => handleConceptClick(concept)}
+                      >
+                        {concept}
+                      </motion.span>
+                    ))}
+                  </div>
+                </GlassCard>
+              </motion.div>
 
-            {/* Concept Cloud */}
-            <section className="p-6 bg-slate-800/50 rounded-xl border border-white/10">
-              <h3 className="text-white font-medium mb-4 flex items-center gap-2">
-                <span>☁️</span>
-                Concept Cloud
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {TOP_CONCEPTS.map((concept, i) => (
-                  <motion.span
-                    key={concept}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="px-3 py-1.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-full text-amber-400 text-sm cursor-pointer hover:bg-amber-500/20 transition-all"
-                    style={{
-                      fontSize: `${Math.max(0.75, 1 - i * 0.03)}rem`,
-                    }}
-                    onClick={() => handleConceptClick(concept)}
-                  >
-                    {concept}
-                  </motion.span>
-                ))}
-              </div>
-            </section>
-
-            {/* Quick Stats */}
-            <section className="p-6 bg-slate-800/50 rounded-xl border border-white/10">
-              <h3 className="text-white font-medium mb-4 flex items-center gap-2">
-                <span>📊</span>
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-white/60">Total Files</span>
-                  <span className="text-white font-mono">413,734</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Rust Files</span>
-                  <span className="text-white font-mono">2,847</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Python Files</span>
-                  <span className="text-white font-mono">12,391</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Markdown Docs</span>
-                  <span className="text-white font-mono">8,924</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Embeddings</span>
-                  <span className="text-white font-mono">1.2M</span>
-                </div>
-              </div>
-            </section>
+              {/* Quick Stats */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <GlassCard className="p-6">
+                  <h3 className="text-white font-medium mb-4 flex items-center gap-2">
+                    <Database className="w-5 h-5 text-bizra-gold" />
+                    Quick Stats
+                  </h3>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Total Files', value: '413,734' },
+                      { label: 'Rust Files', value: '2,847' },
+                      { label: 'Python Files', value: '12,391' },
+                      { label: 'Markdown Docs', value: '8,924' },
+                      { label: 'Embeddings', value: '1.2M' },
+                    ].map((stat) => (
+                      <div key={stat.label} className="flex justify-between">
+                        <span className="text-white/60">{stat.label}</span>
+                        <span className="text-white font-mono">{stat.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </GlassCard>
+              </motion.div>
+            </div>
           </div>
         </div>
       </main>

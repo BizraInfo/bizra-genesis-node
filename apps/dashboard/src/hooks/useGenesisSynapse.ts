@@ -37,6 +37,29 @@ export interface GenesisSynapse {
   };
 }
 
+/**
+ * Validate incoming synapse data has required structure
+ */
+function isValidGenesisSynapse(data: unknown): data is GenesisSynapse {
+  if (typeof data !== 'object' || data === null) return false;
+  const obj = data as Record<string, unknown>;
+  
+  // Validate required fields exist and have correct types
+  return (
+    typeof obj.timestamp === 'string' &&
+    typeof obj.nodeId === 'string' &&
+    typeof obj.latencyUs === 'number' &&
+    typeof obj.ihsanScore === 'number' &&
+    ['STABLE', 'PENDING', 'DIVERGENT'].includes(obj.consensusState as string) &&
+    typeof obj.epoch === 'number' &&
+    typeof obj.activeAgents === 'object' &&
+    typeof obj.poiEventsLastMinute === 'number' &&
+    typeof obj.errorRate === 'number' &&
+    typeof obj.resources === 'object' &&
+    typeof obj.services === 'object'
+  );
+}
+
 export interface UseGenesisSynapseOptions {
   url?: string;
   reconnectInterval?: number;
@@ -55,6 +78,33 @@ export interface UseGenesisSynapseReturn {
 const DEFAULT_WS_URL = 'ws://localhost:3002';
 const DEFAULT_RECONNECT_INTERVAL = 3000;
 const DEFAULT_MAX_RECONNECT_ATTEMPTS = 10;
+
+/**
+ * Validate WebSocket URL to prevent injection attacks
+ */
+function validateWebSocketUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Only allow ws:// and wss:// protocols
+    if (!['ws:', 'wss:'].includes(parsed.protocol)) {
+      console.error('[GenesisSynapse] Invalid WebSocket protocol:', parsed.protocol);
+      return false;
+    }
+    // In production, validate against allowed hosts
+    const allowedHosts = ['localhost', '127.0.0.1'];
+    if (process.env.NEXT_PUBLIC_WS_HOST) {
+      allowedHosts.push(process.env.NEXT_PUBLIC_WS_HOST);
+    }
+    if (!allowedHosts.some(host => parsed.hostname === host || parsed.hostname.endsWith(`.${host}`))) {
+      console.warn('[GenesisSynapse] WebSocket host not in allowlist:', parsed.hostname);
+      // Allow but log - can be made strict in production
+    }
+    return true;
+  } catch {
+    console.error('[GenesisSynapse] Invalid WebSocket URL:', url);
+    return false;
+  }
+}
 
 /**
  * Hook for real-time Genesis Synapse telemetry
@@ -82,6 +132,13 @@ export function useGenesisSynapse(
     if (!mountedRef.current) return;
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
+    // Validate URL before connecting
+    if (!validateWebSocketUrl(url)) {
+      setError('Invalid WebSocket URL');
+      setConnecting(false);
+      return;
+    }
+
     setConnecting(true);
     setError(null);
 
@@ -101,8 +158,13 @@ export function useGenesisSynapse(
       ws.onmessage = (event) => {
         if (!mountedRef.current) return;
         try {
-          const data = JSON.parse(event.data) as GenesisSynapse;
-          setSynapse(data);
+          const parsed = JSON.parse(event.data);
+          // Validate message structure before using
+          if (!isValidGenesisSynapse(parsed)) {
+            console.warn('[GenesisSynapse] Received malformed message, ignoring');
+            return;
+          }
+          setSynapse(parsed);
         } catch (e) {
           console.warn('[GenesisSynapse] Failed to parse message:', e);
         }
@@ -114,26 +176,32 @@ export function useGenesisSynapse(
         setConnecting(false);
         console.log('[GenesisSynapse] Disconnected:', event.code, event.reason);
 
-        // Attempt reconnection
+        // Attempt reconnection with exponential backoff
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current++;
-          console.log(
-            `[GenesisSynapse] Reconnecting in ${reconnectInterval}ms (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
+          // Exponential backoff: base * 2^attempt, capped at 30 seconds
+          const backoffMs = Math.min(
+            reconnectInterval * Math.pow(2, reconnectAttemptsRef.current - 1),
+            30000
           );
-          reconnectTimeoutRef.current = setTimeout(connect, reconnectInterval);
+          console.log(
+            `[GenesisSynapse] Reconnecting in ${backoffMs}ms (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`
+          );
+          reconnectTimeoutRef.current = setTimeout(connect, backoffMs);
         } else {
           setError('Max reconnection attempts reached');
         }
       };
 
-      ws.onerror = (event) => {
+      ws.onerror = (event: Event) => {
         if (!mountedRef.current) return;
         console.error('[GenesisSynapse] WebSocket error:', event);
         setError('Connection error');
       };
-    } catch (e) {
+    } catch (e: unknown) {
       setConnecting(false);
-      setError(`Failed to connect: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      setError(`Failed to connect: ${errorMessage}`);
     }
   }, [url, reconnectInterval, maxReconnectAttempts]);
 

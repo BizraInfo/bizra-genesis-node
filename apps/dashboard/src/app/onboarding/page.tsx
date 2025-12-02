@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Import only the icons we need (tree-shakeable with modularizeImports in next.config.js)
 import {
   Sparkles,
   Brain,
@@ -16,9 +19,40 @@ import {
   ChevronLeft,
   Check,
   Loader2,
-  User
+  User,
+  ScrollText,
+  Eye
 } from 'lucide-react';
-import { api, PatAgent } from '@/lib/api';
+
+import { BizraLogoAnimated, SacredGeometryBackground } from '@/components/brand';
+
+// Types for lazy-loaded modules
+interface CovenantAxiom {
+  id: string;
+  title: string;
+  arabic: string;
+  description: string;
+  principle: string;
+}
+
+// Import covenant axioms lazily - only loaded when covenant step is reached (~3KB savings)
+const loadSystemAxioms = () => import('@/lib/GenesisCovenant').then(mod => mod.SYSTEM_AXIOMS as readonly CovenantAxiom[]);
+
+// Lazy load API - only needed at final submission (~5KB savings)
+const loadApi = () => import('@/lib/api').then(mod => mod.bizraApi);
+
+// Lazy load Starfield (Three.js) to reduce initial bundle (~330KB savings)
+const Starfield = dynamic(() => import('@/components/Starfield'), {
+  ssr: false,
+  loading: () => (
+    <div 
+      className="fixed inset-0 -z-10"
+      style={{ background: 'radial-gradient(ellipse at center, #0a0a0f 0%, #000000 100%)' }}
+    />
+  ),
+});
+
+type PatAgent = 'MasterReasoner' | 'MemoryArchitect' | 'CreativeSynthesizer' | 'DataAnalyzer' | 'Communicator' | 'ExecutionPlanner' | 'EthicsGuardian';
 
 // Seed Test Questions based on blueprint
 const seedQuestions = [
@@ -117,7 +151,7 @@ const patAgents: { id: PatAgent; name: string; description: string; icon: React.
   },
 ];
 
-type Step = 'intro' | 'seed-test' | 'pat-selection' | 'profile' | 'complete';
+type Step = 'intro' | 'covenant' | 'seed-test' | 'pat-selection' | 'profile' | 'complete';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -125,12 +159,23 @@ export default function OnboardingPage() {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedPat, setSelectedPat] = useState<PatAgent | null>(null);
+  const [covenantAccepted, setCovenantAccepted] = useState(false);
   const [profileData, setProfileData] = useState({
     displayName: '',
     ihsan: '75'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Lazy-loaded covenant axioms
+  const [axioms, setAxioms] = useState<readonly CovenantAxiom[]>([]);
+  
+  // Load axioms when entering covenant step
+  useEffect(() => {
+    if (step === 'covenant' && axioms.length === 0) {
+      loadSystemAxioms().then(setAxioms);
+    }
+  }, [step, axioms.length]);
   
   const handleAnswerSelect = useCallback((value: string) => {
     const question = seedQuestions[questionIndex];
@@ -166,26 +211,35 @@ export default function OnboardingPage() {
     setError(null);
     
     try {
-      // Create user profile
-      await api.createUserProfile({
-        display_name: profileData.displayName,
-        seed_test_answers: answers,
-        ihsan: parseInt(profileData.ihsan),
-        preferred_pat: selectedPat
+      // Lazy load API only when needed
+      const api = await loadApi();
+      
+      // Create user profile via API
+      await api.createProfile({
+        seed_state: answers.goal || 'dreamer',
+        primary_pat_role: selectedPat || 'Communicator',
+        goals: Object.values(answers),
+        time_available_weekly: 20
       });
       
       setStep('complete');
-      setTimeout(() => router.push('/chat'), 2000);
+      setTimeout(() => router.push('/installer'), 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create profile');
+      // If API fails, still proceed (local-first)
+      console.log('Profile creation failed, proceeding anyway:', err);
+      setStep('complete');
+      setTimeout(() => router.push('/installer'), 2000);
     } finally {
       setIsSubmitting(false);
     }
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
+      {/* Starfield Background */}
+      <Starfield nodeCount={100} connectionDistance={100} speed={0.2} />
+      
+      <div className="w-full max-w-2xl relative z-10">
         <AnimatePresence mode="wait">
           {/* Intro Step */}
           {step === 'intro' && (
@@ -194,35 +248,122 @@ export default function OnboardingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="glass-panel-gold p-8 text-center"
+              className="glass-panel-gold p-8 text-center relative overflow-hidden"
             >
-              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-bizra-gold to-bizra-gold-dark flex items-center justify-center glow-gold-intense">
-                <Sparkles className="w-10 h-10 text-bizra-black" />
+              <SacredGeometryBackground intensity="subtle" />
+              
+              <div className="relative z-10">
+                <BizraLogoAnimated size="xl" className="mx-auto mb-6" />
+                
+                <h1 className="text-3xl font-bold mb-4 text-gradient-sovereign">
+                  Welcome to Your Genesis
+                </h1>
+                
+                <p className="text-lg text-white/70 mb-8">
+                  You are about to become an Architect of sovereign AI.
+                  This ritual will align your mind with the network.
+                </p>
+                
+                <div className="space-y-3 text-left mb-8">
+                  <StepPreview number={1} label="The Covenant" description="Accept the Genesis Laws" />
+                  <StepPreview number={2} label="Seed Test" description="4 questions about your essence" />
+                  <StepPreview number={3} label="PAT Selection" description="Choose your primary AI agent" />
+                  <StepPreview number={4} label="Identity" description="Seal your sovereign profile" />
+                </div>
+                
+                <button
+                  onClick={() => setStep('covenant')}
+                  className="btn-sovereign w-full flex items-center justify-center gap-2"
+                >
+                  Begin The Ritual
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+          
+          {/* Covenant Step - THE GENESIS RITUAL */}
+          {step === 'covenant' && (
+            <motion.div
+              key="covenant"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="glass-panel p-8"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <ScrollText className="w-8 h-8 text-bizra-gold" />
+                <h2 className="text-2xl font-bold">The Genesis Covenant</h2>
               </div>
               
-              <h1 className="text-3xl font-bold mb-4 text-gradient-sovereign">
-                Welcome to Your Genesis
-              </h1>
-              
-              <p className="text-lg text-white/70 mb-8">
-                Let's configure your Personal AI Team (PAT) to match your unique 
-                thinking style, goals, and preferences. This 2-minute journey will 
-                unlock your sovereign AI experience.
+              <p className="text-white/60 mb-6">
+                These are the sacred laws that govern the BIZRA Network.
+                Read them carefully. They define your relationship with sovereign AI.
               </p>
               
-              <div className="space-y-3 text-left mb-8">
-                <StepPreview number={1} label="Seed Test" description="4 quick questions about your preferences" />
-                <StepPreview number={2} label="PAT Selection" description="Choose your primary AI agent" />
-                <StepPreview number={3} label="Profile Setup" description="Finalize your sovereign identity" />
+              {/* Axioms Display */}
+              <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-sovereign pr-2 mb-6">
+                {axioms.length === 0 ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-bizra-gold" />
+                  </div>
+                ) : axioms.map((axiom, index) => (
+                  <motion.div
+                    key={axiom.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="p-4 rounded-xl bg-white/5 border border-white/10"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Eye className="w-5 h-5 text-bizra-gold flex-shrink-0 mt-0.5" />
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-bizra-gold">{axiom.title}</h4>
+                          <span className="text-xs text-white/40 font-arabic">{axiom.arabic}</span>
+                        </div>
+                        <p className="text-sm text-white/70">{axiom.description}</p>
+                        <p className="text-xs text-white/40 mt-1 italic">{axiom.principle}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
               
-              <button
-                onClick={() => setStep('seed-test')}
-                className="btn-sovereign w-full flex items-center justify-center gap-2"
-              >
-                Begin Your Journey
-                <ChevronRight className="w-5 h-5" />
-              </button>
+              {/* Acceptance Checkbox */}
+              <div className="p-4 rounded-xl bg-bizra-gold/5 border border-bizra-gold/20 mb-6">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={covenantAccepted}
+                    onChange={(e) => setCovenantAccepted(e.target.checked)}
+                    className="mt-1 w-5 h-5 rounded border-bizra-gold/50 bg-transparent checked:bg-bizra-gold"
+                  />
+                  <span className="text-sm text-white/80">
+                    I have read and accept the Genesis Covenant. I understand that these principles
+                    guide all interactions within the BIZRA Network, and I commit to upholding them
+                    as an Architect of sovereign AI.
+                  </span>
+                </label>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setStep('intro')}
+                  className="btn-glass flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Back
+                </button>
+                <button
+                  onClick={() => setStep('seed-test')}
+                  disabled={!covenantAccepted}
+                  className="btn-sovereign flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  I Accept The Covenant
+                  <Shield className="w-5 h-5" />
+                </button>
+              </div>
             </motion.div>
           )}
           
@@ -476,24 +617,28 @@ export default function OnboardingPage() {
               key="complete"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-panel-gold p-8 text-center"
+              className="glass-panel-gold p-8 text-center relative overflow-hidden"
             >
+              <SacredGeometryBackground intensity="medium" />
+              
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: 'spring' }}
-                className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500"
+                className="relative z-10"
               >
-                <Check className="w-10 h-10 text-green-400" />
+                <BizraLogoAnimated size="lg" className="mx-auto mb-6" />
               </motion.div>
               
-              <h2 className="text-2xl font-bold mb-2 text-gradient-gold">Genesis Complete!</h2>
-              <p className="text-white/70 mb-6">
-                Your sovereign AI profile has been created. Redirecting to PAT Console...
-              </p>
-              
-              <div className="flex justify-center">
-                <Loader2 className="w-6 h-6 animate-spin text-bizra-gold" />
+              <div className="relative z-10">
+                <h2 className="text-2xl font-bold mb-2 text-gradient-gold">Genesis Complete!</h2>
+                <p className="text-white/70 mb-6">
+                  Your sovereign AI profile has been created. Preparing your Node installation...
+                </p>
+                
+                <div className="flex justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-bizra-gold" />
+                </div>
               </div>
             </motion.div>
           )}

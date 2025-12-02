@@ -135,7 +135,7 @@ export default function ResourcesPage() {
     setIsSaving(true);
     setSaveSuccess(false);
     try {
-      await api.updateResourceAllocation(allocation);
+      await api.saveResourceAllocation(allocation);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
@@ -231,7 +231,7 @@ export default function ResourcesPage() {
                   <Cpu className="w-4 h-4 text-blue-400" />
                   <span className="text-xs text-white/50">CPU</span>
                 </div>
-                <p className="text-xl font-bold text-blue-400">{synapse.system.cpu_usage.toFixed(1)}%</p>
+                <p className="text-xl font-bold text-blue-400">{synapse.resources.cpuUsage.toFixed(1)}%</p>
               </div>
               <div className="p-3 rounded-lg bg-white/5">
                 <div className="flex items-center gap-2 mb-2">
@@ -239,7 +239,7 @@ export default function ResourcesPage() {
                   <span className="text-xs text-white/50">Memory</span>
                 </div>
                 <p className="text-xl font-bold text-purple-400">
-                  {((synapse.system.memory_used / synapse.system.memory_total) * 100).toFixed(1)}%
+                  {synapse.resources.memoryUsage.toFixed(1)}%
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-white/5">
@@ -247,14 +247,14 @@ export default function ResourcesPage() {
                   <Gauge className="w-4 h-4 text-green-400" />
                   <span className="text-xs text-white/50">GPU</span>
                 </div>
-                <p className="text-xl font-bold text-green-400">{synapse.system.gpu_usage.toFixed(1)}%</p>
+                <p className="text-xl font-bold text-green-400">{(synapse.resources.gpuUsage || 0).toFixed(1)}%</p>
               </div>
               <div className="p-3 rounded-lg bg-white/5">
                 <div className="flex items-center gap-2 mb-2">
                   <Database className="w-4 h-4 text-orange-400" />
-                  <span className="text-xs text-white/50">Disk</span>
+                  <span className="text-xs text-white/50">Latency</span>
                 </div>
-                <p className="text-xl font-bold text-orange-400">{synapse.system.disk_usage.toFixed(1)}%</p>
+                <p className="text-xl font-bold text-orange-400">{(synapse.latencyUs / 1000).toFixed(1)}ms</p>
               </div>
             </div>
           </motion.div>

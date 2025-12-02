@@ -17,6 +17,41 @@ export interface ApiResponse<T> {
 }
 
 /**
+ * PAT Agent Types
+ */
+export type PatAgent = 
+  | 'MasterReasoner'
+  | 'MemoryArchitect' 
+  | 'CreativeSynthesizer'
+  | 'DataAnalyzer'
+  | 'Communicator'
+  | 'ExecutionPlanner'
+  | 'EthicsGuardian';
+
+/**
+ * PAT Message for chat
+ */
+export interface PatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  agent?: PatAgent;
+}
+
+/**
+ * PAT Chat Response
+ */
+export interface PatResponse {
+  response: string;
+  primary_agent: PatAgent;
+  contributing_agents?: PatAgent[];
+  session_id?: string;
+  poi_generated?: number;
+  latency_ms: number;
+  ihsan_score: number;
+  backend_used: 'ollama' | 'lmstudio';
+}
+
+/**
  * User Profile
  */
 export interface UserProfile {
@@ -30,18 +65,18 @@ export interface UserProfile {
 }
 
 /**
- * PAT Agent
+ * PAT Agent Info
  */
-export interface PatAgent {
+export interface PatAgentInfo {
   role: string;
   model: string;
   description: string;
   available: boolean;
-  backend: 'ollama' | 'lmstudio';  // Which inference backend this agent uses
+  backend: 'ollama' | 'lmstudio';
 }
 
 /**
- * PAT Chat Response
+ * PAT Chat Response (legacy format)
  */
 export interface PatChatResponse {
   response: string;
@@ -50,6 +85,31 @@ export interface PatChatResponse {
   latency_ms: number;
   ihsan_score: number;
   backend_used: 'ollama' | 'lmstudio';
+}
+
+/**
+ * Plan Types
+ */
+export interface PlanTask {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  priority: 'high' | 'medium' | 'low';
+  category: string;
+  time_estimate_minutes?: number;
+  estimated_minutes?: number;
+  poi_points: number;
+  agent?: string;
+}
+
+export interface Plan {
+  id: string;
+  date: string;
+  tasks: PlanTask[];
+  focus_theme?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 /**
@@ -64,6 +124,9 @@ export interface PoiEvent {
   reward_imp: number;
   verified: boolean;
   timestamp: string;
+  description?: string | null;
+  duration_minutes?: number | null;
+  task_id?: string | null;
 }
 
 /**
@@ -77,6 +140,31 @@ export interface PoiStats {
   total_minutes: number;
   total_bzc: number;
   total_imp: number;
+}
+
+/**
+ * PoI Ledger Entry (for rewards page)
+ */
+export interface PoiLedgerEntry {
+  id: string;
+  type: string;
+  status: 'verified' | 'pending' | 'rejected';
+  reward_amount: number;
+  reward_type: string;
+  description: string;
+  timestamp: string;
+  verification_hash?: string;
+}
+
+/**
+ * Resource Allocation
+ */
+export interface ResourceAllocation {
+  compute_cores: number;
+  memory_gb: number;
+  storage_gb: number;
+  gpu_percentage: number;
+  bandwidth_mbps: number;
 }
 
 /**
@@ -132,6 +220,43 @@ export interface EnvSnapshot {
 }
 
 /**
+ * Asset Search Result
+ */
+export interface AssetSearchResult {
+  id: string;
+  path: string;
+  domain?: string;
+  name: string;
+  type: string;
+  size_bytes?: number;
+  created_at?: string;
+  relevance_score?: number;
+}
+
+/**
+ * Asset Statistics
+ */
+export interface AssetStats {
+  total_assets: number;
+  total_size_bytes: number;
+  by_domain: Record<string, number>;
+  by_type: Record<string, number>;
+  last_indexed_at?: string;
+}
+
+/**
+ * Health Check Response
+ */
+export interface HealthCheckResponse {
+  status: 'ok' | 'error' | 'healthy';
+  node_id?: string;
+  postgres?: boolean;
+  redis?: boolean;
+  ollama?: boolean;
+  uptime?: number;
+}
+
+/**
  * API Client class
  */
 class BizraApiClient {
@@ -154,12 +279,25 @@ class BizraApiClient {
         ...options,
       });
 
-      const data = await response.json();
+      // Check if response is ok before parsing
+      if (!response.ok) {
+        // Sanitize error message to avoid leaking internal server details
+        const sanitizedStatus = response.status >= 500 
+          ? 'Server error. Please try again later.'
+          : `Request failed (${response.status})`;
+        return {
+          success: false,
+          error: sanitizedStatus,
+        };
+      }
+
+      const data: ApiResponse<T> = await response.json();
       return data;
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         success: false,
-        error: `Request failed: ${error}`,
+        error: `Request failed: ${errorMessage}`,
       };
     }
   }
@@ -167,7 +305,11 @@ class BizraApiClient {
   // Health Check
   async getHealth(): Promise<{ status: string; node_id: string }> {
     const response = await fetch(`${this.baseUrl}/health`);
-    return response.json();
+    if (!response.ok) {
+      throw new Error(`Health check failed: HTTP ${response.status}`);
+    }
+    const data: { status: string; node_id: string } = await response.json();
+    return data;
   }
 
   // User Profile
@@ -188,21 +330,60 @@ class BizraApiClient {
   }
 
   // PAT (Personal Agent Team)
-  async getPatAgents(): Promise<ApiResponse<PatAgent[]>> {
-    return this.request<PatAgent[]>('/api/pat/agents');
+  async getPatAgents(): Promise<ApiResponse<PatAgentInfo[]>> {
+    return this.request<PatAgentInfo[]>('/api/pat/agents');
   }
 
   async patChat(
-    message: string,
+    messageOrOptions: string | {
+      message: string;
+      agent?: PatAgent;
+      session_id?: string;
+      context?: {
+        recent_messages?: { role: string; content: string }[];
+      };
+    },
     agentRole?: string
-  ): Promise<ApiResponse<PatChatResponse>> {
-    return this.request<PatChatResponse>('/api/pat/chat', {
+  ): Promise<PatResponse> {
+    // Handle both function signatures
+    let message: string;
+    let agent: string | undefined;
+    let session_id: string | undefined;
+    let context: Record<string, unknown> | undefined;
+
+    if (typeof messageOrOptions === 'string') {
+      message = messageOrOptions;
+      agent = agentRole;
+    } else {
+      message = messageOrOptions.message;
+      agent = messageOrOptions.agent;
+      session_id = messageOrOptions.session_id;
+      context = messageOrOptions.context;
+    }
+
+    const response = await this.request<PatResponse>('/api/pat/chat', {
       method: 'POST',
       body: JSON.stringify({
         message,
-        agent_role: agentRole,
+        agent_role: agent,
+        session_id,
+        context,
       }),
     });
+
+    // Return the data or throw if failed
+    if (response.success && response.data) {
+      return response.data;
+    }
+    
+    // Return a mock response for graceful fallback
+    return {
+      response: response.error || 'Connection to PAT failed. Please check if backend is running.',
+      primary_agent: (agent as PatAgent) || 'MasterReasoner',
+      latency_ms: 0,
+      ihsan_score: 0,
+      backend_used: 'ollama',
+    };
   }
 
   async configurePatAgent(primaryRole: string): Promise<ApiResponse<string>> {
@@ -210,6 +391,46 @@ class BizraApiClient {
       method: 'POST',
       body: JSON.stringify({ primary_role: primaryRole }),
     });
+  }
+
+  // Plan (Daily Planning)
+  async getDailyPlan(date: string): Promise<Plan | null> {
+    const response = await this.request<Plan>(`/api/plan/daily?date=${date}`);
+    return response.data || null;
+  }
+
+  async generateDailyPlan(options: {
+    date: string;
+    context?: Record<string, unknown>;
+  }): Promise<Plan | null> {
+    const response = await this.request<Plan>('/api/plan/generate', {
+      method: 'POST',
+      body: JSON.stringify(options),
+    });
+    return response.data || null;
+  }
+
+  async addTask(date: string, task: Partial<PlanTask>): Promise<Plan | null> {
+    const response = await this.request<Plan>('/api/plan/task', {
+      method: 'POST',
+      body: JSON.stringify({ date, task }),
+    });
+    return response.data || null;
+  }
+
+  async updateTask(taskId: string, updates: Partial<PlanTask>): Promise<Plan | null> {
+    const response = await this.request<Plan>(`/api/plan/task/${taskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+    return response.data || null;
+  }
+
+  async deleteTask(taskId: string): Promise<boolean> {
+    const response = await this.request<void>(`/api/plan/task/${taskId}`, {
+      method: 'DELETE',
+    });
+    return response.success;
   }
 
   // PoI (Proof-of-Impact)
@@ -240,9 +461,34 @@ class BizraApiClient {
     );
   }
 
+  async getPoiLedger(options: {
+    status?: string;
+    limit?: number;
+  }): Promise<PoiLedgerEntry[]> {
+    const params = new URLSearchParams();
+    if (options.status) params.append('status', options.status);
+    if (options.limit) params.append('limit', options.limit.toString());
+    
+    const response = await this.request<PoiLedgerEntry[]>(`/api/poi/ledger?${params.toString()}`);
+    return response.data || [];
+  }
+
   // Resource Pool
   async getResourceStatus(): Promise<ApiResponse<ResourceStatus>> {
     return this.request<ResourceStatus>('/api/resources/status');
+  }
+
+  async getResourcePool(): Promise<ResourceAllocation | null> {
+    const response = await this.request<ResourceAllocation>('/api/resources/pool');
+    return response.data || null;
+  }
+
+  async saveResourceAllocation(allocation: ResourceAllocation): Promise<boolean> {
+    const response = await this.request<void>('/api/resources/allocate', {
+      method: 'POST',
+      body: JSON.stringify(allocation),
+    });
+    return response.success;
   }
 
   async configureResources(config: {
@@ -281,52 +527,55 @@ class BizraApiClient {
   async searchAssets(
     query: string,
     limit: number = 10
-  ): Promise<ApiResponse<any[]>> {
-    return this.request<any[]>(
+  ): Promise<ApiResponse<AssetSearchResult[]>> {
+    return this.request<AssetSearchResult[]>(
       `/api/assets/search?q=${encodeURIComponent(query)}&limit=${limit}`
     );
   }
 
-  async getAssetStats(): Promise<ApiResponse<any>> {
-    return this.request<any>('/api/assets/stats');
+  async getAssetStats(): Promise<ApiResponse<AssetStats>> {
+    return this.request<AssetStats>('/api/assets/stats');
   }
 }
 
 // Export singleton instance
 export const bizraApi = new BizraApiClient();
 
-// Alias for backward compatibility
-export const api = {
-  ...bizraApi,
+/** Health check result type */
+export interface HealthCheckResult {
+  status: 'ok' | 'error';
+  node_id: string;
+  postgres: boolean;
+  redis: boolean;
+  ollama: boolean;
+  uptime: number;
+}
+
+// Extended API with additional helpers
+export const api = Object.assign(bizraApi, {
   // Health check alias for ops page
-  healthCheck: async () => {
+  healthCheck: async (): Promise<HealthCheckResult> => {
     try {
       const response = await fetch(`${API_BASE_URL}/health`);
-      const health = await response.json();
-      
-      // Also check individual services
-      let postgresOk = false;
-      let redisOk = false;
-      let ollamaOk = false;
-      
-      try {
-        // The backend /health endpoint returns service status
-        postgresOk = health.postgres !== false;
-        redisOk = health.redis !== false;
-        ollamaOk = health.ollama !== false;
-      } catch {
-        // Ignore individual service check failures
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
+      const health: HealthCheckResponse = await response.json();
+      
+      // Safely check individual services with proper null handling
+      const postgresOk = health.postgres ?? false;
+      const redisOk = health.redis ?? false;
+      const ollamaOk = health.ollama ?? false;
       
       return {
         status: health.status === 'ok' || health.status === 'healthy' ? 'ok' : 'error',
-        node_id: health.node_id || 'NODE0-TITAN',
+        node_id: health.node_id ?? 'NODE0-TITAN',
         postgres: postgresOk,
         redis: redisOk,
         ollama: ollamaOk,
-        uptime: health.uptime || 0,
+        uptime: health.uptime ?? 0,
       };
-    } catch (error) {
+    } catch (_error: unknown) {
       return {
         status: 'error',
         node_id: 'NODE0-TITAN',
@@ -337,7 +586,7 @@ export const api = {
       };
     }
   },
-};
+});
 
 // Export class for custom instances
 export default BizraApiClient;

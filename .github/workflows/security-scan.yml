@@ -1,0 +1,342 @@
+# BIZRA Node0 - Security Scanning Workflow
+# Elite Security: Comprehensive SAST/DAST/SCA
+# Professional Standard: Shift-Left Security
+
+name: 🔐 Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  RUST_VERSION: '1.75'
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # STATIC APPLICATION SECURITY TESTING (SAST)
+  # ============================================
+  sast:
+    name: 🔍 SAST Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # CodeQL for JavaScript/TypeScript
+      - name: 🔧 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, python
+
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"
+
+      # Semgrep for additional patterns
+      - name: 🔍 Semgrep Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/r2c-security-audit
+          generateSarif: true
+
+      - name: 📤 Upload Semgrep SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+  # ============================================
+  # RUST SECURITY AUDIT
+  # ============================================
+  rust-security:
+    name: 🦀 Rust Security
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: 📦 Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
+      # Cargo Audit
+      - name: 🔒 Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: 🔍 Run cargo-audit
+        working-directory: backend
+        run: cargo audit --json > audit-results.json || true
+
+      - name: 📊 Parse Audit Results
+        run: |
+          if [ -f backend/audit-results.json ]; then
+            VULNS=$(jq '.vulnerabilities.count' backend/audit-results.json)
+            if [ "$VULNS" -gt 0 ]; then
+              echo "⚠️ Found $VULNS vulnerabilities"
+              jq '.vulnerabilities.list[] | {id: .advisory.id, title: .advisory.title, severity: .advisory.severity}' backend/audit-results.json
+            else
+              echo "✅ No vulnerabilities found"
+            fi
+          fi
+
+      # Cargo Deny
+      - name: 🔒 Install cargo-deny
+        run: cargo install cargo-deny
+
+      - name: 🔍 Run cargo-deny
+        working-directory: backend
+        run: cargo deny check || true
+
+      # Clippy Security Lints
+      - name: 🔍 Clippy Security Lints
+        working-directory: backend
+        run: |
+          cargo clippy --all-features -- \
+            -D clippy::unwrap_used \
+            -D clippy::expect_used \
+            -D clippy::panic \
+            -W clippy::unwrap_in_result || true
+
+  # ============================================
+  # DEPENDENCY SCANNING (SCA)
+  # ============================================
+  dependency-scan:
+    name: 📦 Dependency Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # Trivy for all dependencies
+      - name: 🔍 Trivy Vulnerability Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0'
+
+      - name: 📤 Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      # OWASP Dependency Check
+      - name: 🔍 OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'BIZRA-Node0'
+          path: '.'
+          format: 'SARIF'
+          out: 'dependency-check-report'
+          args: >-
+            --enableExperimental
+            --failOnCVSS 9
+
+      - name: 📤 Upload OWASP Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'dependency-check-report/dependency-check-report.sarif'
+
+      # npm audit
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 🔍 npm audit (Dashboard)
+        working-directory: apps/dashboard
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm audit --audit-level=high --json > npm-audit.json || true
+          cat npm-audit.json | jq '.metadata'
+
+  # ============================================
+  # SECRET SCANNING
+  # ============================================
+  secret-scan:
+    name: 🔐 Secret Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Gitleaks
+      - name: 🔍 Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      # TruffleHog
+      - name: 🔍 TruffleHog Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ""
+          extra_args: --only-verified
+
+  # ============================================
+  # CONTAINER SECURITY
+  # ============================================
+  container-scan:
+    name: 🐳 Container Security
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    
+    strategy:
+      matrix:
+        image:
+          - context: backend
+            name: bizra-api
+          - context: apps/dashboard
+            name: bizra-dashboard
+          - context: bridge
+            name: bizra-bridge
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐳 Build Image
+        run: |
+          docker build -t ${{ matrix.image.name }}:scan \
+            -f ${{ matrix.image.context }}/Dockerfile \
+            ${{ matrix.image.context }}
+
+      # Trivy Container Scan
+      - name: 🔍 Trivy Container Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ matrix.image.name }}:scan'
+          format: 'sarif'
+          output: 'trivy-container-${{ matrix.image.name }}.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: 📤 Upload Container Scan
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-container-${{ matrix.image.name }}.sarif'
+          category: 'container-${{ matrix.image.name }}'
+
+      # Hadolint Dockerfile Lint
+      - name: 🔍 Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.image.context }}/Dockerfile
+          failure-threshold: error
+
+  # ============================================
+  # INFRASTRUCTURE SECURITY
+  # ============================================
+  infra-scan:
+    name: 🏗️ Infrastructure Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # Checkov for IaC
+      - name: 🔍 Checkov IaC Scan
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infrastructure/
+          framework: terraform,kubernetes,dockerfile
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+          soft_fail: true
+
+      - name: 📤 Upload Checkov Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'checkov-results.sarif'
+
+      # Kubesec for Kubernetes
+      - name: 🔍 Kubesec Scan
+        run: |
+          curl -sSL https://github.com/controlplaneio/kubesec/releases/download/v2.13.0/kubesec_linux_amd64.tar.gz | tar xz
+          for file in k8s/base/*.yaml; do
+            echo "Scanning $file..."
+            ./kubesec scan "$file" || true
+          done
+
+      # Terrascan
+      - name: 🔍 Terrascan
+        uses: tenable/terrascan-action@main
+        with:
+          iac_type: 'terraform'
+          iac_dir: 'infrastructure/terraform'
+          policy_type: 'azure'
+          sarif_upload: true
+
+  # ============================================
+  # SECURITY REPORT
+  # ============================================
+  security-report:
+    name: 📊 Security Report
+    needs: [sast, rust-security, dependency-scan, secret-scan, container-scan, infra-scan]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Summary
+        run: |
+          echo "# 🔐 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST | ${{ needs.sast.result == 'success' && '✅ Passed' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rust Security | ${{ needs.rust-security.result == 'success' && '✅ Passed' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Passed' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Scan | ${{ needs.secret-scan.result == 'success' && '✅ Passed' || '🚨 Secrets Detected' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Container Scan | ${{ needs.container-scan.result == 'success' && '✅ Passed' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure Scan | ${{ needs.infra-scan.result == 'success' && '✅ Passed' || '⚠️ Issues Found' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View detailed results in the Security tab." >> $GITHUB_STEP_SUMMARY

@@ -3,48 +3,54 @@
 @tailwind utilities;
 
 :root {
-  /* BIZRA Sovereign Brand Colors */
-  --bizra-gold: #D4AF37;
-  --bizra-gold-light: #F4E4B5;
-  --bizra-gold-dark: #8B7355;
+  /* BIZRA Genesis Brand Identity - MoMo's Vision (Ramadan 2023) */
+  /* Primary: Gold #C9A962 | Navy #050B14 | Teal #2A9D8F */
   
-  --bizra-black: #0A0A0A;
-  --bizra-dark: #121212;
-  --bizra-surface: #1A1A1A;
-  --bizra-border: #2A2A2A;
+  --bizra-gold: 201 169 98;           /* #C9A962 - The Sacred Gold */
+  --bizra-gold-light: 212 184 117;    /* #D4B875 - Light Gold */
+  --bizra-gold-dark: 176 141 69;      /* #B08D45 - Dark Gold */
   
-  --bizra-primary: #D4AF37;
-  --bizra-secondary: #8B7355;
-  --bizra-accent: #F4E4B5;
+  --bizra-black: 5 11 20;             /* #050B14 - The Darkness (Navy Black) */
+  --bizra-dark: 10 22 40;             /* #0A1628 - Navy Dark */
+  --bizra-surface: 17 31 51;          /* #111F33 - Navy Surface */
+  --bizra-border: 255 255 255;        /* White with opacity */
+  
+  --bizra-teal: 42 157 143;           /* #2A9D8F - The Teal Accent */
+  --bizra-teal-dark: 33 134 122;      /* #21867A - Dark Teal */
+  
+  --bizra-primary: 201 169 98;
+  --bizra-secondary: 42 157 143;
+  --bizra-accent: 212 184 117;
   
   /* Status Colors */
-  --status-success: #10B981;
-  --status-warning: #F59E0B;
-  --status-error: #EF4444;
-  --status-info: #3B82F6;
+  --status-success: 42 157 143;       /* Teal for success */
+  --status-warning: 245 158 11;
+  --status-error: 239 68 68;
+  --status-info: 59 130 246;
   
   /* PAT Agent Colors */
-  --pat-master-reasoner: #8B5CF6;
-  --pat-memory-architect: #06B6D4;
-  --pat-creative-synthesizer: #F43F5E;
-  --pat-data-analyzer: #22C55E;
-  --pat-communicator: #3B82F6;
-  --pat-execution-planner: #F97316;
-  --pat-ethics-guardian: #D4AF37;
+  --pat-master-reasoner: 201 169 98;  /* Gold - Primary */
+  --pat-memory-architect: 42 157 143; /* Teal */
+  --pat-creative-synthesizer: 168 85 247;
+  --pat-data-analyzer: 42 157 143;
+  --pat-communicator: 59 130 246;
+  --pat-execution-planner: 249 115 22;
+  --pat-ethics-guardian: 201 169 98;
 }
 
 @layer base {
   * {
-    @apply border-[--bizra-border];
+    @apply border-bizra-border;
   }
   
   body {
-    @apply bg-[--bizra-black] text-white antialiased;
+    @apply bg-bizra-black text-white antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   ::selection {
-    @apply bg-[--bizra-gold]/30 text-[--bizra-gold-light];
+    background-color: rgb(var(--bizra-gold) / 0.3);
+    color: rgb(var(--bizra-gold-light));
   }
 }
 
@@ -57,9 +63,10 @@
   }
   
   .glass-panel-gold {
-    @apply bg-gradient-to-br from-[--bizra-gold]/5 to-transparent 
-           backdrop-blur-xl border border-[--bizra-gold]/20 
-           rounded-2xl shadow-2xl shadow-[--bizra-gold]/5;
+    @apply backdrop-blur-xl rounded-2xl shadow-2xl;
+    background: linear-gradient(to bottom right, rgb(var(--bizra-gold) / 0.05), transparent);
+    border: 1px solid rgb(var(--bizra-gold) / 0.2);
+    box-shadow: 0 25px 50px -12px rgb(var(--bizra-gold) / 0.05);
   }
   
   /* Sovereign glow effects */
@@ -94,8 +101,8 @@
   .synapse-line {
     background: linear-gradient(90deg, 
       transparent, 
-      var(--bizra-gold) 20%, 
-      var(--bizra-gold) 80%, 
+      rgb(var(--bizra-gold)) 20%, 
+      rgb(var(--bizra-gold)) 80%, 
       transparent);
     height: 1px;
     animation: synapse-flow 3s linear infinite;
@@ -108,48 +115,76 @@
   
   /* Text gradients */
   .text-gradient-gold {
-    @apply bg-gradient-to-r from-[--bizra-gold-light] via-[--bizra-gold] to-[--bizra-gold-dark]
-           bg-clip-text text-transparent;
+    background: linear-gradient(to right, rgb(var(--bizra-gold-light)), rgb(var(--bizra-gold)), rgb(var(--bizra-gold-dark)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   .text-gradient-sovereign {
-    @apply bg-gradient-to-r from-[--bizra-gold] via-[--bizra-accent] to-[--bizra-gold]
-           bg-clip-text text-transparent;
+    background: linear-gradient(to right, rgb(var(--bizra-gold)), rgb(var(--bizra-accent)), rgb(var(--bizra-gold)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   /* Button variants */
   .btn-sovereign {
-    @apply bg-gradient-to-r from-[--bizra-gold-dark] via-[--bizra-gold] to-[--bizra-gold-dark]
-           text-[--bizra-black] font-semibold px-6 py-3 rounded-xl
-           hover:shadow-lg hover:shadow-[--bizra-gold]/30
-           transition-all duration-300 ease-out
-           active:scale-95;
+    background: linear-gradient(to right, rgb(var(--bizra-gold-dark)), rgb(var(--bizra-gold)), rgb(var(--bizra-gold-dark)));
+    color: rgb(var(--bizra-black));
+    @apply font-semibold px-6 py-3 rounded-xl transition-all duration-300 ease-out active:scale-95;
+  }
+  
+  .btn-sovereign:hover {
+    box-shadow: 0 10px 15px -3px rgb(var(--bizra-gold) / 0.3);
   }
   
   .btn-glass {
-    @apply glass-panel px-6 py-3 text-white
-           hover:border-[--bizra-gold]/50 hover:text-[--bizra-gold]
-           transition-all duration-300 ease-out;
+    @apply glass-panel px-6 py-3 text-white transition-all duration-300 ease-out;
+  }
+  
+  .btn-glass:hover {
+    border-color: rgb(var(--bizra-gold) / 0.5);
+    color: rgb(var(--bizra-gold));
   }
   
   /* Card hover effects */
   .card-hover {
-    @apply transition-all duration-300 ease-out
-           hover:transform hover:-translate-y-1
-           hover:shadow-xl hover:shadow-[--bizra-gold]/10
-           hover:border-[--bizra-gold]/30;
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(var(--bizra-gold) / 0.1);
+    border-color: rgb(var(--bizra-gold) / 0.3);
   }
   
   /* Status badges */
-  .badge-success { @apply bg-[--status-success]/20 text-[--status-success] border-[--status-success]/30; }
-  .badge-warning { @apply bg-[--status-warning]/20 text-[--status-warning] border-[--status-warning]/30; }
-  .badge-error { @apply bg-[--status-error]/20 text-[--status-error] border-[--status-error]/30; }
-  .badge-info { @apply bg-[--status-info]/20 text-[--status-info] border-[--status-info]/30; }
+  .badge-success { 
+    background-color: rgb(var(--status-success) / 0.2);
+    color: rgb(var(--status-success));
+    border-color: rgb(var(--status-success) / 0.3);
+  }
+  .badge-warning { 
+    background-color: rgb(var(--status-warning) / 0.2);
+    color: rgb(var(--status-warning));
+    border-color: rgb(var(--status-warning) / 0.3);
+  }
+  .badge-error { 
+    background-color: rgb(var(--status-error) / 0.2);
+    color: rgb(var(--status-error));
+    border-color: rgb(var(--status-error) / 0.3);
+  }
+  .badge-info { 
+    background-color: rgb(var(--status-info) / 0.2);
+    color: rgb(var(--status-info));
+    border-color: rgb(var(--status-info) / 0.3);
+  }
   
   /* Scrollbar styling */
   .scrollbar-sovereign {
     scrollbar-width: thin;
-    scrollbar-color: var(--bizra-gold) transparent;
+    scrollbar-color: rgb(var(--bizra-gold)) transparent;
   }
   
   .scrollbar-sovereign::-webkit-scrollbar {
@@ -162,12 +197,12 @@
   }
   
   .scrollbar-sovereign::-webkit-scrollbar-thumb {
-    background: var(--bizra-gold);
+    background: rgb(var(--bizra-gold) / 0.6);
     border-radius: 3px;
   }
   
   .scrollbar-sovereign::-webkit-scrollbar-thumb:hover {
-    background: var(--bizra-gold-light);
+    background: rgb(var(--bizra-gold-light));
   }
 }
 
@@ -183,11 +218,11 @@
   /* Animated border */
   .animated-border {
     background: linear-gradient(90deg, 
-      var(--bizra-gold), 
-      var(--bizra-gold-light), 
-      var(--bizra-gold), 
-      var(--bizra-gold-dark), 
-      var(--bizra-gold));
+      rgb(var(--bizra-gold)), 
+      rgb(var(--bizra-gold-light)), 
+      rgb(var(--bizra-gold)), 
+      rgb(var(--bizra-gold-dark)), 
+      rgb(var(--bizra-gold)));
     background-size: 200% 100%;
     animation: border-flow 3s linear infinite;
   }

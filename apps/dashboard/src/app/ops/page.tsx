@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Activity,
@@ -31,7 +31,7 @@ interface ServiceStatus {
 }
 
 export default function OpsPage() {
-  const { synapse, status: wsStatus, connectionStatus } = useGenesisSynapse();
+  const { synapse, connected, connecting, error: wsError } = useGenesisSynapse();
   const [services, setServices] = useState<ServiceStatus[]>([
     { name: 'Rust Backend', status: 'healthy' },
     { name: 'PostgreSQL', status: 'healthy' },
@@ -48,13 +48,7 @@ export default function OpsPage() {
     last_check: string;
   } | null>(null);
   
-  useEffect(() => {
-    checkHealth();
-    const interval = setInterval(checkHealth, 30000);
-    return () => clearInterval(interval);
-  }, []);
-  
-  const checkHealth = async () => {
+  const checkHealth = useCallback(async () => {
     setIsLoading(true);
     try {
       const health = await api.healthCheck();
@@ -81,8 +75,8 @@ export default function OpsPage() {
         if (service.name === 'Telemetry Bridge') {
           return { 
             ...service, 
-            status: connectionStatus === 'connected' ? 'healthy' : 
-                    connectionStatus === 'connecting' ? 'degraded' : 'down'
+            status: connected ? 'healthy' : 
+                    connecting ? 'degraded' : 'down'
           };
         }
         return service;
@@ -101,7 +95,13 @@ export default function OpsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [connected, connecting]);
+  
+  useEffect(() => {
+    checkHealth();
+    const interval = setInterval(checkHealth, 30000);
+    return () => clearInterval(interval);
+  }, [checkHealth]);
   
   const getStatusIcon = (status: ServiceStatus['status']) => {
     switch (status) {
@@ -222,9 +222,9 @@ export default function OpsPage() {
                 Live Genesis Synapse
               </h3>
               <span className={`text-xs px-2 py-1 rounded-full ${
-                connectionStatus === 'connected' ? 'badge-success' : 'badge-warning'
+                connected ? 'badge-success' : 'badge-warning'
               }`}>
-                {connectionStatus}
+                {connected ? 'connected' : connecting ? 'connecting' : 'disconnected'}
               </span>
             </div>
             
@@ -232,45 +232,45 @@ export default function OpsPage() {
               <MetricCard
                 icon={Cpu}
                 label="CPU Usage"
-                value={`${synapse.system.cpu_usage.toFixed(1)}%`}
-                color={synapse.system.cpu_usage > 80 ? 'text-yellow-400' : 'text-blue-400'}
+                value={`${synapse.resources.cpuUsage.toFixed(1)}%`}
+                color={synapse.resources.cpuUsage > 80 ? 'text-yellow-400' : 'text-blue-400'}
               />
               <MetricCard
                 icon={HardDrive}
                 label="Memory"
-                value={`${synapse.system.memory_used.toFixed(1)} / ${synapse.system.memory_total.toFixed(0)} GB`}
+                value={`${synapse.resources.memoryUsage.toFixed(1)}%`}
                 color="text-purple-400"
               />
               <MetricCard
                 icon={Box}
                 label="GPU Usage"
-                value={`${synapse.system.gpu_usage.toFixed(1)}%`}
-                color={synapse.system.gpu_usage > 90 ? 'text-yellow-400' : 'text-green-400'}
+                value={`${(synapse.resources.gpuUsage || 0).toFixed(1)}%`}
+                color={(synapse.resources.gpuUsage || 0) > 90 ? 'text-yellow-400' : 'text-green-400'}
               />
               <MetricCard
                 icon={Database}
-                label="Disk Usage"
-                value={`${synapse.system.disk_usage.toFixed(1)}%`}
+                label="Latency"
+                value={`${(synapse.latencyUs / 1000).toFixed(1)}ms`}
                 color="text-orange-400"
               />
             </div>
             
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-3 rounded-lg bg-white/5 text-center">
-                <p className="text-2xl font-bold text-bizra-gold">{synapse.agents.pat_active}</p>
+                <p className="text-2xl font-bold text-bizra-gold">{synapse.activeAgents.PAT}</p>
                 <p className="text-xs text-white/50">Active PAT Agents</p>
               </div>
               <div className="p-3 rounded-lg bg-white/5 text-center">
-                <p className="text-2xl font-bold text-cyan-400">{synapse.agents.sat_active}</p>
+                <p className="text-2xl font-bold text-cyan-400">{synapse.activeAgents.SAT}</p>
                 <p className="text-xs text-white/50">Active SAT Agents</p>
               </div>
               <div className="p-3 rounded-lg bg-white/5 text-center">
-                <p className="text-2xl font-bold text-yellow-400">{synapse.poi.pending}</p>
-                <p className="text-xs text-white/50">Pending PoI</p>
+                <p className="text-2xl font-bold text-yellow-400">{synapse.poiEventsLastMinute}</p>
+                <p className="text-xs text-white/50">PoI Events/min</p>
               </div>
               <div className="p-3 rounded-lg bg-white/5 text-center">
-                <p className="text-2xl font-bold text-green-400">{synapse.poi.verified}</p>
-                <p className="text-xs text-white/50">Verified PoI</p>
+                <p className="text-2xl font-bold text-green-400">{(synapse.ihsanScore * 100).toFixed(0)}%</p>
+                <p className="text-xs text-white/50">Ihsan Score</p>
               </div>
             </div>
           </motion.div>

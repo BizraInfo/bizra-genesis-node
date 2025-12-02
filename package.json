@@ -11,6 +11,14 @@
     "apps/*",
     "packages/*"
   ],
+  "overrides": {
+    "glob": "^11.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "glob": "^11.0.0"
+    }
+  },
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",

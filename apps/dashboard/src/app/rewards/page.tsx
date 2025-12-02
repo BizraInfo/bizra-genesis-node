@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Coins,
@@ -18,7 +18,7 @@ import {
   Filter,
   RefreshCw
 } from 'lucide-react';
-import { api, PoiEvent } from '@/lib/api';
+import { api, PoiLedgerEntry } from '@/lib/api';
 import { useGenesisSynapse } from '@/hooks/useGenesisSynapse';
 
 type TimeFilter = '24h' | '7d' | '30d' | 'all';
@@ -26,7 +26,7 @@ type StatusFilter = 'all' | 'pending' | 'verified' | 'rejected';
 
 export default function RewardsPage() {
   const { synapse } = useGenesisSynapse();
-  const [events, setEvents] = useState<PoiEvent[]>([]);
+  const [events, setEvents] = useState<PoiLedgerEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('7d');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -39,11 +39,7 @@ export default function RewardsPage() {
     growth_rate: 0,
   });
   
-  useEffect(() => {
-    loadData();
-  }, [timeFilter, statusFilter]);
-  
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await api.getPoiLedger({
@@ -71,7 +67,11 @@ export default function RewardsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [statusFilter]);
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData, timeFilter]);
   
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -179,16 +179,16 @@ export default function RewardsPage() {
             
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 rounded-xl bg-white/5">
-                <p className="text-3xl font-bold text-yellow-400">{synapse.poi.pending}</p>
-                <p className="text-xs text-white/50 mt-1">Pending Verification</p>
+                <p className="text-3xl font-bold text-yellow-400">{synapse.poiEventsLastMinute}</p>
+                <p className="text-xs text-white/50 mt-1">Events/Minute</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-white/5">
-                <p className="text-3xl font-bold text-green-400">{synapse.poi.verified}</p>
-                <p className="text-xs text-white/50 mt-1">Verified Today</p>
+                <p className="text-3xl font-bold text-green-400">{(synapse.ihsanScore * 100).toFixed(0)}%</p>
+                <p className="text-xs text-white/50 mt-1">Ihsan Score</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-white/5">
-                <p className="text-3xl font-bold text-bizra-gold">{synapse.poi.rewards_pending.toFixed(2)}</p>
-                <p className="text-xs text-white/50 mt-1">Rewards Queue</p>
+                <p className="text-3xl font-bold text-bizra-gold">{synapse.epoch}</p>
+                <p className="text-xs text-white/50 mt-1">Current Epoch</p>
               </div>
             </div>
           </motion.div>
@@ -275,9 +275,9 @@ export default function RewardsPage() {
                         {getStatusIcon(event.status)}
                       </div>
                       <div>
-                        <p className="font-medium">{getEventTypeLabel(event.event_type)}</p>
+                        <p className="font-medium">{getEventTypeLabel(event.type)}</p>
                         <p className="text-sm text-white/50 mt-0.5">
-                          {event.description || `${event.event_type} contribution`}
+                          {event.description || `${event.type} contribution`}
                         </p>
                         <div className="flex items-center gap-3 mt-2 text-xs text-white/40">
                           <span className="flex items-center gap-1">

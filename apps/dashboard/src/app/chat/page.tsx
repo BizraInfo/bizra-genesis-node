@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
@@ -15,7 +16,6 @@ import {
   Target,
   Shield,
   RotateCcw,
-  Settings,
   Maximize2,
   Minimize2,
   Copy,
@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { api, PatAgent, PatMessage, PatResponse } from '@/lib/api';
 import { useGenesisSynapse } from '@/hooks/useGenesisSynapse';
+import { BizraLogoAnimated, GridBackground } from '@/components/brand';
 
 const patAgentMeta: Record<PatAgent, { icon: React.ElementType; color: string; gradient: string }> = {
   MasterReasoner: { icon: Brain, color: 'text-purple-400', gradient: 'from-purple-500/20 to-purple-500/5' },
@@ -47,7 +48,7 @@ interface ChatMessage {
 }
 
 export default function ChatPage() {
-  const { synapse, status } = useGenesisSynapse();
+  const { synapse, connected } = useGenesisSynapse();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -143,10 +144,14 @@ export default function ChatPage() {
   
   return (
     <div className={`min-h-screen flex flex-col ${isExpanded ? 'fixed inset-0 z-50 bg-bizra-black' : ''}`}>
+      <GridBackground />
       {/* Header */}
       <header className="glass-panel border-t-0 border-x-0 rounded-none sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <Link href="/landing" className="flex items-center gap-2">
+              <BizraLogoAnimated size="sm" />
+            </Link>
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${patAgentMeta[selectedAgent].gradient} flex items-center justify-center border border-white/10`}>
               {(() => {
                 const Icon = patAgentMeta[selectedAgent].icon;
@@ -168,21 +173,27 @@ export default function ChatPage() {
           
           <div className="flex items-center gap-2">
             {/* Agent Selector */}
-            <div className="hidden md:flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
+            <div 
+              className="hidden md:flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10"
+              role="toolbar"
+              aria-label="Select PAT agent"
+            >
               {(Object.keys(patAgentMeta) as PatAgent[]).map((agent) => {
                 const Icon = patAgentMeta[agent].icon;
+                const isSelected = selectedAgent === agent;
                 return (
                   <button
                     key={agent}
                     onClick={() => setSelectedAgent(agent)}
-                    className={`p-2 rounded-md transition-all ${
-                      selectedAgent === agent 
+                    aria-label={`Select ${agent} agent${isSelected ? ' (currently selected)' : ''}`}
+                    aria-pressed={isSelected}
+                    className={`p-2 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-bizra-gold focus:ring-offset-1 focus:ring-offset-bizra-black ${
+                      isSelected 
                         ? `${patAgentMeta[agent].color} bg-white/10` 
                         : 'text-white/30 hover:text-white/60'
                     }`}
-                    title={agent}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4" aria-hidden="true" />
                   </button>
                 );
               })}
@@ -190,25 +201,31 @@ export default function ChatPage() {
             
             <button
               onClick={clearChat}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
-              title="Clear chat"
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-bizra-gold focus:ring-offset-1 focus:ring-offset-bizra-black"
+              aria-label="Clear chat history and start new session"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4" aria-hidden="true" />
             </button>
             
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white"
-              title={isExpanded ? 'Exit fullscreen' : 'Fullscreen'}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/50 hover:text-white focus:outline-none focus:ring-2 focus:ring-bizra-gold focus:ring-offset-1 focus:ring-offset-bizra-black"
+              aria-label={isExpanded ? 'Exit fullscreen mode' : 'Enter fullscreen mode'}
+              aria-expanded={isExpanded}
             >
-              {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              {isExpanded ? <Minimize2 className="w-4 h-4" aria-hidden="true" /> : <Maximize2 className="w-4 h-4" aria-hidden="true" />}
             </button>
           </div>
         </div>
       </header>
       
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto scrollbar-sovereign">
+      <div 
+        className="flex-1 overflow-y-auto scrollbar-sovereign"
+        role="log"
+        aria-live="polite"
+        aria-label="Chat messages"
+      >
         <div className="max-w-3xl mx-auto px-4 py-6">
           {/* Welcome message */}
           {messages.length === 0 && (
@@ -227,7 +244,11 @@ export default function ChatPage() {
               </p>
               
               {/* Quick prompts */}
-              <div className="flex flex-wrap justify-center gap-2">
+              <div 
+                className="flex flex-wrap justify-center gap-2"
+                role="group"
+                aria-label="Suggested prompts to get started"
+              >
                 {[
                   'Help me plan my day',
                   'Analyze this data',
@@ -240,7 +261,8 @@ export default function ChatPage() {
                       setInput(prompt);
                       inputRef.current?.focus();
                     }}
-                    className="px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 hover:border-bizra-gold/50 hover:text-bizra-gold transition-all"
+                    className="px-4 py-2 rounded-full text-sm bg-white/5 border border-white/10 hover:border-bizra-gold/50 hover:text-bizra-gold transition-all focus:outline-none focus:ring-2 focus:ring-bizra-gold focus:ring-offset-1 focus:ring-offset-bizra-black"
+                    aria-label={`Use prompt: ${prompt}`}
                   >
                     {prompt}
                   </button>
@@ -310,12 +332,13 @@ export default function ChatPage() {
                         {message.role === 'assistant' && (
                           <button
                             onClick={() => copyToClipboard(message.id, message.content)}
-                            className="p-1 rounded hover:bg-white/10 transition-colors text-white/30 hover:text-white"
+                            className="p-1 rounded hover:bg-white/10 transition-colors text-white/30 hover:text-white focus:outline-none focus:ring-2 focus:ring-bizra-gold"
+                            aria-label={copiedId === message.id ? 'Message copied to clipboard' : 'Copy message to clipboard'}
                           >
                             {copiedId === message.id ? (
-                              <Check className="w-3 h-3 text-green-400" />
+                              <Check className="w-3 h-3 text-green-400" aria-hidden="true" />
                             ) : (
-                              <Copy className="w-3 h-3" />
+                              <Copy className="w-3 h-3" aria-hidden="true" />
                             )}
                           </button>
                         )}
@@ -376,8 +399,10 @@ export default function ChatPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-3"
+              role="alert"
+              aria-live="assertive"
             >
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <p className="text-red-400 font-medium">Error</p>
                 <p className="text-sm text-white/70">{error}</p>
@@ -395,9 +420,9 @@ export default function ChatPage() {
           {/* System status */}
           {synapse && (
             <div className="flex items-center gap-4 text-xs text-white/30 mb-3">
-              <span>CPU: {synapse.system.cpu_usage.toFixed(0)}%</span>
-              <span>GPU: {synapse.system.gpu_usage.toFixed(0)}%</span>
-              <span className="text-bizra-gold">PAT Active: {synapse.agents.pat_active}</span>
+              <span>CPU: {synapse.resources.cpuUsage.toFixed(0)}%</span>
+              <span>GPU: {(synapse.resources.gpuUsage || 0).toFixed(0)}%</span>
+              <span className="text-bizra-gold">PAT Active: {synapse.activeAgents.PAT}</span>
             </div>
           )}
           

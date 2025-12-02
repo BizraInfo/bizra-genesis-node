@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -28,11 +28,7 @@ export default function PlanPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [newTask, setNewTask] = useState('');
   
-  useEffect(() => {
-    loadPlan();
-  }, [currentDate]);
-  
-  const loadPlan = async () => {
+  const loadPlan = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await api.getDailyPlan(currentDate.toISOString().split('T')[0]);
@@ -43,7 +39,11 @@ export default function PlanPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentDate]);
+  
+  useEffect(() => {
+    loadPlan();
+  }, [loadPlan]);
   
   const generatePlan = async () => {
     setIsGenerating(true);
@@ -82,7 +82,9 @@ export default function PlanPage() {
       title: newTask.trim(),
       completed: false,
       priority: 'medium',
-      estimated_minutes: 30,
+      category: 'general',
+      time_estimate_minutes: 30,
+      poi_points: 10,
     };
     
     setPlan({ ...plan, tasks: [...plan.tasks, task] });
@@ -239,12 +241,12 @@ export default function PlanPage() {
               />
             </div>
             
-            {plan.focus_area && (
+            {plan.focus_theme && (
               <div className="mt-4 pt-4 border-t border-white/10">
                 <div className="flex items-center gap-2 text-sm">
                   <Target className="w-4 h-4 text-bizra-gold" />
-                  <span className="text-white/50">Focus Area:</span>
-                  <span className="text-white">{plan.focus_area}</span>
+                  <span className="text-white/50">Focus Theme:</span>
+                  <span className="text-white">{plan.focus_theme}</span>
                 </div>
               </div>
             )}

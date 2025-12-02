@@ -1,0 +1,9 @@
+tunnel: [YOUR-TUNNEL-UUID-WILL-GO-HERE]
+credentials-file: C:\Users\[YOUR_USER]\.cloudflared\[YOUR-TUNNEL-UUID].json
+
+ingress:
+  - hostname: bizra.ai
+    service: http://localhost:3001
+  - hostname: api.bizra.ai
+    service: http://localhost:8080
+  - service: http_status:404

@@ -432,6 +432,51 @@ async fn pat_chat_handler(
             // Calculate simple Ihsan score (placeholder - would be more sophisticated in production)
             let ihsan_score = 0.88 + (rand::random::<f64>() * 0.1);
 
+            // Calculate impact score based on message complexity
+            let impact_score = ((payload.message.len() as f64) / 80.0).clamp(1.0, 10.0);
+            let duration_minutes = ((latency_ms as f64) / 1000.0 / 60.0).ceil() as i32;
+
+            // Calculate rewards
+            let bzc_reward = impact_score * duration_minutes.max(1) as f64 * 0.1;
+            let imp_reward = ihsan_score * impact_score * 0.5;
+
+            // Log PoI event for this chat interaction
+            let poi_result = sqlx::query!(
+                r#"
+                INSERT INTO poi_ledger (
+                    event_type, impact_score, ihsan_score,
+                    duration_minutes, description, assets_produced,
+                    resources_used, reward_bzc, reward_imp
+                )
+                VALUES ('task_completed', $1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING id::text
+                "#,
+                impact_score,
+                ihsan_score,
+                duration_minutes.max(1),
+                Some(format!("PAT chat with {}: {}", agent_role, 
+                    if payload.message.len() > 50 { 
+                        format!("{}...", &payload.message[..50]) 
+                    } else { 
+                        payload.message.clone() 
+                    }
+                )),
+                &Vec::<String>::new(),
+                serde_json::json!({
+                    "model": model,
+                    "latency_ms": latency_ms,
+                    "agent": agent_role
+                }),
+                bzc_reward,
+                imp_reward,
+            )
+            .fetch_one(&state.db_pool)
+            .await;
+
+            if let Err(e) = poi_result {
+                tracing::warn!("Failed to log PoI event for chat: {}", e);
+            }
+
             Ok(Json(ApiResponse {
                 success: true,
                 data: Some(PatChatResponse {

@@ -1,0 +1,189 @@
+# BIZRA Node0 - Lighthouse CI Workflow
+# Elite Performance: Automated Web Vitals Monitoring
+# Professional Standard: Continuous Performance Validation
+
+name: ⚡ Performance Audit
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/dashboard/**'
+      - '.github/workflows/lighthouse.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/dashboard/**'
+  schedule:
+    # Run weekly on Sunday at 3 AM
+    - cron: '0 3 * * 0'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ============================================
+  # BUILD & LIGHTHOUSE AUDIT
+  # ============================================
+  lighthouse:
+    name: 🔦 Lighthouse Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install Dependencies
+        working-directory: apps/dashboard
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build Dashboard
+        working-directory: apps/dashboard
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+
+      - name: 🚀 Start Server
+        working-directory: apps/dashboard
+        run: |
+          pnpm start &
+          sleep 10
+          curl -f http://localhost:3000 || exit 1
+
+      # Lighthouse CI
+      - name: 🔦 Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            http://localhost:3000
+            http://localhost:3000/landing
+            http://localhost:3000/onboarding
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: 📊 Parse Lighthouse Results
+        id: lighthouse
+        run: |
+          # Parse results for PR comment
+          echo "performance=$(cat .lighthouseci/lhr-*.json | jq -r '.categories.performance.score * 100' | head -1)" >> $GITHUB_OUTPUT
+          echo "accessibility=$(cat .lighthouseci/lhr-*.json | jq -r '.categories.accessibility.score * 100' | head -1)" >> $GITHUB_OUTPUT
+          echo "best_practices=$(cat .lighthouseci/lhr-*.json | jq -r '.categories["best-practices"].score * 100' | head -1)" >> $GITHUB_OUTPUT
+          echo "seo=$(cat .lighthouseci/lhr-*.json | jq -r '.categories.seo.score * 100' | head -1)" >> $GITHUB_OUTPUT
+
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const perf = '${{ steps.lighthouse.outputs.performance }}';
+            const a11y = '${{ steps.lighthouse.outputs.accessibility }}';
+            const bp = '${{ steps.lighthouse.outputs.best_practices }}';
+            const seo = '${{ steps.lighthouse.outputs.seo }}';
+            
+            const getEmoji = (score) => {
+              if (score >= 90) return '🟢';
+              if (score >= 50) return '🟠';
+              return '🔴';
+            };
+            
+            const comment = `## ⚡ Lighthouse Performance Report
+            
+            | Metric | Score | Status |
+            |--------|-------|--------|
+            | Performance | ${perf} | ${getEmoji(perf)} |
+            | Accessibility | ${a11y} | ${getEmoji(a11y)} |
+            | Best Practices | ${bp} | ${getEmoji(bp)} |
+            | SEO | ${seo} | ${getEmoji(seo)} |
+            
+            ${perf >= 90 ? '✅ Performance budget met!' : '⚠️ Performance needs improvement'}
+            
+            [View full report](https://googlechrome.github.io/lighthouse/viewer/)
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # ============================================
+  # BUNDLE ANALYSIS
+  # ============================================
+  bundle-analysis:
+    name: 📦 Bundle Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install Dependencies
+        working-directory: apps/dashboard
+        run: pnpm install --frozen-lockfile
+
+      - name: 📊 Analyze Bundle
+        working-directory: apps/dashboard
+        run: |
+          ANALYZE=true pnpm build || pnpm build
+          
+      - name: 📤 Upload Bundle Stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-stats
+          path: apps/dashboard/.next/analyze/
+          retention-days: 30
+
+  # ============================================
+  # CORE WEB VITALS MONITORING
+  # ============================================
+  web-vitals:
+    name: 📈 Web Vitals
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📦 Install Dependencies
+        run: npm install -g web-vitals-cli lighthouse
+
+      - name: 📊 Collect Web Vitals
+        run: |
+          echo "# Core Web Vitals Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Target | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| LCP | < 2.5s | Pending Production URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| FID | < 100ms | Pending Production URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| CLS | < 0.1 | Pending Production URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| FCP | < 1.5s | Pending Production URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| TTFB | < 600ms | Pending Production URL |" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,197 @@
+# BIZRA Dependabot Configuration
+# Document ID: BIZRA-NODE0-v1.0.1-GENESIS
+# Automated Dependency Management - Elite Security Standards
+#
+# Strategy: Weekly updates with grouped PRs for related dependencies
+# Security: Immediate updates for security vulnerabilities
+
+version: 2
+
+registries:
+  npm-registry:
+    type: npm-registry
+    url: https://registry.npmjs.org
+
+updates:
+  # Rust/Cargo Dependencies
+  - package-ecosystem: "cargo"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(rust)"
+    labels:
+      - "dependencies"
+      - "rust"
+      - "automated"
+    groups:
+      rust-minor:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
+    reviewers:
+      - "bizra/core-team"
+
+  # Dashboard (Next.js) Dependencies
+  - package-ecosystem: "npm"
+    directory: "/apps/dashboard"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(dashboard)"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "automated"
+    groups:
+      next-ecosystem:
+        patterns:
+          - "next*"
+          - "react*"
+          - "@next/*"
+      dev-dependencies:
+        dependency-type: "development"
+        patterns:
+          - "*"
+    reviewers:
+      - "bizra/frontend-team"
+
+  # Bridge Dependencies
+  - package-ecosystem: "npm"
+    directory: "/bridge"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps(bridge)"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "automated"
+    groups:
+      bridge-all:
+        patterns:
+          - "*"
+    reviewers:
+      - "bizra/core-team"
+
+  # Knowledge System (Python) Dependencies
+  - package-ecosystem: "pip"
+    directory: "/knowledge"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "deps(knowledge)"
+    labels:
+      - "dependencies"
+      - "python"
+      - "automated"
+    groups:
+      ai-ml:
+        patterns:
+          - "torch*"
+          - "transformers*"
+          - "sentence-transformers*"
+          - "langchain*"
+      data-processing:
+        patterns:
+          - "pandas*"
+          - "numpy*"
+          - "scipy*"
+    reviewers:
+      - "bizra/ai-team"
+
+  # Docker Base Images
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "deps(docker)"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+      - "automated"
+    reviewers:
+      - "bizra/devops-team"
+
+  - package-ecosystem: "docker"
+    directory: "/apps/dashboard"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "deps(docker)"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+      - "automated"
+    reviewers:
+      - "bizra/devops-team"
+
+  - package-ecosystem: "docker"
+    directory: "/bridge"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "deps(docker)"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+      - "automated"
+    reviewers:
+      - "bizra/devops-team"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(actions)"
+    labels:
+      - "dependencies"
+      - "ci-cd"
+      - "github-actions"
+      - "automated"
+    groups:
+      actions-all:
+        patterns:
+          - "*"
+    reviewers:
+      - "bizra/devops-team"
