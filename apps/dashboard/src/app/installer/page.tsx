@@ -34,6 +34,16 @@ interface SystemSpecs {
   os: { name: string; version: string };
 }
 
+// Extended Navigator interface for non-standard APIs
+interface ExtendedNavigator extends Navigator {
+  deviceMemory?: number;
+  connection?: {
+    effectiveType: string;
+    downlink: number;
+    saveData: boolean;
+  };
+}
+
 interface PatAgent {
   id: string;
   name: string;
@@ -97,47 +107,144 @@ export default function InstallerPage() {
     }
   }, []);
 
-  // Simulated system scan
+  // Real system scan
   const runSystemScan = useCallback(async () => {
     setStep('scanning');
     setScanProgress(0);
     
-    const scanSteps = [
-      { progress: 15, delay: 500 },
-      { progress: 35, delay: 800 },
-      { progress: 55, delay: 600 },
-      { progress: 75, delay: 700 },
-      { progress: 90, delay: 500 },
-      { progress: 100, delay: 400 },
-    ];
+    // Helper to update progress
+    const updateProgress = async (start: number, end: number, duration: number) => {
+      const steps = 10;
+      const stepDuration = duration / steps;
+      const increment = (end - start) / steps;
+      
+      for (let i = 0; i <= steps; i++) {
+        setScanProgress(Math.min(Math.round(start + (increment * i)), 100));
+        await new Promise(r => setTimeout(r, stepDuration));
+      }
+    };
+
+    // Phase 1: Environment Detection (0-30%)
+    await updateProgress(0, 30, 600);
     
-    for (const scanStep of scanSteps) {
-      await new Promise(r => setTimeout(r, scanStep.delay));
-      setScanProgress(scanStep.progress);
+    const nav = navigator as ExtendedNavigator;
+    const ua = navigator.userAgent;
+    
+    // Detect OS
+    let osName = 'Unknown OS';
+    if (ua.indexOf('Win') !== -1) osName = 'Windows';
+    else if (ua.indexOf('Mac') !== -1) osName = 'macOS';
+    else if (ua.indexOf('Linux') !== -1) osName = 'Linux';
+    else if (ua.indexOf('Android') !== -1) osName = 'Android';
+    else if (ua.indexOf('like Mac') !== -1) osName = 'iOS';
+    
+    // Detect CPU Cores
+    const cores = navigator.hardwareConcurrency || 4; // Fallback
+    
+    // Phase 2: Memory & Storage (30-60%)
+    await updateProgress(30, 60, 800);
+    
+    // Detect RAM (approximate)
+    const ramGb = nav.deviceMemory || 8; // Fallback
+    
+    // Detect Storage (Quota)
+    let storageTotal = 'Unknown';
+    let storageAvail = 'Unknown';
+    let storageAvailGb = 50; // Default assumption
+    
+    if (navigator.storage && navigator.storage.estimate) {
+      try {
+        const estimate = await navigator.storage.estimate();
+        if (estimate.quota) storageTotal = `${Math.round(estimate.quota / (1024**3))} GB`;
+        if (estimate.usage && estimate.quota) {
+          const avail = estimate.quota - estimate.usage;
+          storageAvailGb = avail / (1024**3);
+          storageAvail = `${Math.round(storageAvailGb)} GB`;
+        }
+      } catch (e) {
+        console.warn('Storage estimate failed', e);
+      }
+    }
+
+    // Phase 3: GPU & Network (60-90%)
+    await updateProgress(60, 90, 800);
+    
+    // Detect GPU via WebGL
+    let gpuName = 'Integrated Graphics';
+    let gpuVendor = 'Unknown';
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
+        if (debugInfo) {
+          gpuName = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          gpuVendor = (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+        }
+      }
+    } catch (e) {
+      console.warn('WebGL detection failed', e);
     }
     
-    // Simulated specs (would be real system detection in production)
+    // Detect Network
+    let netType = 'Unknown';
+    let netSpeed = 'Unknown';
+    if (nav.connection) {
+      netType = nav.connection.effectiveType; // '4g', '3g', etc.
+      netSpeed = `${nav.connection.downlink} Mbps`;
+    }
+
+    // Phase 4: Analysis & Finalize (90-100%)
+    await updateProgress(90, 100, 400);
+    
+    // Construct Real Specs
     const specs: SystemSpecs = {
-      cpu: { name: 'Intel Core i9-14900K', cores: 24, speed: '6.0 GHz' },
-      gpu: { name: 'NVIDIA RTX 4090', vram: '24GB', cuda: true },
-      ram: { total: '64 GB', available: '48 GB' },
-      storage: { total: '2 TB NVMe', available: '1.2 TB' },
-      network: { type: 'Ethernet', speed: '1 Gbps' },
-      os: { name: 'Windows 11', version: '23H2' }
+      cpu: { 
+        name: `Detected ${cores}-Core Processor`, 
+        cores: cores, 
+        speed: 'Variable' 
+      },
+      gpu: { 
+        name: gpuName, 
+        vram: 'Shared', // Browser can't see VRAM
+        cuda: gpuVendor.toLowerCase().includes('nvidia') 
+      },
+      ram: { 
+        total: `~${ramGb} GB`, 
+        available: 'Unknown' // Browser can't see free RAM
+      },
+      storage: { 
+        total: storageTotal !== 'Unknown' ? `${storageTotal} (Quota)` : 'Unknown', 
+        available: storageAvail 
+      },
+      network: { 
+        type: netType.toUpperCase(), 
+        speed: netSpeed 
+      },
+      os: { 
+        name: osName, 
+        version: 'Latest' 
+      }
     };
     
     setSystemSpecs(specs);
     
-    // Create hardware profile for model selection
+    // Create hardware profile for model selection based on REAL data
     const profile: HardwareProfile = {
-      tier: 'ultra', // Will be recalculated
-      ram: parseInt(specs.ram.total),
-      vram: parseInt(specs.gpu.vram) || 0,
-      cpuCores: specs.cpu.cores,
-      hasGpu: specs.gpu.cuda,
-      gpuName: specs.gpu.name,
-      availableStorage: parseFloat(specs.storage.available)
+      tier: 'balanced', // Default, will be recalculated
+      ram: ramGb,
+      vram: gpuVendor.toLowerCase().includes('nvidia') ? 8 : 0, // Assume 8GB if NVIDIA detected, else 0
+      cpuCores: cores,
+      hasGpu: gpuVendor.toLowerCase().includes('nvidia'),
+      gpuName: gpuName,
+      availableStorage: storageAvailGb
     };
+    
+    // Determine Tier
+    if (profile.ram >= 32 && profile.hasGpu) profile.tier = 'ultra';
+    else if (profile.ram >= 16) profile.tier = 'high';
+    else profile.tier = 'balanced';
+    
     setHardwareProfile(profile);
     
     await new Promise(r => setTimeout(r, 500));
@@ -387,7 +494,7 @@ export default function InstallerPage() {
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                 {[
-                  { icon: Cpu, label: t('installer.hardware.cpu'), value: systemSpecs.cpu.name, sub: `${systemSpecs.cpu.cores} ${t('installer.hardware.cores')} @ ${systemSpecs.cpu.speed}` },
+                  { icon: Cpu, label: t('installer.hardware.cpu'), value: systemSpecs.cpu.name, sub: `${systemSpecs.cpu.cores} ${t('installer.hardware.cores')}` },
                   { icon: Layers, label: t('installer.hardware.gpu'), value: systemSpecs.gpu.name, sub: `${systemSpecs.gpu.vram} VRAM • CUDA ${systemSpecs.gpu.cuda ? '✓' : '✗'}` },
                   { icon: MemoryStick, label: t('installer.hardware.ram'), value: systemSpecs.ram.total, sub: `${systemSpecs.ram.available} ${t('installer.hardware.available')}` },
                   { icon: HardDrive, label: t('installer.hardware.storage'), value: systemSpecs.storage.total, sub: `${systemSpecs.storage.available} ${t('installer.hardware.free')}` },
@@ -399,7 +506,7 @@ export default function InstallerPage() {
                       <spec.icon className="w-8 h-8 text-bizra-gold flex-shrink-0" />
                       <div className={isRTL ? 'text-right' : ''}>
                         <p className="text-xs text-white/40 uppercase tracking-wider">{spec.label}</p>
-                        <p className="font-semibold text-sm">{spec.value}</p>
+                        <p className="font-semibold text-sm line-clamp-2" title={spec.value}>{spec.value}</p>
                         <p className="text-xs text-white/50">{spec.sub}</p>
                       </div>
                     </div>
