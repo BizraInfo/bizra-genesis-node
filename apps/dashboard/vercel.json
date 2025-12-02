@@ -3,7 +3,8 @@
   "name": "bizra-genesis-dashboard",
   "version": 2,
   "framework": "nextjs",
-  "buildCommand": "npm install && npm run build",
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "regions": ["iad1", "fra1", "syd1"],
   "env": {
