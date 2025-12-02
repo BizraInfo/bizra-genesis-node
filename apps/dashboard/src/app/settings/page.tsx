@@ -25,13 +25,16 @@ import {
   Database,
   Lock,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Globe
 } from 'lucide-react';
 import { BizraNavbar, GlassCard, SacredGeometryBackground } from '@/components/brand';
+import { useI18n, LANGUAGES, type LanguageCode } from '@/lib/i18n';
 
 // Settings categories with brand icons
 const CATEGORIES = [
   { id: 'profile', name: 'Profile', icon: User, description: 'Identity & preferences' },
+  { id: 'language', name: 'Language', icon: Globe, description: 'Display language & RTL' },
   { id: 'pat', name: 'PAT Agents', icon: Bot, description: 'Configure your AI team' },
   { id: 'resources', name: 'Resources', icon: Cpu, description: 'Hardware allocation' },
   { id: 'security', name: 'Security', icon: Shield, description: 'Privacy & encryption' },
@@ -61,6 +64,7 @@ const PAT_AGENTS = [
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { locale, setLocale, isRTL, t } = useI18n();
   const [activeCategory, setActiveCategory] = useState('profile');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -266,6 +270,84 @@ export default function SettingsPage() {
                             <><Save className="w-5 h-5" /> Save Changes</>
                           )}
                         </button>
+                      </div>
+                    )}
+
+                    {/* Language Settings */}
+                    {activeCategory === 'language' && (
+                      <div className="space-y-8">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-12 h-12 rounded-xl bg-bizra-gold/20 flex items-center justify-center">
+                            <Globe className="w-6 h-6 text-bizra-gold" />
+                          </div>
+                          <div>
+                            <h2 className="text-2xl font-bold text-white">Language Settings</h2>
+                            <p className="text-white/60">Choose your display language</p>
+                          </div>
+                        </div>
+
+                        {/* Current Language */}
+                        <div>
+                          <label className="block text-white/80 font-medium mb-2">
+                            Current Language
+                          </label>
+                          <div className="flex items-center gap-3 p-4 rounded-xl bg-bizra-gold/10 border border-bizra-gold/30">
+                            <span className="text-3xl">{LANGUAGES[locale].flag}</span>
+                            <div>
+                              <span className="text-bizra-gold font-medium block">{LANGUAGES[locale].nativeName}</span>
+                              <span className="text-white/40 text-sm">{LANGUAGES[locale].name}</span>
+                            </div>
+                            {isRTL && (
+                              <span className="ml-auto px-2 py-1 rounded bg-white/10 text-xs text-white/60">
+                                RTL
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Language Selection */}
+                        <div>
+                          <label className="block text-white/80 font-medium mb-4">
+                            Select Language
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {(Object.entries(LANGUAGES) as [LanguageCode, typeof LANGUAGES[LanguageCode]][]).map(([code, lang]) => (
+                              <button
+                                key={code}
+                                onClick={() => setLocale(code)}
+                                className={`p-4 rounded-xl border transition-all text-left relative ${
+                                  locale === code
+                                    ? 'border-bizra-gold bg-bizra-gold/10'
+                                    : 'border-white/10 hover:border-white/30 bg-white/5'
+                                }`}
+                              >
+                                <span className="text-3xl mb-2 block">{lang.flag}</span>
+                                <span className="font-medium text-white block">{lang.nativeName}</span>
+                                <span className="text-xs text-white/40">{lang.name}</span>
+                                {lang.dir === 'rtl' && (
+                                  <span className="absolute top-2 right-8 px-1.5 py-0.5 rounded bg-white/10 text-xs text-white/40">
+                                    RTL
+                                  </span>
+                                )}
+                                {locale === code && (
+                                  <Check className="w-4 h-4 text-bizra-gold absolute top-2 right-2" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* RTL Info */}
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                          <h3 className="text-white font-medium mb-2 flex items-center gap-2">
+                            <Globe className="w-5 h-5 text-bizra-gold" />
+                            About Language Support
+                          </h3>
+                          <p className="text-white/60 text-sm">
+                            BIZRA supports multiple languages with full RTL (right-to-left) support for Arabic.
+                            Language changes take effect immediately across the entire application.
+                          </p>
+                        </div>
                       </div>
                     )}
 

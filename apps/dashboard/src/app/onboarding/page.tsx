@@ -21,10 +21,12 @@ import {
   Loader2,
   User,
   ScrollText,
-  Eye
+  Eye,
+  Globe
 } from 'lucide-react';
 
 import { BizraLogoAnimated, SacredGeometryBackground } from '@/components/brand';
+import { useI18n, LANGUAGES, type LanguageCode } from '@/lib/i18n';
 
 // Types for lazy-loaded modules
 interface CovenantAxiom {
@@ -151,11 +153,12 @@ const patAgents: { id: PatAgent; name: string; description: string; icon: React.
   },
 ];
 
-type Step = 'intro' | 'covenant' | 'seed-test' | 'pat-selection' | 'profile' | 'complete';
+type Step = 'language' | 'intro' | 'covenant' | 'seed-test' | 'pat-selection' | 'profile' | 'complete';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>('intro');
+  const { locale, setLocale, isRTL, t } = useI18n();
+  const [step, setStep] = useState<Step>('language');
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedPat, setSelectedPat] = useState<PatAgent | null>(null);
@@ -241,6 +244,71 @@ export default function OnboardingPage() {
       
       <div className="w-full max-w-2xl relative z-10">
         <AnimatePresence mode="wait">
+          {/* Language Selection Step - FIRST STEP */}
+          {step === 'language' && (
+            <motion.div
+              key="language"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="glass-panel-gold p-8 text-center relative overflow-hidden"
+            >
+              <SacredGeometryBackground intensity="subtle" />
+              
+              <div className="relative z-10">
+                <BizraLogoAnimated size="lg" className="mx-auto mb-6" />
+                
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-bizra-gold/20 flex items-center justify-center">
+                  <Globe className="w-8 h-8 text-bizra-gold" />
+                </div>
+                
+                <h1 className="text-3xl font-bold mb-2 text-gradient-sovereign">
+                  Choose Your Language
+                </h1>
+                <p className="text-lg text-white/70 mb-2">
+                  اختر لغتك
+                </p>
+                <p className="text-sm text-white/50 mb-8">
+                  Select the language for your BIZRA experience
+                </p>
+                
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto mb-8">
+                  {(Object.entries(LANGUAGES) as [LanguageCode, typeof LANGUAGES[LanguageCode]][]).map(([code, lang]) => (
+                    <button
+                      key={code}
+                      onClick={() => setLocale(code)}
+                      className={`
+                        p-4 rounded-xl border transition-all duration-300
+                        flex flex-col items-center gap-2
+                        ${locale === code
+                          ? 'border-bizra-gold bg-bizra-gold/20 shadow-lg shadow-bizra-gold/20'
+                          : 'border-white/10 hover:border-bizra-gold/50 hover:bg-white/5'
+                        }
+                      `}
+                    >
+                      <span className="text-3xl">{lang.flag}</span>
+                      <span className={`font-medium ${locale === code ? 'text-bizra-gold' : 'text-white'}`}>
+                        {lang.nativeName}
+                      </span>
+                      <span className="text-xs text-white/40">{lang.name}</span>
+                      {locale === code && (
+                        <Check className="w-4 h-4 text-bizra-gold" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={() => setStep('intro')}
+                  className="btn-sovereign w-full max-w-md mx-auto flex items-center justify-center gap-2"
+                >
+                  {locale === 'ar' ? 'استمرار' : 'Continue'}
+                  <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+          
           {/* Intro Step */}
           {step === 'intro' && (
             <motion.div
@@ -252,32 +320,63 @@ export default function OnboardingPage() {
             >
               <SacredGeometryBackground intensity="subtle" />
               
-              <div className="relative z-10">
+              <div className={`relative z-10 ${isRTL ? 'text-right' : ''}`}>
                 <BizraLogoAnimated size="xl" className="mx-auto mb-6" />
                 
-                <h1 className="text-3xl font-bold mb-4 text-gradient-sovereign">
-                  Welcome to Your Genesis
+                <h1 className="text-3xl font-bold mb-4 text-gradient-sovereign text-center">
+                  {locale === 'ar' ? 'مرحباً في رحلتك' : 'Welcome to Your Genesis'}
                 </h1>
                 
-                <p className="text-lg text-white/70 mb-8">
-                  You are about to become an Architect of sovereign AI.
-                  This ritual will align your mind with the network.
+                <p className="text-lg text-white/70 mb-8 text-center">
+                  {locale === 'ar' 
+                    ? 'أنت على وشك أن تصبح مهندساً للذكاء الاصطناعي السيادي. هذه الرحلة ستربط عقلك بالشبكة.'
+                    : 'You are about to become an Architect of sovereign AI. This ritual will align your mind with the network.'
+                  }
                 </p>
                 
                 <div className="space-y-3 text-left mb-8">
-                  <StepPreview number={1} label="The Covenant" description="Accept the Genesis Laws" />
-                  <StepPreview number={2} label="Seed Test" description="4 questions about your essence" />
-                  <StepPreview number={3} label="PAT Selection" description="Choose your primary AI agent" />
-                  <StepPreview number={4} label="Identity" description="Seal your sovereign profile" />
+                  <StepPreview 
+                    number={1} 
+                    label={locale === 'ar' ? 'الميثاق' : 'The Covenant'} 
+                    description={locale === 'ar' ? 'اقبل قوانين البداية' : 'Accept the Genesis Laws'} 
+                    isRTL={isRTL}
+                  />
+                  <StepPreview 
+                    number={2} 
+                    label={locale === 'ar' ? 'اختبار البذرة' : 'Seed Test'} 
+                    description={locale === 'ar' ? '4 أسئلة عن جوهرك' : '4 questions about your essence'} 
+                    isRTL={isRTL}
+                  />
+                  <StepPreview 
+                    number={3} 
+                    label={locale === 'ar' ? 'اختيار PAT' : 'PAT Selection'} 
+                    description={locale === 'ar' ? 'اختر وكيل الذكاء الرئيسي' : 'Choose your primary AI agent'} 
+                    isRTL={isRTL}
+                  />
+                  <StepPreview 
+                    number={4} 
+                    label={locale === 'ar' ? 'الهوية' : 'Identity'} 
+                    description={locale === 'ar' ? 'ختم ملفك السيادي' : 'Seal your sovereign profile'} 
+                    isRTL={isRTL}
+                  />
                 </div>
                 
-                <button
-                  onClick={() => setStep('covenant')}
-                  className="btn-sovereign w-full flex items-center justify-center gap-2"
-                >
-                  Begin The Ritual
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <button
+                    onClick={() => setStep('language')}
+                    className="btn-glass flex items-center gap-1"
+                  >
+                    <Globe className="w-4 h-4" />
+                    {LANGUAGES[locale].flag}
+                  </button>
+                  <button
+                    onClick={() => setStep('covenant')}
+                    className="btn-sovereign flex-1 flex items-center justify-center gap-2"
+                  >
+                    {locale === 'ar' ? 'ابدأ الرحلة' : 'Begin The Ritual'}
+                    <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -648,9 +747,9 @@ export default function OnboardingPage() {
   );
 }
 
-function StepPreview({ number, label, description }: { number: number; label: string; description: string }) {
+function StepPreview({ number, label, description, isRTL = false }: { number: number; label: string; description: string; isRTL?: boolean }) {
   return (
-    <div className="flex items-start gap-3">
+    <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
       <div className="w-8 h-8 rounded-lg bg-bizra-gold/20 flex items-center justify-center text-bizra-gold font-bold text-sm">
         {number}
       </div>
