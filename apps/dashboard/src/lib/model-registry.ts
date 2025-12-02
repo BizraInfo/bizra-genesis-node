@@ -392,15 +392,15 @@ export function getRecommendedModels(
       m.id.includes('qwen') || 
       m.bestFor.some(b => b.toLowerCase().includes('arabic'))
     );
-    primary = arabicModels[0] || sortedModels[0];
+    primary = arabicModels[0] || sortedModels[0] || MODEL_REGISTRY[0];
   } else {
-    primary = sortedModels[0];
+    primary = sortedModels[0] || MODEL_REGISTRY[0];
   }
 
   // Get alternatives (different from primary, still high quality)
-  const alternatives = sortedModels
+  const alternatives = primary ? sortedModels
     .filter(m => m.id !== primary.id)
-    .slice(0, 3);
+    .slice(0, 3) : [];
 
   // Get specialized models for each agent type
   const specialized: Record<string, AIModel> = {};
@@ -450,14 +450,17 @@ export function generateModelConfig(
   const agentAssignments: Record<string, string> = {};
   const primaryModel = models[0];
   
-  Object.entries(AGENT_MODEL_REQUIREMENTS).forEach(([agent, requirements]) => {
-    // Find best matching model for this agent
-    const matchingModel = models.find(m => 
-      requirements.requiredCapabilities.every(cap => m.capabilities.includes(cap))
-    ) || primaryModel;
-    
-    agentAssignments[agent] = matchingModel.id;
-  });
+  // Only assign if we have models
+  if (primaryModel) {
+    Object.entries(AGENT_MODEL_REQUIREMENTS).forEach(([agent, requirements]) => {
+      // Find best matching model for this agent
+      const matchingModel = models.find(m => 
+        requirements.requiredCapabilities.every(cap => m.capabilities.includes(cap))
+      ) || primaryModel;
+      
+      agentAssignments[agent] = matchingModel.id;
+    });
+  }
 
   return {
     models,
