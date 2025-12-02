@@ -842,7 +842,7 @@ export default function InstallerPage() {
                 <div className={`space-y-3 ${isRTL ? 'text-right' : ''}`}>
                   <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <div className="w-6 h-6 rounded-full bg-bizra-gold/20 flex items-center justify-center text-bizra-gold text-sm font-bold flex-shrink-0">1</div>
-                    <p className="text-white/70">{t('installer.complete.step1') || 'Click "Download & Install" to get the installer script'}</p>
+                    <p className="text-white/70">{t('installer.complete.step1') || 'Click "Download & Install" to get the Unified Installer script'}</p>
                   </div>
                   <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <div className="w-6 h-6 rounded-full bg-bizra-gold/20 flex items-center justify-center text-bizra-gold text-sm font-bold flex-shrink-0">2</div>
@@ -850,13 +850,13 @@ export default function InstallerPage() {
                   </div>
                   <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <div className="w-6 h-6 rounded-full bg-bizra-gold/20 flex items-center justify-center text-bizra-gold text-sm font-bold flex-shrink-0">3</div>
-                    <p className="text-white/70">{t('installer.complete.step3') || 'Follow the on-screen instructions to complete setup'}</p>
+                    <p className="text-white/70">{t('installer.complete.step3') || 'The installer will set up your Node0, create desktop shortcuts, and connect you to the network'}</p>
                   </div>
                 </div>
                 <div className={`mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 ${isRTL ? 'text-right' : ''}`}>
                   <p className={`text-sm text-yellow-400/80 flex items-start gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>{t('installer.complete.adminNote') || 'You may need to run PowerShell as Administrator for full installation'}</span>
+                    <span>{t('installer.complete.adminNote') || 'Note: The installer will request Administrator privileges to set up system services'}</span>
                   </p>
                 </div>
               </GlassCard>
