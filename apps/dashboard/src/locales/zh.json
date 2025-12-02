@@ -1,0 +1,39 @@
+{
+  "app": {
+    "name": "BIZRA",
+    "tagline": "所有人的主权AI",
+    "description": "您的个人AI团队，本地运行"
+  },
+  "nav": {
+    "home": "首页",
+    "agents": "代理",
+    "chat": "聊天",
+    "knowledge": "知识库",
+    "settings": "设置",
+    "rewards": "奖励",
+    "plan": "计划",
+    "resources": "资源"
+  },
+  "landing": {
+    "hero": {
+      "title": "拥有您的AI",
+      "subtitle": "首个主权AI平台",
+      "description": "您的数据归您所有。您的AI为您服务。无需云端。无需妥协。",
+      "cta": "开始您的创世之旅",
+      "secondary": "了解更多"
+    }
+  },
+  "common": {
+    "next": "下一步",
+    "back": "返回",
+    "save": "保存",
+    "cancel": "取消",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "confirm": "确认",
+    "download": "下载",
+    "install": "安装",
+    "configure": "配置"
+  }
+}

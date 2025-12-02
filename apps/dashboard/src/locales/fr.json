@@ -1,0 +1,39 @@
+{
+  "app": {
+    "name": "BIZRA",
+    "tagline": "IA Souveraine pour Tous",
+    "description": "Votre Équipe IA Personnelle, Fonctionnant Localement"
+  },
+  "nav": {
+    "home": "Accueil",
+    "agents": "Agents",
+    "chat": "Discussion",
+    "knowledge": "Connaissances",
+    "settings": "Paramètres",
+    "rewards": "Récompenses",
+    "plan": "Plan",
+    "resources": "Ressources"
+  },
+  "landing": {
+    "hero": {
+      "title": "Possédez Votre IA",
+      "subtitle": "La Première Plateforme d'IA Souveraine",
+      "description": "Vos données restent les vôtres. Votre IA travaille pour vous. Sans cloud. Sans compromis.",
+      "cta": "Commencez Votre Genèse",
+      "secondary": "En Savoir Plus"
+    }
+  },
+  "common": {
+    "next": "Suivant",
+    "back": "Retour",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "download": "Télécharger",
+    "install": "Installer",
+    "configure": "Configurer"
+  }
+}

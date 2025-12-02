@@ -1,0 +1,151 @@
+{
+  "app": {
+    "name": "BIZRA",
+    "tagline": "Sovereign AI for Everyone",
+    "description": "Your Personal AI Team, Running Locally"
+  },
+  "nav": {
+    "home": "Home",
+    "agents": "Agents",
+    "chat": "Chat",
+    "knowledge": "Knowledge",
+    "settings": "Settings",
+    "rewards": "Rewards",
+    "plan": "Plan",
+    "resources": "Resources"
+  },
+  "landing": {
+    "hero": {
+      "title": "Own Your AI",
+      "subtitle": "The First Sovereign AI Platform",
+      "description": "Your data stays yours. Your AI works for you. No cloud. No compromise.",
+      "cta": "Begin Your Genesis",
+      "secondary": "Learn More"
+    },
+    "features": {
+      "sovereignty": {
+        "title": "True Sovereignty",
+        "description": "All data stays on your machine. Zero cloud dependencies."
+      },
+      "agents": {
+        "title": "7 AI Agents",
+        "description": "A complete Personal Agent Team working together for you."
+      },
+      "local": {
+        "title": "100% Local",
+        "description": "Runs entirely on your hardware. No internet required."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Your Genesis",
+      "subtitle": "You are about to become an Architect of sovereign AI.",
+      "description": "This ritual will align your mind with the network.",
+      "cta": "Begin The Ritual"
+    },
+    "covenant": {
+      "title": "The Genesis Covenant",
+      "description": "These are the sacred laws that govern the BIZRA Network.",
+      "accept": "I Accept The Covenant",
+      "checkbox": "I have read and accept the Genesis Covenant."
+    },
+    "seedTest": {
+      "title": "Seed Test",
+      "description": "Answer these questions to personalize your AI experience."
+    },
+    "complete": {
+      "title": "Genesis Complete!",
+      "description": "Your sovereign AI profile has been created."
+    }
+  },
+  "installer": {
+    "title": "Node Installation",
+    "steps": {
+      "scan": "System Scan",
+      "results": "Hardware Results",
+      "profile": "Profile Setup",
+      "models": "Model Selection",
+      "complete": "Installation Complete"
+    },
+    "hardware": {
+      "cpu": "CPU",
+      "ram": "RAM",
+      "gpu": "GPU",
+      "storage": "Storage",
+      "compatible": "Compatible",
+      "notCompatible": "Not Compatible"
+    },
+    "models": {
+      "title": "Select Your Models",
+      "description": "Based on your hardware, we recommend these models:",
+      "recommended": "Recommended",
+      "optional": "Optional",
+      "size": "Size",
+      "vram": "VRAM Required"
+    }
+  },
+  "agents": {
+    "title": "Your Agent Team",
+    "status": {
+      "active": "Active",
+      "idle": "Idle",
+      "loading": "Loading"
+    },
+    "roles": {
+      "MasterReasoner": {
+        "name": "Master Reasoner",
+        "description": "Deep analytical thinking and complex problem solving"
+      },
+      "MemoryArchitect": {
+        "name": "Memory Architect",
+        "description": "Personal context and knowledge retention"
+      },
+      "CreativeSynthesizer": {
+        "name": "Creative Synthesizer",
+        "description": "Creative ideation and content generation"
+      },
+      "DataAnalyzer": {
+        "name": "Data Analyzer",
+        "description": "Data processing and pattern recognition"
+      },
+      "Communicator": {
+        "name": "Communicator",
+        "description": "Natural conversation and writing"
+      },
+      "ExecutionPlanner": {
+        "name": "Execution Planner",
+        "description": "Task orchestration and scheduling"
+      },
+      "EthicsGuardian": {
+        "name": "Ethics Guardian",
+        "description": "Ethical alignment and value consistency"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "categories": {
+      "profile": "Profile",
+      "agents": "PAT Agents",
+      "resources": "Resources",
+      "security": "Security",
+      "backup": "Backup",
+      "language": "Language",
+      "advanced": "Advanced"
+    }
+  },
+  "common": {
+    "next": "Next",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "download": "Download",
+    "install": "Install",
+    "configure": "Configure"
+  }
+}

@@ -7,9 +7,13 @@ import {
   Cpu, HardDrive, MemoryStick, Layers, Network, Shield,
   ChevronRight, ChevronLeft, Check, Loader2, Download,
   User, FolderOpen, Lock, Brain, Wrench, Database,
-  Users, Monitor, Sparkles, Zap, Package
+  Users, Monitor, Sparkles, Zap, Package, Globe
 } from 'lucide-react';
 import { BizraLogoAnimated, SacredGeometryBackground, GlassCard } from '@/components/brand';
+import { LanguageSelector } from '@/components/ui/language-selector';
+import { SmartModelSelector } from '@/components/installer/smart-model-selector';
+import { useI18n } from '@/lib/i18n';
+import { type HardwareProfile, type AIModel, generateModelConfig } from '@/lib/model-registry';
 
 // Types
 interface SystemSpecs {
@@ -50,16 +54,20 @@ const INSTALLATION_PHASES = [
   { id: 'finalize', name: 'Finalization', desc: 'Securing & optimizing', duration: '~30s' },
 ];
 
-type Step = 'welcome' | 'scanning' | 'results' | 'profile' | 'installing' | 'complete';
+type Step = 'welcome' | 'scanning' | 'results' | 'models' | 'profile' | 'installing' | 'complete';
 
 export default function InstallerPage() {
   const router = useRouter();
+  const { t, locale, isRTL } = useI18n();
   const [step, setStep] = useState<Step>('welcome');
   const [systemSpecs, setSystemSpecs] = useState<SystemSpecs | null>(null);
+  const [hardwareProfile, setHardwareProfile] = useState<HardwareProfile | null>(null);
   const [scanProgress, setScanProgress] = useState(0);
   const [installProgress, setInstallProgress] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(0);
   const [completedPhases, setCompletedPhases] = useState<string[]>([]);
+  const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [modelConfig, setModelConfig] = useState<ReturnType<typeof generateModelConfig> | null>(null);
   const [profile, setProfile] = useState({
     name: '',
     installPath: 'C:\\Program Files\\BIZRA\\',
@@ -86,17 +94,38 @@ export default function InstallerPage() {
     }
     
     // Simulated specs (would be real system detection in production)
-    setSystemSpecs({
+    const specs: SystemSpecs = {
       cpu: { name: 'Intel Core i9-14900K', cores: 24, speed: '6.0 GHz' },
       gpu: { name: 'NVIDIA RTX 4090', vram: '24GB', cuda: true },
       ram: { total: '64 GB', available: '48 GB' },
       storage: { total: '2 TB NVMe', available: '1.2 TB' },
       network: { type: 'Ethernet', speed: '1 Gbps' },
       os: { name: 'Windows 11', version: '23H2' }
-    });
+    };
+    
+    setSystemSpecs(specs);
+    
+    // Create hardware profile for model selection
+    const profile: HardwareProfile = {
+      tier: 'ultra', // Will be recalculated
+      ram: parseInt(specs.ram.total),
+      vram: parseInt(specs.gpu.vram) || 0,
+      cpuCores: specs.cpu.cores,
+      hasGpu: specs.gpu.cuda,
+      gpuName: specs.gpu.name,
+      availableStorage: parseFloat(specs.storage.available)
+    };
+    setHardwareProfile(profile);
     
     await new Promise(r => setTimeout(r, 500));
     setStep('results');
+  }, []);
+
+  // Handle model selection
+  const handleModelsSelected = useCallback((modelIds: string[], config: ReturnType<typeof generateModelConfig>) => {
+    setSelectedModels(modelIds);
+    setModelConfig(config);
+    setStep('profile');
   }, []);
 
   // Simulated installation
@@ -131,15 +160,16 @@ export default function InstallerPage() {
       
       {/* Header */}
       <header className="fixed top-0 w-full z-50 glass-panel border-t-0 border-x-0 rounded-none">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className={`max-w-6xl mx-auto px-6 py-4 flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <BizraLogoAnimated size="sm" />
-            <div>
+            <div className={isRTL ? 'text-right' : ''}>
               <h1 className="font-serif text-xl text-gradient-gold tracking-widest">BIZRA</h1>
               <p className="text-[10px] text-white/40 font-mono">SOVEREIGN OS INSTALLER</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <LanguageSelector variant="compact" />
             <span className="text-xs font-mono text-white/30">v2.2.0-genesis</span>
             <div className="px-3 py-1 rounded-full bg-bizra-gold/10 border border-bizra-gold/30 text-bizra-gold text-xs">
               Node0
@@ -338,11 +368,48 @@ export default function InstallerPage() {
                   Back
                 </button>
                 <button
-                  onClick={() => setStep('profile')}
+                  onClick={() => setStep('models')}
                   className="btn-sovereign flex items-center gap-2"
                 >
-                  Continue to Profile
+                  Select AI Models
                   <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3.5: Model Selection */}
+          {step === 'models' && hardwareProfile && (
+            <motion.div
+              key="models"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
+                <h2 className="text-3xl font-serif mb-2">
+                  {locale === 'ar' ? 'اختر نماذج الذكاء الاصطناعي' : 'Select Your AI Models'}
+                </h2>
+                <p className="text-white/60">
+                  {locale === 'ar' 
+                    ? 'اخترنا لك أفضل النماذج بناءً على قوة جهازك'
+                    : 'We\'ve recommended the best models based on your hardware power'
+                  }
+                </p>
+              </div>
+              
+              <SmartModelSelector 
+                hardware={hardwareProfile}
+                onModelsSelected={handleModelsSelected}
+              />
+              
+              <div className="flex justify-start mt-6">
+                <button
+                  onClick={() => setStep('results')}
+                  className="btn-glass flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  {locale === 'ar' ? 'رجوع' : 'Back'}
                 </button>
               </div>
             </motion.div>
@@ -356,36 +423,45 @@ export default function InstallerPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-serif mb-2">Create Your Profile</h2>
-                <p className="text-white/60">Customize your sovereign AI experience</p>
+              <div className={`text-center mb-12 ${isRTL ? 'text-right' : ''}`}>
+                <h2 className="text-3xl font-serif mb-2">
+                  {locale === 'ar' ? 'إعداد ملفك الشخصي' : 'Create Your Profile'}
+                </h2>
+                <p className="text-white/60">
+                  {locale === 'ar' ? 'خصص تجربة الذكاء الاصطناعي السيادي' : 'Customize your sovereign AI experience'}
+                </p>
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 {/* Profile Form */}
                 <GlassCard className="p-6">
-                  <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+                  <h3 className={`font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <User className="w-5 h-5 text-bizra-gold" />
-                    Identity
+                    {locale === 'ar' ? 'الهوية' : 'Identity'}
                   </h3>
                   
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Your Name</label>
+                      <label className={`block text-sm font-medium mb-2 ${isRTL ? 'text-right' : ''}`}>
+                        {locale === 'ar' ? 'اسمك' : 'Your Name'}
+                      </label>
                       <input
                         type="text"
                         value={profile.name}
                         onChange={(e) => setProfile(p => ({ ...p, name: e.target.value }))}
-                        placeholder="Enter your name"
+                        placeholder={locale === 'ar' ? 'أدخل اسمك' : 'Enter your name'}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-bizra-gold focus:outline-none focus:ring-1 focus:ring-bizra-gold/50 transition-all"
                       />
-                      <p className="text-xs text-white/40 mt-2">Your PAT agents will use this to personalize interactions</p>
+                      <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
+                        {locale === 'ar' ? 'سيستخدم وكلاء PAT هذا لتخصيص التفاعلات' : 'Your PAT agents will use this to personalize interactions'}
+                      </p>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                      <label className={`block text-sm font-medium mb-2 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <FolderOpen className="w-4 h-4" />
-                        Installation Path
+                        {locale === 'ar' ? 'مسار التثبيت' : 'Installation Path'}
                       </label>
                       <input
                         type="text"
@@ -393,49 +469,77 @@ export default function InstallerPage() {
                         readOnly
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 font-mono text-sm"
                       />
-                      <p className="text-xs text-white/40 mt-2">Requires ~50GB free space</p>
+                      <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
+                        {locale === 'ar' ? `يتطلب ${modelConfig?.totalSize || '~50GB'} مساحة حرة` : `Requires ${modelConfig?.totalSize || '~50GB'} free space`}
+                      </p>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                      <label className={`block text-sm font-medium mb-2 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <Lock className="w-4 h-4" />
-                        Privacy Level
+                        {locale === 'ar' ? 'مستوى الخصوصية' : 'Privacy Level'}
                       </label>
                       <select
                         value={profile.privacyLevel}
                         onChange={(e) => setProfile(p => ({ ...p, privacyLevel: e.target.value }))}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-bizra-gold focus:outline-none text-white"
                       >
-                        <option value="maximum">Maximum — All processing on-device</option>
-                        <option value="high">High — Minimal cloud features</option>
-                        <option value="balanced">Balanced — Some cloud enhancements</option>
+                        <option value="maximum">{locale === 'ar' ? 'أقصى — كل المعالجة على الجهاز' : 'Maximum — All processing on-device'}</option>
+                        <option value="high">{locale === 'ar' ? 'عالي — ميزات سحابية محدودة' : 'High — Minimal cloud features'}</option>
+                        <option value="balanced">{locale === 'ar' ? 'متوازن — بعض التحسينات السحابية' : 'Balanced — Some cloud enhancements'}</option>
                       </select>
-                      <p className="text-xs text-white/40 mt-2">Data never leaves without your explicit consent</p>
+                      <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
+                        {locale === 'ar' ? 'البيانات لا تغادر أبداً بدون موافقتك الصريحة' : 'Data never leaves without your explicit consent'}
+                      </p>
                     </div>
                   </div>
+                  
+                  {/* Selected Models Summary */}
+                  {modelConfig && (
+                    <div className="mt-6 pt-6 border-t border-white/10">
+                      <h4 className={`text-sm font-medium mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <Brain className="w-4 h-4 text-bizra-gold" />
+                        {locale === 'ar' ? 'النماذج المختارة' : 'Selected Models'}
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {modelConfig.models.map(model => (
+                          <span key={model.id} className="px-3 py-1 bg-bizra-gold/10 border border-bizra-gold/30 rounded-full text-sm text-bizra-gold">
+                            {model.name}
+                          </span>
+                        ))}
+                      </div>
+                      <p className={`text-xs text-white/40 mt-2 ${isRTL ? 'text-right' : ''}`}>
+                        {locale === 'ar' ? `الحجم الكلي: ${modelConfig.totalSize}` : `Total size: ${modelConfig.totalSize}`}
+                      </p>
+                    </div>
+                  )}
                 </GlassCard>
                 
                 {/* PAT Agents Preview */}
                 <GlassCard className="p-6">
-                  <h3 className="font-semibold text-lg mb-6 flex items-center gap-2">
+                  <h3 className={`font-semibold text-lg mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <Users className="w-5 h-5 text-bizra-gold" />
-                    Your Personal Agentic Team
+                    {locale === 'ar' ? 'فريقك الشخصي من الوكلاء' : 'Your Personal Agentic Team'}
                   </h3>
                   
                   <div className="space-y-3">
                     {PAT_AGENTS.map((agent) => (
                       <div
                         key={agent.id}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:border-bizra-gold/30 transition-colors"
+                        className={`flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:border-bizra-gold/30 transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
                       >
                         <div className={`w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center ${agent.color}`}>
                           <agent.icon className="w-5 h-5" />
                         </div>
-                        <div className="flex-1">
+                        <div className={`flex-1 ${isRTL ? 'text-right' : ''}`}>
                           <p className="font-medium text-sm">{agent.name}</p>
                           <p className="text-xs text-white/40">{agent.description}</p>
                         </div>
-                        <span className="text-xs text-white/30 font-mono">{agent.role}</span>
+                        {modelConfig?.agentAssignments[agent.name.replace(' ', '')] && (
+                          <span className="text-xs text-bizra-gold/60 font-mono">
+                            {modelConfig.agentAssignments[agent.name.replace(' ', '')]}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -444,18 +548,18 @@ export default function InstallerPage() {
               
               <div className="flex justify-between">
                 <button
-                  onClick={() => setStep('results')}
+                  onClick={() => setStep('models')}
                   className="btn-glass flex items-center gap-2"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Back
+                  {locale === 'ar' ? 'رجوع' : 'Back'}
                 </button>
                 <button
                   onClick={runInstallation}
                   disabled={!profile.name}
                   className="btn-sovereign flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Generate Installer
+                  {locale === 'ar' ? 'إنشاء المثبت' : 'Generate Installer'}
                   <Package className="w-4 h-4" />
                 </button>
               </div>
@@ -548,26 +652,42 @@ export default function InstallerPage() {
               </div>
               
               <GlassCard variant="gold" className="p-8 mb-8">
-                <h3 className="font-semibold text-xl mb-6 flex items-center gap-2">
+                <h3 className={`font-semibold text-xl mb-6 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <Package className="w-6 h-6" />
-                  Installer Details
+                  {locale === 'ar' ? 'تفاصيل المثبت' : 'Installer Details'}
                 </h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: 'Installer Name', value: `BIZRA-${profile.name || 'User'}-Genesis.exe` },
-                    { label: 'File Size', value: '4.2 GB' },
-                    { label: 'Version', value: 'v2.2.0-genesis' },
-                    { label: 'Components', value: 'Qwen2.5-8B + 87 Tools + 7 Agents' },
-                    { label: 'Est. Install Time', value: '~15 minutes' },
-                    { label: 'Privacy Level', value: profile.privacyLevel === 'maximum' ? 'Maximum (100% Local)' : profile.privacyLevel },
+                    { label: locale === 'ar' ? 'اسم المثبت' : 'Installer Name', value: `BIZRA-${profile.name || 'User'}-Genesis.exe` },
+                    { label: locale === 'ar' ? 'حجم الملف' : 'File Size', value: modelConfig?.totalSize || '4.2 GB' },
+                    { label: locale === 'ar' ? 'الإصدار' : 'Version', value: 'v2.2.0-genesis' },
+                    { label: locale === 'ar' ? 'النماذج' : 'AI Models', value: modelConfig ? `${modelConfig.models.length} model(s)` : '1 model' },
+                    { label: locale === 'ar' ? 'وقت التحميل المقدر' : 'Est. Download Time', value: modelConfig?.estimatedDownloadTime || '~15 minutes' },
+                    { label: locale === 'ar' ? 'مستوى الخصوصية' : 'Privacy Level', value: profile.privacyLevel === 'maximum' ? (locale === 'ar' ? 'أقصى (محلي 100%)' : 'Maximum (100% Local)') : profile.privacyLevel },
                   ].map((item, i) => (
-                    <div key={i} className="flex justify-between py-3 border-b border-white/10 last:border-0">
+                    <div key={i} className={`flex justify-between py-3 border-b border-white/10 last:border-0 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <span className="text-white/50">{item.label}</span>
                       <span className="font-mono text-sm">{item.value}</span>
                     </div>
                   ))}
                 </div>
+                
+                {/* Model List */}
+                {modelConfig && modelConfig.models.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-white/10">
+                    <p className={`text-xs text-white/40 mb-2 ${isRTL ? 'text-right' : ''}`}>
+                      {locale === 'ar' ? 'النماذج المثبتة:' : 'Models included:'}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {modelConfig.models.map(model => (
+                        <span key={model.id} className="px-3 py-1 bg-bizra-gold/10 border border-bizra-gold/30 rounded-full text-xs text-bizra-gold">
+                          {model.name} ({model.size})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </GlassCard>
               
               <GlassCard className="p-6 mb-8">
