@@ -3,8 +3,7 @@
   "name": "bizra-genesis-dashboard",
   "version": 2,
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
+  "buildCommand": "npm install && npm run build",
   "devCommand": "npm run dev",
   "regions": ["iad1", "fra1", "syd1"],
   "env": {
