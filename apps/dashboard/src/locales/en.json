@@ -64,7 +64,9 @@
     "stats": {
       "remaining": "{{count}} spots remaining in Phase 1",
       "pioneers": "{{count}} pioneers have joined"
-    }
+    },
+    "yourPrivileges": "Your Exclusive Privileges",
+    "welcomeTo": "Welcome to BIZRA"
   },
   "onboarding": {
     "language": {

@@ -26,7 +26,11 @@ import {
   Key,
   ExternalLink,
   PartyPopper,
-  Users
+  Users,
+  Crown,
+  Star,
+  Gift,
+  Heart
 } from 'lucide-react';
 
 import { BizraLogoAnimated, SacredGeometryBackground } from '@/components/brand';
@@ -38,6 +42,9 @@ import {
   isPublicPhase,
   getInvitationStats,
   getCurrentInvitation,
+  getPioneerTitle,
+  getFounderMessage,
+  getPioneerPerks,
   type InvitationCode
 } from '@/lib/invitation';
 
@@ -126,6 +133,9 @@ export default function OnboardingPage() {
   const [userTier, setUserTier] = useState<InvitationCode['tier'] | null>(null);
   const [invitationStats, setInvitationStats] = useState<ReturnType<typeof getInvitationStats> | null>(null);
   const [publicPhase, setPublicPhase] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
+  const [specialTitle, setSpecialTitle] = useState<string | null>(null);
+  const [privileges, setPrivileges] = useState<string[]>([]);
   
   // Lazy-loaded covenant axioms
   const [axioms, setAxioms] = useState<readonly CovenantAxiom[]>([]);
@@ -143,6 +153,10 @@ export default function OnboardingPage() {
         if (existing) {
           setUserNumber(existing.userNumber || null);
           setUserTier(existing.tier || null);
+          // Load special experience if available
+          if (existing.welcomeMessage) setWelcomeMessage(existing.welcomeMessage);
+          if (existing.specialTitle) setSpecialTitle(existing.specialTitle);
+          if (existing.privileges) setPrivileges(existing.privileges);
         }
       }
     };
@@ -176,6 +190,10 @@ export default function OnboardingPage() {
       setUserNumber(result.userNumber || null);
       setUserTier(result.tier || null);
       setInvitationStats(getInvitationStats());
+      // Set special experience data
+      if (result.welcomeMessage) setWelcomeMessage(result.welcomeMessage);
+      if (result.specialTitle) setSpecialTitle(result.specialTitle);
+      if (result.privileges) setPrivileges(result.privileges);
     } else {
       setInvitationError(t(result.error || 'invitation.errors.invalidCode'));
     }
@@ -358,26 +376,203 @@ export default function OnboardingPage() {
                       <p className="text-sm text-white/50">{t('invitation.publicPhaseDesc')}</p>
                     </motion.div>
                   ) : invitationValidated ? (
-                    // Invitation validated - show success
+                    // Invitation validated - show premium success experience
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="p-4 rounded-xl bg-green-500/10 border border-green-500/30"
+                      className="relative"
                     >
-                      <div className="flex items-center justify-center gap-2 text-green-400 mb-2">
-                        <Check className="w-5 h-5" />
-                        <span className="font-semibold">{t('invitation.success')}</span>
+                      {/* Celebration effects for Genesis tier */}
+                      {userTier === 'genesis' && (
+                        <motion.div 
+                          className="absolute inset-0 pointer-events-none"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                        >
+                          {[...Array(12)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-2 h-2 rounded-full bg-bizra-gold"
+                              initial={{ 
+                                x: '50%', 
+                                y: '50%',
+                                scale: 0,
+                                opacity: 1 
+                              }}
+                              animate={{ 
+                                x: `${50 + (Math.random() - 0.5) * 200}%`,
+                                y: `${50 + (Math.random() - 0.5) * 200}%`,
+                                scale: [0, 1, 0],
+                                opacity: [1, 1, 0]
+                              }}
+                              transition={{ 
+                                duration: 2,
+                                delay: i * 0.1,
+                                repeat: Infinity,
+                                repeatDelay: 3
+                              }}
+                            />
+                          ))}
+                        </motion.div>
+                      )}
+                      
+                      {/* Main success card */}
+                      <div className={`p-6 rounded-2xl border ${
+                        userTier === 'genesis' 
+                          ? 'bg-gradient-to-br from-bizra-gold/20 via-amber-500/10 to-yellow-500/20 border-bizra-gold/50 shadow-lg shadow-bizra-gold/20' 
+                          : userTier === 'early'
+                          ? 'bg-gradient-to-br from-purple-500/20 via-indigo-500/10 to-blue-500/20 border-purple-500/40 shadow-lg shadow-purple-500/10'
+                          : 'bg-green-500/10 border-green-500/30'
+                      }`}>
+                        
+                        {/* Special Title with icon */}
+                        {specialTitle && (
+                          <motion.div 
+                            className="flex items-center justify-center gap-2 mb-4"
+                            initial={{ y: -10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            <Crown className={`w-6 h-6 ${userTier === 'genesis' ? 'text-bizra-gold' : 'text-purple-400'}`} />
+                            <span className={`text-xl font-bold ${userTier === 'genesis' ? 'text-bizra-gold' : 'text-purple-300'}`}>
+                              {specialTitle}
+                            </span>
+                          </motion.div>
+                        )}
+                        
+                        {/* Welcome message */}
+                        {welcomeMessage && (
+                          <motion.p 
+                            className="text-center text-white/90 text-lg mb-4 italic"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                          >
+                            &ldquo;{welcomeMessage}&rdquo;
+                          </motion.p>
+                        )}
+                        
+                        {/* Success indicator */}
+                        <motion.div 
+                          className="flex items-center justify-center gap-2 text-green-400 mb-3"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+                        >
+                          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <Check className="w-5 h-5" />
+                          </div>
+                          <span className="font-semibold">{t('invitation.success')}</span>
+                        </motion.div>
+                        
+                        {/* User number with special styling */}
+                        {userNumber && (
+                          <motion.div 
+                            className="text-center mb-4"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 }}
+                          >
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                              <Star className="w-4 h-4 text-bizra-gold" />
+                              <span className="text-white/70">
+                                {t('invitation.successDesc', { number: String(userNumber) })}
+                              </span>
+                              {userNumber <= 100 && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-bizra-gold/20 text-bizra-gold font-semibold">
+                                  First 100! 🎉
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Dynamic title based on number */}
+                            <p className="mt-2 text-sm text-white/50">
+                              {getPioneerTitle(userNumber)}
+                            </p>
+                            <p className="text-xs text-bizra-gold/70 mt-1 italic">
+                              {getFounderMessage(userNumber)}
+                            </p>
+                          </motion.div>
+                        )}
+                        
+                        {/* Tier badge */}
+                        {userTier && (
+                          <motion.div 
+                            className="flex justify-center mb-4"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 1 }}
+                          >
+                            <div className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 ${
+                              userTier === 'genesis'
+                                ? 'bg-gradient-to-r from-bizra-gold/30 to-amber-500/30 border border-bizra-gold/50 text-bizra-gold'
+                                : userTier === 'early'
+                                ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30 border border-purple-500/50 text-purple-300'
+                                : 'bg-white/10 border border-white/20 text-white/70'
+                            }`}>
+                              {userTier === 'genesis' && <Crown className="w-4 h-4" />}
+                              {userTier === 'early' && <Star className="w-4 h-4" />}
+                              {t(`invitation.tier.${userTier}`)}
+                            </div>
+                          </motion.div>
+                        )}
+                        
+                        {/* Privileges list */}
+                        {privileges.length > 0 && (
+                          <motion.div 
+                            className="mt-4 pt-4 border-t border-white/10"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 1.2 }}
+                          >
+                            <div className="flex items-center justify-center gap-2 mb-3 text-white/70">
+                              <Gift className="w-4 h-4" />
+                              <span className="text-sm font-semibold">{t('invitation.yourPrivileges')}</span>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2 max-w-sm mx-auto">
+                              {privileges.map((priv, idx) => (
+                                <motion.div
+                                  key={idx}
+                                  className={`flex items-center gap-2 text-sm py-1 ${isRTL ? 'flex-row-reverse text-right' : ''}`}
+                                  initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 1.4 + idx * 0.1 }}
+                                >
+                                  <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                                  <span className="text-white/80">{priv}</span>
+                                </motion.div>
+                              ))}
+                            </div>
+                            
+                            {/* Pioneer perks */}
+                            {userNumber && (
+                              <div className="mt-4 pt-3 border-t border-white/5">
+                                <p className="text-xs text-white/40 text-center mb-2">+ Your Pioneer Perks:</p>
+                                <div className="flex flex-wrap justify-center gap-2">
+                                  {getPioneerPerks(userNumber).slice(0, 3).map((perk, idx) => (
+                                    <span key={idx} className="text-xs px-2 py-1 rounded-full bg-white/5 text-white/60">
+                                      {perk}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                        
+                        {/* Thank you note for early supporters */}
+                        <motion.div 
+                          className="mt-4 pt-4 border-t border-white/10 text-center"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 2 }}
+                        >
+                          <div className={`flex items-center justify-center gap-1 text-sm text-white/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <Heart className="w-4 h-4 text-red-400" />
+                            <span>Thank you for believing in BIZRA</span>
+                          </div>
+                        </motion.div>
                       </div>
-                      {userNumber && (
-                        <p className="text-sm text-white/70">
-                          {t('invitation.successDesc', { number: String(userNumber) })}
-                        </p>
-                      )}
-                      {userTier && (
-                        <div className="mt-2 inline-block px-3 py-1 rounded-full bg-bizra-gold/20 border border-bizra-gold/30 text-bizra-gold text-sm">
-                          {t(`invitation.tier.${userTier}`)}
-                        </div>
-                      )}
                     </motion.div>
                   ) : (
                     // Need invitation - show input

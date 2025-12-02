@@ -50,7 +50,9 @@
     "stats": {
       "remaining": "चरण 1 में {{count}} स्थान शेष",
       "pioneers": "{{count}} अग्रदूत शामिल हो गए हैं"
-    }
+    },
+    "yourPrivileges": "आपके विशेष विशेषाधिकार",
+    "welcomeTo": "BIZRA में आपका स्वागत है"
   },
   "onboarding": {
     "language": {

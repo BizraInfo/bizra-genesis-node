@@ -50,7 +50,9 @@
     "stats": {
       "remaining": "第一阶段还剩{{count}}个名额",
       "pioneers": "{{count}}位先驱者已加入"
-    }
+    },
+    "yourPrivileges": "您的专属特权",
+    "welcomeTo": "欢迎来到 BIZRA"
   },
   "onboarding": {
     "language": {

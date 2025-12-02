@@ -20,6 +20,103 @@ export interface InvitationCode {
   isActive: boolean;
 }
 
+// Special titles for early pioneers
+export const PIONEER_TITLES: Record<number, string> = {
+  1: 'The First Sovereign',
+  2: 'The Second Dawn',
+  3: 'The Third Pillar',
+  4: 'The Fourth Architect',
+  5: 'The Fifth Element',
+  6: 'The Sixth Sense',
+  7: 'The Seventh Star',
+  8: 'The Eighth Wonder',
+  9: 'The Ninth Gate',
+  10: 'The Tenth Dimension',
+};
+
+// Get special title for pioneer number
+export function getPioneerTitle(number: number): string {
+  if (PIONEER_TITLES[number]) {
+    return PIONEER_TITLES[number];
+  }
+  if (number <= 50) {
+    return 'Founding Architect';
+  }
+  if (number <= 100) {
+    return 'Genesis Pioneer';
+  }
+  if (number <= 500) {
+    return 'Early Visionary';
+  }
+  return 'Sovereign Member';
+}
+
+// Get founder's personal message based on user number
+export function getFounderMessage(number: number, tier: 'genesis' | 'early' | 'standard'): string {
+  if (number <= 10) {
+    return `You are one of the first 10 souls to join BIZRA. This is historic. Your name will be forever etched in our Genesis Block. Thank you for believing in sovereignty before it was proven. — Mahmoud`;
+  }
+  if (number <= 50) {
+    return `Welcome, Founding Architect #${number}. You're among the first 50 visionaries who saw what others couldn't. Together, we will build something extraordinary. — Mahmoud`;
+  }
+  if (number <= 100) {
+    return `Pioneer #${number}, you made it before the first hundred. You're not just a user—you're a co-creator of this revolution. I'm honored to have you here. — Mahmoud`;
+  }
+  if (tier === 'genesis') {
+    return `Welcome to the Genesis circle. Your belief in AI sovereignty is what makes this possible. Let's change the world together. — Mahmoud`;
+  }
+  if (tier === 'early') {
+    return `As an early adopter, you're helping shape the future of personal AI. Thank you for joining this journey. — Mahmoud`;
+  }
+  return `Welcome to BIZRA. Your sovereignty begins now. — Mahmoud`;
+}
+
+// Get special perks based on pioneer number
+export function getPioneerPerks(number: number): string[] {
+  const basePerks = ['Lifetime sovereignty guarantee', 'Priority support'];
+  
+  if (number <= 10) {
+    return [
+      '🏆 Name in Genesis Block (forever)',
+      '⭐ Founding Council voting rights',
+      '🎁 Lifetime premium features FREE',
+      '🔮 Direct line to founder',
+      '💎 10,000 SEED tokens at launch',
+      ...basePerks
+    ];
+  }
+  if (number <= 50) {
+    return [
+      '🏆 Founding Architect badge',
+      '⭐ Early governance participation',
+      '🎁 Premium features for 5 years FREE',
+      '💎 5,000 SEED tokens at launch',
+      ...basePerks
+    ];
+  }
+  if (number <= 100) {
+    return [
+      '🏆 Genesis Pioneer badge',
+      '🎁 Premium features for 3 years FREE',
+      '💎 2,500 SEED tokens at launch',
+      ...basePerks
+    ];
+  }
+  if (number <= 500) {
+    return [
+      '🏆 Early Visionary badge',
+      '🎁 Premium features for 1 year FREE',
+      '💎 1,000 SEED tokens at launch',
+      ...basePerks
+    ];
+  }
+  return [
+    '🏆 Sovereign Member badge',
+    '💎 500 SEED tokens at launch',
+    ...basePerks
+  ];
+}
+
 export interface InvitationStats {
   totalCodes: number;
   usedCodes: number;
@@ -45,6 +142,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 1000,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: 'You have been chosen to witness the birth of digital sovereignty.',
+    specialTitle: '🌟 Genesis Pioneer',
+    privileges: ['Lifetime Premium', 'Founding Member Badge', '5,000 SEED Tokens', 'Priority Support Forever', 'Your name in BIZRA Hall of Fame'],
   },
   {
     code: 'MAHMOUD-GENESIS-2024',
@@ -54,6 +154,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 100,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: 'Personally invited by Mahmoud - Welcome to the inner circle!',
+    specialTitle: '👑 Founder\'s Circle',
+    privileges: ['Direct access to Mahmoud', 'Lifetime Premium', 'Founding Member Badge', '5,000 SEED Tokens', 'Co-creator privileges'],
   },
   {
     code: 'SOVEREIGNTY-NOW',
@@ -62,6 +165,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 50,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: 'True sovereignty begins today. Welcome, freedom seeker.',
+    specialTitle: '🗽 Sovereignty Champion',
+    privileges: ['Lifetime Premium', 'Founding Member Badge', '5,000 SEED Tokens', 'Early governance rights', 'Exclusive sovereignty features'],
   },
   {
     code: 'NODE0-PIONEER',
@@ -70,6 +176,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 100,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: 'Node Zero awaits its pioneers. You are among the first.',
+    specialTitle: '🚀 Node Zero Pioneer',
+    privileges: ['Lifetime Premium', 'First Node Access', '5,000 SEED Tokens', 'Pioneer hardware discount', 'Beta testing priority'],
   },
   {
     code: 'AI-FREEDOM-2025',
@@ -78,6 +187,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 200,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: 'Welcome to the AI freedom movement. Your journey starts now.',
+    specialTitle: '🤖 AI Freedom Fighter',
+    privileges: ['3 Years Premium FREE', 'Early Visionary Badge', '2,500 SEED Tokens', 'AI model priority access'],
   },
   {
     code: 'BIZRA-BETA-ACCESS',
@@ -86,8 +198,12 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 100,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: 'Exclusive beta access granted. Help us shape the future.',
+    specialTitle: '🧪 Beta Tester Elite',
+    privileges: ['1 Year Premium FREE', 'Early Visionary Badge', '2,000 SEED Tokens', 'Direct feedback channel'],
   },
   // === FRIEND INVITATION CODES (December 2025) ===
+  // These are SPECIAL codes - give to your closest friends!
   {
     code: 'BIZRA-FRIEND-VIP',
     createdAt: new Date().toISOString(),
@@ -96,6 +212,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 10,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '❤️ A true friend has brought you here. Mahmoud personally welcomes you to his vision!',
+    specialTitle: '💎 Mahmoud\'s VIP Friend',
+    privileges: ['Lifetime Premium', 'Personal thank you from Mahmoud', '5,000 SEED Tokens', 'VIP Discord channel', 'Your name in special thanks'],
   },
   {
     code: 'SOVEREIGN-MIND-2025',
@@ -105,6 +224,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 5,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '🧠 A sovereign mind recognizes another. Welcome, enlightened one.',
+    specialTitle: '🧠 Sovereign Mind',
+    privileges: ['Lifetime Premium', 'Philosophy discussion group', '5,000 SEED Tokens', 'Special research access', 'Ideas consultation'],
   },
   {
     code: 'WELCOME-TO-BIZRA',
@@ -114,6 +236,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 20,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '🎉 Welcome! You\'ve been specially invited to join the BIZRA revolution!',
+    specialTitle: '⭐ Special Invitee',
+    privileges: ['3 Years Premium FREE', 'Special welcome gift', '2,500 SEED Tokens', 'Priority support'],
   },
   {
     code: 'JOIN-THE-REVOLUTION',
@@ -123,6 +248,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 15,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '✊ The revolution needs visionaries like you. Welcome aboard!',
+    specialTitle: '✊ Revolutionary',
+    privileges: ['2 Years Premium FREE', 'Revolutionary badge', '2,000 SEED Tokens', 'Community leader training'],
   },
   {
     code: 'AI-SOVEREIGN-NOW',
@@ -132,6 +260,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 10,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '🔓 Break free from AI dependency. Your sovereign AI awaits.',
+    specialTitle: '🔓 AI Liberator',
+    privileges: ['2 Years Premium FREE', 'Liberator badge', '2,000 SEED Tokens', 'Early AI features'],
   },
   {
     code: 'GENESIS-DECEMBER',
@@ -141,6 +272,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 5,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '❄️ December Genesis - The coldest month births the warmest community.',
+    specialTitle: '❄️ December Genesis',
+    privileges: ['Lifetime Premium', 'Winter founding member', '5,000 SEED Tokens', 'Seasonal surprise gifts', 'Anniversary celebration invite'],
   },
   {
     code: 'BIZRA-EXCLUSIVE',
@@ -150,6 +284,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 3,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '🏆 Only 3 people will ever use this code. You are extraordinary.',
+    specialTitle: '🏆 Ultra Exclusive',
+    privileges: ['Lifetime Premium', 'Direct line to founder', '10,000 SEED Tokens', 'Advisory board consideration', 'Equity discussion eligibility'],
   },
   {
     code: 'OWN-YOUR-AI',
@@ -159,6 +296,9 @@ const GENESIS_CODES: InvitationCode[] = [
     maxUses: 25,
     currentUses: 0,
     isActive: true,
+    welcomeMessage: '🏠 Your AI, your rules, your data. Welcome to true ownership.',
+    specialTitle: '🏠 AI Owner',
+    privileges: ['1 Year Premium FREE', 'Owner badge', '1,500 SEED Tokens', 'Self-hosting guide'],
   },
 ];
 
@@ -236,6 +376,9 @@ export function validateInvitationCode(code: string): {
   error?: string;
   tier?: InvitationCode['tier'];
   invitedBy?: string;
+  welcomeMessage?: string;
+  specialTitle?: string;
+  privileges?: string[];
 } {
   // If in public phase, all codes are valid
   if (isPublicPhase()) {
@@ -263,6 +406,9 @@ export function validateInvitationCode(code: string): {
     valid: true,
     tier: invitation.tier,
     invitedBy: invitation.invitedBy,
+    welcomeMessage: invitation.welcomeMessage,
+    specialTitle: invitation.specialTitle,
+    privileges: invitation.privileges,
   };
 }
 
@@ -274,6 +420,9 @@ export function useInvitationCode(code: string, userName?: string): {
   userNumber?: number;
   tier?: InvitationCode['tier'];
   error?: string;
+  welcomeMessage?: string;
+  specialTitle?: string;
+  privileges?: string[];
 } {
   const validation = validateInvitationCode(code);
   
@@ -314,12 +463,18 @@ export function useInvitationCode(code: string, userName?: string): {
     tier: codes[codeIndex].tier,
     usedAt: new Date().toISOString(),
     userNumber,
+    welcomeMessage: codes[codeIndex].welcomeMessage,
+    specialTitle: codes[codeIndex].specialTitle,
+    privileges: codes[codeIndex].privileges,
   }));
   
   return {
     success: true,
     userNumber,
     tier: codes[codeIndex].tier,
+    welcomeMessage: codes[codeIndex].welcomeMessage,
+    specialTitle: codes[codeIndex].specialTitle,
+    privileges: codes[codeIndex].privileges,
   };
 }
 
@@ -351,6 +506,9 @@ export function getCurrentInvitation(): {
   tier?: InvitationCode['tier'];
   userNumber?: number;
   usedAt?: string;
+  welcomeMessage?: string;
+  specialTitle?: string;
+  privileges?: string[];
 } | null {
   if (typeof window === 'undefined') return null;
   

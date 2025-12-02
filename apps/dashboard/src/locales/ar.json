@@ -64,7 +64,9 @@
     "stats": {
       "remaining": "{{count}} مكان متبقي في المرحلة الأولى",
       "pioneers": "{{count}} رائد انضموا"
-    }
+    },
+    "yourPrivileges": "امتيازاتك الحصرية",
+    "welcomeTo": "مرحباً بك في بِزرة"
   },
   "onboarding": {
     "language": {
