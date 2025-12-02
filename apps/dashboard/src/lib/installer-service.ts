@@ -377,6 +377,13 @@ try {
             mode = "genesis"
             owner = "${config.userName}"
         }
+        hardware = @{
+            cpu_cores = ${config.hardwareProfile.cpuCores}
+            ram_gb = ${config.hardwareProfile.ram}
+            has_gpu = $${config.hardwareProfile.hasGpu}
+            gpu_name = "${config.hardwareProfile.gpuName}"
+            tier = "${config.hardwareProfile.tier}"
+        }
         network = @{
             p2p_port = 4001
             rpc_port = 5001
