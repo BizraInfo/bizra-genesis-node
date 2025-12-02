@@ -34,7 +34,7 @@
     "test:e2e": "turbo run test:e2e",
     "test:coverage": "turbo run test:coverage",
     "clean": "turbo run clean && rm -rf node_modules",
-    "prepare": "husky install",
+    "prepare": "husky install || true",
     "precommit": "lint-staged",
     "commitlint": "commitlint --edit",
     "release": "standard-version",
