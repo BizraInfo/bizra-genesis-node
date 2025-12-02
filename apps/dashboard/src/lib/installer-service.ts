@@ -434,11 +434,11 @@ export function checkSystemRequirements(): {
   
   return {
     passed: checks.every(c => c.passed),
-    checks,
+  checks,
   };
 }
 
-export default {
+const installerService = {
   calculateDownloadSize,
   generateInstallerPackage,
   downloadInstaller,
@@ -453,3 +453,5 @@ export default {
   checkSystemRequirements,
   INSTALLATION_PHASES,
 };
+
+export default installerService;
