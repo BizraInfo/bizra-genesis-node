@@ -73,6 +73,7 @@ export function SmartModelSelector({ hardware, onModelsSelected }: ModelSelector
     if (selectedModels.size === 0 && recommendations.primary) {
       setSelectedModels(new Set([recommendations.primary.id]));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recommendations.primary]);
 
   const toggleModel = (modelId: string) => {
