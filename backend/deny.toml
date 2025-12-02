@@ -23,7 +23,10 @@ notice = "warn"
 
 # Allow specific advisories if we've verified they don't affect us
 ignore = [
-    # Example: "RUSTSEC-2020-0036",
+    # RSA timing attack - only affects MySQL connections, we use PostgreSQL
+    # No fix available upstream. sqlx-mysql is pulled as unused optional feature
+    # See: https://rustsec.org/advisories/RUSTSEC-2023-0071
+    "RUSTSEC-2023-0071",
 ]
 
 # ============================================
