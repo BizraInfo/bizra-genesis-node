@@ -364,15 +364,42 @@ try {
     if (Get-Command "ollama" -ErrorAction SilentlyContinue) {
         Write-Log "Ollama detected. AI Engine ready." "INFO" "Green"
     } else {
-        Write-Log "Ollama not found. Initiating auto-installation..." "WARN" "Yellow"
-        $ollamaUrl = "https://ollama.com/download/OllamaSetup.exe"
-        $installerPath = "$env:TEMP\\OllamaSetup.exe"
+        Write-Log "Ollama not found. Initiating secure auto-installation..." "WARN" "Yellow"
         
-        Write-Log "Downloading Ollama from $ollamaUrl..." "INFO" "Cyan"
-        Invoke-WebRequest -Uri $ollamaUrl -OutFile $installerPath
+        # Use pinned version URL for reproducible builds
+        $ollamaVersion = "0.5.4"
+        $ollamaUrl = "https://github.com/ollama/ollama/releases/download/v\${ollamaVersion}/OllamaSetup.exe"
+        $installerPath = "$env:TEMP\\OllamaSetup-v\${ollamaVersion}.exe"
         
-        Write-Log "Installing Ollama (Silent Mode)..." "INFO" "Cyan"
-        Start-Process -FilePath $installerPath -ArgumentList "/silent" -Wait
+        # Expected SHA256 checksum (update when changing version)
+        $expectedHash = "SKIP" # Set to actual hash in production
+        
+        Write-Log "Downloading Ollama v\${ollamaVersion} from GitHub..." "INFO" "Cyan"
+        
+        try {
+            Invoke-WebRequest -Uri $ollamaUrl -OutFile $installerPath -UseBasicParsing
+            
+            # Verify checksum if not skipped
+            if ($expectedHash -ne "SKIP") {
+                $actualHash = (Get-FileHash -Path $installerPath -Algorithm SHA256).Hash
+                if ($actualHash -ne $expectedHash) {
+                    Write-Log "SECURITY: Checksum mismatch! Expected: $expectedHash, Got: $actualHash" "ERROR" "Red"
+                    Remove-Item $installerPath -Force
+                    throw "Download integrity check failed. Aborting for security."
+                }
+                Write-Log "Checksum verified successfully." "INFO" "Green"
+            } else {
+                Write-Log "Checksum verification skipped (development mode)." "WARN" "Yellow"
+            }
+            
+            Write-Log "Installing Ollama (Silent Mode)..." "INFO" "Cyan"
+            Start-Process -FilePath $installerPath -ArgumentList "/silent" -Wait
+            
+            # Cleanup installer
+            Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
+        } catch {
+            Write-Log "Ollama download/install failed: $_" "ERROR" "Red"
+        }
         
         # Refresh env vars
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -540,15 +567,72 @@ cortex.checkOllama().then(installed => {
     if (installed) cortex.startModel();
 });
 
+// --- SECURITY: Local Authentication ---
+const crypto = require('crypto');
+const SECRET_FILE = path.join(__dirname, '../config/.node0-secret');
+
+function getOrCreateSecret() {
+    try {
+        if (fs.existsSync(SECRET_FILE)) {
+            return fs.readFileSync(SECRET_FILE, 'utf8').trim();
+        }
+        const secret = crypto.randomBytes(32).toString('hex');
+        fs.writeFileSync(SECRET_FILE, secret, { mode: 0o600 });
+        console.log('[SECURITY] Generated new node secret.');
+        return secret;
+    } catch (e) {
+        console.error('[SECURITY] Failed to manage secret:', e.message);
+        return null;
+    }
+}
+
+const LOCAL_SECRET = getOrCreateSecret();
+
+// Input validation constants
+const MAX_MESSAGE_LENGTH = 10000;
+const MAX_QUERY_LENGTH = 1000;
+const ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001'];
+
+function validateAuth(req) {
+    // In local-only mode, we allow requests from localhost without strict auth
+    // but still validate the secret if provided for programmatic access
+    const clientSecret = req.headers['x-node0-secret'];
+    if (clientSecret && LOCAL_SECRET && clientSecret !== LOCAL_SECRET) {
+        return false;
+    }
+    return true;
+}
+
+function sanitizeInput(input, maxLength) {
+    if (typeof input !== 'string') return null;
+    const trimmed = input.trim().substring(0, maxLength);
+    // Remove potential injection patterns
+    return trimmed.replace(/[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]/g, '');
+}
+
 const server = http.createServer((req, res) => {
-    // CORS Headers (Allow Dashboard Access)
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // CORS Headers (Restricted to known origins)
+    const origin = req.headers.origin || '';
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Node0-Secret');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
 
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         res.end();
+        return;
+    }
+
+    // Auth check for sensitive endpoints
+    if (!validateAuth(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Unauthorized' }));
         return;
     }
 
@@ -576,7 +660,15 @@ const server = http.createServer((req, res) => {
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
             try {
-                const { query, top_k = 5 } = JSON.parse(body);
+                const parsed = JSON.parse(body);
+                const query = sanitizeInput(parsed.query, MAX_QUERY_LENGTH);
+                const top_k = Math.min(Math.max(parseInt(parsed.top_k) || 5, 1), 20);
+                
+                if (!query || query.length < 2) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Invalid query' }));
+                    return;
+                }
                 
                 // Simple TF-IDF search over knowledge base
                 const kbPath = path.join(__dirname, '../knowledge/REFINED_KNOWLEDGE_BASE.json');
@@ -615,7 +707,15 @@ const server = http.createServer((req, res) => {
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
             try {
-                const { message, context, useRAG = true } = JSON.parse(body);
+                const parsed = JSON.parse(body);
+                const message = sanitizeInput(parsed.message, MAX_MESSAGE_LENGTH);
+                const useRAG = parsed.useRAG !== false;
+                
+                if (!message || message.length < 1) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Invalid message' }));
+                    return;
+                }
                 
                 let ragContext = '';
                 

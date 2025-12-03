@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 
 interface CortexStatus {
   status: string
@@ -17,36 +17,115 @@ interface NodeHealth {
   cortex: CortexStatus
 }
 
+type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'error'
+
+interface NodeHealthState {
+  health: NodeHealth | null
+  connectionState: ConnectionState
+  lastUpdated: Date | null
+  error: string | null
+  retryCount: number
+}
+
+const MAX_RETRIES = 5
+const BASE_DELAY = 2000 // 2 seconds
+const MAX_DELAY = 30000 // 30 seconds
+
 export function useNodeHealth() {
-  const [health, setHealth] = useState<NodeHealth | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [state, setState] = useState<NodeHealthState>({
+    health: null,
+    connectionState: 'connecting',
+    lastUpdated: null,
+    error: null,
+    retryCount: 0
+  })
+  
+  const retryCountRef = useRef(0)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const res = await fetch("http://localhost:3001/health")
-        if (res.ok) {
-          const data = await res.json()
-          setHealth(data)
-          setIsConnected(true)
-          setLastUpdated(new Date())
-        } else {
-          setIsConnected(false)
-        }
-      } catch (error) {
-        setIsConnected(false)
+  const checkHealth = useCallback(async () => {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5s timeout
+      
+      const res = await fetch("http://localhost:3001/health", {
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
+      if (res.ok) {
+        const data = await res.json()
+        retryCountRef.current = 0
+        setState({
+          health: data,
+          connectionState: 'connected',
+          lastUpdated: new Date(),
+          error: null,
+          retryCount: 0
+        })
+      } else {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       }
+    } catch (error) {
+      retryCountRef.current++
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      
+      setState(prev => ({
+        ...prev,
+        connectionState: retryCountRef.current >= MAX_RETRIES ? 'error' : 'disconnected',
+        error: retryCountRef.current >= MAX_RETRIES 
+          ? `Node offline. Check if BIZRA Node is running. (${errorMessage})`
+          : `Retrying... (${retryCountRef.current}/${MAX_RETRIES})`,
+        retryCount: retryCountRef.current
+      }))
     }
-
-    // Check immediately
-    checkHealth()
-
-    // Poll every 2 seconds
-    const interval = setInterval(checkHealth, 2000)
-
-    return () => clearInterval(interval)
   }, [])
 
-  return { health, isConnected, lastUpdated }
+  useEffect(() => {
+    // Initial check
+    checkHealth()
+
+    // Set up polling with exponential backoff on errors
+    const setupInterval = () => {
+      const delay = Math.min(
+        BASE_DELAY * Math.pow(1.5, retryCountRef.current),
+        MAX_DELAY
+      )
+      
+      intervalRef.current = setTimeout(() => {
+        checkHealth()
+        setupInterval()
+      }, delay)
+    }
+    
+    setupInterval()
+
+    return () => {
+      if (intervalRef.current) {
+        clearTimeout(intervalRef.current)
+      }
+    }
+  }, [checkHealth])
+
+  // Manual retry function
+  const retry = useCallback(() => {
+    retryCountRef.current = 0
+    setState(prev => ({
+      ...prev,
+      connectionState: 'connecting',
+      error: null,
+      retryCount: 0
+    }))
+    checkHealth()
+  }, [checkHealth])
+
+  return {
+    health: state.health,
+    isConnected: state.connectionState === 'connected',
+    connectionState: state.connectionState,
+    lastUpdated: state.lastUpdated,
+    error: state.error,
+    retry
+  }
 }
