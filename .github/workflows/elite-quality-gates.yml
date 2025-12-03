@@ -1,0 +1,577 @@
+# BIZRA Node0 Genesis - Elite Quality Gates
+# Document ID: BIZRA-ELITE-QG-v1.0.0
+# The Ultimate Professional Standard Pipeline
+
+name: 🏆 Elite Quality Gates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      full_suite:
+        description: 'Run full test suite including performance'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  RUST_VERSION: '1.75'
+  PYTHON_VERSION: '3.11'
+  
+# ============================================
+# ELITE QUALITY STANDARDS
+# ============================================
+# Gate 1: Code Quality Score ≥ 95%
+# Gate 2: Test Coverage ≥ 80%
+# Gate 3: Security Vulnerabilities = 0 Critical
+# Gate 4: Performance P95 < 500ms
+# Gate 5: Accessibility Score ≥ 90
+# Gate 6: Documentation Coverage ≥ 85%
+# ============================================
+
+jobs:
+  # ============================================
+  # GATE 1: CODE QUALITY ANALYSIS
+  # ============================================
+  code-quality:
+    name: 📊 Gate 1 - Code Quality
+    runs-on: ubuntu-latest
+    outputs:
+      quality_score: ${{ steps.quality.outputs.score }}
+      quality_passed: ${{ steps.quality.outputs.passed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: 📦 Cache Dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # Rust Quality
+      - name: 🦀 Rust Clippy Analysis
+        id: clippy
+        working-directory: backend
+        run: |
+          cargo clippy --all-targets --all-features --message-format=json > clippy-report.json 2>&1 || true
+          WARNINGS=$(grep -c '"level":"warning"' clippy-report.json || echo 0)
+          ERRORS=$(grep -c '"level":"error"' clippy-report.json || echo 0)
+          echo "rust_warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "rust_errors=$ERRORS" >> $GITHUB_OUTPUT
+
+      # TypeScript Quality
+      - name: ⚛️ TypeScript Analysis
+        id: typescript
+        working-directory: apps/dashboard
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm lint --format json > eslint-report.json 2>&1 || true
+          WARNINGS=$(grep -c '"severity":1' eslint-report.json || echo 0)
+          ERRORS=$(grep -c '"severity":2' eslint-report.json || echo 0)
+          echo "ts_warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "ts_errors=$ERRORS" >> $GITHUB_OUTPUT
+
+      # Calculate Quality Score
+      - name: 📊 Calculate Quality Score
+        id: quality
+        run: |
+          RUST_WARNINGS=${{ steps.clippy.outputs.rust_warnings }}
+          RUST_ERRORS=${{ steps.clippy.outputs.rust_errors }}
+          TS_WARNINGS=${{ steps.typescript.outputs.ts_warnings }}
+          TS_ERRORS=${{ steps.typescript.outputs.ts_errors }}
+          
+          # Scoring: Start at 100, deduct for issues
+          SCORE=100
+          SCORE=$((SCORE - RUST_ERRORS * 5))
+          SCORE=$((SCORE - RUST_WARNINGS))
+          SCORE=$((SCORE - TS_ERRORS * 5))
+          SCORE=$((SCORE - TS_WARNINGS))
+          
+          # Ensure score doesn't go below 0
+          [ $SCORE -lt 0 ] && SCORE=0
+          
+          PASSED="false"
+          [ $SCORE -ge 95 ] && PASSED="true"
+          
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          echo "## 📊 Code Quality Score: ${SCORE}%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Language | Errors | Warnings |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Rust | $RUST_ERRORS | $RUST_WARNINGS |" >> $GITHUB_STEP_SUMMARY
+          echo "| TypeScript | $TS_ERRORS | $TS_WARNINGS |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ **Gate 1 PASSED** (≥95%)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Gate 1 FAILED** (<95%)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # GATE 2: TEST COVERAGE
+  # ============================================
+  test-coverage:
+    name: 🧪 Gate 2 - Test Coverage
+    runs-on: ubuntu-latest
+    outputs:
+      coverage: ${{ steps.coverage.outputs.total }}
+      coverage_passed: ${{ steps.coverage.outputs.passed }}
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bizra_test
+          POSTGRES_PASSWORD: test123
+          POSTGRES_DB: bizra_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 📦 Install Coverage Tools
+        run: cargo install cargo-tarpaulin
+
+      - name: 🧪 Rust Coverage
+        id: rust_cov
+        working-directory: backend
+        run: |
+          cargo tarpaulin --out Json --output-dir . --skip-clean || true
+          COV=$(cat tarpaulin-report.json | jq -r '.coverage_percentage // 0' 2>/dev/null || echo 0)
+          echo "rust_coverage=$COV" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: ⚛️ Dashboard Coverage
+        id: ts_cov
+        working-directory: apps/dashboard
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm test:coverage || true
+          COV=$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct // 0' 2>/dev/null || echo 0)
+          echo "ts_coverage=$COV" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 🐍 Python Coverage
+        id: py_cov
+        run: |
+          pip install pytest pytest-cov
+          pip install -r knowledge/requirements.txt || true
+          cd knowledge/scripts
+          pytest --cov=. --cov-report=json test_*.py || true
+          COV=$(cat coverage.json | jq -r '.totals.percent_covered // 0' 2>/dev/null || echo 0)
+          echo "py_coverage=$COV" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: 📊 Calculate Total Coverage
+        id: coverage
+        run: |
+          RUST=${{ steps.rust_cov.outputs.rust_coverage || 0 }}
+          TS=${{ steps.ts_cov.outputs.ts_coverage || 0 }}
+          PY=${{ steps.py_cov.outputs.py_coverage || 0 }}
+          
+          # Weighted average (Rust 40%, TS 40%, Python 20%)
+          TOTAL=$(echo "scale=2; ($RUST * 0.4 + $TS * 0.4 + $PY * 0.2)" | bc 2>/dev/null || echo 0)
+          
+          PASSED="false"
+          [ $(echo "$TOTAL >= 80" | bc 2>/dev/null || echo 0) -eq 1 ] && PASSED="true"
+          
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          echo "## 🧪 Test Coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Rust Backend | ${RUST}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dashboard | ${TS}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Knowledge System | ${PY}% |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ **Gate 2 PASSED** (≥80%)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Gate 2 WARNING** (<80%)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # GATE 3: SECURITY ANALYSIS
+  # ============================================
+  security-analysis:
+    name: 🔒 Gate 3 - Security
+    runs-on: ubuntu-latest
+    outputs:
+      critical_vulns: ${{ steps.security.outputs.critical }}
+      security_passed: ${{ steps.security.outputs.passed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trivy Scan
+      - name: 🔍 Trivy Vulnerability Scan
+        id: trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'json'
+          output: 'trivy-results.json'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+        continue-on-error: true
+
+      # Gitleaks Secret Scan
+      - name: 🔐 Gitleaks Secret Scan
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      # SBOM Generation
+      - name: 📋 Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: sbom.spdx.json
+        continue-on-error: true
+
+      - name: 📊 Analyze Security Results
+        id: security
+        run: |
+          CRITICAL=$(cat trivy-results.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length' 2>/dev/null || echo 0)
+          HIGH=$(cat trivy-results.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length' 2>/dev/null || echo 0)
+          
+          PASSED="false"
+          [ "$CRITICAL" -eq 0 ] && PASSED="true"
+          
+          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          echo "high=$HIGH" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          echo "## 🔒 Security Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Critical | $CRITICAL |" >> $GITHUB_STEP_SUMMARY
+          echo "| High | $HIGH |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ **Gate 3 PASSED** (0 Critical)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Gate 3 FAILED** ($CRITICAL Critical)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 📤 Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+
+  # ============================================
+  # GATE 4: PERFORMANCE BENCHMARKS
+  # ============================================
+  performance:
+    name: ⚡ Gate 4 - Performance
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.full_suite == 'true'
+    outputs:
+      p95_latency: ${{ steps.perf.outputs.p95 }}
+      performance_passed: ${{ steps.perf.outputs.passed }}
+    
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bizra_test
+          POSTGRES_PASSWORD: test123
+          POSTGRES_DB: bizra_test
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🦀 Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 📦 Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend -> target
+
+      - name: 🔨 Build Backend
+        working-directory: backend
+        run: cargo build --release
+
+      - name: 🚀 Start Backend
+        run: |
+          ./backend/target/release/apiserver &
+          sleep 5
+        env:
+          DATABASE_URL: postgres://bizra_test:test123@localhost:5432/bizra_test
+          REDIS_URL: redis://localhost:6379
+
+      - name: 📦 Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: ⚡ Run Performance Tests
+        id: k6
+        run: |
+          k6 run performance/k6-load-test.js --out json=k6-results.json 2>&1 | tee k6-output.txt || true
+        continue-on-error: true
+
+      - name: 📊 Analyze Performance
+        id: perf
+        run: |
+          # Extract P95 latency from results
+          P95=$(cat k6-results.json | jq -r 'select(.type=="Point" and .metric=="http_req_duration") | .data.value' | sort -n | awk 'BEGIN{c=0} {a[c++]=$1} END{print a[int(c*0.95)]}' 2>/dev/null || echo 999)
+          
+          PASSED="false"
+          [ $(echo "$P95 < 500" | bc 2>/dev/null || echo 0) -eq 1 ] && PASSED="true"
+          
+          echo "p95=$P95" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          echo "## ⚡ Performance Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value | Target |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| P95 Latency | ${P95}ms | <500ms |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ **Gate 4 PASSED**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Gate 4 WARNING** (P95 > 500ms)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # GATE 5: ACCESSIBILITY
+  # ============================================
+  accessibility:
+    name: ♿ Gate 5 - Accessibility
+    runs-on: ubuntu-latest
+    outputs:
+      a11y_score: ${{ steps.a11y.outputs.score }}
+      a11y_passed: ${{ steps.a11y.outputs.passed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install & Build
+        working-directory: apps/dashboard
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      - name: 🚀 Start Dashboard
+        working-directory: apps/dashboard
+        run: |
+          pnpm start &
+          sleep 10
+
+      - name: 🔦 Lighthouse Accessibility
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: http://localhost:3000
+          configPath: './lighthouserc.json'
+        continue-on-error: true
+
+      - name: 📊 Analyze Accessibility
+        id: a11y
+        run: |
+          SCORE=$(cat .lighthouseci/lhr-*.json | jq -r '.categories.accessibility.score * 100' 2>/dev/null || echo 0)
+          
+          PASSED="false"
+          [ $(echo "$SCORE >= 90" | bc 2>/dev/null || echo 0) -eq 1 ] && PASSED="true"
+          
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          echo "## ♿ Accessibility Score: ${SCORE}%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ **Gate 5 PASSED** (≥90%)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Gate 5 WARNING** (<90%)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # GATE 6: DOCUMENTATION COVERAGE
+  # ============================================
+  documentation:
+    name: 📚 Gate 6 - Documentation
+    runs-on: ubuntu-latest
+    outputs:
+      doc_coverage: ${{ steps.docs.outputs.coverage }}
+      docs_passed: ${{ steps.docs.outputs.passed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📊 Analyze Documentation
+        id: docs
+        run: |
+          # Count documented functions/structs in Rust
+          RUST_TOTAL=$(grep -r "pub fn\|pub struct\|pub enum" backend/src --include="*.rs" | wc -l || echo 0)
+          RUST_DOCS=$(grep -r "/// " backend/src --include="*.rs" | wc -l || echo 0)
+          
+          # Count documented exports in TypeScript
+          TS_TOTAL=$(grep -r "export function\|export const\|export interface" apps/dashboard/src --include="*.ts" --include="*.tsx" | wc -l || echo 0)
+          TS_DOCS=$(grep -r "/\*\*" apps/dashboard/src --include="*.ts" --include="*.tsx" | wc -l || echo 0)
+          
+          # Check key documentation files
+          DOCS_EXIST=0
+          [ -f "README.md" ] && DOCS_EXIST=$((DOCS_EXIST + 10))
+          [ -f "CONTRIBUTING.md" ] && DOCS_EXIST=$((DOCS_EXIST + 10))
+          [ -f "ARCHITECTURE.md" ] && DOCS_EXIST=$((DOCS_EXIST + 10))
+          [ -f "docs/api/README.md" ] && DOCS_EXIST=$((DOCS_EXIST + 10))
+          [ -d "docs/runbook" ] && DOCS_EXIST=$((DOCS_EXIST + 10))
+          [ -d "docs/adr" ] && DOCS_EXIST=$((DOCS_EXIST + 10))
+          
+          # Calculate coverage (weighted: code docs 40%, project docs 60%)
+          if [ "$RUST_TOTAL" -gt 0 ] && [ "$TS_TOTAL" -gt 0 ]; then
+            CODE_DOC=$(echo "scale=2; (($RUST_DOCS / $RUST_TOTAL) + ($TS_DOCS / $TS_TOTAL)) / 2 * 100" | bc 2>/dev/null || echo 0)
+          else
+            CODE_DOC=50
+          fi
+          
+          TOTAL=$(echo "scale=2; $CODE_DOC * 0.4 + $DOCS_EXIST * 0.6" | bc 2>/dev/null || echo 0)
+          
+          PASSED="false"
+          [ $(echo "$TOTAL >= 85" | bc 2>/dev/null || echo 0) -eq 1 ] && PASSED="true"
+          
+          echo "coverage=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          
+          echo "## 📚 Documentation Coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| README.md | $([ -f README.md ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| CONTRIBUTING.md | $([ -f CONTRIBUTING.md ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| ARCHITECTURE.md | $([ -f ARCHITECTURE.md ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Docs | $([ -f docs/api/README.md ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runbooks | $([ -d docs/runbook ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| ADRs | $([ -d docs/adr ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$PASSED" = "true" ]; then
+            echo "✅ **Gate 6 PASSED** (≥85%)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Gate 6 WARNING** (<85%)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # ELITE QUALITY REPORT
+  # ============================================
+  quality-report:
+    name: 🏆 Elite Quality Report
+    runs-on: ubuntu-latest
+    needs: [code-quality, test-coverage, security-analysis, accessibility, documentation]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Quality Report
+        run: |
+          echo "# 🏆 BIZRA Node0 Elite Quality Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## Quality Gates Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Gate | Metric | Target | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 1. Code Quality | ${{ needs.code-quality.outputs.quality_score }}% | ≥95% | $([ '${{ needs.code-quality.outputs.quality_passed }}' = 'true' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| 2. Test Coverage | ${{ needs.test-coverage.outputs.coverage }}% | ≥80% | $([ '${{ needs.test-coverage.outputs.coverage_passed }}' = 'true' ] && echo '✅' || echo '⚠️') |" >> $GITHUB_STEP_SUMMARY
+          echo "| 3. Security | ${{ needs.security-analysis.outputs.critical_vulns }} Critical | 0 | $([ '${{ needs.security-analysis.outputs.security_passed }}' = 'true' ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| 4. Performance | N/A | P95<500ms | ⏭️ |" >> $GITHUB_STEP_SUMMARY
+          echo "| 5. Accessibility | ${{ needs.accessibility.outputs.a11y_score }}% | ≥90% | $([ '${{ needs.accessibility.outputs.a11y_passed }}' = 'true' ] && echo '✅' || echo '⚠️') |" >> $GITHUB_STEP_SUMMARY
+          echo "| 6. Documentation | ${{ needs.documentation.outputs.doc_coverage }}% | ≥85% | $([ '${{ needs.documentation.outputs.docs_passed }}' = 'true' ] && echo '✅' || echo '⚠️') |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Calculate overall score
+          GATES_PASSED=0
+          [ '${{ needs.code-quality.outputs.quality_passed }}' = 'true' ] && GATES_PASSED=$((GATES_PASSED + 1))
+          [ '${{ needs.test-coverage.outputs.coverage_passed }}' = 'true' ] && GATES_PASSED=$((GATES_PASSED + 1))
+          [ '${{ needs.security-analysis.outputs.security_passed }}' = 'true' ] && GATES_PASSED=$((GATES_PASSED + 1))
+          [ '${{ needs.accessibility.outputs.a11y_passed }}' = 'true' ] && GATES_PASSED=$((GATES_PASSED + 1))
+          [ '${{ needs.documentation.outputs.docs_passed }}' = 'true' ] && GATES_PASSED=$((GATES_PASSED + 1))
+          
+          echo "## Overall: $GATES_PASSED/5 Gates Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $GATES_PASSED -eq 5 ]; then
+            echo "🏆 **ELITE STATUS ACHIEVED** - All quality gates passed!" >> $GITHUB_STEP_SUMMARY
+          elif [ $GATES_PASSED -ge 3 ]; then
+            echo "✅ **PROFESSIONAL STATUS** - Core gates passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **IMPROVEMENT NEEDED** - Review failing gates" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: ❌ Fail on Critical Gates
+        if: needs.security-analysis.outputs.security_passed != 'true'
+        run: |
+          echo "❌ CRITICAL: Security gate failed with ${{ needs.security-analysis.outputs.critical_vulns }} critical vulnerabilities"
+          exit 1

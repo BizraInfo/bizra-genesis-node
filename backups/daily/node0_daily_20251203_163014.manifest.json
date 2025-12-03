@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-12-03T16:30:17.4348801+04:00",
+  "name": "node0_daily_20251203_163014",
+  "genesis_block": "NODE0-TITAN",
+  "components": [
+    "PostgreSQL",
+    "Redis",
+    "Knowledge",
+    "Config",
+    "Ollama"
+  ],
+  "checksum": "70B8AAC9FD345405E62B94D6736A20EF77CF195995FED125E909BDFBD4ACE64E",
+  "encrypted": false,
+  "version": "1.0.0",
+  "type": "daily"
+}

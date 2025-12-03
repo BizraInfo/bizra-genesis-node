@@ -20,6 +20,8 @@ import {
   generateInstallerPackage,
   markInstalled,
   isInstalled,
+  verifyInstallerPackage,
+  INSTALLER_VERSION,
   type InstallerPackage,
   type InstallConfig
 } from '@/lib/installer-service';
@@ -292,6 +294,10 @@ export default function InstallerPage() {
       };
       
       const pkg = generateInstallerPackage(config, modelConfig.models);
+      if (!verifyInstallerPackage(pkg)) {
+        console.warn('Genesis integrity validation failed for generated package');
+        return;
+      }
       setInstallerPackage(pkg);
     }
     
@@ -302,6 +308,10 @@ export default function InstallerPage() {
   // Handle download
   const handleDownload = useCallback(() => {
     if (!installerPackage) return;
+    if (!verifyInstallerPackage(installerPackage)) {
+      console.warn('Genesis package verification failed; aborting download trigger.');
+      return;
+    }
     
     setIsDownloading(true);
     
@@ -834,9 +844,11 @@ export default function InstallerPage() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: t('installer.complete.installerName'), value: `BIZRA-${profile.name || 'User'}-Genesis.exe` },
-                    { label: t('installer.complete.fileSize'), value: modelConfig?.totalSize || '4.2 GB' },
-                    { label: t('installer.complete.version'), value: 'v2.2.0-genesis' },
+                    { label: t('installer.complete.installerName'), value: installerPackage?.fileName || `BIZRA-${profile.name || 'User'}-Genesis.exe` },
+                    { label: t('installer.complete.fileSize'), value: installerPackage?.fileSize || modelConfig?.totalSize || '4.2 GB' },
+                    { label: t('installer.complete.version'), value: installerPackage?.version || INSTALLER_VERSION },
+                    { label: 'Genesis Signature', value: installerPackage?.integrityCode || 'Pending' },
+                    { label: 'Source Node', value: installerPackage?.sourceNode || 'NODE0-TITAN' },
                     { label: t('installer.complete.aiModels'), value: modelConfig ? `${modelConfig.models.length} model(s)` : '1 model' },
                     { label: t('installer.complete.downloadTime'), value: modelConfig?.estimatedDownloadTime || '~15 minutes' },
                     { label: t('installer.complete.privacyLevel'), value: profile.privacyLevel === 'maximum' ? t('installer.profile.privacyMaximum') : profile.privacyLevel },

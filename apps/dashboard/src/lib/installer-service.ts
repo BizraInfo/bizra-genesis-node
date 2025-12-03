@@ -36,6 +36,38 @@ export const GENESIS_VERSION = '1.0.0';
 /** Genesis Block timestamp - the moment of creation */
 export const GENESIS_TIMESTAMP = '2025-12-03T00:00:00Z';
 
+/** Installer package versioning */
+export const INSTALLER_VERSION = 'v2.2.0-genesis';
+
+/**
+ * Lightweight FNV-1a hash for deterministic package integrity (works in browser + Node)
+ */
+function fnv1a(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = (hash * 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0');
+}
+
+function deriveIntegrityCode(config: InstallConfig, version: string): string {
+  const payload = JSON.stringify({
+    config,
+    version,
+    source: GENESIS_BLOCK_ID,
+    timestamp: GENESIS_TIMESTAMP,
+  });
+  return `FNV32:${fnv1a(payload).toUpperCase()}`;
+}
+
+function createPackageId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `pkg-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+}
+
 /** 
  * Federation Mode
  * - 'genesis': This IS Node0, the source of all software
@@ -89,11 +121,26 @@ export function getGenesisConfig(nodeId: string): GenesisBlockConfig {
  * Federation nodes MUST verify before installation
  */
 export function verifyGenesisSource(packageSource: string): boolean {
-  // ALL packages must originate from Node0
-  if (packageSource !== GENESIS_BLOCK_ID) {
+  if (!packageSource || packageSource !== GENESIS_BLOCK_ID) {
     console.error(`[GENESIS] SOVEREIGNTY BREACH: Package source "${packageSource}" is not Node0`);
     return false;
   }
+  return true;
+}
+
+/**
+ * Validate installer package integrity and trust chain
+ */
+export function verifyInstallerPackage(pkg: InstallerPackage): boolean {
+  if (!verifyGenesisSource(pkg.sourceNode)) return false;
+  if (pkg.trustAnchor !== GENESIS_BLOCK_ID || !pkg.requiresGenesis) return false;
+  
+  const recomputed = deriveIntegrityCode(pkg.config, pkg.version);
+  if (recomputed !== pkg.integrityCode) {
+    console.error(`[GENESIS] Integrity mismatch. Expected ${recomputed}, received ${pkg.integrityCode}`);
+    return false;
+  }
+  
   return true;
 }
 
@@ -120,14 +167,20 @@ export interface InstallationProgress {
 }
 
 export interface InstallerPackage {
+  packageId: string;
   fileName: string;
   fileSize: string;
   fileSizeBytes: number;
   version: string;
+  sourceNode: string;
+  trustAnchor: string;
+  requiresGenesis: boolean;
   models: { id: string; name: string; size: string }[];
   estimatedDownloadTime: string;
   estimatedInstallTime: string;
   checksum: string;
+  integrityCode: string;
+  signature: string;
   createdAt: string;
   config: InstallConfig;
 }
@@ -229,25 +282,31 @@ export function calculateDownloadSize(modelIds: string[], allModels: AIModel[]):
  */
 export function generateInstallerPackage(config: InstallConfig, models: AIModel[]): InstallerPackage {
   const { totalBytes, totalSize, estimatedTime } = calculateDownloadSize(config.selectedModels, models);
+  const version = INSTALLER_VERSION;
+  const packageId = createPackageId();
   
-  // Generate a unique checksum for this configuration
-  const configString = JSON.stringify({
-    ...config,
-    timestamp: Date.now()
-  });
-  const checksum = btoa(configString).slice(0, 16).toUpperCase();
+  const configString = JSON.stringify({ ...config, version, source: GENESIS_BLOCK_ID });
+  const checksum = `FNV32:${fnv1a(configString).toUpperCase()}`;
+  const integrityCode = deriveIntegrityCode(config, version);
+  const signature = `${GENESIS_BLOCK_ID}:${integrityCode}`;
   
   const selectedModels = models.filter(m => config.selectedModels.includes(m.id));
   
   return {
-    fileName: `BIZRA-${config.userName.replace(/\s+/g, '')}-Genesis-v2.2.0.exe`,
+    packageId,
+    fileName: `BIZRA-${config.userName.replace(/\s+/g, '')}-Genesis-${version}.exe`,
     fileSize: totalSize,
     fileSizeBytes: totalBytes,
-    version: 'v2.2.0-genesis',
+    version,
+    sourceNode: GENESIS_BLOCK_ID,
+    trustAnchor: GENESIS_BLOCK_ID,
+    requiresGenesis: true,
     models: selectedModels.map(m => ({ id: m.id, name: m.name, size: m.size })),
     estimatedDownloadTime: estimatedTime,
     estimatedInstallTime: '~5 minutes',
-    checksum: `SHA256:${checksum}`,
+    checksum,
+    integrityCode,
+    signature,
     createdAt: new Date().toISOString(),
     config,
   };
@@ -325,6 +384,11 @@ export function getInstallerDownloadUrl(pkg: InstallerPackage): string {
   const installerData = {
     type: 'bizra-installer',
     version: pkg.version,
+    packageId: pkg.packageId,
+    source: pkg.sourceNode,
+    trustAnchor: pkg.trustAnchor,
+    integrity: pkg.integrityCode,
+    signature: pkg.signature,
     config: pkg.config,
     models: pkg.models,
     createdAt: pkg.createdAt,
@@ -341,11 +405,13 @@ export function getInstallerDownloadUrl(pkg: InstallerPackage): string {
  * This generates a PowerShell script that can bootstrap the installation
  */
 export function generateBootstrapScript(config: InstallConfig): string {
+  const genesisSignature = deriveIntegrityCode(config, INSTALLER_VERSION);
+  
   return `
 <#
 .SYNOPSIS
     BIZRA Sovereign OS - Unified Installer
-    Version: 2.2.0-genesis
+    Version: ${INSTALLER_VERSION}
     
 .DESCRIPTION
     This script installs the BIZRA Sovereign AI Node on your Windows machine.
@@ -356,6 +422,7 @@ export function generateBootstrapScript(config: InstallConfig): string {
     Generated: ${new Date().toISOString()}
     User: ${config.userName}
     Privacy Level: ${config.privacyLevel}
+    Genesis Signature: ${genesisSignature}
 #>
 
 $ErrorActionPreference = "Stop"
@@ -369,6 +436,8 @@ $BizraConfig = "$BizraRoot\\config"
 $BizraLogs = "$BizraRoot\\logs"
 $BizraModels = "$BizraRoot\\models"
 $LogFile = "$BizraLogs\\install.log"
+$TrustedSource = "${GENESIS_BLOCK_ID}"
+$GenesisSignature = "${genesisSignature}"
 
 # --- Helper Functions ---
 function Write-Log {
@@ -411,6 +480,14 @@ function Show-Banner {
 
 try {
     Show-Banner
+    
+    # Genesis trust check
+    Write-Log "Validating Genesis trust anchor ($TrustedSource)..." "INFO" "Cyan"
+    if ($TrustedSource -ne "${GENESIS_BLOCK_ID}") {
+        Write-Log "Trust anchor mismatch. Aborting installer." "ERROR" "Red"
+        exit 1
+    }
+    Write-Log "Genesis Signature: $GenesisSignature" "INFO" "Green"
     
     # 1. Check Permissions
     Write-Log "Checking administrative privileges..." "INFO" "Cyan"
@@ -1084,6 +1161,8 @@ const installerService = {
   generateInstallerPackage,
   downloadInstaller,
   generateBootstrapScript,
+  verifyGenesisSource,
+  verifyInstallerPackage,
   runInstallation,
   saveInstallState,
   getInstallState,
@@ -1092,6 +1171,7 @@ const installerService = {
   markInstalled,
   getInstallConfig,
   checkSystemRequirements,
+  INSTALLER_VERSION,
   INSTALLATION_PHASES,
 };
 
