@@ -503,6 +503,36 @@ class CortexManager {
             }
         });
     }
+
+    async chat(message, context = []) {
+        if (this.status !== 'ready') {
+            throw new Error('Cortex is not ready yet.');
+        }
+
+        const { spawn } = require('child_process');
+        
+        return new Promise((resolve, reject) => {
+            const chat = spawn('ollama', ['run', this.model, message]);
+            let output = '';
+            
+            chat.stdout.on('data', (data) => {
+                output += data.toString();
+            });
+            
+            chat.stderr.on('data', (data) => {
+                // Ollama logs to stderr sometimes
+                // console.log(\`[OLLAMA_ERR] \${data}\`);
+            });
+            
+            chat.on('close', (code) => {
+                if (code === 0) {
+                    resolve(output);
+                } else {
+                    reject(new Error(\`Ollama exited with code \${code}\`));
+                }
+            });
+        });
+    }
 }
 
 const cortex = new CortexManager();
@@ -537,6 +567,32 @@ const server = http.createServer((req, res) => {
                 model: cortex.model
             }
         }));
+        return;
+    }
+
+    if (req.url === '/api/pat/chat' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+            try {
+                const { message, context } = JSON.parse(body);
+                const response = await cortex.chat(message, context);
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({
+                    success: true,
+                    data: {
+                        response: response,
+                        primary_agent: 'MasterReasoner',
+                        poi_generated: 0.5,
+                        backend_used: 'ollama'
+                    }
+                }));
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: e.message }));
+            }
+        });
         return;
     }
 
