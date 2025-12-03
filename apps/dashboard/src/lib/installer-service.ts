@@ -433,7 +433,7 @@ const PORT = 3001;
 class CortexManager {
     constructor() {
         this.status = 'initializing';
-        this.model = 'qwen2.5:0.5b'; // Default lightweight model
+        this.model = (config.models && config.models.length > 0) ? config.models[0] : 'qwen2.5:0.5b';
         this.process = null;
     }
 

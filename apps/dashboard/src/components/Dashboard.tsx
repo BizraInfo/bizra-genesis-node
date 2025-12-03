@@ -15,6 +15,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useGenesisSynapse } from '@/hooks/useGenesisSynapse';
+import { useNodeHealth } from '@/hooks/useNodeHealth';
 
 // Hexagon Icon matching brand identity
 const HexagonIcon = () => (
@@ -44,6 +45,7 @@ interface DashboardProps {
  */
 export default function Dashboard({ userName = 'MoMo' }: DashboardProps) {
   const { synapse, connected } = useGenesisSynapse();
+  const { health, isConnected } = useNodeHealth();
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
@@ -72,7 +74,12 @@ export default function Dashboard({ userName = 'MoMo' }: DashboardProps) {
       {/* === HEADER === */}
       <header className="px-6 py-6 flex justify-between items-end relative z-20" role="banner">
         <div>
-          <div className="text-[10px] font-mono text-[#C9A962]/60 tracking-[0.2em] mb-1">NODE: TITAN</div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-[#2A9D8F] animate-pulse' : 'bg-red-500'}`} />
+            <div className="text-[10px] font-mono text-[#C9A962]/60 tracking-[0.2em]">
+              NODE: {isConnected ? 'ONLINE' : 'OFFLINE'}
+            </div>
+          </div>
           <h1 className="text-2xl font-serif text-white tracking-wide">
             {getGreeting()},<br/>
             <span className="text-[#C9A962]">{userName}</span>
@@ -117,6 +124,35 @@ export default function Dashboard({ userName = 'MoMo' }: DashboardProps) {
           <div className="flex justify-between mt-2 text-[10px] font-mono text-[#C9A962]/60">
             <span>PROGRESS</span>
             <span>75%</span>
+          </div>
+        </motion.div>
+
+        {/* Cortex Status Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="bg-[#0A1628]/40 border border-white/5 p-4 rounded-xl flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              health?.cortex?.status === 'ready' ? 'bg-[#2A9D8F]/20 text-[#2A9D8F]' : 'bg-yellow-500/20 text-yellow-500'
+            }`}>
+              <Cpu className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs text-white/40 font-mono uppercase tracking-wider">Cortex Core</div>
+              <div className="text-sm font-medium text-white">
+                {health?.cortex?.model || "Initializing..."}
+              </div>
+            </div>
+          </div>
+          <div className={`text-xs px-2 py-1 rounded-full border ${
+            health?.cortex?.status === 'ready' 
+              ? 'border-[#2A9D8F]/30 text-[#2A9D8F] bg-[#2A9D8F]/10' 
+              : 'border-yellow-500/30 text-yellow-500 bg-yellow-500/10'
+          }`}>
+            {health?.cortex?.status?.toUpperCase() || "WAITING"}
           </div>
         </motion.div>
 
