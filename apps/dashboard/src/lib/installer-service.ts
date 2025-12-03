@@ -352,6 +352,38 @@ try {
     # 3. System Requirements Check
     Write-Log "Verifying system requirements..." "INFO" "Cyan"
     
+    # Real Hardware Detection
+    $gpu = Get-CimInstance Win32_VideoController | Select-Object -First 1
+    $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
+    $ram = Get-CimInstance Win32_ComputerSystem | Select-Object -First 1
+    
+    $ramGB = [math]::Round($ram.TotalPhysicalMemory / 1GB, 0)
+    Write-Log "Detected Hardware: $($cpu.Name) | $ramGB GB RAM | $($gpu.Name)" "INFO" "Gray"
+
+    # Check for Ollama
+    if (Get-Command "ollama" -ErrorAction SilentlyContinue) {
+        Write-Log "Ollama detected. AI Engine ready." "INFO" "Green"
+    } else {
+        Write-Log "Ollama not found. Initiating auto-installation..." "WARN" "Yellow"
+        $ollamaUrl = "https://ollama.com/download/OllamaSetup.exe"
+        $installerPath = "$env:TEMP\\OllamaSetup.exe"
+        
+        Write-Log "Downloading Ollama from $ollamaUrl..." "INFO" "Cyan"
+        Invoke-WebRequest -Uri $ollamaUrl -OutFile $installerPath
+        
+        Write-Log "Installing Ollama (Silent Mode)..." "INFO" "Cyan"
+        Start-Process -FilePath $installerPath -ArgumentList "/silent" -Wait
+        
+        # Refresh env vars
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        if (Get-Command "ollama" -ErrorAction SilentlyContinue) {
+            Write-Log "Ollama installed successfully." "SUCCESS" "Green"
+        } else {
+            Write-Log "Ollama installation might require a restart. Please restart after this script." "WARN" "Yellow"
+        }
+    }
+
     # Check for WSL
     if (Get-Command "wsl" -ErrorAction SilentlyContinue) {
         Write-Log "WSL detected. Linux subsystem available for advanced agents." "INFO" "Green"
@@ -378,10 +410,10 @@ try {
             owner = "${config.userName}"
         }
         hardware = @{
-            cpu_cores = ${config.hardwareProfile.cpuCores}
-            ram_gb = ${config.hardwareProfile.ram}
-            has_gpu = $${config.hardwareProfile.hasGpu}
-            gpu_name = "${config.hardwareProfile.gpuName}"
+            cpu_cores = $cpu.NumberOfCores
+            ram_gb = $ramGB
+            has_gpu = $true
+            gpu_name = $gpu.Name
             tier = "${config.hardwareProfile.tier}"
         }
         network = @{
@@ -453,11 +485,23 @@ class CortexManager {
         console.log(\`[CORTEX] Initializing \${this.model}...\`);
         const { spawn } = require('child_process');
         
-        // In a real scenario, we would check if the model is pulled first
-        // For Genesis, we assume the user might need to pull it manually or we automate it
+        // Auto-Pull Logic
+        console.log(\`[CORTEX] Ensuring model \${this.model} is available...\`);
+        const pull = spawn('ollama', ['pull', this.model]);
         
-        this.status = 'ready';
-        console.log('[CORTEX] Cortex is READY.');
+        pull.stdout.on('data', (data) => {
+            console.log(\`[OLLAMA] \${data}\`);
+        });
+        
+        pull.on('close', (code) => {
+            if (code === 0) {
+                console.log('[CORTEX] Model ready. Cortex is ONLINE.');
+                this.status = 'ready';
+            } else {
+                console.error('[CORTEX] Failed to pull model.');
+                this.status = 'error';
+            }
+        });
     }
 }
 
