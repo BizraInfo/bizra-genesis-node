@@ -1,0 +1,2237 @@
+{
+  "scan_timestamp": 1764723709.7902255,
+  "duration_seconds": 0.055989980697631836,
+  "total_assets_found": 257,
+  "total_size_bytes": 3920778,
+  "asset_breakdown": {
+    ".md": 39,
+    ".txt": 1,
+    ".pdf": 0,
+    ".ts": 38,
+    ".tsx": 125,
+    ".rs": 23,
+    ".py": 7,
+    ".json": 22,
+    ".html": 2
+  },
+  "top_valuable_assets": [
+    {
+      "name": "ARCHITECTURE.md",
+      "path": "C:\\award-winner-design\\ARCHITECTURE.md",
+      "type": "Documentation",
+      "size_bytes": 5004,
+      "modified_timestamp": 1764476668.001449,
+      "value_score": 6
+    },
+    {
+      "name": "api.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\api.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 14834,
+      "modified_timestamp": 1764722374.9017937,
+      "value_score": 6
+    },
+    {
+      "name": "api.test.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\integration\\api.test.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 12656,
+      "modified_timestamp": 1764618242.9634464,
+      "value_score": 6
+    },
+    {
+      "name": "use-api.test.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\unit\\hooks\\use-api.test.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 7555,
+      "modified_timestamp": 1764618242.9570615,
+      "value_score": 6
+    },
+    {
+      "name": "BIZRA_AI_ROADMAP.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\BIZRA_AI_ROADMAP.md",
+      "type": "Documentation",
+      "size_bytes": 2876,
+      "modified_timestamp": 1764722951.0752711,
+      "value_score": 6
+    },
+    {
+      "name": "001-sovereign-ai-architecture.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\adr\\001-sovereign-ai-architecture.md",
+      "type": "Documentation",
+      "size_bytes": 5473,
+      "modified_timestamp": 1764640715.4250448,
+      "value_score": 6
+    },
+    {
+      "name": "002-pat-agent-architecture.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\adr\\002-pat-agent-architecture.md",
+      "type": "Documentation",
+      "size_bytes": 6502,
+      "modified_timestamp": 1764640715.4275708,
+      "value_score": 6
+    },
+    {
+      "name": "BIZRA-NODE0-ARCHITECTURE-v1.0.1.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\BIZRA-NODE0-ARCHITECTURE-v1.0.1.md",
+      "type": "Documentation",
+      "size_bytes": 7183,
+      "modified_timestamp": 1764628826.282307,
+      "value_score": 6
+    },
+    {
+      "name": "003-multi-database-architecture.md",
+      "path": "C:\\award-winner-design\\docs\\adr\\003-multi-database-architecture.md",
+      "type": "Documentation",
+      "size_bytes": 5046,
+      "modified_timestamp": 1764619226.0517924,
+      "value_score": 6
+    },
+    {
+      "name": "FRONTEND_ARCHITECTURE.md",
+      "path": "C:\\award-winner-design\\FRONTEND_ARCHITECTURE.md",
+      "type": "Documentation",
+      "size_bytes": 9978,
+      "modified_timestamp": 1764600698.3133268,
+      "value_score": 6
+    },
+    {
+      "name": "jest.config.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\jest.config.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 3473,
+      "modified_timestamp": 1764618242.96449,
+      "value_score": 3
+    },
+    {
+      "name": "jest.setup.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\jest.setup.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 4887,
+      "modified_timestamp": 1764618242.9634464,
+      "value_score": 3
+    },
+    {
+      "name": "next-env.d.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\next-env.d.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 233,
+      "modified_timestamp": 1764639469.2802536,
+      "value_score": 3
+    },
+    {
+      "name": "playwright.config.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\playwright.config.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1362,
+      "modified_timestamp": 1764617445.1148784,
+      "value_score": 3
+    },
+    {
+      "name": "index.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\brand\\index.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 391,
+      "modified_timestamp": 1764663121.7621922,
+      "value_score": 3
+    },
+    {
+      "name": "use-node-link.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\use-node-link.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1864,
+      "modified_timestamp": 1764700778.4891758,
+      "value_score": 3
+    },
+    {
+      "name": "useEnvSnapshot.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\useEnvSnapshot.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 2993,
+      "modified_timestamp": 1764628826.282307,
+      "value_score": 3
+    },
+    {
+      "name": "useGenesisSynapse.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\useGenesisSynapse.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 9067,
+      "modified_timestamp": 1764661021.3888662,
+      "value_score": 3
+    },
+    {
+      "name": "useNodeHealth.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\useNodeHealth.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1192,
+      "modified_timestamp": 1764720213.608701,
+      "value_score": 3
+    },
+    {
+      "name": "usePatChat.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\usePatChat.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 7144,
+      "modified_timestamp": 1764660016.8277512,
+      "value_score": 3
+    }
+  ],
+  "inventory": [
+    {
+      "name": ".releaserc.json",
+      "path": "C:\\award-winner-design\\.releaserc.json",
+      "type": "Data",
+      "size_bytes": 2987,
+      "modified_timestamp": 1764619924.2550998,
+      "value_score": 1
+    },
+    {
+      "name": "layout.tsx",
+      "path": "C:\\award-winner-design\\app\\layout.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1057,
+      "modified_timestamp": 1764476667.6311684,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\app\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5317,
+      "modified_timestamp": 1764621640.3440459,
+      "value_score": 1
+    },
+    {
+      "name": "ARCHITECTURE.md",
+      "path": "C:\\award-winner-design\\ARCHITECTURE.md",
+      "type": "Documentation",
+      "size_bytes": 5004,
+      "modified_timestamp": 1764476668.001449,
+      "value_score": 6
+    },
+    {
+      "name": "BIZRA BRAND idintiy.html",
+      "path": "C:\\award-winner-design\\BIZRA BRAND idintiy.html",
+      "type": "Design",
+      "size_bytes": 22284,
+      "modified_timestamp": 1763986006.9026794,
+      "value_score": 1
+    },
+    {
+      "name": ".commitlintrc.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\.commitlintrc.json",
+      "type": "Data",
+      "size_bytes": 1079,
+      "modified_timestamp": 1764618242.96649,
+      "value_score": 1
+    },
+    {
+      "name": ".releaserc.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\.releaserc.json",
+      "type": "Data",
+      "size_bytes": 1770,
+      "modified_timestamp": 1764640404.1961803,
+      "value_score": 1
+    },
+    {
+      "name": "DEPLOYMENT.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\DEPLOYMENT.md",
+      "type": "Documentation",
+      "size_bytes": 4656,
+      "modified_timestamp": 1764670171.2906933,
+      "value_score": 1
+    },
+    {
+      "name": "jest.config.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\jest.config.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 3473,
+      "modified_timestamp": 1764618242.96449,
+      "value_score": 3
+    },
+    {
+      "name": "jest.setup.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\jest.setup.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 4887,
+      "modified_timestamp": 1764618242.9634464,
+      "value_score": 3
+    },
+    {
+      "name": "next-env.d.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\next-env.d.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 233,
+      "modified_timestamp": 1764639469.2802536,
+      "value_score": 3
+    },
+    {
+      "name": "package.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\package.json",
+      "type": "Data",
+      "size_bytes": 1116,
+      "modified_timestamp": 1764683395.6258755,
+      "value_score": 1
+    },
+    {
+      "name": "playwright.config.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\playwright.config.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1362,
+      "modified_timestamp": 1764617445.1148784,
+      "value_score": 3
+    },
+    {
+      "name": "layout.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\(dashboard)\\layout.tsx",
+      "type": "Code (React)",
+      "size_bytes": 331,
+      "modified_timestamp": 1764663396.29823,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\agents\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 23876,
+      "modified_timestamp": 1764665323.0136044,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\bizraverse\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 12179,
+      "modified_timestamp": 1764616289.938642,
+      "value_score": 1
+    },
+    {
+      "name": "error.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\chat\\error.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2842,
+      "modified_timestamp": 1764660141.9030976,
+      "value_score": 1
+    },
+    {
+      "name": "loading.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\chat\\loading.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1754,
+      "modified_timestamp": 1764660141.9030976,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\chat\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 20040,
+      "modified_timestamp": 1764663475.7488265,
+      "value_score": 1
+    },
+    {
+      "name": "error.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\error.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3952,
+      "modified_timestamp": 1764660141.9030976,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\home\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 14645,
+      "modified_timestamp": 1764665323.0136044,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\installer\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 47415,
+      "modified_timestamp": 1764699457.9956343,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\knowledge\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 19096,
+      "modified_timestamp": 1764667089.72679,
+      "value_score": 1
+    },
+    {
+      "name": "GenesisStarfield.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\landing\\GenesisStarfield.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3246,
+      "modified_timestamp": 1764659810.3554993,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\landing\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 16469,
+      "modified_timestamp": 1764663396.29823,
+      "value_score": 1
+    },
+    {
+      "name": "layout.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\layout.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2134,
+      "modified_timestamp": 1764672667.297732,
+      "value_score": 1
+    },
+    {
+      "name": "loading.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\loading.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2497,
+      "modified_timestamp": 1764660141.9030976,
+      "value_score": 1
+    },
+    {
+      "name": "error.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\nodeo\\error.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3197,
+      "modified_timestamp": 1764660141.9030976,
+      "value_score": 1
+    },
+    {
+      "name": "loading.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\nodeo\\loading.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2291,
+      "modified_timestamp": 1764660141.9030976,
+      "value_score": 1
+    },
+    {
+      "name": "NeuralCore3D.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\nodeo\\NeuralCore3D.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3515,
+      "modified_timestamp": 1764660016.830259,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\nodeo\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 16875,
+      "modified_timestamp": 1764663608.7470107,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\onboarding\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 53558,
+      "modified_timestamp": 1764684480.9199698,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\ops\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 15691,
+      "modified_timestamp": 1764659168.4408505,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5584,
+      "modified_timestamp": 1764637531.6197164,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\plan\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 15505,
+      "modified_timestamp": 1764659189.7818735,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\resources\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 14775,
+      "modified_timestamp": 1764657455.634718,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\rewards\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 15115,
+      "modified_timestamp": 1764659185.0224278,
+      "value_score": 1
+    },
+    {
+      "name": "page.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\app\\settings\\page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 34390,
+      "modified_timestamp": 1764675034.5567129,
+      "value_score": 1
+    },
+    {
+      "name": "BizraLogoAnimated.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\brand\\BizraLogoAnimated.tsx",
+      "type": "Code (React)",
+      "size_bytes": 7207,
+      "modified_timestamp": 1764663035.9393535,
+      "value_score": 1
+    },
+    {
+      "name": "BizraNavbar.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\brand\\BizraNavbar.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5943,
+      "modified_timestamp": 1764700787.0053291,
+      "value_score": 1
+    },
+    {
+      "name": "GlassCard.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\brand\\GlassCard.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3691,
+      "modified_timestamp": 1764663114.1487346,
+      "value_score": 1
+    },
+    {
+      "name": "index.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\brand\\index.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 391,
+      "modified_timestamp": 1764663121.7621922,
+      "value_score": 3
+    },
+    {
+      "name": "SacredGeometry.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\brand\\SacredGeometry.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4683,
+      "modified_timestamp": 1764663067.4884512,
+      "value_score": 1
+    },
+    {
+      "name": "Dashboard.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\Dashboard.tsx",
+      "type": "Code (React)",
+      "size_bytes": 13119,
+      "modified_timestamp": 1764720241.1246068,
+      "value_score": 1
+    },
+    {
+      "name": "smart-model-selector.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\installer\\smart-model-selector.tsx",
+      "type": "Code (React)",
+      "size_bytes": 13543,
+      "modified_timestamp": 1764677009.5549042,
+      "value_score": 1
+    },
+    {
+      "name": "Starfield.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\Starfield.tsx",
+      "type": "Code (React)",
+      "size_bytes": 8136,
+      "modified_timestamp": 1764637531.618318,
+      "value_score": 1
+    },
+    {
+      "name": "language-selector.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\components\\ui\\language-selector.tsx",
+      "type": "Code (React)",
+      "size_bytes": 7389,
+      "modified_timestamp": 1764672835.2935965,
+      "value_score": 1
+    },
+    {
+      "name": "use-node-link.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\use-node-link.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1864,
+      "modified_timestamp": 1764700778.4891758,
+      "value_score": 3
+    },
+    {
+      "name": "useEnvSnapshot.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\useEnvSnapshot.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 2993,
+      "modified_timestamp": 1764628826.282307,
+      "value_score": 3
+    },
+    {
+      "name": "useGenesisSynapse.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\useGenesisSynapse.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 9067,
+      "modified_timestamp": 1764661021.3888662,
+      "value_score": 3
+    },
+    {
+      "name": "useNodeHealth.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\useNodeHealth.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1192,
+      "modified_timestamp": 1764720213.608701,
+      "value_score": 3
+    },
+    {
+      "name": "usePatChat.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\usePatChat.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 7144,
+      "modified_timestamp": 1764660016.8277512,
+      "value_score": 3
+    },
+    {
+      "name": "usePoI.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\hooks\\usePoI.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 4476,
+      "modified_timestamp": 1764659168.4408505,
+      "value_score": 3
+    },
+    {
+      "name": "api.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\api.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 14834,
+      "modified_timestamp": 1764722374.9017937,
+      "value_score": 6
+    },
+    {
+      "name": "feature-flags.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\feature-flags.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 18313,
+      "modified_timestamp": 1764676342.560794,
+      "value_score": 3
+    },
+    {
+      "name": "GenesisCovenant.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\GenesisCovenant.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 6086,
+      "modified_timestamp": 1764653326.035696,
+      "value_score": 3
+    },
+    {
+      "name": "i18n.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\i18n.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5423,
+      "modified_timestamp": 1764672835.2935965,
+      "value_score": 1
+    },
+    {
+      "name": "installer-service.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\installer-service.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 27798,
+      "modified_timestamp": 1764722374.9017937,
+      "value_score": 3
+    },
+    {
+      "name": "invitation.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\invitation.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 17604,
+      "modified_timestamp": 1764684662.9091823,
+      "value_score": 3
+    },
+    {
+      "name": "model-registry.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\model-registry.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 15867,
+      "modified_timestamp": 1764674476.4323058,
+      "value_score": 3
+    },
+    {
+      "name": "performance.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\performance.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 16614,
+      "modified_timestamp": 1764676503.6788046,
+      "value_score": 3
+    },
+    {
+      "name": "sovereignty-guard.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\sovereignty-guard.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 14860,
+      "modified_timestamp": 1764676129.0809548,
+      "value_score": 3
+    },
+    {
+      "name": "telemetry.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\lib\\telemetry.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 16181,
+      "modified_timestamp": 1764676075.4675198,
+      "value_score": 3
+    },
+    {
+      "name": "ar.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\locales\\ar.json",
+      "type": "Data",
+      "size_bytes": 15314,
+      "modified_timestamp": 1764684630.8084283,
+      "value_score": 1
+    },
+    {
+      "name": "en.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\locales\\en.json",
+      "type": "Data",
+      "size_bytes": 12424,
+      "modified_timestamp": 1764684549.0396292,
+      "value_score": 1
+    },
+    {
+      "name": "es.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\locales\\es.json",
+      "type": "Data",
+      "size_bytes": 11343,
+      "modified_timestamp": 1764684630.8094287,
+      "value_score": 1
+    },
+    {
+      "name": "fr.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\locales\\fr.json",
+      "type": "Data",
+      "size_bytes": 11683,
+      "modified_timestamp": 1764684630.8094287,
+      "value_score": 1
+    },
+    {
+      "name": "hi.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\locales\\hi.json",
+      "type": "Data",
+      "size_bytes": 17884,
+      "modified_timestamp": 1764684662.9091823,
+      "value_score": 1
+    },
+    {
+      "name": "zh.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\src\\locales\\zh.json",
+      "type": "Data",
+      "size_bytes": 10251,
+      "modified_timestamp": 1764684630.8124282,
+      "value_score": 1
+    },
+    {
+      "name": "tailwind.config.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\tailwind.config.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 3085,
+      "modified_timestamp": 1764672704.0817292,
+      "value_score": 3
+    },
+    {
+      "name": "dashboard.spec.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\tests\\e2e\\dashboard.spec.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 8104,
+      "modified_timestamp": 1764617445.1148784,
+      "value_score": 3
+    },
+    {
+      "name": "landing.spec.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\tests\\e2e\\landing.spec.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 3859,
+      "modified_timestamp": 1764638455.7678978,
+      "value_score": 3
+    },
+    {
+      "name": "onboarding.spec.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\tests\\e2e\\onboarding.spec.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 5944,
+      "modified_timestamp": 1764638455.7678978,
+      "value_score": 3
+    },
+    {
+      "name": "tsconfig.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\tsconfig.json",
+      "type": "Data",
+      "size_bytes": 792,
+      "modified_timestamp": 1764653599.5832634,
+      "value_score": 1
+    },
+    {
+      "name": "vercel.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\vercel.json",
+      "type": "Data",
+      "size_bytes": 511,
+      "modified_timestamp": 1764681607.911775,
+      "value_score": 1
+    },
+    {
+      "name": "global-setup.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\e2e\\global-setup.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1224,
+      "modified_timestamp": 1764618242.9634464,
+      "value_score": 3
+    },
+    {
+      "name": "global-teardown.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\e2e\\global-teardown.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 490,
+      "modified_timestamp": 1764618242.96449,
+      "value_score": 3
+    },
+    {
+      "name": "onboarding.spec.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\e2e\\onboarding.spec.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 12150,
+      "modified_timestamp": 1764618242.9624476,
+      "value_score": 3
+    },
+    {
+      "name": "api.test.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\integration\\api.test.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 12656,
+      "modified_timestamp": 1764618242.9634464,
+      "value_score": 6
+    },
+    {
+      "name": "nav-dock.test.tsx",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\unit\\components\\nav-dock.test.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3861,
+      "modified_timestamp": 1764618242.9570615,
+      "value_score": 1
+    },
+    {
+      "name": "use-api.test.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\apps\\dashboard\\__tests__\\unit\\hooks\\use-api.test.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 7555,
+      "modified_timestamp": 1764618242.9570615,
+      "value_score": 6
+    },
+    {
+      "name": "core_benchmarks.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\benches\\core_benchmarks.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 9944,
+      "modified_timestamp": 1764631101.2975054,
+      "value_score": 3
+    },
+    {
+      "name": "mod.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\agents\\mod.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 63,
+      "modified_timestamp": 1764609637.084298,
+      "value_score": 3
+    },
+    {
+      "name": "pat.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\agents\\pat.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 18444,
+      "modified_timestamp": 1764631324.2864745,
+      "value_score": 3
+    },
+    {
+      "name": "sat.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\agents\\sat.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 12132,
+      "modified_timestamp": 1764609741.2386,
+      "value_score": 3
+    },
+    {
+      "name": "knowledge.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\api\\knowledge.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 5127,
+      "modified_timestamp": 1764631343.7995133,
+      "value_score": 3
+    },
+    {
+      "name": "mod.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\api\\mod.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 52,
+      "modified_timestamp": 1764615256.750943,
+      "value_score": 3
+    },
+    {
+      "name": "cache.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\core\\cache.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 29177,
+      "modified_timestamp": 1764631239.3320587,
+      "value_score": 3
+    },
+    {
+      "name": "circuit_breaker.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\core\\circuit_breaker.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 29492,
+      "modified_timestamp": 1764630101.823228,
+      "value_score": 3
+    },
+    {
+      "name": "metrics.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\core\\metrics.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 33615,
+      "modified_timestamp": 1764631239.3320587,
+      "value_score": 3
+    },
+    {
+      "name": "mod.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\core\\mod.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 1556,
+      "modified_timestamp": 1764631308.8139448,
+      "value_score": 3
+    },
+    {
+      "name": "rate_limiter.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\core\\rate_limiter.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 29616,
+      "modified_timestamp": 1764630282.182609,
+      "value_score": 3
+    },
+    {
+      "name": "scheduler.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\core\\scheduler.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 38915,
+      "modified_timestamp": 1764631239.3320587,
+      "value_score": 3
+    },
+    {
+      "name": "mod.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\mod.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 1035,
+      "modified_timestamp": 1764631308.8139448,
+      "value_score": 3
+    },
+    {
+      "name": "asset_registry.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\services\\asset_registry.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 12234,
+      "modified_timestamp": 1764631272.4442623,
+      "value_score": 3
+    },
+    {
+      "name": "env_snapshot.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\services\\env_snapshot.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 9307,
+      "modified_timestamp": 1764631308.8139448,
+      "value_score": 3
+    },
+    {
+      "name": "knowledge.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\services\\knowledge.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 6144,
+      "modified_timestamp": 1764631315.2692912,
+      "value_score": 3
+    },
+    {
+      "name": "mod.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\services\\mod.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 150,
+      "modified_timestamp": 1764615256.74869,
+      "value_score": 3
+    },
+    {
+      "name": "poi_ledger.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\services\\poi_ledger.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 10606,
+      "modified_timestamp": 1764609619.409708,
+      "value_score": 3
+    },
+    {
+      "name": "resource_pool.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\lib\\services\\resource_pool.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 9792,
+      "modified_timestamp": 1764609619.410806,
+      "value_score": 3
+    },
+    {
+      "name": "main.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\src\\main.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 33034,
+      "modified_timestamp": 1764635388.2688823,
+      "value_score": 3
+    },
+    {
+      "name": "core_integration_tests.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\tests\\core_integration_tests.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 18837,
+      "modified_timestamp": 1764631101.2975054,
+      "value_score": 3
+    },
+    {
+      "name": "integration_tests.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\tests\\integration_tests.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 12025,
+      "modified_timestamp": 1764617445.1148784,
+      "value_score": 3
+    },
+    {
+      "name": "unit_tests.rs",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\backend\\tests\\unit_tests.rs",
+      "type": "Code (Rust)",
+      "size_bytes": 15399,
+      "modified_timestamp": 1764618242.9634464,
+      "value_score": 3
+    },
+    {
+      "name": "BIZRA_AI_ROADMAP.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\BIZRA_AI_ROADMAP.md",
+      "type": "Documentation",
+      "size_bytes": 2876,
+      "modified_timestamp": 1764722951.0752711,
+      "value_score": 6
+    },
+    {
+      "name": "BIZRA_REAL_SCAN_IMPLEMENTATION.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\BIZRA_REAL_SCAN_IMPLEMENTATION.md",
+      "type": "Documentation",
+      "size_bytes": 2623,
+      "modified_timestamp": 1764699628.7651308,
+      "value_score": 1
+    },
+    {
+      "name": "package.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\bridge\\package.json",
+      "type": "Data",
+      "size_bytes": 616,
+      "modified_timestamp": 1764609741.2386,
+      "value_score": 1
+    },
+    {
+      "name": "index.ts",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\bridge\\src\\index.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 7692,
+      "modified_timestamp": 1764609801.0114293,
+      "value_score": 3
+    },
+    {
+      "name": "tsconfig.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\bridge\\tsconfig.json",
+      "type": "Data",
+      "size_bytes": 464,
+      "modified_timestamp": 1764609746.1090763,
+      "value_score": 1
+    },
+    {
+      "name": "001-sovereign-ai-architecture.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\adr\\001-sovereign-ai-architecture.md",
+      "type": "Documentation",
+      "size_bytes": 5473,
+      "modified_timestamp": 1764640715.4250448,
+      "value_score": 6
+    },
+    {
+      "name": "002-pat-agent-architecture.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\adr\\002-pat-agent-architecture.md",
+      "type": "Documentation",
+      "size_bytes": 6502,
+      "modified_timestamp": 1764640715.4275708,
+      "value_score": 6
+    },
+    {
+      "name": "ALGORITHMIC_PROOF_OF_CORRECTNESS.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\ALGORITHMIC_PROOF_OF_CORRECTNESS.md",
+      "type": "Documentation",
+      "size_bytes": 8890,
+      "modified_timestamp": 1764714531.362791,
+      "value_score": 1
+    },
+    {
+      "name": "BIZRA-NODE0-ARCHITECTURE-v1.0.1.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\BIZRA-NODE0-ARCHITECTURE-v1.0.1.md",
+      "type": "Documentation",
+      "size_bytes": 7183,
+      "modified_timestamp": 1764628826.282307,
+      "value_score": 6
+    },
+    {
+      "name": "DEVELOPMENT-BLUEPRINT.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\DEVELOPMENT-BLUEPRINT.md",
+      "type": "Documentation",
+      "size_bytes": 37793,
+      "modified_timestamp": 1764629624.975866,
+      "value_score": 1
+    },
+    {
+      "name": "PERPETUAL_ALIGNMENT_PROOF.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\PERPETUAL_ALIGNMENT_PROOF.md",
+      "type": "Documentation",
+      "size_bytes": 7268,
+      "modified_timestamp": 1764716556.6008196,
+      "value_score": 1
+    },
+    {
+      "name": "incident-response.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\runbook\\incident-response.md",
+      "type": "Documentation",
+      "size_bytes": 9880,
+      "modified_timestamp": 1764640715.4275708,
+      "value_score": 1
+    },
+    {
+      "name": "slo-definitions.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\docs\\runbook\\slo-definitions.md",
+      "type": "Documentation",
+      "size_bytes": 7615,
+      "modified_timestamp": 1764640715.4275708,
+      "value_score": 1
+    },
+    {
+      "name": "ELITE_ASSET_MANAGEMENT_PROTOCOL.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\ELITE_ASSET_MANAGEMENT_PROTOCOL.md",
+      "type": "Documentation",
+      "size_bytes": 3405,
+      "modified_timestamp": 1764723651.330129,
+      "value_score": 1
+    },
+    {
+      "name": "ELITE_DEVOPS_IMPLEMENTATION_SUMMARY.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\ELITE_DEVOPS_IMPLEMENTATION_SUMMARY.md",
+      "type": "Documentation",
+      "size_bytes": 17251,
+      "modified_timestamp": 1764638783.336758,
+      "value_score": 1
+    },
+    {
+      "name": "infrastructure.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\infrastructure.md",
+      "type": "Documentation",
+      "size_bytes": 16674,
+      "modified_timestamp": 1764633304.9761238,
+      "value_score": 1
+    },
+    {
+      "name": "ingest_assets.py",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\ingest_assets.py",
+      "type": "Code (Python)",
+      "size_bytes": 4274,
+      "modified_timestamp": 1764723666.0274506,
+      "value_score": 3
+    },
+    {
+      "name": "README.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\README.md",
+      "type": "Documentation",
+      "size_bytes": 7471,
+      "modified_timestamp": 1764615256.74869,
+      "value_score": 1
+    },
+    {
+      "name": "requirements.txt",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\requirements.txt",
+      "type": "Notes",
+      "size_bytes": 461,
+      "modified_timestamp": 1764615256.750943,
+      "value_score": 1
+    },
+    {
+      "name": "build_knowledge_graph.py",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\scripts\\build_knowledge_graph.py",
+      "type": "Code (Python)",
+      "size_bytes": 22272,
+      "modified_timestamp": 1764614873.4854228,
+      "value_score": 3
+    },
+    {
+      "name": "context_assembler.py",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\scripts\\context_assembler.py",
+      "type": "Code (Python)",
+      "size_bytes": 13070,
+      "modified_timestamp": 1764615256.750943,
+      "value_score": 3
+    },
+    {
+      "name": "generate_embeddings.py",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\scripts\\generate_embeddings.py",
+      "type": "Code (Python)",
+      "size_bytes": 15159,
+      "modified_timestamp": 1764615256.750943,
+      "value_score": 3
+    },
+    {
+      "name": "query_engine.py",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\scripts\\query_engine.py",
+      "type": "Code (Python)",
+      "size_bytes": 18292,
+      "modified_timestamp": 1764615256.750943,
+      "value_score": 3
+    },
+    {
+      "name": "test_knowledge.py",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\knowledge\\scripts\\test_knowledge.py",
+      "type": "Code (Python)",
+      "size_bytes": 5035,
+      "modified_timestamp": 1764615393.2629976,
+      "value_score": 3
+    },
+    {
+      "name": "lighthouserc.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\lighthouserc.json",
+      "type": "Data",
+      "size_bytes": 2206,
+      "modified_timestamp": 1764640803.395118,
+      "value_score": 1
+    },
+    {
+      "name": "MISSION_STATUS_REPORT_PHASE_2.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\MISSION_STATUS_REPORT_PHASE_2.md",
+      "type": "Documentation",
+      "size_bytes": 1822,
+      "modified_timestamp": 1764702191.0396113,
+      "value_score": 1
+    },
+    {
+      "name": "MISSION_STATUS_REPORT_PHASE_3_CHAT.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\MISSION_STATUS_REPORT_PHASE_3_CHAT.md",
+      "type": "Documentation",
+      "size_bytes": 1858,
+      "modified_timestamp": 1764722374.9017937,
+      "value_score": 1
+    },
+    {
+      "name": "MISSION_STATUS_REPORT_PHASE_3_START.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\MISSION_STATUS_REPORT_PHASE_3_START.md",
+      "type": "Documentation",
+      "size_bytes": 1733,
+      "modified_timestamp": 1764720137.3177264,
+      "value_score": 1
+    },
+    {
+      "name": "bizra-node0.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\monitoring\\grafana\\dashboards\\bizra-node0.json",
+      "type": "Data",
+      "size_bytes": 17681,
+      "modified_timestamp": 1764618442.438488,
+      "value_score": 1
+    },
+    {
+      "name": "package-lock.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\package-lock.json",
+      "type": "Data",
+      "size_bytes": 542611,
+      "modified_timestamp": 1764683403.4380224,
+      "value_score": 1
+    },
+    {
+      "name": "package.json",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\package.json",
+      "type": "Data",
+      "size_bytes": 2603,
+      "modified_timestamp": 1764680987.6344051,
+      "value_score": 1
+    },
+    {
+      "name": "PEAK_MASTERPIECE_SUMMARY.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\PEAK_MASTERPIECE_SUMMARY.md",
+      "type": "Documentation",
+      "size_bytes": 8124,
+      "modified_timestamp": 1764644242.8039258,
+      "value_score": 1
+    },
+    {
+      "name": "QUICKSTART.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\QUICKSTART.md",
+      "type": "Documentation",
+      "size_bytes": 4897,
+      "modified_timestamp": 1764614493.9623644,
+      "value_score": 1
+    },
+    {
+      "name": "README.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\README.md",
+      "type": "Documentation",
+      "size_bytes": 13815,
+      "modified_timestamp": 1764615256.74869,
+      "value_score": 1
+    },
+    {
+      "name": "SECURITY.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\SECURITY.md",
+      "type": "Documentation",
+      "size_bytes": 3478,
+      "modified_timestamp": 1764618325.6644306,
+      "value_score": 1
+    },
+    {
+      "name": "SYSTEM-STATUS.md",
+      "path": "C:\\award-winner-design\\bizra-genesis-node\\SYSTEM-STATUS.md",
+      "type": "Documentation",
+      "size_bytes": 14991,
+      "modified_timestamp": 1764616372.3574598,
+      "value_score": 1
+    },
+    {
+      "name": "index.html",
+      "path": "C:\\award-winner-design\\BIZRA-Unified-Windows-Installer\\index.html",
+      "type": "Design",
+      "size_bytes": 28956,
+      "modified_timestamp": 1764621280.6795871,
+      "value_score": 1
+    },
+    {
+      "name": "BIZRA_ECOSYSTEM_VALIDATION_REPORT.md",
+      "path": "C:\\award-winner-design\\BIZRA_ECOSYSTEM_VALIDATION_REPORT.md",
+      "type": "Documentation",
+      "size_bytes": 12576,
+      "modified_timestamp": 1764632422.5367103,
+      "value_score": 1
+    },
+    {
+      "name": "BIZRA_GENESIS_ACTIVATION_REPORT.md",
+      "path": "C:\\award-winner-design\\BIZRA_GENESIS_ACTIVATION_REPORT.md",
+      "type": "Documentation",
+      "size_bytes": 6604,
+      "modified_timestamp": 1764715414.180081,
+      "value_score": 1
+    },
+    {
+      "name": "BIZRA_NODE_0_BLUEPRINT.md",
+      "path": "C:\\award-winner-design\\BIZRA_NODE_0_BLUEPRINT.md",
+      "type": "Documentation",
+      "size_bytes": 3360,
+      "modified_timestamp": 1764697653.2862203,
+      "value_score": 1
+    },
+    {
+      "name": "BIZRA_PROOF_PROTOCOL_FRAMEWORK.md",
+      "path": "C:\\award-winner-design\\BIZRA_PROOF_PROTOCOL_FRAMEWORK.md",
+      "type": "Documentation",
+      "size_bytes": 11201,
+      "modified_timestamp": 1764632861.5962374,
+      "value_score": 1
+    },
+    {
+      "name": "CHANGELOG.md",
+      "path": "C:\\award-winner-design\\CHANGELOG.md",
+      "type": "Documentation",
+      "size_bytes": 3563,
+      "modified_timestamp": 1764619226.0539072,
+      "value_score": 1
+    },
+    {
+      "name": "layer-visualizer.tsx",
+      "path": "C:\\award-winner-design\\components\\architecture\\layer-visualizer.tsx",
+      "type": "Code (React)",
+      "size_bytes": 8507,
+      "modified_timestamp": 1764476667.8859742,
+      "value_score": 1
+    },
+    {
+      "name": "system-diagram.tsx",
+      "path": "C:\\award-winner-design\\components\\architecture\\system-diagram.tsx",
+      "type": "Code (React)",
+      "size_bytes": 9614,
+      "modified_timestamp": 1764476667.8884928,
+      "value_score": 1
+    },
+    {
+      "name": "tree-visualization.tsx",
+      "path": "C:\\award-winner-design\\components\\architecture\\tree-visualization.tsx",
+      "type": "Code (React)",
+      "size_bytes": 15767,
+      "modified_timestamp": 1764476667.8884928,
+      "value_score": 1
+    },
+    {
+      "name": "bizra-logo-animated.tsx",
+      "path": "C:\\award-winner-design\\components\\bizra-logo-animated.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5075,
+      "modified_timestamp": 1764476667.6720426,
+      "value_score": 1
+    },
+    {
+      "name": "citadel-optimized.tsx",
+      "path": "C:\\award-winner-design\\components\\citadel-optimized.tsx",
+      "type": "Code (React)",
+      "size_bytes": 13657,
+      "modified_timestamp": 1764601014.948974,
+      "value_score": 1
+    },
+    {
+      "name": "citadel.tsx",
+      "path": "C:\\award-winner-design\\components\\citadel.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3107,
+      "modified_timestamp": 1764476667.6625183,
+      "value_score": 1
+    },
+    {
+      "name": "cosmic-background.tsx",
+      "path": "C:\\award-winner-design\\components\\cosmic-background.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2384,
+      "modified_timestamp": 1764476667.6720426,
+      "value_score": 1
+    },
+    {
+      "name": "community-layer.tsx",
+      "path": "C:\\award-winner-design\\components\\dashboard\\community-layer.tsx",
+      "type": "Code (React)",
+      "size_bytes": 24528,
+      "modified_timestamp": 1764621640.3440459,
+      "value_score": 1
+    },
+    {
+      "name": "daily-loop.tsx",
+      "path": "C:\\award-winner-design\\components\\dashboard\\daily-loop.tsx",
+      "type": "Code (React)",
+      "size_bytes": 29087,
+      "modified_timestamp": 1764623224.225347,
+      "value_score": 1
+    },
+    {
+      "name": "node-activation.tsx",
+      "path": "C:\\award-winner-design\\components\\dashboard\\node-activation.tsx",
+      "type": "Code (React)",
+      "size_bytes": 21808,
+      "modified_timestamp": 1764621278.6496282,
+      "value_score": 1
+    },
+    {
+      "name": "terminal-simulation.tsx",
+      "path": "C:\\award-winner-design\\components\\demo\\terminal-simulation.tsx",
+      "type": "Code (React)",
+      "size_bytes": 11503,
+      "modified_timestamp": 1764476667.9013221,
+      "value_score": 1
+    },
+    {
+      "name": "error-boundary.tsx",
+      "path": "C:\\award-winner-design\\components\\error-boundary.tsx",
+      "type": "Code (React)",
+      "size_bytes": 21445,
+      "modified_timestamp": 1764602090.0858307,
+      "value_score": 1
+    },
+    {
+      "name": "metrics-display.tsx",
+      "path": "C:\\award-winner-design\\components\\evidence\\metrics-display.tsx",
+      "type": "Code (React)",
+      "size_bytes": 10264,
+      "modified_timestamp": 1764476667.9018376,
+      "value_score": 1
+    },
+    {
+      "name": "footer.tsx",
+      "path": "C:\\award-winner-design\\components\\footer.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3480,
+      "modified_timestamp": 1764476667.6533897,
+      "value_score": 1
+    },
+    {
+      "name": "genesis-dashboard.tsx",
+      "path": "C:\\award-winner-design\\components\\genesis-dashboard.tsx",
+      "type": "Code (React)",
+      "size_bytes": 15658,
+      "modified_timestamp": 1764720137.3190715,
+      "value_score": 1
+    },
+    {
+      "name": "genesis-story.tsx",
+      "path": "C:\\award-winner-design\\components\\genesis-story.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2456,
+      "modified_timestamp": 1764476667.6533897,
+      "value_score": 1
+    },
+    {
+      "name": "glass-interface.tsx",
+      "path": "C:\\award-winner-design\\components\\glass-interface.tsx",
+      "type": "Code (React)",
+      "size_bytes": 7569,
+      "modified_timestamp": 1764476667.6625183,
+      "value_score": 1
+    },
+    {
+      "name": "hero-section.tsx",
+      "path": "C:\\award-winner-design\\components\\hero-section.tsx",
+      "type": "Code (React)",
+      "size_bytes": 6135,
+      "modified_timestamp": 1764476667.6533897,
+      "value_score": 1
+    },
+    {
+      "name": "hero.tsx",
+      "path": "C:\\award-winner-design\\components\\hero.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4440,
+      "modified_timestamp": 1764476667.6465483,
+      "value_score": 1
+    },
+    {
+      "name": "landing-page.tsx",
+      "path": "C:\\award-winner-design\\components\\landing\\landing-page.tsx",
+      "type": "Code (React)",
+      "size_bytes": 23670,
+      "modified_timestamp": 1764710327.9545968,
+      "value_score": 1
+    },
+    {
+      "name": "lifecycle-router.tsx",
+      "path": "C:\\award-winner-design\\components\\lifecycle\\lifecycle-router.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4238,
+      "modified_timestamp": 1764623224.225347,
+      "value_score": 1
+    },
+    {
+      "name": "loading-screen.tsx",
+      "path": "C:\\award-winner-design\\components\\loading-screen.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5116,
+      "modified_timestamp": 1764476667.6822052,
+      "value_score": 1
+    },
+    {
+      "name": "metrics-grid.tsx",
+      "path": "C:\\award-winner-design\\components\\metrics-grid.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2452,
+      "modified_timestamp": 1764476667.6515715,
+      "value_score": 1
+    },
+    {
+      "name": "nav-dock.tsx",
+      "path": "C:\\award-winner-design\\components\\nav-dock.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4154,
+      "modified_timestamp": 1764476667.6625183,
+      "value_score": 1
+    },
+    {
+      "name": "first-session.tsx",
+      "path": "C:\\award-winner-design\\components\\onboarding\\first-session.tsx",
+      "type": "Code (React)",
+      "size_bytes": 24339,
+      "modified_timestamp": 1764621056.6710775,
+      "value_score": 1
+    },
+    {
+      "name": "pat-onboarding.tsx",
+      "path": "C:\\award-winner-design\\components\\onboarding\\pat-onboarding.tsx",
+      "type": "Code (React)",
+      "size_bytes": 21143,
+      "modified_timestamp": 1764620937.5223708,
+      "value_score": 1
+    },
+    {
+      "name": "seed-test.tsx",
+      "path": "C:\\award-winner-design\\components\\onboarding\\seed-test.tsx",
+      "type": "Code (React)",
+      "size_bytes": 17906,
+      "modified_timestamp": 1764620937.5218558,
+      "value_score": 1
+    },
+    {
+      "name": "deck-container.tsx",
+      "path": "C:\\award-winner-design\\components\\pitch-deck\\deck-container.tsx",
+      "type": "Code (React)",
+      "size_bytes": 9607,
+      "modified_timestamp": 1764476667.8783512,
+      "value_score": 1
+    },
+    {
+      "name": "sacred-geometry-interface.tsx",
+      "path": "C:\\award-winner-design\\components\\sacred-geometry-interface.tsx",
+      "type": "Code (React)",
+      "size_bytes": 9991,
+      "modified_timestamp": 1764476667.677682,
+      "value_score": 1
+    },
+    {
+      "name": "sacred-geometry.tsx",
+      "path": "C:\\award-winner-design\\components\\sacred-geometry.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3037,
+      "modified_timestamp": 1764476667.6411884,
+      "value_score": 1
+    },
+    {
+      "name": "sovereignty-admission.tsx",
+      "path": "C:\\award-winner-design\\components\\sovereignty-admission.tsx",
+      "type": "Code (React)",
+      "size_bytes": 29783,
+      "modified_timestamp": 1764603694.892073,
+      "value_score": 1
+    },
+    {
+      "name": "theme-provider.tsx",
+      "path": "C:\\award-winner-design\\components\\theme-provider.tsx",
+      "type": "Code (React)",
+      "size_bytes": 292,
+      "modified_timestamp": 1764476667.6411884,
+      "value_score": 1
+    },
+    {
+      "name": "accordion.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\accordion.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2054,
+      "modified_timestamp": 1764476667.6822052,
+      "value_score": 1
+    },
+    {
+      "name": "alert-dialog.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\alert-dialog.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3867,
+      "modified_timestamp": 1764476667.6938004,
+      "value_score": 1
+    },
+    {
+      "name": "alert.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\alert.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1617,
+      "modified_timestamp": 1764476667.6938004,
+      "value_score": 1
+    },
+    {
+      "name": "aspect-ratio.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\aspect-ratio.tsx",
+      "type": "Code (React)",
+      "size_bytes": 280,
+      "modified_timestamp": 1764476667.6938004,
+      "value_score": 1
+    },
+    {
+      "name": "avatar.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\avatar.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1099,
+      "modified_timestamp": 1764476667.6938004,
+      "value_score": 1
+    },
+    {
+      "name": "badge.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\badge.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1632,
+      "modified_timestamp": 1764476667.7038326,
+      "value_score": 1
+    },
+    {
+      "name": "breadcrumb.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\breadcrumb.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2358,
+      "modified_timestamp": 1764476667.7038326,
+      "value_score": 1
+    },
+    {
+      "name": "button-group.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\button-group.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2212,
+      "modified_timestamp": 1764476667.7099745,
+      "value_score": 1
+    },
+    {
+      "name": "button.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\button.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2143,
+      "modified_timestamp": 1764476667.7141106,
+      "value_score": 1
+    },
+    {
+      "name": "calendar.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\calendar.tsx",
+      "type": "Code (React)",
+      "size_bytes": 7679,
+      "modified_timestamp": 1764476667.7141106,
+      "value_score": 1
+    },
+    {
+      "name": "card.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\card.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1990,
+      "modified_timestamp": 1764476667.7141106,
+      "value_score": 1
+    },
+    {
+      "name": "carousel.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\carousel.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5562,
+      "modified_timestamp": 1764476667.7241797,
+      "value_score": 1
+    },
+    {
+      "name": "chart.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\chart.tsx",
+      "type": "Code (React)",
+      "size_bytes": 9786,
+      "modified_timestamp": 1764476667.7257104,
+      "value_score": 1
+    },
+    {
+      "name": "checkbox.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\checkbox.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1227,
+      "modified_timestamp": 1764476667.7257104,
+      "value_score": 1
+    },
+    {
+      "name": "collapsible.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\collapsible.tsx",
+      "type": "Code (React)",
+      "size_bytes": 800,
+      "modified_timestamp": 1764476667.7257104,
+      "value_score": 1
+    },
+    {
+      "name": "command.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\command.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4824,
+      "modified_timestamp": 1764476667.7346573,
+      "value_score": 1
+    },
+    {
+      "name": "context-menu.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\context-menu.tsx",
+      "type": "Code (React)",
+      "size_bytes": 8282,
+      "modified_timestamp": 1764476667.7346573,
+      "value_score": 1
+    },
+    {
+      "name": "dialog.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\dialog.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3985,
+      "modified_timestamp": 1764476667.7418222,
+      "value_score": 1
+    },
+    {
+      "name": "drawer.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\drawer.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4258,
+      "modified_timestamp": 1764476667.7448452,
+      "value_score": 1
+    },
+    {
+      "name": "dropdown-menu.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\dropdown-menu.tsx",
+      "type": "Code (React)",
+      "size_bytes": 8432,
+      "modified_timestamp": 1764476667.7448452,
+      "value_score": 1
+    },
+    {
+      "name": "empty.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\empty.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2401,
+      "modified_timestamp": 1764476667.7448452,
+      "value_score": 1
+    },
+    {
+      "name": "field.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\field.tsx",
+      "type": "Code (React)",
+      "size_bytes": 6055,
+      "modified_timestamp": 1764476667.7448452,
+      "value_score": 1
+    },
+    {
+      "name": "form.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\form.tsx",
+      "type": "Code (React)",
+      "size_bytes": 3761,
+      "modified_timestamp": 1764476667.7576396,
+      "value_score": 1
+    },
+    {
+      "name": "hover-card.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\hover-card.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1533,
+      "modified_timestamp": 1764476667.7576396,
+      "value_score": 1
+    },
+    {
+      "name": "input-group.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\input-group.tsx",
+      "type": "Code (React)",
+      "size_bytes": 5031,
+      "modified_timestamp": 1764476667.7576396,
+      "value_score": 1
+    },
+    {
+      "name": "input-otp.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\input-otp.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2256,
+      "modified_timestamp": 1764476667.7651663,
+      "value_score": 1
+    },
+    {
+      "name": "input.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\input.tsx",
+      "type": "Code (React)",
+      "size_bytes": 963,
+      "modified_timestamp": 1764476667.7651663,
+      "value_score": 1
+    },
+    {
+      "name": "item.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\item.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4503,
+      "modified_timestamp": 1764476667.7739258,
+      "value_score": 1
+    },
+    {
+      "name": "kbd.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\kbd.tsx",
+      "type": "Code (React)",
+      "size_bytes": 863,
+      "modified_timestamp": 1764476667.7755458,
+      "value_score": 1
+    },
+    {
+      "name": "label.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\label.tsx",
+      "type": "Code (React)",
+      "size_bytes": 612,
+      "modified_timestamp": 1764476667.7755458,
+      "value_score": 1
+    },
+    {
+      "name": "menubar.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\menubar.tsx",
+      "type": "Code (React)",
+      "size_bytes": 8404,
+      "modified_timestamp": 1764476667.785563,
+      "value_score": 1
+    },
+    {
+      "name": "navigation-menu.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\navigation-menu.tsx",
+      "type": "Code (React)",
+      "size_bytes": 6651,
+      "modified_timestamp": 1764476667.7886975,
+      "value_score": 1
+    },
+    {
+      "name": "pagination.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\pagination.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2713,
+      "modified_timestamp": 1764476667.7897243,
+      "value_score": 1
+    },
+    {
+      "name": "popover.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\popover.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1636,
+      "modified_timestamp": 1764476667.7957468,
+      "value_score": 1
+    },
+    {
+      "name": "progress.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\progress.tsx",
+      "type": "Code (React)",
+      "size_bytes": 741,
+      "modified_timestamp": 1764476667.8004293,
+      "value_score": 1
+    },
+    {
+      "name": "radio-group.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\radio-group.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1467,
+      "modified_timestamp": 1764476667.8030548,
+      "value_score": 1
+    },
+    {
+      "name": "resizable.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\resizable.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2030,
+      "modified_timestamp": 1764476667.806301,
+      "value_score": 1
+    },
+    {
+      "name": "scroll-area.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\scroll-area.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1646,
+      "modified_timestamp": 1764476667.8089764,
+      "value_score": 1
+    },
+    {
+      "name": "select.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\select.tsx",
+      "type": "Code (React)",
+      "size_bytes": 6259,
+      "modified_timestamp": 1764476667.8095064,
+      "value_score": 1
+    },
+    {
+      "name": "separator.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\separator.tsx",
+      "type": "Code (React)",
+      "size_bytes": 700,
+      "modified_timestamp": 1764476667.8165307,
+      "value_score": 1
+    },
+    {
+      "name": "sheet.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\sheet.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4092,
+      "modified_timestamp": 1764476667.8202045,
+      "value_score": 1
+    },
+    {
+      "name": "sidebar.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\sidebar.tsx",
+      "type": "Code (React)",
+      "size_bytes": 21649,
+      "modified_timestamp": 1764476667.8219552,
+      "value_score": 1
+    },
+    {
+      "name": "skeleton.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\skeleton.tsx",
+      "type": "Code (React)",
+      "size_bytes": 276,
+      "modified_timestamp": 1764476667.8270056,
+      "value_score": 1
+    },
+    {
+      "name": "slider.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\slider.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1990,
+      "modified_timestamp": 1764476667.8270056,
+      "value_score": 1
+    },
+    {
+      "name": "sonner.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\sonner.tsx",
+      "type": "Code (React)",
+      "size_bytes": 564,
+      "modified_timestamp": 1764476667.8270056,
+      "value_score": 1
+    },
+    {
+      "name": "spinner.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\spinner.tsx",
+      "type": "Code (React)",
+      "size_bytes": 331,
+      "modified_timestamp": 1764476667.8371067,
+      "value_score": 1
+    },
+    {
+      "name": "switch.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\switch.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1174,
+      "modified_timestamp": 1764476667.8376248,
+      "value_score": 1
+    },
+    {
+      "name": "table.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\table.tsx",
+      "type": "Code (React)",
+      "size_bytes": 2452,
+      "modified_timestamp": 1764476667.8376248,
+      "value_score": 1
+    },
+    {
+      "name": "tabs.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\tabs.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1971,
+      "modified_timestamp": 1764476667.8476493,
+      "value_score": 1
+    },
+    {
+      "name": "textarea.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\textarea.tsx",
+      "type": "Code (React)",
+      "size_bytes": 760,
+      "modified_timestamp": 1764476667.8476493,
+      "value_score": 1
+    },
+    {
+      "name": "toast.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\toast.tsx",
+      "type": "Code (React)",
+      "size_bytes": 4863,
+      "modified_timestamp": 1764476667.8535519,
+      "value_score": 1
+    },
+    {
+      "name": "toaster.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\toaster.tsx",
+      "type": "Code (React)",
+      "size_bytes": 786,
+      "modified_timestamp": 1764476667.8535519,
+      "value_score": 1
+    },
+    {
+      "name": "toggle-group.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\toggle-group.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1927,
+      "modified_timestamp": 1764476667.8580751,
+      "value_score": 1
+    },
+    {
+      "name": "toggle.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\toggle.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1571,
+      "modified_timestamp": 1764476667.8580751,
+      "value_score": 1
+    },
+    {
+      "name": "tooltip.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\tooltip.tsx",
+      "type": "Code (React)",
+      "size_bytes": 1893,
+      "modified_timestamp": 1764476667.8580751,
+      "value_score": 1
+    },
+    {
+      "name": "use-mobile.tsx",
+      "path": "C:\\award-winner-design\\components\\ui\\use-mobile.tsx",
+      "type": "Code (React)",
+      "size_bytes": 565,
+      "modified_timestamp": 1764476667.8682885,
+      "value_score": 1
+    },
+    {
+      "name": "use-toast.ts",
+      "path": "C:\\award-winner-design\\components\\ui\\use-toast.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 3945,
+      "modified_timestamp": 1764476667.8698225,
+      "value_score": 3
+    },
+    {
+      "name": "components.json",
+      "path": "C:\\award-winner-design\\components.json",
+      "type": "Data",
+      "size_bytes": 427,
+      "modified_timestamp": 1764476667.9088633,
+      "value_score": 1
+    },
+    {
+      "name": "conduct a thorough and multi-dimensional analysis (1).md",
+      "path": "C:\\award-winner-design\\conduct a thorough and multi-dimensional analysis (1).md",
+      "type": "Documentation",
+      "size_bytes": 736190,
+      "modified_timestamp": 1764627084.6634119,
+      "value_score": 1
+    },
+    {
+      "name": "CONTRIBUTING.md",
+      "path": "C:\\award-winner-design\\CONTRIBUTING.md",
+      "type": "Documentation",
+      "size_bytes": 8413,
+      "modified_timestamp": 1764619226.0539072,
+      "value_score": 1
+    },
+    {
+      "name": "001-rust-backend.md",
+      "path": "C:\\award-winner-design\\docs\\adr\\001-rust-backend.md",
+      "type": "Documentation",
+      "size_bytes": 2550,
+      "modified_timestamp": 1764619226.0512896,
+      "value_score": 1
+    },
+    {
+      "name": "002-dual-llm-backend.md",
+      "path": "C:\\award-winner-design\\docs\\adr\\002-dual-llm-backend.md",
+      "type": "Documentation",
+      "size_bytes": 3371,
+      "modified_timestamp": 1764619226.0512896,
+      "value_score": 1
+    },
+    {
+      "name": "003-multi-database-architecture.md",
+      "path": "C:\\award-winner-design\\docs\\adr\\003-multi-database-architecture.md",
+      "type": "Documentation",
+      "size_bytes": 5046,
+      "modified_timestamp": 1764619226.0517924,
+      "value_score": 6
+    },
+    {
+      "name": "RUNBOOK.md",
+      "path": "C:\\award-winner-design\\docs\\runbook\\RUNBOOK.md",
+      "type": "Documentation",
+      "size_bytes": 15151,
+      "modified_timestamp": 1764619226.0539072,
+      "value_score": 1
+    },
+    {
+      "name": "ELITE-DEVOPS-SUMMARY.md",
+      "path": "C:\\award-winner-design\\ELITE-DEVOPS-SUMMARY.md",
+      "type": "Documentation",
+      "size_bytes": 14522,
+      "modified_timestamp": 1764619924.2550998,
+      "value_score": 1
+    },
+    {
+      "name": "ELITE_DEVOPS_IMPLEMENTATION_SUMMARY.md",
+      "path": "C:\\award-winner-design\\ELITE_DEVOPS_IMPLEMENTATION_SUMMARY.md",
+      "type": "Documentation",
+      "size_bytes": 9196,
+      "modified_timestamp": 1764633384.1298392,
+      "value_score": 1
+    },
+    {
+      "name": "FRONTEND_ARCHITECTURE.md",
+      "path": "C:\\award-winner-design\\FRONTEND_ARCHITECTURE.md",
+      "type": "Documentation",
+      "size_bytes": 9978,
+      "modified_timestamp": 1764600698.3133268,
+      "value_score": 6
+    },
+    {
+      "name": "use-mobile.ts",
+      "path": "C:\\award-winner-design\\hooks\\use-mobile.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 565,
+      "modified_timestamp": 1764476667.9190607,
+      "value_score": 3
+    },
+    {
+      "name": "use-node-health.ts",
+      "path": "C:\\award-winner-design\\hooks\\use-node-health.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1192,
+      "modified_timestamp": 1764720137.3177264,
+      "value_score": 3
+    },
+    {
+      "name": "use-toast.ts",
+      "path": "C:\\award-winner-design\\hooks\\use-toast.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 3945,
+      "modified_timestamp": 1764476667.9190607,
+      "value_score": 3
+    },
+    {
+      "name": "utils.ts",
+      "path": "C:\\award-winner-design\\lib\\utils.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 166,
+      "modified_timestamp": 1764476667.9291236,
+      "value_score": 3
+    },
+    {
+      "name": "MISSION_STATUS_REPORT.md",
+      "path": "C:\\award-winner-design\\MISSION_STATUS_REPORT.md",
+      "type": "Documentation",
+      "size_bytes": 3964,
+      "modified_timestamp": 1764632914.9396677,
+      "value_score": 1
+    },
+    {
+      "name": "next-env.d.ts",
+      "path": "C:\\award-winner-design\\next-env.d.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 257,
+      "modified_timestamp": 1764661780.9964004,
+      "value_score": 3
+    },
+    {
+      "name": "package-lock.json",
+      "path": "C:\\award-winner-design\\package-lock.json",
+      "type": "Data",
+      "size_bytes": 465291,
+      "modified_timestamp": 1764655591.6819751,
+      "value_score": 1
+    },
+    {
+      "name": "package.json",
+      "path": "C:\\award-winner-design\\package.json",
+      "type": "Data",
+      "size_bytes": 2786,
+      "modified_timestamp": 1764655569.607752,
+      "value_score": 1
+    },
+    {
+      "name": "shadow_os_prototype.py",
+      "path": "C:\\award-winner-design\\shadow_os_prototype.py",
+      "type": "Code (Python)",
+      "size_bytes": 19806,
+      "modified_timestamp": 1764714496.081692,
+      "value_score": 3
+    },
+    {
+      "name": "use-bizra-store.ts",
+      "path": "C:\\award-winner-design\\store\\use-bizra-store.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 1169,
+      "modified_timestamp": 1764476667.9978645,
+      "value_score": 3
+    },
+    {
+      "name": "use-lifecycle-store.ts",
+      "path": "C:\\award-winner-design\\store\\use-lifecycle-store.ts",
+      "type": "Code (TypeScript)",
+      "size_bytes": 22005,
+      "modified_timestamp": 1764623224.225347,
+      "value_score": 3
+    },
+    {
+      "name": "tsconfig.json",
+      "path": "C:\\award-winner-design\\tsconfig.json",
+      "type": "Data",
+      "size_bytes": 696,
+      "modified_timestamp": 1764603318.5007403,
+      "value_score": 1
+    }
+  ]
+}

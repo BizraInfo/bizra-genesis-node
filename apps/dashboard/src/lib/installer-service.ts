@@ -570,13 +570,88 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // --- RAG Knowledge Search Endpoint ---
+    if (req.url === '/api/knowledge/search' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', async () => {
+            try {
+                const { query, top_k = 5 } = JSON.parse(body);
+                
+                // Simple TF-IDF search over knowledge base
+                const kbPath = path.join(__dirname, '../knowledge/REFINED_KNOWLEDGE_BASE.json');
+                if (!fs.existsSync(kbPath)) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: 'Knowledge base not found' }));
+                    return;
+                }
+                
+                const kb = JSON.parse(fs.readFileSync(kbPath, 'utf8'));
+                const chunks = kb.chunks || [];
+                
+                // Simple keyword matching for retrieval
+                const queryTerms = query.toLowerCase().split(/\\s+/).filter(t => t.length > 2);
+                const scored = chunks.map(chunk => {
+                    const content = (chunk.content + ' ' + chunk.section).toLowerCase();
+                    let score = 0;
+                    queryTerms.forEach(term => {
+                        if (content.includes(term)) score++;
+                    });
+                    return { ...chunk, score };
+                }).filter(c => c.score > 0).sort((a, b) => b.score - a.score).slice(0, top_k);
+                
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, results: scored }));
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: e.message }));
+            }
+        });
+        return;
+    }
+
     if (req.url === '/api/pat/chat' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
         req.on('end', async () => {
             try {
-                const { message, context } = JSON.parse(body);
-                const response = await cortex.chat(message, context);
+                const { message, context, useRAG = true } = JSON.parse(body);
+                
+                let ragContext = '';
+                
+                // RAG: Retrieve relevant knowledge before generating response
+                if (useRAG) {
+                    const kbPath = path.join(__dirname, '../knowledge/REFINED_KNOWLEDGE_BASE.json');
+                    if (fs.existsSync(kbPath)) {
+                        try {
+                            const kb = JSON.parse(fs.readFileSync(kbPath, 'utf8'));
+                            const chunks = kb.chunks || [];
+                            const queryTerms = message.toLowerCase().split(/\\s+/).filter(t => t.length > 2);
+                            
+                            const relevantChunks = chunks.map(chunk => {
+                                const content = (chunk.content + ' ' + chunk.section).toLowerCase();
+                                let score = 0;
+                                queryTerms.forEach(term => {
+                                    if (content.includes(term)) score++;
+                                });
+                                return { ...chunk, score };
+                            }).filter(c => c.score > 0).sort((a, b) => b.score - a.score).slice(0, 3);
+                            
+                            if (relevantChunks.length > 0) {
+                                ragContext = '\\n\\n[KNOWLEDGE CONTEXT]\\n' + 
+                                    relevantChunks.map(c => \`[\${c.section}]: \${c.content.substring(0, 500)}\`).join('\\n---\\n');
+                            }
+                        } catch (e) {
+                            console.log('[RAG] Failed to load knowledge:', e.message);
+                        }
+                    }
+                }
+                
+                const augmentedMessage = ragContext 
+                    ? \`Based on this context: \${ragContext}\\n\\nUser Question: \${message}\`
+                    : message;
+                
+                const response = await cortex.chat(augmentedMessage, context);
                 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({
@@ -585,7 +660,9 @@ const server = http.createServer((req, res) => {
                         response: response,
                         primary_agent: 'MasterReasoner',
                         poi_generated: 0.5,
-                        backend_used: 'ollama'
+                        backend_used: 'ollama',
+                        rag_enabled: useRAG,
+                        context_chunks: ragContext ? 3 : 0
                     }
                 }));
             } catch (e) {
