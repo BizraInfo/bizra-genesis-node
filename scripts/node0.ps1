@@ -35,7 +35,7 @@
 param(
     [Parameter(Position=0)]
     [ValidateSet('status', 'start', 'stop', 'restart', 'health', 'backup', 'restore', 
-                 'models', 'db', 'logs', 'package', 'update', 'validate', 'domain', 'help')]
+                 'models', 'db', 'logs', 'package', 'update', 'validate', 'domain', 'bench', 'elite', 'help')]
     [string]$Command = 'help',
     
     [Parameter(Position=1)]
@@ -43,6 +43,9 @@ param(
     
     [Parameter(Position=2)]
     [string]$Arg1 = '',
+    
+    [Parameter(Position=3)]
+    [string]$Arg2 = '',
     
     [switch]$Force,
     [switch]$DetailedOutput
@@ -987,6 +990,691 @@ function Invoke-Domain {
 }
 
 # ============================================
+# COMMAND: BENCH - Elite Performance Benchmark
+# Professional-grade system benchmarking
+# ============================================
+
+function Invoke-Bench {
+    param([string]$SubCmd = 'full')
+    
+    Write-Banner "ELITE PERFORMANCE BENCHMARK"
+    
+    # Initialize results
+    $benchResults = @{
+        Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        GenesisBlock = $script:GENESIS_BLOCK_ID
+        Tests = @{}
+        Score = 0
+        MaxScore = 100
+    }
+    
+    switch ($SubCmd) {
+        'ai'      { $benchResults = Invoke-AIBench $benchResults }
+        'db'      { $benchResults = Invoke-DBBench $benchResults }
+        'api'     { $benchResults = Invoke-APIBench $benchResults }
+        'net'     { $benchResults = Invoke-NetworkBench $benchResults }
+        'full'    { $benchResults = Invoke-FullBench $benchResults }
+        default   { 
+            Write-Host "  bench [full|ai|db|api|net] - Run specific benchmark" -ForegroundColor Yellow
+            return 
+        }
+    }
+    
+    # Generate final report
+    Show-BenchReport $benchResults
+}
+
+function Invoke-FullBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ┌──────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
+    Write-Host "  │           COMPREHENSIVE GENESIS BLOCK BENCHMARK                  │" -ForegroundColor Cyan  
+    Write-Host "  │                 Testing All System Layers                        │" -ForegroundColor Cyan
+    Write-Host "  └──────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
+    Write-Host ""
+    
+    $Results = Invoke-AIBench $Results
+    $Results = Invoke-DBBench $Results
+    $Results = Invoke-APIBench $Results
+    $Results = Invoke-NetworkBench $Results
+    $Results = Invoke-MemoryBench $Results
+    $Results = Invoke-DiskBench $Results
+    
+    return $Results
+}
+
+function Invoke-AIBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ╭─────────────────────────────────────────────────────────────────╮" -ForegroundColor Magenta
+    Write-Host "  │  🤖 AI INFERENCE BENCHMARK                                      │" -ForegroundColor Magenta
+    Write-Host "  ╰─────────────────────────────────────────────────────────────────╯" -ForegroundColor Magenta
+    Write-Host ""
+    
+    $aiResults = @{
+        Ollama = @{ Status = "Unknown"; Latency = 0; TokensPerSec = 0 }
+        LMStudio = @{ Status = "Unknown"; Latency = 0; TokensPerSec = 0 }
+    }
+    
+    # Test Ollama
+    Write-Host "  Testing Ollama (localhost:11434)..." -ForegroundColor Gray -NoNewline
+    try {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $testPrompt = @{ model = "llama3.2"; prompt = "Say 'benchmark complete' in 3 words"; stream = $false }
+        $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" `
+            -Method POST -ContentType "application/json" `
+            -Body ($testPrompt | ConvertTo-Json) -TimeoutSec 30
+        $sw.Stop()
+        
+        $latency = $sw.ElapsedMilliseconds
+        $evalDuration = if ($response.eval_duration) { $response.eval_duration / 1000000000 } else { 1 }
+        $evalCount = if ($response.eval_count) { $response.eval_count } else { 10 }
+        $tokensPerSec = [math]::Round($evalCount / $evalDuration, 2)
+        
+        $aiResults.Ollama = @{
+            Status = "✅ PASS"
+            Latency = $latency
+            TokensPerSec = $tokensPerSec
+        }
+        Write-Host " $($latency)ms | $($tokensPerSec) tok/s" -ForegroundColor Green
+    }
+    catch {
+        $aiResults.Ollama.Status = "❌ FAIL"
+        Write-Host " FAILED" -ForegroundColor Red
+    }
+    
+    # Test LM Studio  
+    Write-Host "  Testing LM Studio (192.168.8.1:1234)..." -ForegroundColor Gray -NoNewline
+    try {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $chatBody = @{
+            model = "local-model"
+            messages = @(@{ role = "user"; content = "Say 'benchmark complete'" })
+            max_tokens = 10
+        }
+        $response = Invoke-RestMethod -Uri "http://192.168.8.1:1234/v1/chat/completions" `
+            -Method POST -ContentType "application/json" `
+            -Body ($chatBody | ConvertTo-Json -Depth 5) -TimeoutSec 30
+        $sw.Stop()
+        
+        $latency = $sw.ElapsedMilliseconds
+        $usage = if ($response.usage) { $response.usage } else { @{ completion_tokens = 5 } }
+        $tokensPerSec = [math]::Round($usage.completion_tokens / ($latency / 1000), 2)
+        
+        $aiResults.LMStudio = @{
+            Status = "✅ PASS"
+            Latency = $latency
+            TokensPerSec = $tokensPerSec
+        }
+        Write-Host " $($latency)ms | $($tokensPerSec) tok/s" -ForegroundColor Green
+    }
+    catch {
+        $aiResults.LMStudio.Status = "❌ FAIL"
+        Write-Host " FAILED (Offline or unreachable)" -ForegroundColor Red
+    }
+    
+    # Calculate AI score (25 points max)
+    $aiScore = 0
+    if ($aiResults.Ollama.Status -match "PASS") { $aiScore += 12 }
+    if ($aiResults.LMStudio.Status -match "PASS") { $aiScore += 13 }
+    
+    # Bonus for fast inference
+    if ($aiResults.Ollama.TokensPerSec -gt 20) { $aiScore += 2 }
+    if ($aiResults.LMStudio.TokensPerSec -gt 30) { $aiScore += 3 }
+    
+    $Results.Tests["AI"] = @{
+        Score = [math]::Min($aiScore, 25)
+        MaxScore = 25
+        Details = $aiResults
+    }
+    
+    Write-Host ""
+    Write-Host "  AI Benchmark Score: $($Results.Tests['AI'].Score)/$($Results.Tests['AI'].MaxScore)" -ForegroundColor $(if ($aiScore -ge 20) { "Green" } else { "Yellow" })
+    
+    return $Results
+}
+
+function Invoke-DBBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ╭─────────────────────────────────────────────────────────────────╮" -ForegroundColor Blue
+    Write-Host "  │  🗄️  DATABASE PERFORMANCE BENCHMARK                             │" -ForegroundColor Blue
+    Write-Host "  ╰─────────────────────────────────────────────────────────────────╯" -ForegroundColor Blue
+    Write-Host ""
+    
+    $dbResults = @{
+        PostgreSQL = @{ Status = "Unknown"; ReadLatency = 0; WriteLatency = 0; QPS = 0 }
+        Redis = @{ Status = "Unknown"; GetLatency = 0; SetLatency = 0; OPS = 0 }
+    }
+    
+    # Test PostgreSQL
+    Write-Host "  Testing PostgreSQL (localhost:5432)..." -ForegroundColor Gray
+    try {
+        $pgContainer = docker ps --filter "name=bizra" --filter "status=running" --format "{{.Names}}" 2>$null | Where-Object { $_ -match "postgres|db" } | Select-Object -First 1
+        
+        if ($pgContainer) {
+            # Measure read latency
+            $sw = [System.Diagnostics.Stopwatch]::StartNew()
+            docker exec $pgContainer psql -U postgres -c "SELECT 1" 2>$null | Out-Null
+            $sw.Stop()
+            $readLatency = $sw.ElapsedMilliseconds
+            
+            # Measure write latency (create temp and drop)
+            $sw.Restart()
+            docker exec $pgContainer psql -U postgres -c "CREATE TEMP TABLE bench_test(id INT); DROP TABLE bench_test;" 2>$null | Out-Null
+            $sw.Stop()
+            $writeLatency = $sw.ElapsedMilliseconds
+            
+            # Estimate QPS from latency
+            $estimatedQPS = [math]::Round(1000 / [math]::Max($readLatency, 1))
+            
+            $dbResults.PostgreSQL = @{
+                Status = "✅ PASS"
+                ReadLatency = $readLatency
+                WriteLatency = $writeLatency
+                QPS = $estimatedQPS
+            }
+            Write-Host "    Read: $($readLatency)ms | Write: $($writeLatency)ms | Est. QPS: ~$estimatedQPS" -ForegroundColor Green
+        }
+        else {
+            $dbResults.PostgreSQL.Status = "⚠️ SKIP"
+            Write-Host "    PostgreSQL container not running" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        $dbResults.PostgreSQL.Status = "❌ FAIL"
+        Write-Host "    PostgreSQL test failed: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    # Test Redis
+    Write-Host "  Testing Redis (localhost:6379)..." -ForegroundColor Gray
+    try {
+        $redisContainer = docker ps --filter "name=redis" --filter "status=running" --format "{{.Names}}" 2>$null | Select-Object -First 1
+        
+        if ($redisContainer) {
+            # Measure SET latency
+            $sw = [System.Diagnostics.Stopwatch]::StartNew()
+            docker exec $redisContainer redis-cli SET bench_test "benchmark_value" 2>$null | Out-Null
+            $sw.Stop()
+            $setLatency = $sw.ElapsedMilliseconds
+            
+            # Measure GET latency
+            $sw.Restart()
+            docker exec $redisContainer redis-cli GET bench_test 2>$null | Out-Null
+            $sw.Stop()
+            $getLatency = $sw.ElapsedMilliseconds
+            
+            # Cleanup
+            docker exec $redisContainer redis-cli DEL bench_test 2>$null | Out-Null
+            
+            # Estimate OPS
+            $estimatedOPS = [math]::Round(1000 / [math]::Max($getLatency, 1))
+            
+            $dbResults.Redis = @{
+                Status = "✅ PASS"
+                SetLatency = $setLatency
+                GetLatency = $getLatency
+                OPS = $estimatedOPS
+            }
+            Write-Host "    SET: $($setLatency)ms | GET: $($getLatency)ms | Est. OPS: ~$estimatedOPS" -ForegroundColor Green
+        }
+        else {
+            $dbResults.Redis.Status = "⚠️ SKIP"
+            Write-Host "    Redis container not running" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        $dbResults.Redis.Status = "❌ FAIL"
+        Write-Host "    Redis test failed: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    # Calculate DB score (20 points max)
+    $dbScore = 0
+    if ($dbResults.PostgreSQL.Status -match "PASS") { $dbScore += 10 }
+    if ($dbResults.Redis.Status -match "PASS") { $dbScore += 10 }
+    
+    # Bonus for sub-50ms latency
+    if ($dbResults.PostgreSQL.ReadLatency -gt 0 -and $dbResults.PostgreSQL.ReadLatency -lt 50) { $dbScore += 2 }
+    if ($dbResults.Redis.GetLatency -gt 0 -and $dbResults.Redis.GetLatency -lt 20) { $dbScore += 3 }
+    
+    $Results.Tests["Database"] = @{
+        Score = [math]::Min($dbScore, 20)
+        MaxScore = 20
+        Details = $dbResults
+    }
+    
+    Write-Host ""
+    Write-Host "  Database Benchmark Score: $($Results.Tests['Database'].Score)/$($Results.Tests['Database'].MaxScore)" -ForegroundColor $(if ($dbScore -ge 15) { "Green" } else { "Yellow" })
+    
+    return $Results
+}
+
+function Invoke-APIBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ╭─────────────────────────────────────────────────────────────────╮" -ForegroundColor Green
+    Write-Host "  │  🚀 API ENDPOINT BENCHMARK                                      │" -ForegroundColor Green
+    Write-Host "  ╰─────────────────────────────────────────────────────────────────╯" -ForegroundColor Green
+    Write-Host ""
+    
+    $apiResults = @{
+        RustAPI = @{ Status = "Unknown"; HealthLatency = 0 }
+        NextJS = @{ Status = "Unknown"; PageLatency = 0 }
+    }
+    
+    # Test Rust API health
+    Write-Host "  Testing Rust API (localhost:8080)..." -ForegroundColor Gray -NoNewline
+    try {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $response = Invoke-WebRequest -Uri "http://localhost:8080/health" -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue
+        $sw.Stop()
+        
+        $apiResults.RustAPI = @{
+            Status = "✅ PASS"
+            HealthLatency = $sw.ElapsedMilliseconds
+        }
+        Write-Host " $($sw.ElapsedMilliseconds)ms" -ForegroundColor Green
+    }
+    catch {
+        $apiResults.RustAPI.Status = "⚠️ SKIP"
+        Write-Host " Not running" -ForegroundColor Yellow
+    }
+    
+    # Test Next.js
+    Write-Host "  Testing Next.js (localhost:3000)..." -ForegroundColor Gray -NoNewline
+    try {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $response = Invoke-WebRequest -Uri "http://localhost:3000" -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue
+        $sw.Stop()
+        
+        $apiResults.NextJS = @{
+            Status = "✅ PASS"
+            PageLatency = $sw.ElapsedMilliseconds
+        }
+        Write-Host " $($sw.ElapsedMilliseconds)ms" -ForegroundColor Green
+    }
+    catch {
+        $apiResults.NextJS.Status = "⚠️ SKIP"
+        Write-Host " Not running" -ForegroundColor Yellow
+    }
+    
+    # Calculate API score (15 points max)
+    $apiScore = 0
+    if ($apiResults.RustAPI.Status -match "PASS") { $apiScore += 7 }
+    if ($apiResults.NextJS.Status -match "PASS") { $apiScore += 8 }
+    
+    # Bonus for sub-100ms response
+    if ($apiResults.RustAPI.HealthLatency -gt 0 -and $apiResults.RustAPI.HealthLatency -lt 100) { $apiScore += 2 }
+    if ($apiResults.NextJS.PageLatency -gt 0 -and $apiResults.NextJS.PageLatency -lt 500) { $apiScore += 3 }
+    
+    $Results.Tests["API"] = @{
+        Score = [math]::Min($apiScore, 15)
+        MaxScore = 15
+        Details = $apiResults
+    }
+    
+    Write-Host ""
+    Write-Host "  API Benchmark Score: $($Results.Tests['API'].Score)/$($Results.Tests['API'].MaxScore)" -ForegroundColor $(if ($apiScore -ge 10) { "Green" } else { "Yellow" })
+    
+    return $Results
+}
+
+function Invoke-NetworkBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ╭─────────────────────────────────────────────────────────────────╮" -ForegroundColor Yellow
+    Write-Host "  │  🌐 NETWORK CONNECTIVITY BENCHMARK                              │" -ForegroundColor Yellow
+    Write-Host "  ╰─────────────────────────────────────────────────────────────────╯" -ForegroundColor Yellow
+    Write-Host ""
+    
+    $netResults = @{
+        Internet = @{ Status = "Unknown"; Latency = 0 }
+        DNS = @{ Status = "Unknown"; Latency = 0 }
+        Docker = @{ Status = "Unknown"; Network = "" }
+    }
+    
+    # Test internet connectivity
+    Write-Host "  Testing Internet connectivity..." -ForegroundColor Gray -NoNewline
+    try {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $ping = Test-Connection -ComputerName "8.8.8.8" -Count 1 -ErrorAction SilentlyContinue
+        $sw.Stop()
+        
+        if ($ping) {
+            $netResults.Internet = @{
+                Status = "✅ PASS"
+                Latency = $sw.ElapsedMilliseconds
+            }
+            Write-Host " $($sw.ElapsedMilliseconds)ms" -ForegroundColor Green
+        }
+        else {
+            $netResults.Internet.Status = "❌ FAIL"
+            Write-Host " FAILED" -ForegroundColor Red
+        }
+    }
+    catch {
+        $netResults.Internet.Status = "❌ FAIL"
+        Write-Host " FAILED" -ForegroundColor Red
+    }
+    
+    # Test DNS resolution
+    Write-Host "  Testing DNS resolution..." -ForegroundColor Gray -NoNewline
+    try {
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $dns = Resolve-DnsName "github.com" -ErrorAction SilentlyContinue
+        $sw.Stop()
+        
+        if ($dns) {
+            $netResults.DNS = @{
+                Status = "✅ PASS"
+                Latency = $sw.ElapsedMilliseconds
+            }
+            Write-Host " $($sw.ElapsedMilliseconds)ms" -ForegroundColor Green
+        }
+        else {
+            $netResults.DNS.Status = "❌ FAIL"
+            Write-Host " FAILED" -ForegroundColor Red
+        }
+    }
+    catch {
+        $netResults.DNS.Status = "⚠️ SKIP"
+        Write-Host " Unable to test" -ForegroundColor Yellow
+    }
+    
+    # Test Docker network
+    Write-Host "  Testing Docker network..." -ForegroundColor Gray -NoNewline
+    try {
+        $dockerNet = docker network ls --format "{{.Name}}" 2>$null | Where-Object { $_ -match "bizra|bridge" } | Select-Object -First 1
+        if ($dockerNet) {
+            $netResults.Docker = @{
+                Status = "✅ PASS"
+                Network = $dockerNet
+            }
+            Write-Host " $dockerNet" -ForegroundColor Green
+        }
+        else {
+            $netResults.Docker.Status = "⚠️ SKIP"
+            Write-Host " No BIZRA network" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        $netResults.Docker.Status = "❌ FAIL"
+        Write-Host " FAILED" -ForegroundColor Red
+    }
+    
+    # Calculate network score (15 points max)
+    $netScore = 0
+    if ($netResults.Internet.Status -match "PASS") { $netScore += 5 }
+    if ($netResults.DNS.Status -match "PASS") { $netScore += 5 }
+    if ($netResults.Docker.Status -match "PASS") { $netScore += 5 }
+    
+    # Bonus for low latency
+    if ($netResults.Internet.Latency -gt 0 -and $netResults.Internet.Latency -lt 50) { $netScore += 2 }
+    if ($netResults.DNS.Latency -gt 0 -and $netResults.DNS.Latency -lt 100) { $netScore += 3 }
+    
+    $Results.Tests["Network"] = @{
+        Score = [math]::Min($netScore, 15)
+        MaxScore = 15
+        Details = $netResults
+    }
+    
+    Write-Host ""
+    Write-Host "  Network Benchmark Score: $($Results.Tests['Network'].Score)/$($Results.Tests['Network'].MaxScore)" -ForegroundColor $(if ($netScore -ge 10) { "Green" } else { "Yellow" })
+    
+    return $Results
+}
+
+function Invoke-MemoryBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ╭─────────────────────────────────────────────────────────────────╮" -ForegroundColor Cyan
+    Write-Host "  │  💾 MEMORY PERFORMANCE BENCHMARK                                │" -ForegroundColor Cyan
+    Write-Host "  ╰─────────────────────────────────────────────────────────────────╯" -ForegroundColor Cyan
+    Write-Host ""
+    
+    $memResults = @{
+        TotalGB = 0
+        AvailableGB = 0
+        UsedPercent = 0
+        ProcessMB = 0
+    }
+    
+    try {
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem
+        $memResults.TotalGB = [math]::Round($os.TotalVisibleMemorySize / 1MB, 2)
+        $memResults.AvailableGB = [math]::Round($os.FreePhysicalMemory / 1MB, 2)
+        $memResults.UsedPercent = [math]::Round(100 - ($os.FreePhysicalMemory / $os.TotalVisibleMemorySize * 100), 1)
+        
+        # Get current PowerShell process memory
+        $proc = Get-Process -Id $PID
+        $memResults.ProcessMB = [math]::Round($proc.WorkingSet64 / 1MB, 2)
+        
+        Write-Host "  Total Memory:     $($memResults.TotalGB) GB" -ForegroundColor White
+        Write-Host "  Available:        $($memResults.AvailableGB) GB" -ForegroundColor White
+        Write-Host "  Used:             $($memResults.UsedPercent)%" -ForegroundColor $(if ($memResults.UsedPercent -lt 80) { "Green" } else { "Yellow" })
+        Write-Host "  Process Memory:   $($memResults.ProcessMB) MB" -ForegroundColor White
+    }
+    catch {
+        Write-Host "  Memory stats unavailable" -ForegroundColor Red
+    }
+    
+    # Calculate memory score (15 points max)
+    $memScore = 0
+    if ($memResults.TotalGB -ge 8) { $memScore += 5 }
+    if ($memResults.TotalGB -ge 16) { $memScore += 3 }
+    if ($memResults.TotalGB -ge 32) { $memScore += 2 }
+    if ($memResults.AvailableGB -ge 4) { $memScore += 3 }
+    if ($memResults.UsedPercent -lt 80) { $memScore += 2 }
+    
+    $Results.Tests["Memory"] = @{
+        Score = [math]::Min($memScore, 15)
+        MaxScore = 15
+        Details = $memResults
+    }
+    
+    Write-Host ""
+    Write-Host "  Memory Benchmark Score: $($Results.Tests['Memory'].Score)/$($Results.Tests['Memory'].MaxScore)" -ForegroundColor $(if ($memScore -ge 10) { "Green" } else { "Yellow" })
+    
+    return $Results
+}
+
+function Invoke-DiskBench {
+    param($Results)
+    
+    Write-Host ""
+    Write-Host "  ╭─────────────────────────────────────────────────────────────────╮" -ForegroundColor DarkMagenta
+    Write-Host "  │  💿 DISK I/O BENCHMARK                                          │" -ForegroundColor DarkMagenta
+    Write-Host "  ╰─────────────────────────────────────────────────────────────────╯" -ForegroundColor DarkMagenta
+    Write-Host ""
+    
+    $diskResults = @{
+        Drive = ""
+        TotalGB = 0
+        FreeGB = 0
+        WriteLatencyMs = 0
+        ReadLatencyMs = 0
+    }
+    
+    try {
+        # Get drive info for project root
+        $drive = (Get-Item $script:PROJECT_ROOT).PSDrive.Name
+        $driveInfo = Get-PSDrive -Name $drive
+        
+        $diskResults.Drive = $drive
+        $diskResults.TotalGB = [math]::Round(($driveInfo.Used + $driveInfo.Free) / 1GB, 2)
+        $diskResults.FreeGB = [math]::Round($driveInfo.Free / 1GB, 2)
+        
+        Write-Host "  Drive:            $($drive):" -ForegroundColor White
+        Write-Host "  Total Space:      $($diskResults.TotalGB) GB" -ForegroundColor White
+        Write-Host "  Free Space:       $($diskResults.FreeGB) GB" -ForegroundColor $(if ($diskResults.FreeGB -gt 50) { "Green" } else { "Yellow" })
+        
+        # Simple write/read benchmark
+        $testFile = Join-Path $env:TEMP "bizra_bench_$([System.Guid]::NewGuid().ToString('N')).tmp"
+        $testData = [byte[]]::new(1MB)
+        [System.Random]::new().NextBytes($testData)
+        
+        # Write test
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        [System.IO.File]::WriteAllBytes($testFile, $testData)
+        $sw.Stop()
+        $diskResults.WriteLatencyMs = $sw.ElapsedMilliseconds
+        
+        # Read test
+        $sw.Restart()
+        [void][System.IO.File]::ReadAllBytes($testFile)
+        $sw.Stop()
+        $diskResults.ReadLatencyMs = $sw.ElapsedMilliseconds
+        
+        # Cleanup
+        Remove-Item $testFile -Force -ErrorAction SilentlyContinue
+        
+        Write-Host "  Write (1MB):      $($diskResults.WriteLatencyMs)ms" -ForegroundColor $(if ($diskResults.WriteLatencyMs -lt 100) { "Green" } else { "Yellow" })
+        Write-Host "  Read (1MB):       $($diskResults.ReadLatencyMs)ms" -ForegroundColor $(if ($diskResults.ReadLatencyMs -lt 50) { "Green" } else { "Yellow" })
+    }
+    catch {
+        Write-Host "  Disk stats unavailable: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    # Calculate disk score (10 points max)
+    $diskScore = 0
+    if ($diskResults.FreeGB -ge 20) { $diskScore += 3 }
+    if ($diskResults.FreeGB -ge 50) { $diskScore += 2 }
+    if ($diskResults.WriteLatencyMs -gt 0 -and $diskResults.WriteLatencyMs -lt 100) { $diskScore += 2 }
+    if ($diskResults.ReadLatencyMs -gt 0 -and $diskResults.ReadLatencyMs -lt 50) { $diskScore += 3 }
+    
+    $Results.Tests["Disk"] = @{
+        Score = [math]::Min($diskScore, 10)
+        MaxScore = 10
+        Details = $diskResults
+    }
+    
+    Write-Host ""
+    Write-Host "  Disk Benchmark Score: $($Results.Tests['Disk'].Score)/$($Results.Tests['Disk'].MaxScore)" -ForegroundColor $(if ($diskScore -ge 7) { "Green" } else { "Yellow" })
+    
+    return $Results
+}
+
+function Show-BenchReport {
+    param($Results)
+    
+    # Calculate total score
+    $totalScore = 0
+    $maxScore = 0
+    foreach ($test in $Results.Tests.Values) {
+        $totalScore += $test.Score
+        $maxScore += $test.MaxScore
+    }
+    
+    $percentage = [math]::Round(($totalScore / $maxScore) * 100, 1)
+    
+    # Determine grade
+    $grade = switch ($percentage) {
+        { $_ -ge 95 } { "S"; break }
+        { $_ -ge 90 } { "A+"; break }
+        { $_ -ge 85 } { "A"; break }
+        { $_ -ge 80 } { "B+"; break }
+        { $_ -ge 75 } { "B"; break }
+        { $_ -ge 70 } { "C+"; break }
+        { $_ -ge 60 } { "C"; break }
+        { $_ -ge 50 } { "D"; break }
+        default { "F" }
+    }
+    
+    $gradeColor = switch ($grade) {
+        "S"  { "Magenta" }
+        "A+" { "Green" }
+        "A"  { "Green" }
+        "B+" { "Cyan" }
+        "B"  { "Cyan" }
+        "C+" { "Yellow" }
+        "C"  { "Yellow" }
+        default { "Red" }
+    }
+    
+    Write-Host ""
+    Write-Host "  ╔══════════════════════════════════════════════════════════════════╗" -ForegroundColor $gradeColor
+    Write-Host "  ║                    BENCHMARK RESULTS SUMMARY                     ║" -ForegroundColor $gradeColor
+    Write-Host "  ╠══════════════════════════════════════════════════════════════════╣" -ForegroundColor $gradeColor
+    Write-Host "  ║                                                                  ║" -ForegroundColor $gradeColor
+    
+    # Display each test category
+    foreach ($testName in $Results.Tests.Keys | Sort-Object) {
+        $test = $Results.Tests[$testName]
+        $testPct = [math]::Round(($test.Score / $test.MaxScore) * 100, 0)
+        $bar = "█" * [math]::Floor($testPct / 5) + "░" * (20 - [math]::Floor($testPct / 5))
+        $testColor = if ($testPct -ge 75) { "Green" } elseif ($testPct -ge 50) { "Yellow" } else { "Red" }
+        
+        $testNamePadded = $testName.PadRight(12)
+        Write-Host "  ║  $testNamePadded $bar $($test.Score.ToString().PadLeft(2))/$($test.MaxScore.ToString().PadLeft(2)) " -NoNewline -ForegroundColor $gradeColor
+        Write-Host "($testPct%)" -ForegroundColor $testColor -NoNewline
+        Write-Host "     ║" -ForegroundColor $gradeColor
+    }
+    
+    Write-Host "  ║                                                                  ║" -ForegroundColor $gradeColor
+    Write-Host "  ╠══════════════════════════════════════════════════════════════════╣" -ForegroundColor $gradeColor
+    Write-Host "  ║                                                                  ║" -ForegroundColor $gradeColor
+    
+    # Grand total
+    $totalBar = "█" * [math]::Floor($percentage / 5) + "░" * (20 - [math]::Floor($percentage / 5))
+    Write-Host "  ║  TOTAL SCORE  $totalBar  $totalScore/$maxScore       ║" -ForegroundColor $gradeColor
+    Write-Host "  ║                                                                  ║" -ForegroundColor $gradeColor
+    Write-Host "  ║             ╭─────────────────────────────────╮                  ║" -ForegroundColor $gradeColor
+    Write-Host "  ║             │      GRADE:   " -NoNewline -ForegroundColor $gradeColor
+    Write-Host "$grade" -NoNewline -ForegroundColor $gradeColor
+    Write-Host "   ($percentage%)        │                  ║" -ForegroundColor $gradeColor
+    Write-Host "  ║             ╰─────────────────────────────────╯                  ║" -ForegroundColor $gradeColor
+    Write-Host "  ║                                                                  ║" -ForegroundColor $gradeColor
+    Write-Host "  ╠══════════════════════════════════════════════════════════════════╣" -ForegroundColor $gradeColor
+    Write-Host "  ║  Genesis Block: $($script:GENESIS_BLOCK_ID.PadRight(15)) | Benchmark: $(Get-Date -Format 'HH:mm:ss')    ║" -ForegroundColor White
+    Write-Host "  ╚══════════════════════════════════════════════════════════════════╝" -ForegroundColor $gradeColor
+    Write-Host ""
+    
+    # Recommendations
+    if ($percentage -lt 90) {
+        Write-Host "  💡 RECOMMENDATIONS:" -ForegroundColor Yellow
+        
+        foreach ($testName in $Results.Tests.Keys) {
+            $test = $Results.Tests[$testName]
+            $testPct = [math]::Round(($test.Score / $test.MaxScore) * 100, 0)
+            
+            if ($testPct -lt 75) {
+                switch ($testName) {
+                    "AI" {
+                        Write-Host "     • Start AI backends: Ollama and/or LM Studio" -ForegroundColor Gray
+                    }
+                    "Database" {
+                        Write-Host "     • Start database containers: docker-compose up -d" -ForegroundColor Gray
+                    }
+                    "API" {
+                        Write-Host "     • Start application servers: Rust API and Next.js" -ForegroundColor Gray
+                    }
+                    "Network" {
+                        Write-Host "     • Check network connectivity and Docker network setup" -ForegroundColor Gray
+                    }
+                    "Memory" {
+                        Write-Host "     • Consider closing unused applications to free memory" -ForegroundColor Gray
+                    }
+                    "Disk" {
+                        Write-Host "     • Free up disk space or consider SSD upgrade" -ForegroundColor Gray
+                    }
+                }
+            }
+        }
+        Write-Host ""
+    }
+    else {
+        Write-Host "  🏆 EXCELLENT! Your Genesis Block is performing at peak capacity!" -ForegroundColor Green
+        Write-Host ""
+    }
+}
+
+# ============================================
 # COMMAND: HELP
 # ============================================
 
@@ -1005,6 +1693,7 @@ function Invoke-Help {
     Write-Host "  restart     Restart all services"
     Write-Host "  health      Run comprehensive health checks"
     Write-Host "  domain      Show your sovereign interdisciplinary domain"
+    Write-Host "  bench       Elite performance benchmark suite"
     Write-Host ""
     Write-Host "  models      Manage AI models"
     Write-Host "    list        List installed models (Ollama + LM Studio)"
@@ -1023,6 +1712,21 @@ function Invoke-Help {
     Write-Host "    list        List backups"
     Write-Host "    restore     Restore from backup"
     Write-Host ""
+    Write-Host "  bench       Performance benchmarks"
+    Write-Host "    full        Complete system benchmark (default)"
+    Write-Host "    ai          AI inference benchmark"
+    Write-Host "    db          Database benchmark"
+    Write-Host "    api         API endpoint benchmark"
+    Write-Host "    net         Network benchmark"
+    Write-Host ""
+    Write-Host "  elite       Project management command center" -ForegroundColor Magenta
+    Write-Host "    sprint      Agile sprint management"
+    Write-Host "    debug       Graph-of-thoughts debugging"
+    Write-Host "    quality     SNR quality scoring"
+    Write-Host "    decide      RAPID decision framework"
+    Write-Host "    profile     Performance profiling"
+    Write-Host "    ship        Quality-gated deployment"
+    Write-Host ""
     Write-Host "  logs        View service logs"
     Write-Host "  validate    Run system validation"
     Write-Host "  package     Build distribution package"
@@ -1030,8 +1734,10 @@ function Invoke-Help {
     Write-Host "EXAMPLES:" -ForegroundColor Yellow
     Write-Host "  .\node0.ps1 status"
     Write-Host "  .\node0.ps1 domain"
+    Write-Host "  .\node0.ps1 bench full"
     Write-Host "  .\node0.ps1 models list"
     Write-Host "  .\node0.ps1 backup create"
+    Write-Host "  .\node0.ps1 elite sprint board"
     Write-Host ""
 }
 
@@ -1052,6 +1758,7 @@ switch ($Command) {
     "validate" { Invoke-Validate }
     "package"  { Invoke-Package }
     "domain"   { Invoke-Domain }
+    "elite"    { & "$PSScriptRoot\elite.ps1" $SubCommand $Arg1 $Arg2 }
     "update"   { Write-Warning "Self-update coming soon..." }
     default    { Invoke-Help }
 }

@@ -1,0 +1,50 @@
+{
+  "current_sprint": 1,
+  "velocity": [],
+  "backlog": [],
+  "sprints": [
+    {
+      "end_date": "2025-12-17",
+      "velocity_actual": 18,
+      "status": "active",
+      "number": 1,
+      "name": "Elite Phase 1 - Peak Infrastructure",
+      "stories": [
+        {
+          "id": "US-049685",
+          "title": "Node0 Master Control CLI",
+          "status": "done",
+          "completed": "2025-12-03 19:27:19",
+          "created": "2025-12-03 19:25:40",
+          "points": 8
+        },
+        {
+          "id": "US-052147",
+          "title": "Elite CI/CD Quality Gates",
+          "status": "done",
+          "completed": "2025-12-03 19:27:19",
+          "created": "2025-12-03 19:25:40",
+          "points": 5
+        },
+        {
+          "id": "US-053651",
+          "title": "Backup & Restore System",
+          "status": "done",
+          "completed": "2025-12-03 19:27:19",
+          "created": "2025-12-03 19:25:40",
+          "points": 5
+        },
+        {
+          "id": "US-055225",
+          "title": "Database Migration Framework",
+          "status": "todo",
+          "completed": null,
+          "created": "2025-12-03 19:25:40",
+          "points": 3
+        }
+      ],
+      "velocity_target": 20,
+      "start_date": "2025-12-03"
+    }
+  ]
+}
