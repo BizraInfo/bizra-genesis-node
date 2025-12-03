@@ -307,15 +307,110 @@
     }
   },
   "settings": {
-    "title": "Settings",
+    "title": "Node Settings",
+    "subtitle": "Configure your sovereign AI experience",
     "categories": {
       "profile": "Profile",
+      "profileDesc": "Identity & preferences",
       "agents": "PAT Agents",
+      "agentsDesc": "Configure your AI team",
       "resources": "Resources",
+      "resourcesDesc": "Hardware allocation",
       "security": "Security",
+      "securityDesc": "Privacy & encryption",
       "backup": "Backup",
+      "backupDesc": "Export & restore",
       "language": "Language",
-      "advanced": "Advanced"
+      "languageDesc": "Display language & RTL",
+      "advanced": "Advanced",
+      "advancedDesc": "Developer options"
+    },
+    "profile": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your sovereign identity",
+      "displayName": "Display Name",
+      "displayNamePlaceholder": "Your sovereign name",
+      "ihsanScore": "Ihsan Score",
+      "ihsanDescription": "إحسان - Your ethical excellence rating",
+      "seedState": "Current Seed State",
+      "weeklyTime": "Weekly Time Available",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Saved!"
+    },
+    "language": {
+      "title": "Language Settings",
+      "subtitle": "Choose your display language",
+      "currentLanguage": "Current Language",
+      "selectLanguage": "Select Language",
+      "aboutTitle": "About Language Support",
+      "aboutDesc": "BIZRA supports multiple languages with full RTL (right-to-left) support for Arabic. Language changes take effect immediately across the entire application."
+    },
+    "pat": {
+      "title": "PAT Configuration",
+      "subtitle": "Configure your Personal Agent Team",
+      "primaryAgent": "Primary Agent",
+      "updateAgent": "Update Primary Agent",
+      "updating": "Updating..."
+    },
+    "resources": {
+      "title": "Resource Allocation",
+      "subtitle": "Hardware configuration for your Node",
+      "gpuVram": "GPU VRAM",
+      "cpuThreads": "CPU Threads",
+      "ramUsage": "RAM Usage",
+      "allocated": "Allocated",
+      "inUse": "In use",
+      "of": "Of",
+      "configureHint": "Configure detailed resource settings on the Resources page"
+    },
+    "security": {
+      "title": "Security & Privacy",
+      "subtitle": "Your data sovereignty controls",
+      "localOnly": "Local-Only Mode",
+      "localOnlyDesc": "All data stays on your machine",
+      "encryption": "Encryption at Rest",
+      "encryptionDesc": "AES-256 encryption for sensitive data",
+      "zeroCloud": "Zero Cloud Dependencies",
+      "zeroCloudDesc": "No external API calls",
+      "guaranteedTitle": "Sovereignty Guaranteed",
+      "guaranteedDesc": "Node0 is designed for complete user sovereignty. Your data never leaves your machine unless you explicitly export it. All AI inference happens locally via Ollama."
+    },
+    "backup": {
+      "title": "Backup & Export",
+      "subtitle": "Export your data and create backups",
+      "fullExport": "Full Data Export",
+      "fullExportDesc": "Profile, PoI ledger, knowledge base, and settings",
+      "exportZip": "Export ZIP",
+      "poiExport": "PoI Ledger Export",
+      "poiExportDesc": "Your Proof-of-Impact history as CSV",
+      "exportCsv": "Export CSV",
+      "importBackup": "Import Backup",
+      "importDesc": "Restore from a previous export",
+      "selectFile": "Select File"
+    },
+    "advanced": {
+      "title": "Advanced Settings",
+      "subtitle": "Developer and power user options",
+      "apiEndpoints": "API Endpoints",
+      "knowledgeGraph": "Knowledge Graph",
+      "knowledgeGraphDesc": "Hypergraph RAG status and controls",
+      "rebuild": "Rebuild Knowledge Graph",
+      "dangerZone": "Danger Zone",
+      "dangerDesc": "These actions cannot be undone",
+      "resetAll": "Reset All Data"
+    },
+    "seedStates": {
+      "dreamer": "Dreamer",
+      "dreamerDesc": "Big ideas, exploring possibilities",
+      "builder": "Builder",
+      "builderDesc": "Ready to create and execute",
+      "learner": "Learner",
+      "learnerDesc": "Focused on growth and knowledge",
+      "healer": "Healer",
+      "healerDesc": "Helping others, making impact",
+      "provider": "Provider",
+      "providerDesc": "Family and income focused"
     }
   },
   "common": {

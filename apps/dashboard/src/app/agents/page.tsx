@@ -219,7 +219,11 @@ export default function AgentDashboardPage() {
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-green-400 text-sm font-mono">LIVE</span>
               </div>
-              <button className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+              <button 
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                aria-label="Agent Settings"
+                title="Agent Settings"
+              >
                 <Settings className="w-5 h-5" />
               </button>
             </div>
@@ -509,6 +513,8 @@ export default function AgentDashboardPage() {
                   <button
                     onClick={() => setSelectedAgent(null)}
                     className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                    aria-label="Close agent details"
+                    title="Close"
                   >
                     <XCircle className="w-5 h-5" />
                   </button>

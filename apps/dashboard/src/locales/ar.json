@@ -307,15 +307,110 @@
     }
   },
   "settings": {
-    "title": "الإعدادات",
+    "title": "إعدادات العقدة",
+    "subtitle": "تهيئة تجربة الذكاء الاصطناعي السيادية",
     "categories": {
       "profile": "الملف الشخصي",
+      "profileDesc": "الهوية والتفضيلات",
       "agents": "وكلاء PAT",
+      "agentsDesc": "تهيئة فريق الذكاء",
       "resources": "الموارد",
+      "resourcesDesc": "تخصيص الأجهزة",
       "security": "الأمان",
+      "securityDesc": "الخصوصية والتشفير",
       "backup": "النسخ الاحتياطي",
+      "backupDesc": "تصدير واستعادة",
       "language": "اللغة",
-      "advanced": "متقدم"
+      "languageDesc": "لغة العرض و RTL",
+      "advanced": "متقدم",
+      "advancedDesc": "خيارات المطورين"
+    },
+    "profile": {
+      "title": "إعدادات الملف الشخصي",
+      "subtitle": "إدارة هويتك السيادية",
+      "displayName": "اسم العرض",
+      "displayNamePlaceholder": "اسمك السيادي",
+      "ihsanScore": "نقاط الإحسان",
+      "ihsanDescription": "إحسان - تقييم تميزك الأخلاقي",
+      "seedState": "حالة البذرة الحالية",
+      "weeklyTime": "الوقت الأسبوعي المتاح",
+      "saveChanges": "حفظ التغييرات",
+      "saving": "جاري الحفظ...",
+      "saved": "تم الحفظ!"
+    },
+    "language": {
+      "title": "إعدادات اللغة",
+      "subtitle": "اختر لغة العرض",
+      "currentLanguage": "اللغة الحالية",
+      "selectLanguage": "اختر اللغة",
+      "aboutTitle": "حول دعم اللغات",
+      "aboutDesc": "بِزرة تدعم لغات متعددة مع دعم كامل للكتابة من اليمين لليسار للعربية. تغييرات اللغة تطبق فوراً على كامل التطبيق."
+    },
+    "pat": {
+      "title": "تهيئة PAT",
+      "subtitle": "تهيئة فريق الوكلاء الشخصي",
+      "primaryAgent": "الوكيل الرئيسي",
+      "updateAgent": "تحديث الوكيل الرئيسي",
+      "updating": "جاري التحديث..."
+    },
+    "resources": {
+      "title": "تخصيص الموارد",
+      "subtitle": "تهيئة الأجهزة لعقدتك",
+      "gpuVram": "ذاكرة GPU",
+      "cpuThreads": "خيوط المعالج",
+      "ramUsage": "استخدام الذاكرة",
+      "allocated": "مخصص",
+      "inUse": "قيد الاستخدام",
+      "of": "من",
+      "configureHint": "تهيئة إعدادات الموارد المفصلة في صفحة الموارد"
+    },
+    "security": {
+      "title": "الأمان والخصوصية",
+      "subtitle": "التحكم في سيادة بياناتك",
+      "localOnly": "الوضع المحلي فقط",
+      "localOnlyDesc": "جميع البيانات تبقى على جهازك",
+      "encryption": "التشفير عند التخزين",
+      "encryptionDesc": "تشفير AES-256 للبيانات الحساسة",
+      "zeroCloud": "بدون اعتماد سحابي",
+      "zeroCloudDesc": "لا توجد استدعاءات API خارجية",
+      "guaranteedTitle": "السيادة مضمونة",
+      "guaranteedDesc": "Node0 مصمم للسيادة الكاملة للمستخدم. بياناتك لا تغادر جهازك أبداً إلا إذا صدّرتها صراحةً. كل معالجة الذكاء الاصطناعي تحدث محلياً عبر Ollama."
+    },
+    "backup": {
+      "title": "النسخ الاحتياطي والتصدير",
+      "subtitle": "تصدير بياناتك وإنشاء نسخ احتياطية",
+      "fullExport": "تصدير كامل البيانات",
+      "fullExportDesc": "الملف الشخصي، سجل PoI، قاعدة المعرفة، والإعدادات",
+      "exportZip": "تصدير ZIP",
+      "poiExport": "تصدير سجل PoI",
+      "poiExportDesc": "تاريخ إثبات التأثير كـ CSV",
+      "exportCsv": "تصدير CSV",
+      "importBackup": "استيراد نسخة احتياطية",
+      "importDesc": "استعادة من تصدير سابق",
+      "selectFile": "اختيار ملف"
+    },
+    "advanced": {
+      "title": "إعدادات متقدمة",
+      "subtitle": "خيارات المطورين والمستخدمين المتقدمين",
+      "apiEndpoints": "نقاط نهاية API",
+      "knowledgeGraph": "رسم المعرفة",
+      "knowledgeGraphDesc": "حالة وتحكمات Hypergraph RAG",
+      "rebuild": "إعادة بناء رسم المعرفة",
+      "dangerZone": "منطقة الخطر",
+      "dangerDesc": "هذه الإجراءات لا يمكن التراجع عنها",
+      "resetAll": "إعادة تعيين كل البيانات"
+    },
+    "seedStates": {
+      "dreamer": "حالم",
+      "dreamerDesc": "أفكار كبيرة، استكشاف الإمكانيات",
+      "builder": "بانٍ",
+      "builderDesc": "جاهز للإنشاء والتنفيذ",
+      "learner": "متعلم",
+      "learnerDesc": "مركز على النمو والمعرفة",
+      "healer": "معالج",
+      "healerDesc": "مساعدة الآخرين، إحداث تأثير",
+      "provider": "معيل",
+      "providerDesc": "تركيز على العائلة والدخل"
     }
   },
   "common": {
