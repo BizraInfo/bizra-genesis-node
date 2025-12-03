@@ -1,17 +1,101 @@
 /**
  * BIZRA Installer Service
  * 
- * Handles the generation and execution of the actual installation process.
+ * NODE0 GENESIS BLOCK PROTOCOL
+ * ============================
+ * Node0 is the Genesis Block - the DNA from which all BIZRA nodes inherit.
+ * 
+ * FUNDAMENTAL PRINCIPLE:
+ * - Node0 (Genesis Block) CREATES and DISTRIBUTES all software
+ * - Federation nodes ONLY RECEIVE what Node0 provides
+ * - ALL software, configs, and updates flow FROM Node0
+ * - Federation nodes do NOT independently source software
+ * 
  * This service manages:
- * - Installer package generation
- * - Model downloads
+ * - Genesis Block package creation (Node0 only)
+ * - Distribution package signing and verification
+ * - Federation node installation (receives from Node0)
  * - Local file system setup
- * - System configuration
+ * - System configuration (mastered at Node0)
  * 
  * @module installer-service
  */
 
 import { type AIModel, generateModelConfig, type HardwareProfile } from './model-registry';
+
+// ============================================
+// GENESIS BLOCK CONSTANTS
+// ============================================
+
+/** The Genesis Block identifier - all nodes trace lineage here */
+export const GENESIS_BLOCK_ID = 'NODE0-TITAN';
+
+/** Genesis Block version - the foundation version */
+export const GENESIS_VERSION = '1.0.0';
+
+/** Genesis Block timestamp - the moment of creation */
+export const GENESIS_TIMESTAMP = '2025-12-03T00:00:00Z';
+
+/** 
+ * Federation Mode
+ * - 'genesis': This IS Node0, the source of all software
+ * - 'derived': This node receives ALL software from Node0
+ */
+export type FederationMode = 'genesis' | 'derived';
+
+/**
+ * Genesis Block Configuration
+ * Defines the trust chain and software sourcing rules
+ */
+export interface GenesisBlockConfig {
+  /** Is this the Genesis Block (Node0)? */
+  isGenesisBlock: boolean;
+  
+  /** Federation mode determines software source */
+  federationMode: FederationMode;
+  
+  /** All software MUST come from this source */
+  softwareSource: string;
+  
+  /** All configurations flow from this source */
+  configurationSource: string;
+  
+  /** Trust chain anchor - always Node0 */
+  trustAnchor: string;
+  
+  /** Node ID for this installation */
+  nodeId: string;
+}
+
+/**
+ * Get the genesis configuration for the current node
+ * Node0 creates, all others receive
+ */
+export function getGenesisConfig(nodeId: string): GenesisBlockConfig {
+  const isNode0 = nodeId === GENESIS_BLOCK_ID || nodeId.startsWith('NODE0');
+  
+  return {
+    isGenesisBlock: isNode0,
+    federationMode: isNode0 ? 'genesis' : 'derived',
+    softwareSource: GENESIS_BLOCK_ID,  // ALWAYS Node0
+    configurationSource: GENESIS_BLOCK_ID,  // ALWAYS Node0
+    trustAnchor: GENESIS_BLOCK_ID,  // ALWAYS Node0
+    nodeId,
+  };
+}
+
+/**
+ * Verify that software package came from Genesis Block
+ * Federation nodes MUST verify before installation
+ */
+export function verifyGenesisSource(packageSource: string): boolean {
+  // ALL packages must originate from Node0
+  if (packageSource !== GENESIS_BLOCK_ID) {
+    console.error(`[GENESIS] SOVEREIGNTY BREACH: Package source "${packageSource}" is not Node0`);
+    return false;
+  }
+  return true;
+}
 
 // Installation configuration
 export interface InstallConfig {
