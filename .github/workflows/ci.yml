@@ -147,24 +147,30 @@ jobs:
         with:
           version: 8
 
-      # Rust Security Audit
+      # Rust Security Audit (BLOCKING - Critical findings fail the build)
       - name: 🦀 Install cargo-audit
         run: cargo install cargo-audit
 
       - name: 🦀 Rust Security Audit
         working-directory: backend
-        run: cargo audit || true
+        run: |
+          # Exit code 1 = vulnerabilities found, 0 = clean
+          # This is BLOCKING for critical/high findings
+          cargo audit --deny warnings
+        continue-on-error: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'security-exception') }}
 
       - name: 🦀 Rust Dependency Check
         working-directory: backend
-        run: cargo deny check || true
+        run: cargo deny check
+        continue-on-error: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'security-exception') }}
 
-      # Node.js Security Audit
+      # Node.js Security Audit (BLOCKING - High/Critical findings fail the build)
       - name: 📦 Dashboard npm audit
         working-directory: apps/dashboard
-        run: pnpm audit --audit-level=high || true
+        run: pnpm audit --audit-level=high
+        continue-on-error: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'security-exception') }}
 
-      # Container Security with Trivy
+      # Container Security with Trivy (BLOCKING for CRITICAL)
       - name: 🐳 Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -173,6 +179,8 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+        continue-on-error: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'security-exception') }}
 
       - name: 📤 Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v3
@@ -278,11 +286,11 @@ jobs:
 
       - name: 🧪 Run Tests
         working-directory: apps/dashboard
-        run: pnpm test:ci || true
+        run: pnpm test:ci
 
       - name: 📊 Generate Coverage
         working-directory: apps/dashboard
-        run: pnpm test:coverage || true
+        run: pnpm test:coverage
 
       - name: 📤 Upload Coverage
         uses: codecov/codecov-action@v4
@@ -328,7 +336,7 @@ jobs:
 
       - name: 🧪 Run Tests
         working-directory: bridge
-        run: pnpm test || true
+        run: pnpm test
 
   test-knowledge:
     name: 🧠 Test Knowledge System
@@ -354,7 +362,7 @@ jobs:
 
       - name: 🧪 Run Tests
         working-directory: knowledge/scripts
-        run: pytest test_knowledge.py -v --cov=. --cov-report=xml || true
+        run: pytest test_knowledge.py -v --cov=. --cov-report=xml
 
       - name: 📤 Upload Coverage
         uses: codecov/codecov-action@v4
@@ -441,15 +449,43 @@ jobs:
           # Resources status
           curl -f http://localhost:8080/api/resources/status
 
-      # Smoke test: validate response body shape to prevent silent contract drift
-      - name: 🔬 Health-contract smoke test
+      # ============================================
+      # P0.4: HEALTH CONTRACT SMOKE TEST
+      # Validates API schema to prevent silent contract drift
+      # ============================================
+      - name: 🔬 Health Contract Smoke Test (P0.4)
         run: |
           set -e
+          echo "🔬 Validating backend health contract..."
+          
+          # 1. Health endpoint contract
           HEALTH=$(curl -sf http://localhost:8080/health)
-          echo "$HEALTH" | jq -e '.status == "healthy"'
-          echo "$HEALTH" | jq -e '.node_id'
-          echo "$HEALTH" | jq -e '.version'
-          echo "✅ Health-contract check passed"
+          echo "$HEALTH" | jq -e '.status == "healthy"' > /dev/null || (echo "❌ status != healthy" && exit 1)
+          echo "$HEALTH" | jq -e '.node_id | type == "string"' > /dev/null || (echo "❌ node_id missing/wrong type" && exit 1)
+          echo "$HEALTH" | jq -e '.version | type == "string"' > /dev/null || (echo "❌ version missing/wrong type" && exit 1)
+          echo "$HEALTH" | jq -e '.timestamp | type == "string"' > /dev/null || (echo "❌ timestamp missing/wrong type" && exit 1)
+          echo "✅ /health contract valid"
+          
+          # 2. Services status contract
+          SERVICES=$(curl -sf http://localhost:8080/api/services/status)
+          echo "$SERVICES" | jq -e '.success == true' > /dev/null || (echo "❌ services.success != true" && exit 1)
+          echo "✅ /api/services/status contract valid"
+          
+          # 3. PAT agents contract
+          AGENTS=$(curl -sf http://localhost:8080/api/pat/agents)
+          echo "$AGENTS" | jq -e '.success == true' > /dev/null || (echo "❌ agents.success != true" && exit 1)
+          echo "$AGENTS" | jq -e '.data | type == "array"' > /dev/null || (echo "❌ agents.data not array" && exit 1)
+          echo "✅ /api/pat/agents contract valid"
+          
+          # 4. Resources status contract
+          RESOURCES=$(curl -sf http://localhost:8080/api/resources/status)
+          echo "$RESOURCES" | jq -e '.success == true' > /dev/null || (echo "❌ resources.success != true" && exit 1)
+          echo "✅ /api/resources/status contract valid"
+          
+          echo ""
+          echo "═══════════════════════════════════════"
+          echo "🎯 ALL HEALTH CONTRACTS VALIDATED (P0.4)"
+          echo "═══════════════════════════════════════"
 
   # ============================================
   # STAGE 5: E2E TESTS
@@ -491,7 +527,7 @@ jobs:
 
       - name: 🧪 Run E2E Tests
         working-directory: apps/dashboard
-        run: pnpm test:e2e || true
+        run: pnpm test:e2e
         env:
           PLAYWRIGHT_TEST_BASE_URL: http://localhost:3000
 

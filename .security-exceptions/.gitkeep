@@ -1,0 +1,9 @@
+# BIZRA Security Exceptions Directory
+#
+# This directory contains time-bounded security exception records.
+# See SECURITY.md for the exception process.
+#
+# Files should be named: {CVE-ID}.yaml or {ADVISORY-ID}.yaml
+# Example: CVE-2024-12345.yaml
+#
+# Expired exceptions will cause CI to fail.

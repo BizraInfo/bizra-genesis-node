@@ -172,18 +172,20 @@ For every new governance mechanism:
   - Explicit allowlist in production configs
   - Documented behavior and tested behavior match
 
-**P0.3 Make critical security checks blocking**
+**P0.3 Make critical security checks blocking** ✅ COMPLETED
 - Outcome: critical vulnerabilities/secret findings block merges.
 - Evidence: workflows exist; some steps currently use non-blocking patterns.
 - Acceptance:
   - Critical severity fails the merge gate
   - Exception process is documented (time-bounded)
+- **Implementation**: Removed `|| true` from security scans; added `security-exception` label bypass; documented in SECURITY.md
 
-**P0.4 Smoke-test the “ports and health” contract**
+**P0.4 Smoke-test the "ports and health" contract** ✅ COMPLETED
 - Outcome: prevent port drift and broken health endpoints.
 - Evidence: architecture and docs rely on stable ports.
 - Acceptance:
   - CI runs a minimal boot + `GET /health`
+- **Implementation**: Enhanced smoke test validates health, services, agents, resources contracts
 
 
 ### P1 (2–6 weeks): Observability, performance budgets, and safer agent execution

@@ -69,6 +69,58 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 - **Secret Detection**: Pre-commit hooks to prevent secret commits
 - **Code Review**: Required reviews for all changes
 - **Signed Commits**: GPG-signed commits required
+- **Blocking Security Gates**: Critical/high vulnerabilities block PR merges (see Exception Process below)
+
+### Security Exception Process (P0.3 Governance)
+
+When a critical or high-severity vulnerability is detected but a time-bounded exception is required:
+
+#### 1. Request Exception
+
+Add the `security-exception` label to your PR. This allows the CI to continue while documenting the risk.
+
+#### 2. Exception Requirements
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Vulnerability ID** | CVE or advisory ID | CVE-2024-12345 |
+| **Severity** | Critical, High | High |
+| **Affected Component** | Package/crate name | `lodash@4.17.20` |
+| **Justification** | Why exception is needed | "Patch not yet released by maintainer" |
+| **Mitigation** | Compensating controls | "Not reachable in our code path" |
+| **Expiration Date** | Maximum 14 days | 2024-01-15 |
+| **Owner** | Who is accountable | @username |
+
+#### 3. Create Exception Record
+
+Create a file in `.security-exceptions/` with the format:
+
+```yaml
+# .security-exceptions/CVE-2024-12345.yaml
+id: CVE-2024-12345
+severity: high
+component: lodash
+version: 4.17.20
+justification: |
+  Patch not yet released. Vulnerable function not used in our codebase.
+mitigation: |
+  Function is not called anywhere in BIZRA codebase. Verified via grep.
+expiration: 2024-01-15
+owner: github-username
+created: 2024-01-01
+pr: 123
+```
+
+#### 4. Exception Limits
+
+- **Maximum Duration**: 14 days (no renewals without re-review)
+- **Critical Severity**: Requires 2 reviewer approvals + security team sign-off
+- **High Severity**: Requires 1 reviewer approval
+- **Automatic Expiration**: CI will fail after expiration date
+
+#### 5. Exception Monitoring
+
+Expired exceptions are reported in the security job summary and block future merges until resolved.
 
 ### Security Checklist
 
