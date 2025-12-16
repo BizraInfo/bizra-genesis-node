@@ -231,7 +231,7 @@ export default function InstallerPage() {
     
     // Create hardware profile for model selection based on REAL data
     const profile: HardwareProfile = {
-      tier: 'balanced', // Default, will be recalculated
+      tier: 'standard', // Default, will be recalculated
       ram: ramGb,
       vram: gpuVendor.toLowerCase().includes('nvidia') ? 8 : 0, // Assume 8GB if NVIDIA detected, else 0
       cpuCores: cores,
@@ -242,8 +242,8 @@ export default function InstallerPage() {
     
     // Determine Tier
     if (profile.ram >= 32 && profile.hasGpu) profile.tier = 'ultra';
-    else if (profile.ram >= 16) profile.tier = 'high';
-    else profile.tier = 'balanced';
+    else if (profile.ram >= 16) profile.tier = 'powerful';
+    else profile.tier = 'standard';
     
     setHardwareProfile(profile);
     

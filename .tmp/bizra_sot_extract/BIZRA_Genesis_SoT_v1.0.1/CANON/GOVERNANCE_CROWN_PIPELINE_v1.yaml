@@ -1,0 +1,36 @@
+truth: DERIVED
+pipeline:
+- stage: origin
+  inputs:
+  - idea/proposal
+  outputs:
+  - change_package(spec,rationale,tests)
+  owner: SAT Department + Department CEO
+- stage: vote
+  duration_days: 7
+  voting_weight: BLOOM
+  outputs:
+  - pass/fail
+  - quorum_check
+  - majority_check
+- stage: sat_ceo_review
+  outputs:
+  - signed_approval
+  checks:
+  - impact
+  - alignment
+  - risk
+- stage: progressive_rollout
+  gates:
+  - name: shadow_or_canary
+    monitor_hours: 72
+    scope: subset
+  - name: full_rollout
+    monitor_days: 7
+    scope: 100% network
+- stage: crown_verification
+  outcomes:
+  - ACCEPT
+  - REJECT
+  - REVISE
+  notes: REVISE requires resubmission

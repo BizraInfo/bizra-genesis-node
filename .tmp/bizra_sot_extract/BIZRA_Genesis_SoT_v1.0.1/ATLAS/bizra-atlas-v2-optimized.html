@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>BIZRA System Architecture Atlas - Full Report (Optimized)</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome (icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Mermaid + html2pdf (kept CDN for now; for production, pin and self-host) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --gold-500: #C9A962;
+      --gold-600: #B08D45;
+      --navy-800: #0A1628;
+      --navy-900: #050B14;
+      --text-0: #F8F6F1;
+      --text-1: rgba(255, 255, 255, 0.75);
+      --text-2: rgba(255, 255, 255, 0.55);
+      --stroke-soft: rgba(255, 255, 255, 0.08);
+      --shadow: rgba(0,0,0,0.55);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background-color: var(--navy-900);
+      color: var(--text-0);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      padding: 40px;
+    }
+
+    /* Accessibility: focus rings */
+    button:focus-visible {
+      outline: 2px solid var(--gold-500);
+      outline-offset: 2px;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(201, 169, 98, 0.3);
+    }
+
+    .report-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: var(--gold-500);
+      margin: 0 0 10px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .report-subtitle {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .report-meta {
+      margin-top: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--gold-500);
+    }
+
+    .diagram-section {
+      background: rgba(10, 22, 40, 0.55);
+      border: 1px solid var(--stroke-soft);
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 60px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .diagram-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 26px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 18px;
+    }
+
+    .diagram-id {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--gold-500);
+      font-size: 12px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .diagram-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .diagram-desc {
+      color: var(--text-2);
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .meta-box {
+      text-align: right;
+      min-width: 200px;
+    }
+
+    .meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      background: rgba(201, 169, 98, 0.10);
+      color: var(--gold-500);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(201, 169, 98, 0.28);
+      display: inline-block;
+      margin-bottom: 6px;
+      white-space: nowrap;
+    }
+
+    .meta-line {
+      margin-top: 4px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.45);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .mermaid-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+      overflow-x: auto;
+      padding: 6px;
+    }
+
+    .mermaid-error {
+      border: 1px dashed rgba(244, 67, 54, 0.6);
+      padding: 16px;
+      border-radius: 10px;
+      color: rgba(244, 67, 54, 0.95);
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+    }
+
+    /* Actions */
+    .actions-container {
+      position: fixed;
+      top: 28px;
+      right: 28px;
+      display: flex;
+      gap: 12px;
+      z-index: 1000;
+    }
+
+    .btn {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 26px var(--shadow);
+      transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      user-select: none;
+    }
+
+    .print-btn {
+      background: var(--gold-500);
+      color: var(--navy-900);
+    }
+    .print-btn:hover { background: #e0c585; transform: translateY(-1px); }
+
+    .dl-btn {
+      background: var(--navy-800);
+      color: var(--gold-500);
+      border: 1px solid rgba(201, 169, 98, 0.65);
+    }
+    .dl-btn:hover { background: rgba(201, 169, 98, 0.10); transform: translateY(-1px); }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Loading overlay */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 11, 20, 0.92);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      flex-direction: column;
+      gap: 18px;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid rgba(201, 169, 98, 0.20);
+      border-top-color: var(--gold-500);
+      border-radius: 50%;
+      animation: spin 0.95s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      color: var(--gold-500);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .loading-subtext {
+      color: rgba(255,255,255,0.6);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-size: 13px;
+      max-width: 720px;
+      line-height: 1.5;
+    }
+
+    /* Prefer reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .spinner { animation: none; }
+      .btn { transition: none; }
+      .print-btn:hover, .dl-btn:hover { transform: none; }
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background-color: var(--navy-900) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 0;
+        margin: 0;
+      }
+
+      .no-print { display: none !important; }
+
+      /* Each section gets its own page for stability */
+      .diagram-section {
+        break-before: page;
+        page-break-before: always;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: none;
+        background: none;
+        margin: 0;
+        padding: 36px 28px 0 28px;
+      }
+      .diagram-section:first-of-type {
+        break-before: auto;
+        page-break-before: auto;
+      }
+
+      svg {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <noscript>
+    <div style="padding:16px;border:1px solid rgba(201,169,98,0.4);border-radius:10px;">
+      This report requires JavaScript to render Mermaid diagrams and export PDF.
+    </div>
+  </noscript>
+
+  <div id="loading-overlay" class="no-print" data-html2pdf-ignore="true">
+    <div class="spinner" aria-hidden="true"></div>
+    <div id="loading-status" class="loading-text">GENERATING ATLAS…</div>
+    <div class="loading-subtext">
+      Rendering Mermaid diagrams, preparing responsive SVG sizing, and warming up PDF export.
+      (If this hangs, open DevTools → Console for the failing diagram ID.)
+    </div>
+  </div>
+
+  <div class="actions-container no-print" data-html2pdf-ignore="true">
+    <button id="btn-print" class="btn print-btn" onclick="handlePrint()" disabled aria-label="Print using browser">
+      <i class="fa-solid fa-print" aria-hidden="true"></i> Print (Browser)
+    </button>
+    <button id="btn-dl" class="btn dl-btn" onclick="handleDownload()" disabled aria-label="Download as PDF">
+      <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Download PDF
+    </button>
+  </div>
+
+  <!-- Export root: only what we want in the PDF -->
+  <main id="report-root">
+    <header class="report-header">
+      <h1 class="report-title">BIZRA</h1>
+      <div class="report-subtitle">System Architecture Atlas v2.0</div>
+      <div class="report-meta">FULL ARCHITECTURAL REPORT • GENERATED OUTPUT</div>
+    </header>
+
+    <div id="diagrams-container"></div>
+  </main>
+
+  <script>
+    /**
+     * ===========================
+     * 1) Data
+     * ===========================
+     *
+     * NOTE: For “Ihsān-grade verification”, treat metadata.truth as the only truth label:
+     * - VERIFIED / MEASURED / DERIVED / PLANNED
+     * 'status' can be used for internal tags (CROWN_SEALED, etc.) but is not a truth claim.
+     */
+    const diagrams = {
+      d0: {
+        title: "BIZRA Ecosystem Overview",
+        desc: "Humans, PAT, SAT, chain, and the value loop",
+        metadata: { truth: "DERIVED", status: "GENESIS", layers: "L0-L3", snr: "0.82" },
+        code: `flowchart TB
+    subgraph H["👥 Human Layer"]
+      U["Human User\\n(NodeN)"]
+      D["Devices\\n💻 📱 🖥️"]
+      U <--> D
+    end
+
+    subgraph PAT["🤖 Personal Autonomy Team (PAT-N)"]
+      PTank["🛡️ Tank\\nSafety & Defense"]
+      PDps["⚡ DPS\\nTask Reasoner"]
+      PHeal["🧠 Healer\\nMemory & Context"]
+      PSupp["📚 Support\\nRAG & Knowledge"]
+    end
+
+    subgraph SAT["🏛️ System Autonomy Team (SAT-49)"]
+      SATCEO["👑 SAT-CEO\\nSupreme Coordinator"]
+
+      subgraph DEPTS["7 Departments"]
+        EGO["📈 EGO-7\\nGrowth"]
+        PXS["🎯 PXS-7\\nProduct"]
+        AML["🤖 AML-7\\nAlpha ML"]
+        KNM["📢 KNM-7\\nMedia"]
+        RCE["⚖️ RCE-7\\nRisk"]
+        IRP["🔧 IRP-7\\nInfra"]
+        TTM["💰 TTM-7\\nTreasury"]
+      end
+
+      SATCEO --> DEPTS
+    end
+
+    subgraph CORE["⚙️ Core Services Layer"]
+      LLM["🧠 LLM Engine\\nMixture of Experts"]
+      KG["🕸️ Knowledge Graph\\nSemantic Memory"]
+      POI["✅ PoI Engine\\nProof of Impact"]
+      BG["⛓️ BlockGraph\\nDAG Ledger"]
+      RP["🌊 Resource Pool\\nCompute & Storage"]
+    end
+
+    subgraph VALUE["💎 Value & Impact"]
+      TOK["🪙 Dual Tokens\\nSEED / BLOOM"]
+      IMP["📊 Impact Ledger\\nReputation Score"]
+      REW["🎁 Reward Engine\\nDistribution"]
+    end
+
+    H -->|"Daily Tasks"| PAT
+    PAT -->|"Aggregated Requests"| SAT
+    SAT -->|"System Operations"| CORE
+    CORE -->|"Impact Validation"| VALUE
+    VALUE -->|"Rewards & Benefits"| H
+
+    PAT -.->|"PoI Attestations"| POI
+    POI --> BG
+    BG --> TOK
+
+    style H fill:#1a472a,stroke:#4CAF50,stroke-width:3px
+    style PAT fill:#1a3a5c,stroke:#2196F3,stroke-width:3px
+    style SAT fill:#5c3a1a,stroke:#FF9800,stroke-width:3px
+    style CORE fill:#4a1a5c,stroke:#9C27B0,stroke-width:3px
+    style VALUE fill:#5c4a1a,stroke:#FFD700,stroke-width:3px`
+      },
+      d1: {
+        title: "Layered System Architecture",
+        desc: "L0-L3 stack: Network, Ledger, Intelligence, Crown",
+        metadata: { truth: "DERIVED", status: "CROWN_SEALED", layers: "L0-L3+Crown", snr: "0.84" },
+        code: `flowchart TB
+    subgraph L0["🌐 Layer 0 – Network Foundation"]
+      NET["Secure P2P Network\\nlibp2p / QUIC / Noise"]
+      NODES["Node Fabric\\nNode-0 (System) + NodeN (Users)"]
+      DISC["Discovery Protocol\\nmDNS / DHT"]
+      RELAY["Relay Network\\nNAT Traversal"]
+
+      NET --> NODES
+      NODES <--> DISC
+      NODES <--> RELAY
+    end
+
+    subgraph L1["⛓️ Layer 1 – Ledger & Consensus"]
+      BG["BlockGraph (DAG)\\nDirected Acyclic Graph"]
+      POI["PoI Engine\\nProof of Impact Validation"]
+      TOK["Dual Token System\\n🌱 SEED (Utility) | 🌸 BLOOM (Governance)"]
+      CONS["Consensus Mechanism\\nWeighted PoI + Stake"]
+
+      POI --> CONS
+      CONS --> BG
+      BG --> TOK
+    end
+
+    subgraph L2["🧠 Layer 2 – Intelligence & Agents"]
+      subgraph CORE_AI["Core AI Components"]
+        LLM["LLM Engine\\nMixture of Experts (MoE)"]
+        MEM["Memory Systems\\nShort/Long-term + Episodic"]
+        POL["Policy Engine (AEGIS)\\nSafety & Alignment"]
+        SELF["Self-Play Arena\\nAgent Training"]
+      end
+
+      PATL["PAT Teams (Personal)\\nTank, DPS, Healer, Support"]
+      SATL["SAT-49 (System)\\n7 Departments + CEO"]
+
+      PATL --> CORE_AI
+      SATL --> CORE_AI
+      CORE_AI --> POL
+    end
+
+    subgraph L3["👑 Layer 3 – Governance & Crown"]
+      GOV["Governance Flow\\nProposal → Vote → Gates"]
+      GATES["Progressive Gates\\nShadow → Canary → Production"]
+      CROWN["Crown Proof Chain\\nMath + Logic + Ethics Verification"]
+      IDEO["Ideology Specification\\nConstitutional Rules"]
+
+      GOV --> GATES
+      GATES --> CROWN
+      IDEO --> POL
+      IDEO --> CROWN
+    end
+
+    L0 ==>|"Network Events"| L1
+    L1 ==>|"Validated Transactions"| L2
+    L2 ==>|"System Changes"| L3
+    L3 -.->|"Crown Proofs"| BG
+
+    PATL -.->|"User PoI"| POI
+    SATL -.->|"System PoI"| POI
+
+    style L0 fill:#0a1a2e,stroke:#4CAF50,stroke-width:4px
+    style L1 fill:#0e1e3a,stroke:#2196F3,stroke-width:4px
+    style L2 fill:#1a0e3a,stroke:#FF9800,stroke-width:4px
+    style L3 fill:#3a1a0e,stroke:#9C27B0,stroke-width:4px`
+      },
+      d2: {
+        title: "Node Identity & Lifecycle",
+        desc: "How humans become nodes and generate PoI",
+        metadata: { truth: "DERIVED", status: "POI_VALIDATED", layers: "L1+L2", snr: "0.80" },
+        code: `flowchart TB
+    U["👤 Human User\\nNew Candidate"]
+
+    subgraph ONBOARD["📋 Onboarding Process"]
+      PLEDGE["Pledge Commitment\\nAccept Constitution"]
+      KYC["Identity Verification\\n(Privacy-Preserving)"]
+      KEYS["Generate Keys\\nEd25519 Keypair"]
+      ASSIGN["Assign NodeID\\nUnique Identifier"]
+
+      PLEDGE --> KYC --> KEYS --> ASSIGN
+    end
+
+    subgraph NODE_ACTIVE["⚡ Active Node (NodeN)"]
+      IDENTITY["Node Identity\\nPublic Key + DID"]
+      PAT_ATTACH["Attach PAT-N Team\\n4 Personal Agents"]
+      CLIENT["Install Client\\nDesktop/Mobile App"]
+      POOL["Register to Pool\\nResource Availability"]
+
+      IDENTITY --> PAT_ATTACH
+      IDENTITY --> CLIENT
+      CLIENT --> POOL
+    end
+
+    subgraph DAILY_OPS["🔄 Daily Operations Loop"]
+      TASKS["Execute Tasks\\nWork, Learn, Create"]
+      COLLAB["Collaborate\\nWith Other Nodes"]
+      CONTRIB["Contribute Resources\\nCompute, Storage, Knowledge"]
+      ATTEST["Generate Attestations\\nCryptographic Proofs"]
+
+      TASKS --> COLLAB
+      COLLAB --> CONTRIB
+      CONTRIB --> ATTEST
+    end
+
+    subgraph POI_GEN["✅ Proof of Impact Generation"]
+      BUNDLE["Aggregate PoI Bundle\\nActions + Attestations"]
+      SIGN["Sign with Private Key\\nEnsure Authenticity"]
+      SUBMIT["Submit to PoI Engine\\nValidation Queue"]
+      VALIDATE["Validate Impact\\nQuality + Authenticity Checks"]
+
+      BUNDLE --> SIGN --> SUBMIT --> VALIDATE
+    end
+
+    subgraph LEDGER_REWARD["💰 Ledger & Rewards"]
+      RECORD["Record to BlockGraph\\nImmutable Ledger Entry"]
+      CALC["Calculate Rewards\\nSEED + BLOOM Tokens"]
+      DIST["Distribute Rewards\\nTo Node Wallet"]
+      REP["Update Reputation\\nImpact Score"]
+
+      RECORD --> CALC
+      CALC --> DIST
+      CALC --> REP
+    end
+
+    U --> ONBOARD
+    ONBOARD --> NODE_ACTIVE
+    NODE_ACTIVE --> DAILY_OPS
+    DAILY_OPS --> POI_GEN
+    POI_GEN --> LEDGER_REWARD
+    LEDGER_REWARD -.->|"Continuous Loop"| DAILY_OPS
+
+    style ONBOARD fill:#1a3a5c,stroke:#2196F3,stroke-width:3px
+    style NODE_ACTIVE fill:#1a472a,stroke:#4CAF50,stroke-width:3px
+    style DAILY_OPS fill:#5c3a1a,stroke:#FF9800,stroke-width:3px
+    style POI_GEN fill:#4a1a5c,stroke:#9C27B0,stroke-width:3px
+    style LEDGER_REWARD fill:#5c4a1a,stroke:#FFD700,stroke-width:3px`
+      },
+      d3: {
+        title: "Node-0 Agent Hierarchy",
+        desc: "Council → Alpha → Meta → Workers",
+        metadata: { truth: "DERIVED", status: "HIERARCHY_LOCKED", layers: "Agents", snr: "0.83" },
+        code: `flowchart TB
+    subgraph L4["👑 Level 4 – SUPREME COUNCIL (Strategic)"]
+      C1["Council Member 1\\n🎯 Strategy & Vision"]
+      C2["Council Member 2\\n⚖️ Ethics & Alignment"]
+      C3["Council Member 3\\n🔬 Research & Innovation"]
+    end
+
+    subgraph L3["🧠 Level 3 – ALPHA (Tactical Coordination)"]
+      A["ALPHA Coordinator\\nMaster Orchestrator\\nDelegates to META layer"]
+    end
+
+    subgraph L2["⚡ Level 2 – META (Domain Management)"]
+      M1["META-1\\n🛠️ Engineering\\nManages W1-W3"]
+      M2["META-2\\n📊 Analytics\\nManages W4-W6"]
+      M3["META-3\\n🎨 Creative\\nManages W7-W9"]
+      M4["META-4\\n🔐 Security\\nManages W10-W12"]
+      M5["META-5\\n📚 Knowledge\\nManages W13-W15"]
+    end
+
+    subgraph L1["🤖 Level 1 – WORKERS (Execution)"]
+
+      subgraph ENG["Engineering Workers"]
+        W1["W1: Code Gen"]
+        W2["W2: Testing"]
+        W3["W3: DevOps"]
+      end
+
+      subgraph ANLY["Analytics Workers"]
+        W4["W4: Data Processing"]
+        W5["W5: Metrics"]
+        W6["W6: Reporting"]
+      end
+
+      subgraph CREA["Creative Workers"]
+        W7["W7: Content"]
+        W8["W8: Design"]
+        W9["W9: Media"]
+      end
+
+      subgraph SEC["Security Workers"]
+        W10["W10: Threat Detection"]
+        W11["W11: Audit"]
+        W12["W12: Compliance"]
+      end
+
+      subgraph KNOW["Knowledge Workers"]
+        W13["W13: RAG"]
+        W14["W14: Indexing"]
+        W15["W15: Synthesis"]
+      end
+    end
+
+    C1 & C2 & C3 ==>|"Strategic Directives"| A
+
+    A -->|"Eng Tasks"| M1
+    A -->|"Analytics Tasks"| M2
+    A -->|"Creative Tasks"| M3
+    A -->|"Security Tasks"| M4
+    A -->|"Knowledge Tasks"| M5
+
+    M1 --> W1 & W2 & W3
+    M2 --> W4 & W5 & W6
+    M3 --> W7 & W8 & W9
+    M4 --> W10 & W11 & W12
+    M5 --> W13 & W14 & W15
+
+    L1 -.->|"Execution Reports"| L2
+    L2 -.->|"Domain Summaries"| L3
+    L3 -.->|"Strategic Insights"| L4
+
+    style L4 fill:#3a1a0e,stroke:#9C27B0,stroke-width:4px
+    style L3 fill:#1a0e3a,stroke:#FF9800,stroke-width:4px
+    style L2 fill:#0e1e3a,stroke:#2196F3,stroke-width:4px
+    style L1 fill:#0a1a2e,stroke:#4CAF50,stroke-width:4px`
+      },
+      d4: {
+        title: "SAT-49 Company Structure",
+        desc: "7 Departments, 1 SAT-CEO",
+        metadata: { truth: "DERIVED", status: "SAT49_SEALED", layers: "Governance", snr: "0.81" },
+        code: `flowchart TB
+    SATCEO["👑 SAT-CEO\\nSupreme System Coordinator\\n49 Total Agents\\n(1 CEO + 7 Depts × 7 Agents)"]
+
+    subgraph EGO_DEPT["📈 EGO-7 Department (Growth & Expansion)"]
+      EGO_CEO["EGO-CEO\\nChief Growth Officer"]
+      EGO_1["User Acquisition"]
+      EGO_2["Partnerships"]
+      EGO_3["Market Research"]
+      EGO_4["Community Building"]
+      EGO_5["Network Effects"]
+      EGO_6["Metrics & KPIs"]
+
+      EGO_CEO --> EGO_1 & EGO_2 & EGO_3 & EGO_4 & EGO_5 & EGO_6
+    end
+
+    subgraph PXS_DEPT["🎯 PXS-7 Department (Product & Experience)"]
+      PXS_CEO["PXS-CEO\\nChief Product Officer"]
+      PXS_1["UX Research"]
+      PXS_2["Feature Design"]
+      PXS_3["A/B Testing"]
+      PXS_4["User Feedback"]
+      PXS_5["Roadmap Planning"]
+      PXS_6["Quality Assurance"]
+
+      PXS_CEO --> PXS_1 & PXS_2 & PXS_3 & PXS_4 & PXS_5 & PXS_6
+    end
+
+    subgraph AML_DEPT["🤖 AML-7 Department (Alpha ML & AI)"]
+      AML_CEO["AML-CEO\\nChief AI Officer"]
+      AML_1["Model Training"]
+      AML_2["Fine-tuning"]
+      AML_3["Prompt Engineering"]
+      AML_4["Evaluation"]
+      AML_5["Research"]
+      AML_6["Deployment"]
+
+      AML_CEO --> AML_1 & AML_2 & AML_3 & AML_4 & AML_5 & AML_6
+    end
+
+    subgraph KNM_DEPT["📢 KNM-7 Department (Knowledge & Media)"]
+      KNM_CEO["KNM-CEO\\nChief Knowledge Officer"]
+      KNM_1["Content Creation"]
+      KNM_2["Documentation"]
+      KNM_3["Education"]
+      KNM_4["Social Media"]
+      KNM_5["PR & Comms"]
+      KNM_6["Brand Management"]
+
+      KNM_CEO --> KNM_1 & KNM_2 & KNM_3 & KNM_4 & KNM_5 & KNM_6
+    end
+
+    subgraph RCE_DEPT["⚖️ RCE-7 Department (Risk & Compliance)"]
+      RCE_CEO["RCE-CEO\\nChief Risk Officer"]
+      RCE_1["Threat Modeling"]
+      RCE_2["Security Audit"]
+      RCE_3["Compliance Checks"]
+      RCE_4["Policy Enforcement"]
+      RCE_5["Incident Response"]
+      RCE_6["Legal Review"]
+
+      RCE_CEO --> RCE_1 & RCE_2 & RCE_3 & RCE_4 & RCE_5 & RCE_6
+    end
+
+    subgraph IRP_DEPT["🔧 IRP-7 Department (Infrastructure & Platform)"]
+      IRP_CEO["IRP-CEO\\nChief Infrastructure Officer"]
+      IRP_1["System Architecture"]
+      IRP_2["DevOps & SRE"]
+      IRP_3["Monitoring"]
+      IRP_4["Scaling"]
+      IRP_5["Performance"]
+      IRP_6["Disaster Recovery"]
+
+      IRP_CEO --> IRP_1 & IRP_2 & IRP_3 & IRP_4 & IRP_5 & IRP_6
+    end
+
+    subgraph TTM_DEPT["💰 TTM-7 Department (Treasury & Tokenomics)"]
+      TTM_CEO["TTM-CEO\\nChief Treasury Officer"]
+      TTM_1["Token Economics"]
+      TTM_2["Liquidity Management"]
+      TTM_3["Reward Distribution"]
+      TTM_4["Financial Modeling"]
+      TTM_5["Budget Allocation"]
+      TTM_6["Audit & Reporting"]
+
+      TTM_CEO --> TTM_1 & TTM_2 & TTM_3 & TTM_4 & TTM_5 & TTM_6
+    end
+
+    SATCEO ==> EGO_CEO & PXS_CEO & AML_CEO & KNM_CEO & RCE_CEO & IRP_CEO & TTM_CEO
+
+    EGO_CEO & PXS_CEO & AML_CEO & KNM_CEO & RCE_CEO & IRP_CEO & TTM_CEO -.->|"Department Reports"| SATCEO
+
+    style EGO_DEPT fill:#1a3a1a,stroke:#4CAF50,stroke-width:3px
+    style PXS_DEPT fill:#1a1a3a,stroke:#2196F3,stroke-width:3px
+    style AML_DEPT fill:#3a1a3a,stroke:#9C27B0,stroke-width:3px
+    style KNM_DEPT fill:#3a3a1a,stroke:#FF9800,stroke-width:3px
+    style RCE_DEPT fill:#3a1a1a,stroke:#F44336,stroke-width:3px
+    style IRP_DEPT fill:#1a3a3a,stroke:#00BCD4,stroke-width:3px
+    style TTM_DEPT fill:#3a3a1a,stroke:#FFD700,stroke-width:3px`
+      },
+      d5: {
+        title: "Governance & Crown Pipeline",
+        desc: "Ideas through gates to Crown verification",
+        metadata: { truth: "DERIVED", status: "PIPELINE", layers: "Gov+Crown", snr: "0.86" },
+        code: `flowchart TB
+    subgraph ORIGIN["💡 Change Origin"]
+      IDEA["Idea / Proposal\\nFrom SAT Department"]
+      DEPT["Department CEO\\nReviews & Approves"]
+      PKG["Create Change Package\\nSpec + Rationale + Tests"]
+
+      IDEA --> DEPT --> PKG
+    end
+
+    subgraph SAT_REVIEW["👑 SAT-CEO Review"]
+      SUBMIT["Submit to SAT-CEO"]
+      EVAL["CEO Evaluation\\nImpact + Alignment + Risk"]
+      SIGN["CEO Signature\\nCryptographic Approval"]
+
+      SUBMIT --> EVAL --> SIGN
+    end
+
+    subgraph GOV_VOTE["🗳️ Governance Voting"]
+      REGISTER["Register Proposal\\nOn-chain Publication"]
+      DEBATE["Community Debate\\n7-day Discussion Period"]
+      VOTE["Token Holder Vote\\nBLOOM Weighted Voting"]
+      TALLY["Tally Results\\nQuorum & Majority Check"]
+
+      REGISTER --> DEBATE --> VOTE --> TALLY
+    end
+
+    subgraph GATES["🚦 Progressive Rollout Gates"]
+      SHADOW["🌑 Gate 1: Shadow Mode\\nRun in parallel, no effect\\nMonitor for 48h"]
+      CANARY["🐤 Gate 2: Canary Deploy\\n5% of nodes\\nMonitor for 72h"]
+      FULL["🌍 Gate 3: Full Rollout\\n100% of network\\nMonitor for 7 days"]
+
+      SHADOW --> CANARY --> FULL
+    end
+
+    subgraph CROWN["👑 Crown Proof Chain Verification"]
+      REVIEW["Crown Review Initiated\\nAutomated Verification"]
+      MATH["🔢 Mathematical Proof\\nLogic Consistency Check"]
+      LOGIC["🧠 Logical Soundness\\nInference Validation"]
+      ETHICS["⚖️ Ethical Alignment\\nConstitution Compliance"]
+
+      REVIEW --> MATH & LOGIC & ETHICS
+      MATH & LOGIC & ETHICS --> VERDICT["⚖️ Crown Verdict\\nAccept / Reject / Revise"]
+    end
+
+    subgraph OUTCOME["✅ Final Outcome"]
+      ACCEPT["✅ ACCEPTED\\nEnact Change"]
+      REJECT["❌ REJECTED\\nDiscard Proposal"]
+      REVISE["🔄 REVISION REQUIRED\\nBack to Department"]
+
+      ENACT["Update BlockGraph\\nImmutable Record"]
+      NOTIFY["Notify All Nodes\\nSystem-wide Update"]
+
+      ACCEPT --> ENACT --> NOTIFY
+    end
+
+    ORIGIN --> SAT_REVIEW
+    SAT_REVIEW --> GOV_VOTE
+    GOV_VOTE -->|"Vote Passed"| GATES
+    GOV_VOTE -->|"Vote Failed"| REJECT
+
+    GATES --> CROWN
+
+    VERDICT -->|"Accept"| ACCEPT
+    VERDICT -->|"Reject"| REJECT
+    VERDICT -->|"Revise"| REVISE
+
+    REVISE -.->|"Resubmit"| ORIGIN
+
+    style ORIGIN fill:#1a3a5c,stroke:#2196F3,stroke-width:3px
+    style SAT_REVIEW fill:#3a1a5c,stroke:#9C27B0,stroke-width:3px
+    style GOV_VOTE fill:#5c3a1a,stroke:#FF9800,stroke-width:3px
+    style GATES fill:#1a5c3a,stroke:#4CAF50,stroke-width:3px
+    style CROWN fill:#5c1a1a,stroke:#FFD700,stroke-width:4px
+    style OUTCOME fill:#1a1a5c,stroke:#00BCD4,stroke-width:3px`
+      },
+      d6: {
+        title: "Runtime Architecture v2",
+        desc: "Frontend → Gateway → Rust core → K8s → Data/Ledger",
+        metadata: { truth: "PLANNED", status: "RUNTIME", layers: "Infrastructure", snr: "0.78" },
+        code: `flowchart TB
+    USERS["👥 End Users\\nWeb, Desktop, Mobile"]
+
+    subgraph FRONTEND["🎨 Frontend Layer (Next.js 14)"]
+      subgraph APPS["Applications (apps/)"]
+        WEB["apps/web\\nMain Web App\\nReact Server Components"]
+        MOBILE["apps/mobile\\nReact Native\\niOS + Android"]
+        DESKTOP["apps/desktop\\nElectron\\nWindows + Mac + Linux"]
+      end
+
+      subgraph PACKAGES["Shared Packages (packages/)"]
+        UI["pkg/ui\\nDesign System\\nshadcn/ui + Tailwind"]
+        CLIENT["pkg/client\\nAPI Client\\nType-safe SDK"]
+        UTILS["pkg/utils\\nShared Utilities\\nValidation, Crypto"]
+      end
+
+      WEB & MOBILE & DESKTOP --> UI
+      WEB & MOBILE & DESKTOP --> CLIENT
+      WEB & MOBILE & DESKTOP --> UTILS
+    end
+
+    subgraph API_LAYER["⚡ API Gateway & Validation"]
+      GATEWAY["API Gateway\\nRate Limiting + Auth"]
+      VALIDATION["Validation Layer\\nZod Schemas"]
+      WEBSOCKET["WebSocket Server\\nReal-time Events"]
+
+      GATEWAY --> VALIDATION
+      GATEWAY --> WEBSOCKET
+    end
+
+    subgraph RUST_CORE["🦀 Rust Core Services"]
+      POI_SVC["PoI Service\\nImpact Validation"]
+      LEDGER_SVC["Ledger Service\\nBlockGraph Operations"]
+      AGENT_SVC["Agent Orchestration\\nPAT + SAT Management"]
+      CRYPTO_SVC["Cryptography Service\\nKeys, Signatures, ZK"]
+      STORAGE_SVC["Storage Service\\nIPFS + Local DB"]
+
+      POI_SVC & LEDGER_SVC & AGENT_SVC <--> CRYPTO_SVC
+      AGENT_SVC <--> STORAGE_SVC
+    end
+
+    subgraph K8S["☸️ Kubernetes Cluster"]
+      PODS["Service Pods\\nAuto-scaling"]
+      ARGO["Argo Rollouts\\nProgressive Delivery"]
+      PROM["Prometheus\\nMetrics & Monitoring"]
+      RBAC["RBAC Policies\\nGenesis Security"]
+      INGRESS["Ingress Controller\\nNginx + Cert Manager"]
+
+      PODS --> ARGO
+      PODS --> PROM
+      RBAC --> PODS
+      INGRESS --> PODS
+    end
+
+    subgraph DATA_LAYER["💾 Data & Ledger Layer"]
+      BLOCKGRAPH["BlockGraph Ledger\\nDAG-based Distributed Ledger"]
+      POSTGRES["PostgreSQL\\nRelational Metadata"]
+      REDIS["Redis\\nCaching + Pub/Sub"]
+      IPFS["IPFS\\nContent-Addressed Storage"]
+
+      BLOCKGRAPH <--> POSTGRES
+      BLOCKGRAPH <--> IPFS
+      REDIS <--> POSTGRES
+    end
+
+    USERS --> FRONTEND
+    FRONTEND --> API_LAYER
+    API_LAYER --> RUST_CORE
+    RUST_CORE --> K8S
+    K8S --> DATA_LAYER
+
+    WEBSOCKET -.->|"Real-time Updates"| FRONTEND
+    PROM -.->|"Metrics"| API_LAYER
+
+    style FRONTEND fill:#1a3a5c,stroke:#2196F3,stroke-width:3px
+    style API_LAYER fill:#3a1a5c,stroke:#9C27B0,stroke-width:3px
+    style RUST_CORE fill:#5c3a1a,stroke:#FF9800,stroke-width:3px
+    style K8S fill:#1a5c3a,stroke:#4CAF50,stroke-width:3px
+    style DATA_LAYER fill:#5c1a1a,stroke:#FFD700,stroke-width:3px`
+      },
+      d7: {
+        title: "CI/CD & Progressive Delivery",
+        desc: "PR → CI → Attest → GitOps CD → Canary → SLO gate → Rollback",
+        metadata: { truth: "PLANNED", status: "CICD", layers: "DevOps", snr: "0.79" },
+        code: `flowchart TB
+    DEV["👨‍💻 Developer\\nCommits Code"]
+
+    subgraph SOURCE["📝 Source Control (GitHub)"]
+      BRANCH["Feature Branch\\nfeat/new-feature"]
+      PR["Pull Request\\nCode Review + Tests"]
+      APPROVE["Approval Required\\n2+ Reviewers"]
+
+      BRANCH --> PR --> APPROVE
+    end
+
+    subgraph CI["🔨 Continuous Integration (GitHub Actions)"]
+      TRIGGER["CI Triggered\\non PR + Push"]
+
+      subgraph BUILD_STEPS["Build Steps"]
+        NX["Nx Build\\nMonorepo Tasks"]
+        RUST["Rust Checks\\ncargo clippy + fmt"]
+        TS["TypeScript\\ntsc --noEmit"]
+        TEST["Tests\\nRust + Jest + E2E"]
+
+        NX --> RUST & TS
+        RUST & TS --> TEST
+      end
+
+      LINT["Linting\\nESLint + Prettier"]
+      DOCKER["Build Docker Image\\nMulti-stage Build"]
+
+      TRIGGER --> BUILD_STEPS
+      BUILD_STEPS --> LINT --> DOCKER
+    end
+
+    subgraph SECURITY["🔐 Supply Chain Security"]
+      SBOM["Generate SBOM\\nSoftware Bill of Materials"]
+      SCAN["Vulnerability Scan\\nTrivy + Snyk"]
+      SIGN["Sign Artifacts\\nCosign + Sigstore"]
+
+      SBOM --> SCAN --> SIGN
+    end
+
+    subgraph CD["🚀 Continuous Deployment (ArgoCD)"]
+      MANIFEST["Update Manifests\\nKustomize + Helm"]
+      SYNC["ArgoCD Sync\\nGitOps Workflow"]
+
+      MANIFEST --> SYNC
+    end
+
+    subgraph PROGRESSIVE["🎯 Progressive Delivery (Argo Rollouts)"]
+      CANARY_START["Canary Deployment\\n10% Traffic"]
+
+      subgraph ANALYSIS["Automated Analysis"]
+        METRICS["Collect Metrics\\nPrometheus"]
+        LOGS["Log Analysis\\nLoki + Grafana"]
+        SLO["SLO Validation\\nError Rate, Latency"]
+
+        METRICS --> SLO
+        LOGS --> SLO
+      end
+
+      CANARY_START --> ANALYSIS
+    end
+
+    subgraph DECISION["⚖️ Automated Decision Gate"]
+      EVALUATE["Evaluate Health\\nSLO Compliance Check"]
+      PASS["✅ Metrics Pass\\nContinue Rollout"]
+      FAIL["❌ Metrics Fail\\nTrigger Rollback"]
+
+      EVALUATE --> PASS & FAIL
+    end
+
+    subgraph PROD_DEPLOY["🌍 Production Deployment"]
+      RAMP["Progressive Ramp\\n10% → 50% → 100%"]
+      FULL["Full Production\\n100% Traffic"]
+      MONITOR["Continuous Monitoring\\nAlerts + Dashboards"]
+
+      RAMP --> FULL --> MONITOR
+    end
+
+    subgraph ROLLBACK_FLOW["🔄 Rollback Mechanism"]
+      DETECT["Detect Failure\\nSLO Breach"]
+      AUTO_ROLLBACK["Automatic Rollback\\nRevert to Stable"]
+      ALERT["Alert Team\\nIncident Response"]
+
+      DETECT --> AUTO_ROLLBACK --> ALERT
+    end
+
+    DEV --> SOURCE
+    SOURCE --> CI
+    CI --> SECURITY
+    SECURITY --> CD
+    CD --> PROGRESSIVE
+    PROGRESSIVE --> DECISION
+
+    DECISION --> PASS --> PROD_DEPLOY
+    DECISION --> FAIL --> ROLLBACK_FLOW
+
+    ROLLBACK_FLOW -.->|"Post-mortem"| DEV
+    PROD_DEPLOY -.->|"Success Metrics"| DEV
+
+    style SOURCE fill:#1a3a5c,stroke:#2196F3,stroke-width:3px
+    style CI fill:#3a1a5c,stroke:#9C27B0,stroke-width:3px
+    style SECURITY fill:#5c1a1a,stroke:#F44336,stroke-width:3px
+    style CD fill:#1a5c3a,stroke:#4CAF50,stroke-width:3px
+    style PROGRESSIVE fill:#5c3a1a,stroke:#FF9800,stroke-width:3px
+    style DECISION fill:#3a3a1a,stroke:#FFD700,stroke-width:3px
+    style PROD_DEPLOY fill:#1a3a3a,stroke:#00BCD4,stroke-width:3px
+    style ROLLBACK_FLOW fill:#5c1a3a,stroke:#E91E63,stroke-width:3px`
+      }
+    };
+
+    /**
+     * ===========================
+     * 2) Mermaid configuration
+     * ===========================
+     *
+     * Key change vs your version:
+     * - htmlLabels: false => better PDF capture + fewer “foreignObject” issues.
+     * - We use \\n in labels instead of <br/>.
+     * - securityLevel: strict (best default for public-facing artifacts).
+     */
+    function initMermaid() {
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#0A1628",
+          primaryTextColor: "#F8F6F1",
+          primaryBorderColor: "#C9A962",
+          secondaryColor: "#112240",
+          lineColor: "#C9A962",
+          fontSize: "15px",
+          fontFamily: "Inter, sans-serif"
+        },
+        flowchart: {
+          curve: "linear",
+          htmlLabels: false,
+          useMaxWidth: true
+        }
+      });
+    }
+
+    /**
+     * ===========================
+     * 3) Rendering
+     * ===========================
+     */
+    function setLoadingStatus(text) {
+      const el = document.getElementById("loading-status");
+      if (el) el.textContent = text;
+    }
+
+    function sanitizeMermaid(code) {
+      // Remove non-breaking spaces and normalize line-break syntax (safety).
+      return String(code)
+        .replace(/\u00A0/g, " ")
+        .trim();
+    }
+
+    function normalizeSvg(svgEl) {
+      if (!svgEl) return;
+
+      // Make responsive
+      svgEl.removeAttribute("height");
+      svgEl.style.width = "100%";
+      svgEl.style.height = "auto";
+      svgEl.style.maxWidth = "100%";
+      svgEl.style.maxHeight = "1200px";
+
+      // Ensure viewBox exists (some Mermaid outputs omit it)
+      if (!svgEl.getAttribute("viewBox")) {
+        const w = svgEl.getAttribute("width");
+        const h = svgEl.getAttribute("height");
+        if (w && h) svgEl.setAttribute("viewBox", `0 0 ${parseFloat(w)} ${parseFloat(h)}`);
+      }
+    }
+
+    async function renderAllDiagrams() {
+      const container = document.getElementById("diagrams-container");
+      const overlay = document.getElementById("loading-overlay");
+      const printBtn = document.getElementById("btn-print");
+      const dlBtn = document.getElementById("btn-dl");
+
+      container.innerHTML = "";
+      const ids = Object.keys(diagrams);
+      const t0 = performance.now();
+
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        const data = diagrams[id];
+
+        setLoadingStatus(`RENDERING ${id.toUpperCase()} (${i + 1}/${ids.length})…`);
+
+        const section = document.createElement("section");
+        section.className = "diagram-section";
+        section.innerHTML = `
+          <div class="diagram-header">
+            <div>
+              <div class="diagram-id">${id.toUpperCase()}</div>
+              <h2 class="diagram-title">${data.title}</h2>
+              <div class="diagram-desc">${data.desc}</div>
+            </div>
+            <div class="meta-box">
+              <span class="meta-tag">TRUTH: ${data.metadata.truth}</span>
+              <div class="meta-line">TAG: ${data.metadata.status}</div>
+              <div class="meta-line">LAYERS: ${data.metadata.layers}</div>
+              <div class="meta-line">SNR: ${data.metadata.snr}</div>
+            </div>
+          </div>
+          <div class="mermaid-container" id="container-${id}"></div>
+        `;
+        container.appendChild(section);
+
+        const out = document.getElementById(`container-${id}`);
+
+        try {
+          const code = sanitizeMermaid(data.code);
+          const { svg } = await mermaid.render(`graph-${id}`, code);
+          out.innerHTML = svg;
+          normalizeSvg(out.querySelector("svg"));
+        } catch (err) {
+          console.error("Mermaid render error:", id, err);
+          out.innerHTML = `<div class="mermaid-error">
+            ❌ Mermaid render failed for <b>${id}</b><br/><br/>
+            <span style="color:rgba(255,255,255,0.75)">Hint:</span> Check for invalid Mermaid syntax or unsupported Unicode.<br/>
+            <span style="color:rgba(255,255,255,0.75)">Console:</span> Open DevTools → Console for the full stack trace.
+          </div>`;
+        }
+
+        // Yield to UI thread so the page stays responsive on heavy diagrams
+        await new Promise(requestAnimationFrame);
+      }
+
+      const ms = Math.round(performance.now() - t0);
+
+      overlay.style.display = "none";
+      printBtn.disabled = false;
+      dlBtn.disabled = false;
+
+      console.log(`Atlas rendered in ${ms} ms`);
+    }
+
+    /**
+     * ===========================
+     * 4) Print / PDF
+     * ===========================
+     */
+    function handlePrint() {
+      window.focus();
+      window.print();
+    }
+
+    async function handleDownload() {
+      const target = document.getElementById("report-root");
+      const dlBtn = document.getElementById("btn-dl");
+
+      // Temporary UI state
+      const originalBtn = dlBtn.innerHTML;
+      dlBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Generating…';
+      dlBtn.disabled = true;
+
+      // Wait for fonts (prevents “fallback-font” jitter in PDF)
+      if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (_) {}
+      }
+
+      // “Balanced” preset: reliable + reasonable file size.
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: "BIZRA_System_Atlas_v2.0.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#050B14",
+          logging: false,
+          ignoreElements: (el) => el.classList && el.classList.contains("no-print")
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a3",
+          orientation: "portrait"
+        },
+        pagebreak: { mode: ["css", "legacy"] }
+      };
+
+      try {
+        await html2pdf().set(opt).from(target).save();
+      } catch (err) {
+        console.error("PDF generation error:", err);
+        alert("PDF Generation Error. Try Browser Print → Save as PDF instead.");
+      } finally {
+        dlBtn.innerHTML = originalBtn;
+        dlBtn.disabled = false;
+      }
+    }
+
+    /**
+     * ===========================
+     * 5) Boot
+     * ===========================
+     */
+    window.addEventListener("load", async () => {
+      try {
+        initMermaid();
+        setLoadingStatus("WARMING UP…");
+        await renderAllDiagrams();
+      } catch (err) {
+        console.error("Fatal atlas error:", err);
+        const overlay = document.getElementById("loading-overlay");
+        if (overlay) {
+          overlay.style.display = "flex";
+          setLoadingStatus("FAILED TO RENDER");
+        }
+      }
+    });
+  </script>
+</body>
+</html>

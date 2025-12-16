@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SessionState",
+  "type": "object",
+  "required": [
+    "id",
+    "protocol_version",
+    "start_ts",
+    "active_experts",
+    "consensus_mode",
+    "progress",
+    "truth",
+    "tag"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "protocol_version": {
+      "type": "string"
+    },
+    "start_ts": {
+      "type": "string"
+    },
+    "active_experts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "consensus_mode": {
+      "type": "string",
+      "enum": [
+        "solo",
+        "majority",
+        "weighted",
+        "meta"
+      ]
+    },
+    "progress": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "truth": {
+      "type": "string",
+      "enum": [
+        "IMPLEMENTED",
+        "MEASURED",
+        "DERIVED",
+        "TARGET",
+        "PLANNED",
+        "ASSUMPTION"
+      ]
+    },
+    "tag": {
+      "type": "string"
+    },
+    "audit_trail_ref": {
+      "type": "string"
+    }
+  }
+}

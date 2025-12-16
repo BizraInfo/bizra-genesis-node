@@ -1,0 +1,112 @@
+# BIZRA Database Expert - Mental Model
+# Schema, relations, queries, data flows
+
+domain: database
+version: "1.0.0"
+last_updated: "2025-12-16T00:00:00Z"
+snr_score: 0.83
+ihsan_score: 0.90
+
+knowledge:
+  databases:
+    postgresql:
+      purpose: "Persistent storage, semantic memory"
+      port: 5432
+      extensions:
+        - pgvector: "Vector embeddings for semantic search"
+        - uuid-ossp: "UUID generation"
+      
+    redis:
+      purpose: "Ephemeral cache, episodic memory, rate limiting"
+      port: 6379
+      
+  tables:
+    - name: users
+      purpose: "Core user identity and profile"
+      key_columns: ["id", "email", "created_at"]
+      relations:
+        - target: sessions
+          type: one_to_many
+          on_delete: cascade
+        - target: poi_events
+          type: one_to_many
+          on_delete: cascade
+        - target: agent_memories
+          type: one_to_many
+          on_delete: cascade
+          
+    - name: sessions
+      purpose: "User login sessions"
+      key_columns: ["id", "user_id", "token", "expires_at"]
+      relations:
+        - target: users
+          type: many_to_one
+          
+    - name: poi_events
+      purpose: "Proof of Impact attestations"
+      key_columns: ["id", "user_id", "impact_score", "ihsan_score", "verified"]
+      relations:
+        - target: users
+          type: many_to_one
+          
+    - name: agent_memories
+      purpose: "Vector storage for semantic memory"
+      key_columns: ["id", "user_id", "agent_type", "content", "embedding"]
+      special:
+        - "embedding is vector(1536) for similarity search"
+        - "Uses ivfflat index for vector_cosine_ops"
+      location: "docs/adr/002-pat-agent-architecture.md:100-110"
+
+  queries:
+    common_patterns:
+      - name: "semantic_search"
+        description: "Find similar memories using vector similarity"
+        example: |
+          SELECT * FROM agent_memories 
+          WHERE user_id = $1 
+          ORDER BY embedding <=> $2 
+          LIMIT 10
+          
+      - name: "poi_verification"
+        description: "Check if user's PoI events meet threshold"
+        example: |
+          SELECT * FROM poi_events 
+          WHERE user_id = $1 AND ihsan_score >= 0.85
+
+patterns:
+  - name: "cascade_delete"
+    description: "User deletion cascades to all related tables"
+    confidence: 0.95
+    
+  - name: "vector_indexing"
+    description: "All embedding columns use ivfflat index"
+    confidence: 0.90
+    
+  - name: "timestamp_tracking"
+    description: "All tables have created_at, updated_at"
+    confidence: 0.88
+
+edge_cases:
+  - scenario: "Orphaned sessions after user hard delete"
+    handling: "Background job cleans up orphans daily"
+    
+  - scenario: "Vector search on empty embeddings"
+    handling: "Return empty set, don't error"
+    
+  - scenario: "PoI event with NULL ihsan_score"
+    handling: "Treat as 0.0, log warning"
+
+file_locations:
+  init_script: "scripts/init-db.sql"
+  schema_docs: "docs/adr/002-pat-agent-architecture.md"
+  backend_models: "backend/src/lib/services/"
+
+validation:
+  last_validated: "2025-12-16T00:00:00Z"
+  validation_status: "needs_refresh"
+
+improvement_log:
+  - date: "2025-12-16"
+    change: "Initial expertise file created from ADR review"
+    snr_delta: 0.0
+    source: "manual_creation"

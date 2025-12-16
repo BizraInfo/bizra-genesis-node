@@ -334,7 +334,7 @@ try {
     if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         Write-Log "Please run this script as Administrator to ensure full system integration." "WARN" "Yellow"
         Write-Host "Attempting to elevate..." -ForegroundColor Yellow
-        Start-Process powershell.exe -Verb RunAs -ArgumentList "-File `"$PSCommandPath`""
+        Start-Process powershell.exe -Verb RunAs -ArgumentList "-File \`"$PSCommandPath\`""
         exit
     }
     Write-Log "Administrative privileges confirmed." "INFO" "Green"

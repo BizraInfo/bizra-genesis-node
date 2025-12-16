@@ -11,7 +11,7 @@
 
 use axum::{
     extract::State,
-    http::{header, Method, StatusCode},
+    http::{header, HeaderValue, Method, StatusCode},
     response::Json,
     routing::{get, post},
     Router,
@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tokio::net::TcpListener;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tracing::{info, Level};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -111,10 +111,41 @@ async fn main() -> anyhow::Result<()> {
     });
 
     // CORS configuration
+    let node_env = std::env::var("NODE_ENV").unwrap_or_else(|_| "development".into());
+    let configured_origins = std::env::var("CORS_ORIGINS")
+        .unwrap_or_else(|_| "http://localhost:3000,http://127.0.0.1:3000".into());
+
+    let allow_origin = if node_env == "production" || node_env == "staging" {
+        let origins: Vec<HeaderValue> = configured_origins
+            .split(',')
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .filter_map(|origin| match HeaderValue::from_str(origin) {
+                Ok(v) => Some(v),
+                Err(_) => {
+                    tracing::warn!("Invalid CORS origin ignored: {}", origin);
+                    None
+                }
+            })
+            .collect();
+
+        if origins.is_empty() {
+            tracing::error!(
+                "NODE_ENV={} but no valid CORS_ORIGINS provided; blocking all cross-origin requests",
+                node_env
+            );
+            AllowOrigin::predicate(|_, _| false)
+        } else {
+            AllowOrigin::list(origins)
+        }
+    } else {
+        AllowOrigin::any()
+    };
+
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers([header::CONTENT_TYPE, header::AUTHORIZATION])
-        .allow_origin(Any);
+        .allow_origin(allow_origin);
 
     // Build router
     let app = Router::new()

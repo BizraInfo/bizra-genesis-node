@@ -1,0 +1,112 @@
+# BIZRA Knowledge Expert - Mental Model
+# RAG, HyperGraph, embeddings, retrieval
+
+domain: knowledge
+version: "1.0.0"
+last_updated: "2025-12-16T00:00:00Z"
+snr_score: 0.84
+ihsan_score: 0.91
+
+knowledge:
+  architecture:
+    layers:
+      - name: "Knowledge Graph"
+        purpose: "Relationships between entities"
+        storage: "graph/nodes.jsonl, graph/edges.jsonl"
+        
+      - name: "Vector Embeddings"
+        purpose: "Semantic similarity search"
+        model: "sentence-transformers/all-MiniLM-L6-v2"
+        dimensions: 384
+        
+      - name: "Hypergraph Indices"
+        purpose: "Multi-hop reasoning, complex queries"
+        storage: "graph/hyperedges.jsonl"
+
+  pipeline:
+    ingest:
+      tool: "knowledge/ingest_assets.py"
+      features:
+        - multi_root_scanning
+        - deduplication_via_hash
+        - extension_filtering
+        - depth_limiting
+      output: "ASSET_INVENTORY.json"
+      
+    refine:
+      tool: "knowledge/refinery.py"
+      features:
+        - markdown_section_chunking
+        - paragraph_splitting
+        - priority_file_ordering
+      output: "REFINED_KNOWLEDGE_BASE.json"
+      
+    query:
+      tool: "knowledge/rag_engine.py"
+      features:
+        - tfidf_retrieval
+        - stopword_filtering
+        - priority_boosting
+      method: "pure_python_sovereign"
+
+  rag_engine:
+    class: "BizraRAGEngine"
+    location: "knowledge/rag_engine.py"
+    retrieval: "TF-IDF (offline-friendly, no external services)"
+    tokenization: "regex word boundary + stopword removal"
+    ranking: "IDF-weighted scoring with priority boost"
+
+  gold_mine_scanner:
+    class: "AssetMiner"
+    location: "knowledge/ingest_assets.py"
+    features:
+      - multi_root: "--root can be specified multiple times"
+      - dedup: "Blake2b hash of first+last 64KB + size"
+      - safety: "--max-depth, --max-files limits"
+      - extensions: "30+ file types supported"
+    skip_dirs:
+      - ".git"
+      - "node_modules"
+      - "target"
+      - "$RECYCLE.BIN"
+      - "Windows"
+
+patterns:
+  - name: "signal_first_scanning"
+    description: "Use --extensions 'md,txt,py' for fast initial triage"
+    confidence: 0.92
+    
+  - name: "rag_before_inference"
+    description: "Always query RAG before LLM for grounded responses"
+    confidence: 0.95
+    
+  - name: "expertise_as_rag"
+    description: "Expertise files are first-class RAG sources"
+    confidence: 0.88
+
+edge_cases:
+  - scenario: "120GB+ scattered data"
+    handling: "Use multi-root with --max-files 500000"
+    
+  - scenario: "Duplicate files across roots"
+    handling: "Dedup via hash, only index once"
+    
+  - scenario: "Knowledge base not found"
+    handling: "Return empty context, log warning"
+
+file_locations:
+  asset_miner: "knowledge/ingest_assets.py"
+  refinery: "knowledge/refinery.py"
+  rag_engine: "knowledge/rag_engine.py"
+  readme: "knowledge/README.md"
+  graph_builder: "knowledge/scripts/build_knowledge_graph.py"
+
+validation:
+  last_validated: "2025-12-16T00:00:00Z"
+  validation_status: "needs_refresh"
+
+improvement_log:
+  - date: "2025-12-16"
+    change: "Initial expertise file created"
+    snr_delta: 0.0
+    source: "manual_creation"

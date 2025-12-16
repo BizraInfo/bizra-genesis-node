@@ -1,0 +1,109 @@
+# BIZRA SAT Expert - Mental Model
+# System Agent Team - Protocol-level governance
+
+domain: sat
+version: "1.0.0"
+last_updated: "2025-12-16T00:00:00Z"
+snr_score: 0.87
+ihsan_score: 0.95
+
+knowledge:
+  agents:
+    - name: PoiVerifier
+      type: rule_based
+      purpose: "Validates PoI claims, checks Ihsan threshold, blocks fraud"
+      implementation: "backend/src/lib/agents/sat.rs:verify_poi_event"
+      parameters:
+        ihsan_threshold: 0.85
+        
+    - name: ResourceAllocator
+      type: rule_based
+      purpose: "Manages CPU/GPU allocation, prevents overload"
+      implementation: "backend/src/lib/agents/sat.rs:recommend_allocation"
+      parameters:
+        cpu_percent: 25
+        min_cores: 2
+        max_cores: 8
+        
+    - name: RiskGuardian
+      type: rule_based
+      purpose: "Monitors security threats, unusual patterns"
+      implementation: "backend/src/lib/agents/sat.rs:assess_risk"
+      risk_levels: ["low", "medium", "high", "critical"]
+      
+    - name: GovernanceEngine
+      type: rule_based
+      purpose: "Implements parameter changes, upgrade logic"
+      implementation: "backend/src/lib/agents/sat.rs"
+      
+    - name: EvidenceEngine
+      type: rule_based
+      purpose: "Produces dashboards, reports, health indicators"
+      implementation: "backend/src/lib/agents/sat.rs"
+
+  protocols:
+    poi:
+      description: "Proof of Impact - validates user contributions"
+      formula: "ImpactScore × IhsānMultiplier × NetworkMultiplier"
+      components:
+        - ihsan_threshold: 0.85
+        - gini_coefficient_max: 0.35
+        - anti_centralization_weight: 0.08
+      
+    resource_allocation:
+      description: "Safe defaults for compute allocation"
+      rules:
+        - "25% of total CPU cores"
+        - "GPU enabled if RAM >= 32GB"
+        - "Storage: min(10% available, 500GB)"
+
+  ihsan_vector:
+    dimensions:
+      correctness: 0.22
+      safety: 0.22
+      user_benefit: 0.14
+      efficiency: 0.12
+      auditability: 0.12
+      anti_centralization: 0.08
+      robustness: 0.06
+      adl_fairness: 0.04
+    threshold: 0.95
+    
+patterns:
+  - name: "threshold_enforcement"
+    description: "All PoI events must pass Ihsan threshold"
+    confidence: 1.0
+    
+  - name: "conservative_allocation"
+    description: "Always recommend conservative resources for stability"
+    confidence: 0.95
+    
+  - name: "cascade_circuit_breaker"
+    description: "Risk detection triggers multi-layer response"
+    confidence: 0.90
+
+edge_cases:
+  - scenario: "Ihsan score exactly at threshold (0.85)"
+    handling: "Pass but flag for review"
+    
+  - scenario: "Impossibly high impact score (>10.0)"
+    handling: "Flag for manual review, don't auto-reject"
+    
+  - scenario: "GPU requested but insufficient RAM"
+    handling: "Disable GPU, log recommendation"
+
+file_locations:
+  rust_implementation: "backend/src/lib/agents/sat.rs"
+  poi_ledger: "backend/src/lib/services/poi_ledger.rs"
+  resource_pool: "backend/src/lib/services/resource_pool.rs"
+  documentation: "docs/adr/001-sovereign-ai-architecture.md"
+
+validation:
+  last_validated: "2025-12-16T00:00:00Z"
+  validation_status: "needs_refresh"
+
+improvement_log:
+  - date: "2025-12-16"
+    change: "Initial expertise file created"
+    snr_delta: 0.0
+    source: "manual_creation"

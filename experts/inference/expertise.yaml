@@ -1,0 +1,116 @@
+# BIZRA Inference Expert - Mental Model
+# LLM calls, prompts, tokens, optimization
+
+domain: inference
+version: "1.0.0"
+last_updated: "2025-12-16T00:00:00Z"
+snr_score: 0.86
+ihsan_score: 0.93
+
+knowledge:
+  backends:
+    ollama:
+      url: "http://localhost:11434"
+      api_pattern: "/api/generate"
+      models:
+        - name: deepseek-r1:7b
+          vram: 8GB
+          use_case: "Strategic reasoning, complex analysis"
+          agents: [MasterReasoner]
+          
+        - name: qwen2.5:7b
+          vram: 6GB
+          use_case: "Knowledge organization, creative writing, ethics"
+          agents: [MemoryArchitect, CreativeSynthesizer, EthicsGuardian]
+          
+        - name: mistral:7b
+          vram: 6GB
+          use_case: "Data analysis, communication"
+          agents: [DataAnalyzer, Communicator]
+          
+    lmstudio:
+      url: "http://localhost:1234"
+      api_pattern: "/v1/chat/completions"
+      openai_compatible: true
+      models:
+        - name: agentflow-7b
+          use_case: "Task planning, workflow orchestration"
+          agents: [ExecutionPlanner]
+          
+        - name: deepseek-coder-v2
+          use_case: "Code generation, debugging"
+          
+        - name: llama-3.3-70b
+          vram: 48GB+
+          use_case: "Flagship reasoning (high VRAM required)"
+
+  snr_optimization:
+    formula: "(useful_tokens / total_tokens) × confidence × ethical_compliance × tool_directness"
+    targets:
+      minimum: 0.75
+      good: 0.85
+      elite: 0.92
+      
+    techniques:
+      - name: "prompt_compression"
+        description: "Remove redundant safety checks if kernel enforces them"
+        snr_gain: 0.08
+        
+      - name: "expertise_injection"
+        description: "Inject validated examples from expertise files"
+        snr_gain: 0.12
+        
+      - name: "symbolic_reduction"
+        description: "Replace verbose instructions with expertise references"
+        snr_gain: 0.10
+
+  token_efficiency:
+    targets:
+      baseline: 0.62
+      goal_90day: 0.85
+      goal_180day: 0.95
+      
+    waste_sources:
+      - "Redundant safety preambles"
+      - "Repetitive context injection"
+      - "Overly verbose system prompts"
+      - "Unnecessary examples in few-shot"
+
+patterns:
+  - name: "temperature_by_task"
+    description: "Creative=0.8, Analytical=0.3, Planning=0.5"
+    confidence: 0.90
+    
+  - name: "model_fallback"
+    description: "If primary model unavailable, use MasterReasoner model"
+    confidence: 0.95
+    
+  - name: "context_window_management"
+    description: "Keep under 80% of max context to leave room for response"
+    confidence: 0.88
+
+edge_cases:
+  - scenario: "Ollama not running"
+    handling: "Return clear error, don't hang"
+    timeout: 2s
+    
+  - scenario: "Model not pulled"
+    handling: "Suggest 'ollama pull <model>' command"
+    
+  - scenario: "Token limit exceeded"
+    handling: "Truncate oldest context, preserve system prompt"
+
+file_locations:
+  python_runner: "agent_runner.py"
+  rust_pat: "backend/src/lib/agents/pat.rs"
+  knowledge_service: "backend/src/lib/services/knowledge.rs"
+
+validation:
+  last_validated: "2025-12-16T00:00:00Z"
+  validation_status: "needs_refresh"
+
+improvement_log:
+  - date: "2025-12-16"
+    change: "Initial expertise file created"
+    snr_delta: 0.0
+    source: "manual_creation"

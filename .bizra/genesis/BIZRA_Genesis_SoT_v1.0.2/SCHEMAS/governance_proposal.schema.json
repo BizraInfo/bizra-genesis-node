@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GovernanceProposal",
+  "type": "object",
+  "required": [
+    "proposal_id",
+    "title",
+    "change_package_ref",
+    "truth",
+    "status"
+  ],
+  "properties": {
+    "proposal_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "change_package_ref": {
+      "type": "string"
+    },
+    "truth": {
+      "type": "string",
+      "enum": [
+        "PLANNED",
+        "IMPLEMENTED",
+        "MEASURED",
+        "DERIVED",
+        "TARGET",
+        "ASSUMPTION"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "DEBATE",
+        "VOTE",
+        "CEO_REVIEW",
+        "CROWN_VERIFY",
+        "ROLLOUT",
+        "ACCEPTED",
+        "REJECTED",
+        "REVISION_REQUIRED"
+      ]
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PoIReceipt",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "ts",
+    "node_id",
+    "artifact_hashes",
+    "replay_bundle",
+    "ihsan_score",
+    "truth"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string"
+    },
+    "ts": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "truth": {
+      "type": "string",
+      "enum": [
+        "MEASURED",
+        "DERIVED",
+        "TARGET",
+        "PLANNED",
+        "ASSUMPTION",
+        "IMPLEMENTED"
+      ]
+    },
+    "ihsan_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "ihsan_breakdown": {
+      "type": "object"
+    },
+    "artifact_hashes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "replay_bundle": {
+      "type": "object",
+      "required": [
+        "container_digest",
+        "config_hash",
+        "sbom_hash"
+      ],
+      "properties": {
+        "container_digest": {
+          "type": "string"
+        },
+        "config_hash": {
+          "type": "string"
+        },
+        "sbom_hash": {
+          "type": "string"
+        },
+        "logs_hash": {
+          "type": "string"
+        }
+      }
+    },
+    "signatures": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

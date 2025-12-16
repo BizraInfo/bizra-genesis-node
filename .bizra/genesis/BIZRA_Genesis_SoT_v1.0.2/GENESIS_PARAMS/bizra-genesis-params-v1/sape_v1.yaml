@@ -1,0 +1,101 @@
+# BIZRA Genesis Parameters
+# File: sape_v1.yaml
+# Status: DRAFT (to be sealed by generate_genesis_seal.py)
+
+sape:
+  version: "sape_v1.0.0"
+  description: >
+    SAPE = Symbolic–Abstraction Probe Elevation.
+    It is a disciplined probe suite for "rarely fired circuits":
+    edge cases, adversarial paths, invariants, and tension points.
+    SAPE results feed directly into Ihsān.robustness and SNR scoring.
+
+  # --- 9-Probe Protocol (canonical list) ---
+  probes:
+
+    - id: P1_COUNTERFACTUAL
+      name: "Counterfactual Simulation"
+      intent: "Ask: 'What if X were different?' and re-evaluate decisions."
+      examples: ["network partition", "validator collusion", "supply shock"]
+      outputs_required: ["counterfactual_report", "delta_decision_graph"]
+      severity_on_fail: "high"
+
+    - id: P2_ADVERSARIAL_INPUT
+      name: "Adversarial Input Stress"
+      intent: "Craft adversarial inputs to break assumptions safely."
+      examples: ["prompt injection", "schema fuzzing", "malformed payloads"]
+      outputs_required: ["attack_cases", "defense_results", "mitigation_patch_or_refusal"]
+      severity_on_fail: "critical"
+
+    - id: P3_RED_TEAM_TOOL_ABUSE
+      name: "Tool / Capability Abuse Red Team"
+      intent: "Attempt to escalate privileges or exfiltrate via tools."
+      examples: ["RCE attempt via hooks", "filesystem traversal", "secret leakage"]
+      outputs_required: ["capability_trace", "blocked_actions_log"]
+      severity_on_fail: "critical"
+
+    - id: P4_INVARIANT_CONSTITUTION
+      name: "Invariant & Constitution Check"
+      intent: "Prove no violation of hard invariants (H0/H1/...)"
+      examples: ["Shariah compliance H0", "no-secrets-in-repo", "fail-closed safety"]
+      outputs_required: ["invariant_proof_or_counterexample", "policy_receipt"]
+      severity_on_fail: "critical"
+
+    - id: P5_WORST_CASE_LOAD
+      name: "Worst-Case Load & Latency"
+      intent: "Push performance to (and past) limits to reveal cliffs."
+      examples: ["burst traffic", "tool timeouts", "slow DB"]
+      outputs_required: ["load_report", "p95_p99", "backpressure_validation"]
+      severity_on_fail: "high"
+
+    - id: P6_DISTRIBUTION_SHIFT_OOD
+      name: "Distribution Shift / OOD Probe"
+      intent: "Detect whether behavior degrades under drift."
+      examples: ["new user cohorts", "new languages", "novel tasks"]
+      outputs_required: ["ood_report", "drift_metrics", "guardrail_actions"]
+      severity_on_fail: "high"
+
+    - id: P7_CONTRADICTION_TENSION
+      name: "Logic–Creative Tension Detector"
+      intent: "Surface contradictions between disciplines; do not average them."
+      examples: ["tokenomics vs decentralization", "security vs UX", "privacy vs auditability"]
+      outputs_required: ["tension_map", "resolved_tradeoffs", "unresolved_items"]
+      severity_on_fail: "medium"
+
+    - id: P8_SYMBOLIC_HARNESS
+      name: "Symbolic Harness & Proof Checks"
+      intent: "Force outputs through schemas, type checks, compilation, and proofs."
+      examples: ["JSON schema validation", "Rust compile", "TLA+/model check if applicable"]
+      outputs_required: ["harness_results", "artifact_hashes"]
+      severity_on_fail: "critical"
+
+    - id: P9_INDEPENDENT_AUDIT
+      name: "Independent Verification & Evidence Audit"
+      intent: "Second-system validation; ensure receipts are complete and reproducible."
+      examples: ["re-run build", "verify hashes", "cross-agent agreement audit"]
+      outputs_required: ["audit_report", "receipt_coverage", "reproducibility_score"]
+      severity_on_fail: "high"
+
+  scoring:
+    # SAPE survival rate = (# probes passed weighted by severity) / (total weight)
+    severity_weights:
+      critical: 5
+      high: 3
+      medium: 2
+      low: 1
+    compute: "survival_rate = sum(pass_i * weight(severity_i)) / sum(weight(severity_i))"
+    thresholds:
+      dev: 0.80
+      staging: 0.90
+      prod: 0.95
+
+  execution:
+    default_mode: "fail_closed_for_critical"
+    parallelism: 4
+    timeouts:
+      per_probe_seconds: 600
+      total_seconds: 2400
+
+  evidence:
+    ledger_required: true
+    receipt_schema_version: "receipt_v1"

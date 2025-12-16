@@ -45,10 +45,11 @@ export function useNodeHealth() {
 
   const checkHealth = useCallback(async () => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 5000) // 5s timeout
       
-      const res = await fetch("http://localhost:3001/health", {
+      const res = await fetch(`${apiUrl}/health`, {
         signal: controller.signal
       })
       
@@ -58,7 +59,16 @@ export function useNodeHealth() {
         const data = await res.json()
         retryCountRef.current = 0
         setState({
-          health: data,
+          // Normalize different health payloads (API server vs local installer).
+          health: {
+            status: data.status ?? 'healthy',
+            version: data.version ?? 'unknown',
+            mode: data.mode ?? 'genesis',
+            uptime: data.uptime ?? 0,
+            hardware: data.hardware ?? null,
+            agent_status: data.agent_status ?? 'unknown',
+            cortex: data.cortex ?? { status: 'unknown', model: '' },
+          },
           connectionState: 'connected',
           lastUpdated: new Date(),
           error: null,

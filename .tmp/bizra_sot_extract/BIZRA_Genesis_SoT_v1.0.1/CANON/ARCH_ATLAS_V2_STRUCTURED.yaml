@@ -1,0 +1,148 @@
+version: '2.0'
+source_pdf: BIZRA System Architecture Atlas - Full Report (Optimized).pdf
+diagrams:
+- id: D0
+  title: BIZRA Ecosystem Overview
+  truth: DERIVED
+  tag: GENESIS
+  layers:
+  - L0
+  - L1
+  - L2
+  - L3
+  snr: 0.82
+  notes: Text extraction incomplete due to diagram rendering; use PDF as primary for
+    D0 visuals.
+- id: D1
+  title: Layered System Architecture
+  truth: DERIVED
+  tag: CROWN_SEALED
+  layers:
+  - L0
+  - L1
+  - L2
+  - L3
+  - Crown
+  snr: 0.84
+  key_points:
+  - 'L0-L3 stack: Network, Ledger, Intelligence, Crown'
+  - Core AI Components
+  - User PoI
+  - System PoI
+  - Network Events
+  - Validated Transactions
+- id: D2
+  title: Node Identity & Lifecycle
+  truth: DERIVED
+  tag: POI_VALIDATED
+  layers:
+  - L1
+  - L2
+  snr: 0.8
+  flow:
+  - Human candidate → pledge + accept constitution → privacy-preserving identity verification
+    → generate Ed25519 keypair → assign NodeID
+  - Install client (desktop/mobile) → register resource availability to pool → attach
+    PAT-N team (4 personal agents)
+  - Active node contributes resources (compute/storage/knowledge) → generates cryptographic
+    attestations
+  - Aggregate PoI bundle → record to BlockGraph → calculate rewards (SEED + BLOOM)
+    → distribute to node wallet → update reputation/impact score (loop)
+- id: D3
+  title: Node-0 Agent Hierarchy
+  truth: DERIVED
+  tag: HIERARCHY_LOCKED
+  layers:
+  - Agents
+  snr: 0.83
+  levels:
+    L4_SUPREME_COUNCIL:
+    - Strategy & Vision
+    - Ethics & Alignment
+    - Research & Innovation
+    L3_ALPHA:
+    - Alpha Coordinator (master orchestrator) delegates to META layer
+    L2_META:
+    - META-2: Analytics (manages W4-W6)
+    - META-3: Creative (manages W7-W9)
+    - META-4: Security (manages W10-W12)
+    - META-5: Knowledge (manages W13-W15)
+    L1_WORKERS:
+    - Engineering
+    - Analytics
+    - Creative
+    - Security
+    - Knowledge
+- id: D4
+  title: SAT-49 Company Structure
+  truth: DERIVED
+  tag: SAT49_SEALED
+  layers:
+  - Governance
+  snr: 0.81
+  structure:
+    SAT_CEO: Supreme System Coordinator
+    total_agents: 49
+    departments:
+    - TTM-7: Treasury & Tokenomics
+    - IRP-7: Infrastructure & Platform
+    - RCE-7: Risk/Compliance/Ethics
+    - AML-7: AI/ML
+    - PXS-7: Product & Experience
+    - EGO-7: Growth & Expansion
+    - KNM-7: Knowledge & Media
+- id: D5
+  title: Governance & Crown Pipeline
+  truth: DERIVED
+  tag: PIPELINE
+  layers:
+  - Gov
+  - Crown
+  snr: 0.86
+  pipeline:
+  - 'Change origin: idea/proposal from SAT department → Department CEO review/approve
+    → create change package (spec+rationale+tests)'
+  - 'Governance voting: on-chain publication → community debate (7 days) → token-holder
+    vote (BLOOM-weighted) → quorum/majority check'
+  - 'SAT-CEO review: evaluates impact+alignment+risk → signs approval (cryptographic)'
+  - 'Progressive rollout gates: Gate 3 Full Rollout (100%) monitor 7 days; Canary/Shadow
+    implied; monitor 72h stage present'
+  - 'Crown proof chain verification: Accept / Reject / Revise outcomes; resubmit on
+    revise'
+- id: D6
+  title: Runtime Architecture v2
+  truth: PLANNED
+  tag: RUNTIME
+  layers:
+  - Infrastructure
+  snr: 0.78
+  components:
+    clients:
+    - apps/web (React Server Components)
+    - apps/mobile (React Native)
+    - apps/desktop (Electron)
+    packages:
+    - pkg/ui (shadcn/ui + Tailwind)
+    - pkg/client (type-safe SDK)
+    - pkg/utils (validation, crypto)
+    platform:
+    - API Gateway & Validation
+    - Kubernetes Cluster
+    data:
+    - BlockGraph ledger (DAG-based)
+    - PostgreSQL metadata
+    - IPFS content-addressed storage
+    - Redis cache
+- id: D7
+  title: CI/CD & Progressive Delivery
+  truth: PLANNED
+  tag: CICD
+  layers:
+  - DevOps
+  snr: 0.79
+  flow:
+  - PR → CI → Attest → GitOps CD → Canary → SLO gate → Rollback
+  - 'Lint: ESLint+Prettier; Build: Docker multi-stage; Monorepo: Nx build; Rust: clippy+fmt;
+    TS: tsc --noEmit; Tests: Rust+Jest+E2E'
+  - 'Rollback: detect failure → SLO breach → automatic rollback → revert stable →
+    alert team → incident response → post-mortem'

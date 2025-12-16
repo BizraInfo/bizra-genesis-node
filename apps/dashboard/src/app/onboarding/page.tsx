@@ -490,7 +490,7 @@ export default function OnboardingPage() {
                               {getPioneerTitle(userNumber)}
                             </p>
                             <p className="text-xs text-bizra-gold/70 mt-1 italic">
-                              {getFounderMessage(userNumber)}
+                              {getFounderMessage(userNumber, userTier ?? 'standard')}
                             </p>
                           </motion.div>
                         )}

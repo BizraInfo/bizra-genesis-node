@@ -5,7 +5,7 @@
  * TypeScript client for interacting with the BIZRA Node0 Rust API.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 /**
  * Generic API response wrapper

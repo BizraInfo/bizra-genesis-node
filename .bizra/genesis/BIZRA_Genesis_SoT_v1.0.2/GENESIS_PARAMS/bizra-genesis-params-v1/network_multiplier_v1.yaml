@@ -1,0 +1,57 @@
+# BIZRA Genesis Parameters
+# File: network_multiplier_v1.yaml
+# Status: DRAFT (to be sealed by generate_genesis_seal.py)
+
+network_multiplier:
+  version: "network_multiplier_v1.0.0"
+  description: >
+    NetworkMultiplier amplifies (or withholds amplification from) network value and issuance
+    based on *measured* Ihsān health and decentralization health.
+    It is capped and smooth (logistic) to avoid runaway dynamics.
+
+  # --- Inputs (all normalized to [0,1]) ---
+  inputs:
+    I_net:
+      description: "Network-level Ihsān (weighted aggregate of validated receipts; recency-weighted)."
+      range: [0, 1]
+    D_net:
+      description: "Decentralization score (1=best). Derived from concentration metrics."
+      range: [0, 1]
+      derivation:
+        # Example: D_net = 1 - clamp(0.6*gini_compute + 0.4*gini_stake, 0, 1)
+        formula: "D_net = 1 - clamp(0.6*gini_compute + 0.4*gini_stake, 0, 1)"
+    SNR_net:
+      description: "Network-level SNR (signal/noise of evidence and reasoning receipts)."
+      range: [0, 1]
+      optional: true
+
+  # --- Logistic form ---
+  # σ(z)=1/(1+e^{-z})
+  # z = κI*(I_net-τI) + κD*(D_net-τD) [+ κS*(SNR_net-τS)]
+  # NM = 1 + M_max * σ(z)
+  formula:
+    z: "kI*(I_net - tI) + kD*(D_net - tD) + kS*(SNR_net - tS)"
+    nm: "1 + M_max * sigmoid(z)"
+    sigmoid: "1 / (1 + exp(-z))"
+    cap: "NM in [1, 1+M_max]"
+
+  parameters:
+    # Conservative defaults: reward excellence, cap upside.
+    M_max: 2.0
+    tI: 0.90
+    tD: 0.70
+    tS: 0.80
+    kI: 10.0
+    kD: 8.0
+    kS: 4.0
+
+  safety_clauses:
+    - name: "fail_open_but_no_boost_on_low_ihsan"
+      condition: "I_net < 0.85"
+      action: "NM = 1.0"
+    - name: "no_boost_on_centralization"
+      condition: "D_net < 0.60"
+      action: "NM = 1.0"
+
+  governance:
+    change_control: "Changes require Crown approval + audit receipts."

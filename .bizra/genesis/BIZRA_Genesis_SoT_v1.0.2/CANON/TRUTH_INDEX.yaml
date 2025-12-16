@@ -1,0 +1,29 @@
+version: 1.0.2
+rule: Every file included in SOT_MANIFEST.yaml must declare truth status here.
+truth:
+  ATLAS/BIZRA System Architecture Atlas - Full Report (Optimized).pdf: DERIVED
+  ATLAS/bizra-atlas-v2-optimized.html: DERIVED
+  CANON/AGENT_MAP_PAT_SAT_v1.yaml: DERIVED
+  CANON/ARCH_ATLAS_V2_STRUCTURED.yaml: DERIVED
+  CANON/BIZRA_CONSTITUTION_v1.md: DERIVED
+  CANON/CANON_MANIFEST.json: DERIVED
+  CANON/GOVERNANCE_CROWN_PIPELINE_v1.yaml: DERIVED
+  CANON/TRUTH_LABELS_STANDARD.md: DERIVED
+  CANON/IHSAN_METHODOLOGY_v1.yaml: PLANNED
+  CANON/SAPE_PROBES_v1.yaml: PLANNED
+  CANON/SOT_MANIFEST.yaml: IMPLEMENTED
+  CANON/TRUTH_INDEX.yaml: IMPLEMENTED
+  GENESIS_PARAMS/bizra-genesis-params-v1/README.md: IMPLEMENTED
+  GENESIS_PARAMS/bizra-genesis-params-v1/generate_genesis_seal.py: IMPLEMENTED
+  GENESIS_PARAMS/bizra-genesis-params-v1/ihsan_v1.yaml: PLANNED
+  GENESIS_PARAMS/bizra-genesis-params-v1/network_multiplier_v1.yaml: PLANNED
+  GENESIS_PARAMS/bizra-genesis-params-v1/sape_v1.yaml: PLANNED
+  SCHEMAS/session_state.schema.json: DERIVED
+  SCHEMAS/poi_receipt.schema.json: DERIVED
+  SCHEMAS/attestation.schema.json: DERIVED
+  SCHEMAS/governance_proposal.schema.json: DERIVED
+  SCHEMAS/arbitration_packet.schema.json: DERIVED
+  README.md: DERIVED
+  TOOLS/generate_genesis_seal.py: IMPLEMENTED
+  TOOLS/verify_sot.py: IMPLEMENTED
+  GENESIS_PARAMS/bizra-genesis-params-v1/seed_issuance_v1.yaml: PLANNED

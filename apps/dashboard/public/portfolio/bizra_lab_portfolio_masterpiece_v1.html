@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+
+  <title>BIZRA LAB — Portfolio</title>
+  <meta name="description" content="BIZRA LAB: a solo-built, ethics-first R&D lab exploring autonomous reasoning, graph-of-thought systems, and decentralized intelligence." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="BIZRA LAB — Portfolio" />
+  <meta property="og:description" content="A three-year, solo-built R&D lab: autonomous reasoning, Graph-of-Thought + SNR governance, decentralized intelligence." />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicons (replace with real assets when ready) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='16' fill='%23050B14'/%3E%3Cpath d='M18 40c10-22 18-22 28 0' stroke='%23C9A962' stroke-width='3' fill='none'/%3E%3Ccircle cx='32' cy='22' r='4' fill='%23C9A962'/%3E%3C/svg%3E" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    :root{
+      --bg0:#050B14;
+      --bg1:#0A1628;
+      --card:#0B1B33cc;
+      --stroke:#ffffff12;
+      --text:#F8F6F1;
+      --muted:#ffffffa6;
+      --muted2:#ffffff75;
+
+      --gold:#C9A962;
+      --gold2:#B08D45;
+
+      --ok:#4CAF50;
+      --warn:#FF9800;
+      --bad:#F44336;
+
+      --radius:18px;
+      --shadow:0 18px 70px rgba(0,0,0,.55);
+      --shadow2:0 10px 36px rgba(0,0,0,.38);
+
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --serif:"Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1100px 700px at 15% 10%, rgba(201,169,98,.18), transparent 55%),
+        radial-gradient(900px 620px at 90% 30%, rgba(120,80,210,.12), transparent 60%),
+        radial-gradient(700px 420px at 50% 120%, rgba(0,188,212,.08), transparent 55%),
+        linear-gradient(180deg,var(--bg0),var(--bg1));
+      color:var(--text);
+      font-family:var(--sans);
+      line-height:1.55;
+      overflow-x:hidden;
+    }
+
+    /* tasteful noise layer (performance-safe) */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode:overlay;
+      opacity:.25;
+    }
+
+    a{color:inherit}
+    a:hover{color:var(--gold)}
+    .container{max-width:1160px;margin:0 auto;padding:34px 18px 80px}
+    .nav{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(5,11,20,.78), rgba(5,11,20,.40));
+      border-bottom:1px solid var(--stroke);
+    }
+    .nav-inner{max-width:1160px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+    .mark{
+      width:36px;height:36px;border-radius:12px;
+      border:1px solid rgba(201,169,98,.45);
+      background: radial-gradient(circle at 30% 30%, rgba(201,169,98,.25), transparent 55%), rgba(10,22,40,.55);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow2);
+    }
+    .brand .t1{font-family:var(--serif);letter-spacing:.6px;font-weight:700}
+    .brand .t2{font-family:var(--mono);font-size:11px;color:var(--muted2);letter-spacing:1.2px;text-transform:uppercase;margin-top:-3px}
+    .navlinks{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .chip{
+      font-family:var(--mono);
+      font-size:11px;
+      border:1px solid var(--stroke);
+      background: rgba(10,22,40,.35);
+      padding:8px 10px;
+      border-radius:999px;
+      text-decoration:none;
+      color:var(--muted);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .chip:hover{transform: translateY(-1px); border-color: rgba(201,169,98,.55); background: rgba(201,169,98,.06)}
+    .chip.primary{border-color: rgba(201,169,98,.55); background: rgba(201,169,98,.08); color: var(--text)}
+    .chip .dot{display:inline-block;width:6px;height:6px;border-radius:99px;background:var(--gold);margin-right:7px;vertical-align:middle}
+
+    .hero{
+      padding:44px 0 14px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:22px;
+      align-items:stretch;
+    }
+
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr; padding-top:28px}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(11,27,51,.62), rgba(11,27,51,.35));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-left{padding:32px 26px 26px; position:relative; overflow:hidden}
+    .hero-left:after{
+      content:"";
+      position:absolute; inset:-120px -120px auto auto;
+      width:240px;height:240px;border-radius:999px;
+      background: radial-gradient(circle at 40% 40%, rgba(201,169,98,.18), transparent 60%);
+      filter: blur(2px);
+      opacity:.9;
+    }
+
+    .kicker{
+      font-family:var(--mono);
+      font-size:12px;
+      letter-spacing:2px;
+      color:var(--gold);
+      text-transform:uppercase;
+      display:flex;align-items:center;gap:10px;
+    }
+    .kicker .pill{
+      border:1px solid rgba(201,169,98,.32);
+      background: rgba(201,169,98,.06);
+      padding:5px 9px;border-radius:999px;
+      color:var(--muted);
+      letter-spacing:1.2px;
+      text-transform:none;
+    }
+
+    h1{
+      font-family:var(--serif);
+      font-weight:700;
+      font-size:52px;
+      line-height:1.05;
+      margin:12px 0 12px;
+      letter-spacing:.2px;
+    }
+    @media (max-width:520px){h1{font-size:40px}}
+
+    .sub{
+      color:var(--muted);
+      font-size:16px;
+      max-width: 60ch;
+      margin-bottom:18px;
+    }
+
+    .cta-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+    .btn{
+      border:1px solid var(--stroke);
+      background: rgba(10,22,40,.35);
+      color:var(--text);
+      border-radius: 12px;
+      padding:12px 14px;
+      font-weight:600;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .btn:hover{transform: translateY(-1px); border-color: rgba(201,169,98,.55); background: rgba(201,169,98,.06)}
+    .btn.primary{
+      border-color: rgba(201,169,98,.65);
+      background: linear-gradient(180deg, rgba(201,169,98,.20), rgba(201,169,98,.08));
+    }
+    .btn small{font-family:var(--mono); font-weight:500; color:var(--muted2)}
+    .mini{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted2);
+      margin-top:14px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .mini span{
+      border:1px dashed rgba(255,255,255,.14);
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(10,22,40,.25);
+    }
+
+    .hero-right{padding:22px; display:flex; flex-direction:column; gap:12px}
+    .metric-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px}
+    @media (max-width:540px){.metric-grid{grid-template-columns:1fr}}
+    .metric{
+      padding:16px;
+      border-radius: 16px;
+      border:1px solid var(--stroke);
+      background: rgba(5,11,20,.42);
+    }
+    .metric .n{
+      font-family:var(--serif);
+      font-size:26px;
+      color: var(--gold);
+      margin:0;
+      letter-spacing:.3px;
+    }
+    .metric .l{
+      font-family:var(--mono);
+      font-size:11px;
+      color: var(--muted2);
+      letter-spacing:1.6px;
+      text-transform:uppercase;
+      margin-top:4px;
+    }
+    .metric .d{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+
+    .snr{
+      padding:16px;
+      border-radius: 16px;
+      border:1px solid rgba(201,169,98,.28);
+      background: linear-gradient(180deg, rgba(201,169,98,.10), rgba(10,22,40,.35));
+      position:relative;
+      overflow:hidden;
+    }
+    .snr:after{
+      content:"";
+      position:absolute; inset:-120px auto auto -120px;
+      width:260px;height:260px;border-radius:999px;
+      background: radial-gradient(circle at 40% 40%, rgba(201,169,98,.14), transparent 65%);
+      opacity:.9;
+    }
+    .snr h3{margin:0 0 8px;font-size:14px}
+    .snr p{margin:0;color:var(--muted);font-size:12px}
+    .snrbar{margin-top:12px}
+    .bar{
+      height:10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(5,11,20,.5);
+      overflow:hidden;
+    }
+    .bar > span{
+      display:block;height:100%;
+      width: 0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(244,67,54,.85), rgba(255,152,0,.85), rgba(76,175,80,.85));
+      transition: width 900ms cubic-bezier(.2,.8,.2,1);
+    }
+    .snrmeta{
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      font-family:var(--mono);font-size:11px;color:var(--muted2); margin-top:10px;
+      position:relative; z-index:1;
+    }
+    .snrmeta strong{color:var(--text);font-weight:600}
+
+    section{margin-top:34px}
+    .section-title{
+      display:flex;align-items:flex-end;justify-content:space-between;gap:14px;
+      padding:0 2px 12px;
+      border-bottom:1px solid var(--stroke);
+      margin-bottom:16px;
+    }
+    .section-title h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .section-title .hint{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted2);
+      letter-spacing:1.4px;
+      text-transform:uppercase;
+    }
+
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media (max-width: 980px){.grid-3{grid-template-columns:1fr}}
+    .tile{padding:18px;border-radius: var(--radius);border:1px solid var(--stroke);background: rgba(10,22,40,.32)}
+    .tile h3{margin:0 0 8px;font-size:15px}
+    .tile p{margin:0;color:var(--muted);font-size:13px}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+      border:1px solid var(--stroke);
+      padding:6px 10px;border-radius:999px;
+      background: rgba(5,11,20,.35);
+      margin-top:10px;
+    }
+    .badge i{color:var(--gold)}
+
+    .timeline{display:grid;grid-template-columns: 1fr;gap:12px}
+    .titem{
+      padding:16px 18px;
+      border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      background: rgba(5,11,20,.35);
+      display:flex; gap:14px; align-items:flex-start;
+    }
+    .titem .date{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--gold);
+      letter-spacing:1.6px;
+      text-transform:uppercase;
+      min-width: 130px;
+      margin-top:2px;
+    }
+    .titem .body h4{margin:0 0 6px;font-size:14px}
+    .titem .body p{margin:0;color:var(--muted);font-size:13px}
+
+    .dna{
+      padding:18px;border-radius: var(--radius);
+      border:1px solid rgba(201,169,98,.28);
+      background: linear-gradient(180deg, rgba(201,169,98,.08), rgba(10,22,40,.30));
+    }
+    .dna-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+    @media (max-width: 980px){.dna-grid{grid-template-columns:1fr 1fr}}
+    @media (max-width: 540px){.dna-grid{grid-template-columns:1fr}}
+    .dna-card{padding:14px;border-radius: 16px;border:1px solid var(--stroke);background: rgba(5,11,20,.42)}
+    .dna-card .k{font-family:var(--mono);letter-spacing:2px;color:var(--gold);font-size:11px;text-transform:uppercase}
+    .dna-card .v{font-family:var(--serif);font-size:26px;margin-top:8px}
+    .dna-card .p{color:var(--muted);font-size:12px;margin-top:8px}
+
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .filter{
+      cursor:pointer; user-select:none;
+      font-family:var(--mono); font-size:11px; color:var(--muted);
+      border:1px solid var(--stroke);
+      background: rgba(5,11,20,.35);
+      padding:8px 10px;border-radius:999px;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .filter:hover{transform: translateY(-1px); border-color: rgba(201,169,98,.55); background: rgba(201,169,98,.06)}
+    .filter.active{border-color: rgba(201,169,98,.65); background: rgba(201,169,98,.10); color: var(--text)}
+    .search{
+      flex: 1 1 240px;
+      min-width: 220px;
+      border:1px solid var(--stroke);
+      background: rgba(5,11,20,.35);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 999px;
+      outline:none;
+      font-family:var(--mono);
+      font-size:12px;
+    }
+    .search:focus{border-color: rgba(201,169,98,.65)}
+
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media (max-width: 980px){.cards{grid-template-columns:1fr}}
+    .work{
+      padding:18px;border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      background: rgba(10,22,40,.30);
+      position:relative; overflow:hidden;
+    }
+    .work:after{
+      content:"";
+      position:absolute; inset:auto -120px -120px auto;
+      width:240px;height:240px;border-radius:999px;
+      background: radial-gradient(circle at 40% 40%, rgba(201,169,98,.10), transparent 65%);
+      opacity:.8;
+    }
+    .work h3{margin:0 0 6px;font-size:15px}
+    .work p{margin:0;color:var(--muted);font-size:13px}
+    .work .meta{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; position:relative; z-index:1}
+    .tag{
+      font-family:var(--mono); font-size:11px;
+      padding:6px 9px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--muted);
+      background: rgba(5,11,20,.35);
+    }
+    .tag.gold{border-color: rgba(201,169,98,.45); background: rgba(201,169,98,.08); color:var(--text)}
+
+    .proof{
+      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
+    }
+    @media (max-width: 980px){.proof{grid-template-columns:1fr}}
+    .receipt{
+      padding:18px;border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      background: rgba(5,11,20,.40);
+    }
+    .receipt pre{
+      margin:0; white-space:pre-wrap; word-break:break-word;
+      font-family:var(--mono);
+      font-size:11px;
+      color:#e9e4d6;
+      background: rgba(10,22,40,.45);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding:12px;
+    }
+    .receipt .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .receipt .row span{font-family:var(--mono);font-size:11px;color:var(--muted2)}
+    .receipt .row strong{color:var(--gold);font-weight:600}
+
+    footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--stroke);color:var(--muted2);font-size:12px}
+    footer .cols{display:grid;grid-template-columns: 1.2fr .8fr;gap:12px}
+    @media (max-width: 980px){footer .cols{grid-template-columns:1fr}}
+    .contact{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;
+      font-family:var(--mono);
+    }
+    .contact a{
+      text-decoration:none;
+      border:1px solid var(--stroke);
+      padding:8px 10px;border-radius:999px;
+      background: rgba(5,11,20,.35);
+      color:var(--muted);
+    }
+    .contact a:hover{border-color: rgba(201,169,98,.55); background: rgba(201,169,98,.06); color: var(--text)}
+
+    .rtl-quote{
+      margin-top:12px;
+      padding:14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(201,169,98,.28);
+      background: rgba(201,169,98,.06);
+    }
+    .rtl-quote .ar{
+      font-family: "Amiri", "Noto Naskh Arabic", serif;
+      direction: rtl;
+      text-align: right;
+      font-size: 16px;
+      color: var(--text);
+    }
+    .rtl-quote .en{
+      margin-top:8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{scroll-behavior:auto !important; transition:none !important; animation:none !important}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="BIZRA LAB home">
+        <div class="mark"><i class="fa-solid fa-seedling" style="color:var(--gold)"></i></div>
+        <div>
+          <div class="t1">BIZRA</div>
+          <div class="t2">LAB • portfolio</div>
+        </div>
+      </a>
+      <nav class="navlinks" aria-label="Primary">
+        <a class="chip" href="#story"><span class="dot"></span>Story</a>
+        <a class="chip" href="#pillars"><span class="dot"></span>Principles</a>
+        <a class="chip" href="#dna"><span class="dot"></span>DNA</a>
+        <a class="chip" href="#lab"><span class="dot"></span>Lab</a>
+        <a class="chip" href="#proof"><span class="dot"></span>Proof</a>
+        <a class="chip primary" href="#contact"><span class="dot"></span>Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <section class="hero">
+      <div class="hero-left card">
+        <div class="kicker">
+          <span>Genesis → Utility</span>
+          <span class="pill">Ethics-first autonomy</span>
+          <span class="pill">GoT + SNR governance</span>
+        </div>
+
+        <h1>BIZRA LAB</h1>
+        <p class="sub">
+          A solo-built R&D lab exploring decentralized intelligence: autonomous reasoning engines, Graph-of-Thought systems,
+          measurable truth controls (SNR), and an ecosystem designed for dignity, transparency, and impact.
+        </p>
+
+        <div class="cta-row">
+          <a class="btn primary" href="#lab"><i class="fa-solid fa-flask"></i> Explore the Lab <small>research + prototypes</small></a>
+          <a class="btn" href="#story"><i class="fa-regular fa-compass"></i> Read the origin <small>Ramadan 2023</small></a>
+          <a class="btn" href="https://github.com/BizraInfo" target="_blank" rel="noreferrer"><i class="fa-brands fa-github"></i> GitHub</a>
+        </div>
+
+        <div class="mini">
+          <span><i class="fa-solid fa-globe" style="color:var(--gold)"></i> bizra.info</span>
+          <span><i class="fa-solid fa-link" style="color:var(--gold)"></i> bizra.ai</span>
+          <span><i class="fa-solid fa-shield-halved" style="color:var(--gold)"></i> Ihsān • ʿAdl • Amānah</span>
+        </div>
+
+        <div class="rtl-quote">
+          <div class="ar">بِزْرَة — “البذرة”</div>
+          <div class="en">BIZRA means “Seed” — every human is a node, every node is a seed, and every seed has infinite potential.</div>
+        </div>
+      </div>
+
+      <aside class="hero-right card" aria-label="Key metrics and truth control">
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="n">126+</div>
+            <div class="l">GitHub repos</div>
+            <div class="d">Public + private. A living footprint of iteration.</div>
+          </div>
+          <div class="metric">
+            <div class="n">15,000+</div>
+            <div class="l">R&amp;D hours</div>
+            <div class="d">Since Ramadan 2023: solo study, building, shipping.</div>
+          </div>
+          <div class="metric">
+            <div class="n">180+</div>
+            <div class="l">Research artifacts</div>
+            <div class="d">Notes, papers, experiments, design proofs.</div>
+          </div>
+          <div class="metric">
+            <div class="n">250+</div>
+            <div class="l">Prototypes</div>
+            <div class="d">From raw ideas to runnable systems.</div>
+          </div>
+        </div>
+
+        <div class="snr" role="group" aria-label="SNR monitor preview">
+          <h3><i class="fa-solid fa-signal" style="color:var(--gold)"></i> SNR Monitor Preview</h3>
+          <p>Reasoning treated like a governed system: signal (evidence) vs noise (contradiction/drift). Execution is allowed only when SNR is clean enough.</p>
+          <div class="snrbar">
+            <div class="bar" aria-label="SNR bar"><span id="snrFill"></span></div>
+            <div class="snrmeta">
+              <span>Mode: <strong>fail-closed</strong></span>
+              <span>State: <strong id="snrState">HYPOTHESIS</strong></span>
+              <span>Target: <strong id="snrTarget">≥ 2.0</strong></span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="story">
+      <div class="section-title">
+        <h2>Story</h2>
+        <div class="hint">Why it exists • How it grew</div>
+      </div>
+
+      <div class="timeline">
+        <div class="titem">
+          <div class="date">Ramadan 2023</div>
+          <div class="body">
+            <h4>Zero-to-builder genesis</h4>
+            <p>Started with no formal technical background. BIZRA began as a personal promise: to learn, build, and serve—then turned into systems, tests, and artifacts.</p>
+          </div>
+        </div>
+        <div class="titem">
+          <div class="date">2023 → 2025</div>
+          <div class="body">
+            <h4>From ideas to operational engineering</h4>
+            <p>Hundreds of prototypes, thousands of experiments, and a growing architecture: agents, governance, security, performance gates, and measurable truth controls.</p>
+          </div>
+        </div>
+        <div class="titem">
+          <div class="date">Now</div>
+          <div class="body">
+            <h4>BIZRA as a public-utility direction</h4>
+            <p>Building towards a distributed system that fails safely, audits itself, and rewards real impact—without sacrificing dignity, justice, or integrity.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pillars">
+      <div class="section-title">
+        <h2>Principles</h2>
+        <div class="hint">Brand identity • constitutional constraints</div>
+      </div>
+
+      <div class="grid-3">
+        <div class="tile">
+          <h3><i class="fa-solid fa-star" style="color:var(--gold)"></i> Ihsān</h3>
+          <p>Excellence with benevolence: the system is required to be measurably good—quality gates, receipts, and continuous improvement loops.</p>
+          <div class="badge"><i class="fa-solid fa-check"></i> “No verified without receipt.”</div>
+        </div>
+        <div class="tile">
+          <h3><i class="fa-solid fa-scale-balanced" style="color:var(--gold)"></i> ʿAdl</h3>
+          <p>Justice and fairness as first-class constraints: bias probes, consistency checks, and governance designed to prevent quiet harm.</p>
+          <div class="badge"><i class="fa-solid fa-shield"></i> Bias / justice probe set</div>
+        </div>
+        <div class="tile">
+          <h3><i class="fa-solid fa-handshake" style="color:var(--gold)"></i> Amānah</h3>
+          <p>Trustworthiness by design: immutable receipts, versioned policies, and transparent change pipelines that can be audited and reproduced.</p>
+          <div class="badge"><i class="fa-solid fa-fingerprint"></i> Policy hash + signatures</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dna">
+      <div class="section-title">
+        <h2>DNA 7–3–6–9</h2>
+        <div class="hint">A usable blueprint for scalable autonomy</div>
+      </div>
+
+      <div class="dna">
+        <p style="margin:0;color:var(--muted);font-size:13px">
+          BIZRA’s “DNA” is a practical pattern: it keeps creativity high while keeping execution governed and auditable.
+        </p>
+
+        <div class="dna-grid">
+          <div class="dna-card">
+            <div class="k">7 modules</div>
+            <div class="v">Lens → Graph → Evidence → Policy → SNR → Probes → Release</div>
+            <div class="p">Mechanism vs measurement vs governance, cleanly separated.</div>
+          </div>
+          <div class="dna-card">
+            <div class="k">3 passes</div>
+            <div class="v">Diverge → Converge → Prove</div>
+            <div class="p">Exploration first, then conflict-resolution, then execution eligibility.</div>
+          </div>
+          <div class="dna-card">
+            <div class="k">6 checks</div>
+            <div class="v">Receipts • Policy • Dependency • Budget • Drift • Regression</div>
+            <div class="p">Stops silent failures and “seemed fine” disasters.</div>
+          </div>
+          <div class="dna-card">
+            <div class="k">9 probes</div>
+            <div class="v">Counterfactual • Adversarial • Red Team • Constraints • Chaos • OODA Drift • Cross-discipline • Reproducibility • Justice</div>
+            <div class="p">A public-utility-grade probe set for real-world safety.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lab">
+      <div class="section-title">
+        <h2>Lab Portfolio</h2>
+        <div class="hint">Curated highlights • expandable library</div>
+      </div>
+
+      <div class="filters">
+        <input id="search" class="search" placeholder="Search (e.g., GoT, SNR, PoI, CI/CD, AEGIS)..." />
+        <div class="filter active" data-filter="all">All</div>
+        <div class="filter" data-filter="reasoning">Reasoning</div>
+        <div class="filter" data-filter="security">Security</div>
+        <div class="filter" data-filter="ledger">Ledger</div>
+        <div class="filter" data-filter="devops">DevOps</div>
+        <div class="filter" data-filter="product">Product</div>
+      </div>
+
+      <div class="cards" id="workGrid" aria-label="Lab items">
+        <article class="work" data-tags="reasoning devops security">
+          <h3>GoT Runtime + SNR Immune System</h3>
+          <p>Typed reasoning graphs + receipts + SNR gates that decide whether the system may execute or must fail-closed.</p>
+          <div class="meta">
+            <span class="tag gold">GoT</span>
+            <span class="tag">SNR</span>
+            <span class="tag">Receipts</span>
+            <span class="tag">Fail-closed</span>
+          </div>
+        </article>
+
+        <article class="work" data-tags="security reasoning">
+          <h3>AEGIS — LLM Defense Blueprint</h3>
+          <p>Multi-layer prompt injection defense: structural sanitization, semantic guardrails, behavioral profiling, and chain forensics.</p>
+          <div class="meta">
+            <span class="tag gold">Security</span>
+            <span class="tag">Guardrails</span>
+            <span class="tag">Forensics</span>
+          </div>
+        </article>
+
+        <article class="work" data-tags="ledger reasoning">
+          <h3>BlockGraph + Proof of Impact</h3>
+          <p>DAG ledger + PoI verification to reward meaningful contributions (compute, knowledge, community impact).</p>
+          <div class="meta">
+            <span class="tag gold">Ledger</span>
+            <span class="tag">PoI</span>
+            <span class="tag">Tokens</span>
+          </div>
+        </article>
+
+        <article class="work" data-tags="devops security">
+          <h3>Resilience Mesh — SLO-enforced pilot product</h3>
+          <p>Fail-safe transaction gating + chaos testing + observability mesh. “Degraded intelligence → pending, not approve.”</p>
+          <div class="meta">
+            <span class="tag gold">SRE</span>
+            <span class="tag">Chaos</span>
+            <span class="tag">SLO</span>
+          </div>
+        </article>
+
+        <article class="work" data-tags="devops product">
+          <h3>CI/CD Quality Gates + Progressive Delivery</h3>
+          <p>Automated checks, SBOM, vulnerability scans, signed artifacts, canary rollouts, and regression gates tied to SNR.</p>
+          <div class="meta">
+            <span class="tag gold">CI/CD</span>
+            <span class="tag">SBOM</span>
+            <span class="tag">Canary</span>
+          </div>
+        </article>
+
+        <article class="work" data-tags="product reasoning">
+          <h3>PAT/SAT Dual-Agentic Scaling</h3>
+          <p>Local optimizer (PAT) + global optimizer (SAT) compounding loop: each new node improves templates, policies, and probes.</p>
+          <div class="meta">
+            <span class="tag gold">Agents</span>
+            <span class="tag">Scaling</span>
+            <span class="tag">Governance</span>
+          </div>
+        </article>
+      </div>
+
+      <p style="margin:14px 2px 0;color:var(--muted2);font-family:var(--mono);font-size:11px">
+        Tip: this section is designed to be backed by your Google Docs “Research Library” later (export to Markdown/MDX for clean, fast rendering).
+      </p>
+    </section>
+
+    <section id="proof">
+      <div class="section-title">
+        <h2>Proof & Receipts</h2>
+        <div class="hint">Auditability • reproducibility • trust</div>
+      </div>
+
+      <div class="proof">
+        <div class="receipt">
+          <div class="row">
+            <span>Receipt</span>
+            <span>State: <strong>HYPOTHESIS</strong></span>
+          </div>
+          <pre>{
+  "request_id": "uuid",
+  "graph_hash": "sha256:…",
+  "policy_version": "ihsan-policy@1.0.0",
+  "snr": { "node": 1.42, "layer": { "safety": 1.1, "security": 1.9 } },
+  "status": "HYPOTHESIS",
+  "probes": [{ "name": "reproducibility", "pass": false }],
+  "note": "Discussable. Not executable until receipts + probes raise SNR."
+}</pre>
+        </div>
+
+        <div class="receipt">
+          <div class="row">
+            <span>Receipt</span>
+            <span>State: <strong style="color:var(--ok)">VERIFIED</strong></span>
+          </div>
+          <pre>{
+  "request_id": "uuid",
+  "graph_hash": "sha256:…",
+  "policy_version_hash": "keccak256:…",
+  "snr": { "node": 2.41, "layer": { "safety": 2.0, "security": 2.7 } },
+  "status": "VERIFIED",
+  "receipts": ["tests#L120", "scan#L42"],
+  "probes": [{ "name": "adversarial", "pass": true }, { "name": "reproducibility", "pass": true }],
+  "signatures": { "pat": "ed25519:…", "sat_quorum": ["…","…","…"] }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="section-title">
+        <h2>Contact</h2>
+        <div class="hint">Domains • email • next collaboration</div>
+      </div>
+
+      <div class="grid-3">
+        <div class="tile">
+          <h3><i class="fa-solid fa-globe" style="color:var(--gold)"></i> Domains</h3>
+          <p>Primary web identity: <strong>bizra.info</strong> and <strong>bizra.ai</strong>.</p>
+          <div class="badge"><i class="fa-solid fa-link"></i> Decide split: bizra.info = LAB • bizra.ai = Protocol</div>
+        </div>
+        <div class="tile">
+          <h3><i class="fa-solid fa-envelope" style="color:var(--gold)"></i> Email</h3>
+          <p>For collaborations, pilots, or research partnerships.</p>
+          <div class="contact">
+            <a href="mailto:m.beshr@bizra.info">m.beshr@bizra.info</a>
+            <a href="mailto:m.beshr@bizra.ai">m.beshr@bizra.ai</a>
+          </div>
+        </div>
+        <div class="tile">
+          <h3><i class="fa-solid fa-bolt" style="color:var(--gold)"></i> What to send</h3>
+          <p>One problem statement + constraints. If high-stakes, include risk tolerance and what “fail-closed” means for you.</p>
+          <div class="badge"><i class="fa-solid fa-shield-halved"></i> We default to safety + receipts</div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="cols">
+          <div>
+            <div style="font-family:var(--serif);font-size:16px;color:var(--gold);margin-bottom:8px">BIZRA LAB</div>
+            <div>
+              This portfolio is intentionally engineered as a “proof surface”: it shows outcomes, not hype.
+              Replace placeholders with your curated docs, screenshots, and verified benchmarks as you publish.
+            </div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);letter-spacing:1.6px;text-transform:uppercase;color:var(--muted2);font-size:11px;margin-bottom:8px">Implementation notes</div>
+            <div style="color:var(--muted);font-size:12px">
+              Ship as static (GitHub Pages / Cloudflare) or Next.js. Keep images optimized. Make “Proof” a first-class navigation item.
+            </div>
+          </div>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    // --- SNR demo: set a deterministic value for consistent screenshots ---
+    (function(){
+      const snr = 1.42;               // example; wire to real telemetry later
+      const tauV = 2.0;
+      const pct = Math.max(0, Math.min(100, (snr / 3.0) * 100));
+      const fill = document.getElementById('snrFill');
+      const state = document.getElementById('snrState');
+      if (fill) fill.style.width = pct.toFixed(0) + '%';
+      if (state) state.textContent = snr >= tauV ? 'VERIFIED' : 'HYPOTHESIS';
+    })();
+
+    // --- Filtering + search (zero dependencies) ---
+    const filters = Array.from(document.querySelectorAll('.filter'));
+    const grid = document.getElementById('workGrid');
+    const search = document.getElementById('search');
+
+    let active = 'all';
+    let query = '';
+
+    function normalize(s){ return (s||'').toLowerCase().trim(); }
+
+    function apply(){
+      const q = normalize(query);
+      const items = Array.from(grid.querySelectorAll('.work'));
+      items.forEach(el => {
+        const tags = normalize(el.getAttribute('data-tags'));
+        const text = normalize(el.innerText);
+        const tagOk = (active === 'all') || tags.includes(active);
+        const qOk = (!q) || text.includes(q) || tags.includes(q);
+        el.style.display = (tagOk && qOk) ? '' : 'none';
+      });
+    }
+
+    filters.forEach(f => {
+      f.addEventListener('click', () => {
+        filters.forEach(x => x.classList.remove('active'));
+        f.classList.add('active');
+        active = f.getAttribute('data-filter');
+        apply();
+      });
+    });
+
+    search && search.addEventListener('input', (e) => {
+      query = e.target.value || '';
+      apply();
+    });
+  </script>
+</body>
+</html>

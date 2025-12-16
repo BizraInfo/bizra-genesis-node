@@ -1,0 +1,26 @@
+{
+  "name": "BIZRA Block0/Node0 Single Source of Truth",
+  "version": "1.0.0",
+  "generated_utc": "2025-12-16T13:00:32Z",
+  "includes": [
+    "CANON/BIZRA_CONSTITUTION_v1.md",
+    "CANON/TRUTH_LABELS_STANDARD.md",
+    "CANON/IHSAN_METHODOLOGY_v1.yaml",
+    "CANON/SAPE_PROBES_v1.yaml",
+    "CANON/AGENT_MAP_PAT_SAT_v1.yaml",
+    "CANON/GOVERNANCE_CROWN_PIPELINE_v1.yaml",
+    "CANON/ARCH_ATLAS_V2_STRUCTURED.yaml",
+    "ATLAS/ARCH_ATLAS_V2_EXTRACTED.md",
+    "ATLAS/BIZRA System Architecture Atlas - Full Report (Optimized).pdf",
+    "SCHEMAS/session_state.schema.json",
+    "SCHEMAS/poi_receipt.schema.json",
+    "SCHEMAS/attestation.schema.json",
+    "SCHEMAS/governance_proposal.schema.json",
+    "SCHEMAS/arbitration_packet.schema.json"
+  ],
+  "policy": {
+    "ihsan_quarantine_below": 0.95,
+    "truth_label_required": true,
+    "builder_critic_arbiter_required": true
+  }
+}

@@ -19,6 +19,7 @@ export function useNodeLink() {
 
   const checkNodeStatus = useCallback(async () => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
       // Attempt to connect to the local node
       // Note: In a real deployment, this might need CORS configuration on the local server
       // or a proxy if the dashboard is hosted remotely.
@@ -26,7 +27,7 @@ export function useNodeLink() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-      const response = await fetch('http://localhost:3001/health', {
+      const response = await fetch(`${apiUrl}/health`, {
         signal: controller.signal,
         headers: {
           'Accept': 'application/json'

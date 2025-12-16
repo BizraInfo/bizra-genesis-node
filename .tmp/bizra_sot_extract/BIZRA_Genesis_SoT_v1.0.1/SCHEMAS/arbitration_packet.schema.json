@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ArbitrationPacket",
+  "type": "object",
+  "required": [
+    "builder",
+    "critic",
+    "arbiter",
+    "final_decision"
+  ],
+  "properties": {
+    "builder": {
+      "type": "object",
+      "required": [
+        "proposal_ref",
+        "self_proof_ref",
+        "signature"
+      ],
+      "properties": {
+        "proposal_ref": {
+          "type": "string"
+        },
+        "self_proof_ref": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
+      }
+    },
+    "critic": {
+      "type": "object",
+      "required": [
+        "verdict",
+        "required_fixes",
+        "signature"
+      ],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "REVISE"
+          ]
+        },
+        "required_fixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "signature": {
+          "type": "string"
+        }
+      }
+    },
+    "arbiter": {
+      "type": "object",
+      "required": [
+        "decision",
+        "signature"
+      ],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": [
+            "ACCEPT",
+            "REJECT",
+            "REVISE"
+          ]
+        },
+        "signature": {
+          "type": "string"
+        }
+      }
+    },
+    "final_decision": {
+      "type": "string"
+    }
+  }
+}

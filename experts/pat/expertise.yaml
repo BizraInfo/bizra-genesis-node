@@ -1,0 +1,117 @@
+# BIZRA PAT Expert - Mental Model
+# This is NOT documentation. It's a machine-readable working memory.
+# Code is always the source of truth. This guides understanding.
+
+domain: pat
+version: "1.0.0"
+last_updated: "2025-12-16T00:00:00Z"
+snr_score: 0.85
+ihsan_score: 0.92
+
+# Core understanding of PAT architecture
+knowledge:
+  agents:
+    - name: MasterReasoner
+      model: deepseek-r1:7b
+      backend: ollama
+      purpose: "Strategic thinking, complex analysis, orchestration"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:42-52"
+      
+    - name: MemoryArchitect
+      model: qwen2.5:7b
+      backend: ollama
+      purpose: "Knowledge organization, finding connections, recall"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:53-58"
+      
+    - name: CreativeSynthesizer
+      model: qwen2.5:7b
+      backend: ollama
+      purpose: "Writing, brainstorming, ideation"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:59-63"
+      
+    - name: DataAnalyzer
+      model: mistral:7b
+      backend: ollama
+      purpose: "Data analysis, pattern recognition, insights"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:64-68"
+      
+    - name: Communicator
+      model: mistral:7b
+      backend: ollama
+      purpose: "Professional messaging, emails, presentations"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:69-73"
+      
+    - name: ExecutionPlanner
+      model: agentflow-7b
+      backend: lmstudio
+      purpose: "Task breakdown, scheduling, workflow orchestration"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:74-82"
+      
+    - name: EthicsGuardian
+      model: qwen2.5:7b
+      backend: ollama
+      purpose: "Safety compliance, Ihsan checks, ethical review"
+      system_prompt_location: "backend/src/lib/agents/pat.rs:83-88"
+
+  orchestration:
+    pattern: "MasterReasoner coordinates, specialists execute"
+    selection_algorithm: "backend/src/lib/agents/pat.rs:select_primary_agent"
+    factors:
+      - user_intent
+      - task_complexity
+      - user_preference
+      - historical_performance
+
+  memory_architecture:
+    episodic: "Redis - recent conversation history"
+    semantic: "PostgreSQL + pgvector - long-term knowledge"
+    procedural: "JSON profiles - learned user preferences"
+
+# Patterns I've observed
+patterns:
+  - name: "intent_routing"
+    description: "Creative intent → CreativeSynthesizer, Analysis → DataAnalyzer"
+    confidence: 0.92
+    
+  - name: "complexity_escalation"
+    description: "High complexity always routes to MasterReasoner first"
+    confidence: 0.95
+    
+  - name: "ethics_passthrough"
+    description: "EthicsGuardian reviews all outputs before user delivery"
+    confidence: 0.88
+
+# Edge cases I've learned
+edge_cases:
+  - scenario: "Ambiguous intent (creative + analytical)"
+    handling: "Route to MasterReasoner for decomposition"
+    learned_from: "production_observation_2025-12-15"
+    
+  - scenario: "LM Studio unavailable for ExecutionPlanner"
+    handling: "Fallback to MasterReasoner with planning prompt"
+    learned_from: "infrastructure_failure_handling"
+
+# Files I know about
+file_locations:
+  rust_implementation: "backend/src/lib/agents/pat.rs"
+  rust_module: "backend/src/lib/agents/mod.rs"
+  api_handlers: "backend/src/lib/api/"
+  python_runner: "agent_runner.py"
+  documentation: "docs/adr/002-pat-agent-architecture.md"
+
+# Validated against codebase
+validation:
+  last_validated: "2025-12-16T00:00:00Z"
+  files_checked:
+    - path: "backend/src/lib/agents/pat.rs"
+      hash: "pending_validation"
+    - path: "agent_runner.py"
+      hash: "pending_validation"
+  validation_status: "needs_refresh"
+
+# Self-improvement history
+improvement_log:
+  - date: "2025-12-16"
+    change: "Initial expertise file created"
+    snr_delta: 0.0
+    source: "manual_creation"

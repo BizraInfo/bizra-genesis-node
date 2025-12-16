@@ -1,0 +1,176 @@
+# BIZRA Genesis Parameters
+# File: ihsan_v1.yaml
+# Status: DRAFT (to be sealed by generate_genesis_seal.py)
+# Philosophy: Ihsān (Excellence) • Adl (Justice) • Amānah (Trust)
+
+ihsan:
+  version: "ihsan_v1.0.0"
+  description: >
+    Ihsān is a computable gate, not a label. This file defines the canonical
+    vector weights, metric definitions, and environment-specific thresholds.
+    Any "VERIFIED" claim MUST be backed by an evidence receipt in the ledger.
+
+  # --- Core formula ---
+  # I = Σ_i w_i * m_i , where each metric m_i ∈ [0, 1]
+  score:
+    formula: "I = sum_i(w_i * m_i), m_i in [0,1]"
+    clamp: true
+    rounding: 0.0001
+
+  weights:
+    correctness:        { w: 0.22, intent: "Proof-carrying correctness (tests + static + formal where applicable)" }
+    safety:             { w: 0.22, intent: "Tool/policy boundaries, prompt-injection resilience, least-privilege runtime" }
+    efficiency:         { w: 0.12, intent: "Latency/cost/energy budgets; avoid waste; optimize to SLOs" }
+    user_benefit:       { w: 0.14, intent: "Task success, clarity, usefulness, and user outcomes" }
+    auditability:       { w: 0.12, intent: "Receipt completeness + reproducibility; deterministic builds; traceability" }
+    anti_centralization: { w: 0.08, intent: "Avoid concentration of compute/stake/control; measurable distribution health" }
+    robustness:         { w: 0.06, intent: "Survive SAPE probes; tolerate failures and distribution shifts" }
+    adl_fairness:       { w: 0.04, intent: "Bias parity + access equity; monitor and correct harmful skews" }
+
+  # --- Metric definitions (how to compute each m_i) ---
+  # NOTE: These are measurable contracts, not narratives.
+  metrics:
+
+    correctness:
+      range: [0, 1]
+      compute:
+        - id: compile_pass
+          weight: 0.25
+          evidence: "build logs + artifact hash"
+        - id: unit_test_pass_rate
+          weight: 0.35
+          evidence: "unit test report + coverage summary"
+        - id: integration_test_pass_rate
+          weight: 0.25
+          evidence: "integration test report"
+        - id: static_analysis_clean
+          weight: 0.15
+          evidence: "lint/clippy/static scan outputs"
+      notes: "Formal verification (if present) can be included by shifting weights via governance."
+
+    safety:
+      range: [0, 1]
+      compute:
+        - id: policy_engine_pass_rate
+          weight: 0.30
+          evidence: "policy evaluation receipts"
+        - id: tool_allowlist_coverage
+          weight: 0.25
+          evidence: "tool manifest + allowlist diff"
+        - id: prompt_injection_resistance
+          weight: 0.25
+          evidence: "SAPE red-team results"
+        - id: secrets_hygiene
+          weight: 0.20
+          evidence: "secret scan report + repo diff"
+      fail_closed:
+        - condition: "secrets_hygiene < 1.0"
+          action: "quarantine"
+
+    efficiency:
+      range: [0, 1]
+      compute:
+        - id: latency_slo_compliance
+          weight: 0.45
+          evidence: "p50/p95/p99 latency report"
+        - id: cost_budget_compliance
+          weight: 0.25
+          evidence: "cost telemetry + caps"
+        - id: resource_utilization_health
+          weight: 0.30
+          evidence: "CPU/GPU/RAM utilization charts + headroom"
+      notes: "Efficiency is always bounded by safety; unsafe speed is noise."
+
+    user_benefit:
+      range: [0, 1]
+      compute:
+        - id: task_success_rate
+          weight: 0.50
+          evidence: "eval harness report"
+        - id: user_satisfaction
+          weight: 0.20
+          evidence: "survey/NPS (if available) or proxy metrics"
+        - id: clarity_snr
+          weight: 0.30
+          evidence: "SNR monitor report on responses/artifacts"
+      notes: "User benefit must be consistent with Adl/Amānah."
+
+    auditability:
+      range: [0, 1]
+      compute:
+        - id: receipt_completeness
+          weight: 0.55
+          evidence: "evidence ledger coverage report"
+        - id: reproducible_build
+          weight: 0.25
+          evidence: "repro build logs + matching hashes"
+        - id: sbom_and_attestation
+          weight: 0.20
+          evidence: "SBOM + signed attestation"
+      fail_closed:
+        - condition: "receipt_completeness < 1.0 and environment == 'prod'"
+          action: "block_release"
+
+    anti_centralization:
+      range: [0, 1]
+      compute:
+        - id: compute_gini_inverse
+          weight: 0.50
+          evidence: "distribution report"
+        - id: stake_gini_inverse
+          weight: 0.30
+          evidence: "distribution report"
+        - id: governance_participation_health
+          weight: 0.20
+          evidence: "vote participation and delegation analytics"
+      notes: "1.0 means perfectly decentralized distribution; 0 means extreme concentration."
+
+    robustness:
+      range: [0, 1]
+      compute:
+        - id: sape_survival_rate
+          weight: 0.60
+          evidence: "SAPE-9 results"
+        - id: chaos_resilience
+          weight: 0.25
+          evidence: "chaos test outputs"
+        - id: recovery_time_objective
+          weight: 0.15
+          evidence: "RTO/RPO drills"
+      notes: "Robustness is about worst-case behavior, not average-case pride."
+
+    adl_fairness:
+      range: [0, 1]
+      compute:
+        - id: bias_parity_index
+          weight: 0.60
+          evidence: "fairness evaluation report"
+        - id: access_equity_index
+          weight: 0.40
+          evidence: "service tier availability + rate limit equity"
+      fail_closed:
+        - condition: "bias_parity_index < 0.9 and environment == 'prod'"
+          action: "quarantine"
+
+  # --- Thresholds (gates) ---
+  # Recommendation: use risk-based gating so the system can evolve without self-paralysis.
+  thresholds:
+    by_environment:
+      dev:
+        min_ihsan: 0.85
+        action_on_fail: "block_merge"
+      staging:
+        min_ihsan: 0.90
+        action_on_fail: "block_deploy"
+      prod:
+        min_ihsan: 0.95
+        action_on_fail: "block_release"
+
+    by_artifact_class:
+      "security_critical": { min_ihsan: 0.95 }
+      "consensus_critical": { min_ihsan: 0.95 }
+      "economic_critical": { min_ihsan: 0.95 }
+      "non_critical_docs": { min_ihsan: 0.80 }
+
+  governance:
+    change_control: "Any change to weights/thresholds requires Crown approval + evidence receipts."

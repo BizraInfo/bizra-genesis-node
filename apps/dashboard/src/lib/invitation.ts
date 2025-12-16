@@ -18,6 +18,9 @@ export interface InvitationCode {
   maxUses: number;
   currentUses: number;
   isActive: boolean;
+  welcomeMessage?: string;
+  specialTitle?: string;
+  privileges?: string[];
 }
 
 // Special titles for early pioneers

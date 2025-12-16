@@ -1,0 +1,30 @@
+sape_version: '1.0'
+truth: PLANNED
+probes:
+- id: P1_counterfactual
+  question: What if the network splits?
+  type: resilience
+- id: P2_adversarial
+  question: What if the user is malicious?
+  type: security
+- id: P3_invariant
+  question: Does this violate H0/H1/H2/H3/H4?
+  type: governance
+- id: P4_ood
+  question: Out-of-distribution inputs, does the system fail closed?
+  type: safety
+- id: P5_resource
+  question: Does load exceed NodeCap or trigger throttling?
+  type: efficiency
+- id: P6_replay
+  question: Can receipts be replayed deterministically?
+  type: auditability
+- id: P7_bias
+  question: Bias/access parity checks, any drift?
+  type: adl_fairness
+- id: P8_econ
+  question: Token velocity/hyperinflation risk? caps enforced?
+  type: economic
+- id: P9_consensus
+  question: Does PoI/validator weighting remain anti-centralizing?
+  type: anti_centralization

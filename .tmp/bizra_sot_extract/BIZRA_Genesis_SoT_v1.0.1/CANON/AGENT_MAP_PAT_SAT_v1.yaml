@@ -1,0 +1,32 @@
+truth: DERIVED
+pat:
+  name: PAT-N
+  personal_agents: 4
+  purpose: local context folding + user SNR optimization
+  note: Count derived from Atlas D2 extraction
+sat:
+  name: SAT-49
+  agents_total: 49
+  ceo: SAT-CEO
+  departments:
+  - code: TTM-7
+    name: Treasury & Tokenomics
+    ceo: TTM-CEO
+  - code: IRP-7
+    name: Infrastructure & Platform
+    ceo: IRP-CEO
+  - code: RCE-7
+    name: Risk, Compliance & Ethics
+    ceo: RCE-CEO
+  - code: AML-7
+    name: AI/ML
+    ceo: AML-CEO
+  - code: PXS-7
+    name: Product & Experience
+    ceo: PXS-CEO
+  - code: EGO-7
+    name: Growth & Expansion
+    ceo: EGO-CEO
+  - code: KNM-7
+    name: Knowledge & Media
+    ceo: KNM-CEO

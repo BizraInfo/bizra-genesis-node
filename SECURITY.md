@@ -49,7 +49,9 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 - **Authorization**: Role-based access control (RBAC)
 - **Encryption**: TLS 1.3 for data in transit, AES-256 for data at rest
 - **Session Management**: Secure session handling with proper timeout
-- **CORS**: Restrictive CORS policy
+- **CORS**: Environment-aware CORS policy
+  - `NODE_ENV=development`: permissive (developer velocity)
+  - `NODE_ENV=staging|production`: restrictive allowlist via `CORS_ORIGINS` (comma-separated origins)
 - **CSP**: Content Security Policy headers
 
 ### Infrastructure Security

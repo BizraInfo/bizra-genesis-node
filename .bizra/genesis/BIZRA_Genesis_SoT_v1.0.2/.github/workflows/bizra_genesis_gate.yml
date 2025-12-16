@@ -1,0 +1,39 @@
+name: bizra-genesis-gate
+
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  genesis_gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Verify Single Source of Truth
+        run: |
+          python TOOLS/verify_sot.py
+
+      - name: Generate deterministic Genesis Seal
+        run: |
+          python TOOLS/generate_genesis_seal.py
+
+      - name: Upload Genesis Seal
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-seal
+          path: |
+            genesis_seal.json
+            genesis_seal.sha256

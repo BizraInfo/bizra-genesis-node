@@ -83,6 +83,54 @@ This automatically:
 
 ### Manual Steps
 
+## Local-First “Gold Mine” (Inventory → Refinery → RAG)
+
+If your homebase (Choau) already has a large unstructured data lake, the fastest path to **organized + searchable + usable** is:
+
+1) Build an inventory of what exists (safe, read-only scan)
+2) Refine high-value text into chunked knowledge
+3) Query locally (no external services required)
+
+### Step A — Inventory your data lake
+
+```powershell
+# Scan MULTIPLE roots (your scattered data across 1.7 TB)
+python .\ingest_assets.py --root "C:\Projects" --root "D:\Bizra" --root "E:\Archive"
+
+# Single root example:
+python .\ingest_assets.py --root "C:\BIZRA-DATA-LAKE" --output ".\ASSET_INVENTORY.json"
+
+# Safety knobs for huge folders (recommended for 100+ GB roots):
+python .\ingest_assets.py --root "C:\bizra-genesis-node-repaired" --max-depth 12 --max-files 250000
+
+# Signal-first (docs only — fastest for initial triage):
+python .\ingest_assets.py --root "C:\Data" --extensions "md,txt,pdf,docx"
+
+# The miner automatically:
+#   - Skips system/build folders (node_modules, .git, target, etc.)
+#   - Deduplicates via fast hash (safe for copy/paste chaos)
+#   - Reports progress every 500 directories
+```
+
+### Step B — Refine into a searchable knowledge base
+
+```powershell
+python .\refinery.py
+```
+
+This produces:
+- `REFINED_KNOWLEDGE_BASE.json`
+
+### Step C — Query locally (pure Python)
+
+```powershell
+python .\rag_engine.py
+```
+
+This uses TF-IDF retrieval over `REFINED_KNOWLEDGE_BASE.json` (sovereign, offline-friendly).
+
+---
+
 #### Step 1: Install Dependencies
 ```powershell
 pip install -r requirements.txt

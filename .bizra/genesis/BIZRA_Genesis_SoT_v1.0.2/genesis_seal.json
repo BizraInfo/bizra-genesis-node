@@ -1,0 +1,33 @@
+{
+  "sot_version": "1.0.2",
+  "root_hash": "2bf26e1c0a389bc7b580855cce96e723d0dd276145b90a526468a55991ed904a",
+  "file_hashes": {
+    "ATLAS/BIZRA System Architecture Atlas - Full Report (Optimized).pdf": "849c53840654c907ad26514caf36b369a69438bb404be3a65daa04c5347a69d4",
+    "ATLAS/bizra-atlas-v2-optimized.html": "a207af3ee6b6e3902a942f6b5e87e3aeb3581a9333de95592328fbd383fb35f5",
+    "CANON/AGENT_MAP_PAT_SAT_v1.yaml": "ae89d239148437e8cf5f49fb9fe9d44e0569f9c4dd6ddfead2878e0d3c47c1cd",
+    "CANON/ARCH_ATLAS_V2_STRUCTURED.yaml": "f729db7aec5f7f2ca7e4ab79bab1d475d4478883da759c482e06704b111c2e47",
+    "CANON/BIZRA_CONSTITUTION_v1.md": "f9217224632f933ce0a769d7658b34c8614d5f2aa625e34bcc280d6b7338cbff",
+    "CANON/CANON_MANIFEST.json": "775dacc138e4e99e5f9476623bcccf3107053720f7fbe010c430736f6e40092b",
+    "CANON/GOVERNANCE_CROWN_PIPELINE_v1.yaml": "3a89012a4c62a938f23746069ea0179a2df4287b6b9c4243663bb32c59b8f6ae",
+    "CANON/IHSAN_METHODOLOGY_v1.yaml": "ff09f9f23a7d07bc8e2aee950ede825cc591130561ce2a4727639e3864537b40",
+    "CANON/SAPE_PROBES_v1.yaml": "bde49aa1aca436783ae2e59b65bd7fa1902993db56918adbd9380d5650d70b71",
+    "CANON/SOT_MANIFEST.yaml": "e85be66adf1ec199595dd7a34da547a7eb7a75150419cab2eb73ff975bee4217",
+    "CANON/TRUTH_INDEX.yaml": "9ffee2c848938123072ec899f88168417f76d8378a06b6d74f545adfd3cafe7d",
+    "CANON/TRUTH_LABELS_STANDARD.md": "6474e9b00df478d368ca6cafd12f4856a1c0121777b3d748aae89ea16878ec03",
+    "GENESIS_PARAMS/bizra-genesis-params-v1/README.md": "bb988ac57713fd2aee246af2f7ae46fb567c1889da64ce873971569a3c9860bc",
+    "GENESIS_PARAMS/bizra-genesis-params-v1/generate_genesis_seal.py": "06a177f382879ab76cd66bf2d8e25b118efd13fac677c83f8f1b80312191ae2e",
+    "GENESIS_PARAMS/bizra-genesis-params-v1/ihsan_v1.yaml": "1cb6c304165f0bd9fd086bb3a3205dfdc5e2b02be7d5f07b2ea7bc7ac501ca0b",
+    "GENESIS_PARAMS/bizra-genesis-params-v1/network_multiplier_v1.yaml": "041158b4939f1207350f807adf744962a819c01aa0830e1d90578d19e294039a",
+    "GENESIS_PARAMS/bizra-genesis-params-v1/sape_v1.yaml": "f92bbf3657a0d1a9906cce63377bc79f9198e628c88bfe3e21e47b7d8dc4c0b1",
+    "GENESIS_PARAMS/bizra-genesis-params-v1/seed_issuance_v1.yaml": "4fe28b9f629bed1aa5a34830136181a8c612e4df003160d54a4cf03d05d63e36",
+    "README.md": "72e6ee7dec6695bbfcef7e5e6f90d4bbbfff1ef9bce9a37e9a347ecb9a10a52b",
+    "SCHEMAS/arbitration_packet.schema.json": "8c31c727fa4f654e49faac1086465eafcf55b8c05c3be08b4c57371036c5e724",
+    "SCHEMAS/attestation.schema.json": "36a8f092c6dc1ba5c04d0b09b2e5770edb0640126c3d03644792a15e622647df",
+    "SCHEMAS/governance_proposal.schema.json": "b377468f2bbb1f848aa394b0b72023941e22d4365798d2f8031e19bc5c037924",
+    "SCHEMAS/poi_receipt.schema.json": "1313c749a23c265c1be9259f9aa513cb95e077bd8576a046ed69583685a445e0",
+    "SCHEMAS/session_state.schema.json": "ff34181216787d48ace87f71b870a1e31a28bf0008dbce741daab6d1f4af96d5",
+    "TOOLS/generate_genesis_seal.py": "0b555acd2bf925567edee03e08ad45d338dfff763207d99eb194af575c147cc9",
+    "TOOLS/verify_sot.py": "a371f64a3a080912b4edf99867d8cd7822b718eaf53e184cc7d007c282cd085d"
+  },
+  "note": "Sign root_hash with Node0 Ed25519 key to produce genesis_seal.sig (optional at Genesis)."
+}

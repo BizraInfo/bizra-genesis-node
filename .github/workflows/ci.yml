@@ -441,6 +441,16 @@ jobs:
           # Resources status
           curl -f http://localhost:8080/api/resources/status
 
+      # Smoke test: validate response body shape to prevent silent contract drift
+      - name: 🔬 Health-contract smoke test
+        run: |
+          set -e
+          HEALTH=$(curl -sf http://localhost:8080/health)
+          echo "$HEALTH" | jq -e '.status == "healthy"'
+          echo "$HEALTH" | jq -e '.node_id'
+          echo "$HEALTH" | jq -e '.version'
+          echo "✅ Health-contract check passed"
+
   # ============================================
   # STAGE 5: E2E TESTS
   # ============================================

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Attestation",
+  "type": "object",
+  "required": [
+    "attestation_id",
+    "algo",
+    "hash",
+    "public_key",
+    "signature",
+    "nonce",
+    "time_window_s"
+  ],
+  "properties": {
+    "attestation_id": {
+      "type": "string"
+    },
+    "algo": {
+      "type": "string",
+      "enum": [
+        "SHA256+Ed25519"
+      ]
+    },
+    "hash": {
+      "type": "string"
+    },
+    "public_key": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string"
+    },
+    "nonce": {
+      "type": "string"
+    },
+    "time_window_s": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

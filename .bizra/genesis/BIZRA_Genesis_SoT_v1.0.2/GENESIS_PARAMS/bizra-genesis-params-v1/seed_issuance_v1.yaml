@@ -1,0 +1,38 @@
+seed_issuance:
+  version: bzt_issuance_v1.0.0
+  description: 'SEED issuance is impact-linked and policy-gated. No PoI receipt, no
+    mint. Minting is also bounded (caps) to prevent hyperinflation. This file is intentionally
+    explicit: economics must be inspectable.
+
+    '
+  notation: '{''base_rate'': ''tokens per unit impact'', ''alpha'': ''nonlinearity;
+    alpha>1 rewards high-impact more'', ''quality_gate'': ''function of Ihsān score
+    and receipt completeness'', ''network_multiplier'': ''from network_multiplier_v1'',
+    ''saturation_guard'': ''caps issuance by epoch/day''}'
+  parameters:
+    base_rate: 1.0
+    alpha: 1.3
+    min_ihsan_to_mint: 0.9
+    quality_gate_formula: clamp((I - minI) / (1 - minI), 0, 1)
+    require_receipt_completeness: true
+    token_symbol: SEED
+  caps:
+    epoch_seconds: 86400
+    max_mint_per_epoch: 1000000
+    max_mint_per_receipt: 5000
+    burn_fraction_on_penalty: 0.1
+  penalties:
+    fraud_detected:
+      action: clawback_and_penalize
+      penalty_multiplier: 2.0
+  dependencies:
+    uses_network_multiplier: network_multiplier_v1.0.0
+    uses_ihsan: ihsan_v1.0.0
+    uses_sape: sape_v1.0.0
+  evidence:
+    required_fields:
+    - poi_receipt_hash
+    - tool_call_receipts
+    - policy_version
+    - ihsan_score
+    - sape_summary
