@@ -22,6 +22,7 @@ BIZRA Node0 is the canonical seed pattern for a planetary-scale sovereign AI net
 - System Architecture Atlas (DDAGI blueprint): [docs/BIZRA_SYSTEM_ARCHITECTURE_ATLAS.md](docs/BIZRA_SYSTEM_ARCHITECTURE_ATLAS.md)
 - Unified Masterpiece Blueprint (actionable roadmap): [docs/UNIFIED_MASTERPIECE_BLUEPRINT.md](docs/UNIFIED_MASTERPIECE_BLUEPRINT.md)
 - APEX convergence (Experts + Ihsān kernel): [docs/APEX_SYSTEM.md](docs/APEX_SYSTEM.md)
+- **Brand Identity & Design Governance**: [docs/BRAND_IDENTITY.md](docs/BRAND_IDENTITY.md)
 
 ---
 
