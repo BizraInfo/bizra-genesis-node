@@ -31,6 +31,13 @@ except ImportError:
     sys.exit(1)
 
 # ─────────────────────────────────────────────────────────────────────────────
+# CONSTANTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Default Ihsan threshold when kernel module is not available
+DEFAULT_IHSAN_THRESHOLD = 0.95
+
+# ─────────────────────────────────────────────────────────────────────────────
 # SYSTEMPROTOCOLKERNEL INTEGRATION
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -42,7 +49,7 @@ try:
     KERNEL_AVAILABLE = True
 except ImportError:
     KERNEL_AVAILABLE = False
-    IHSAN_THRESHOLD = 0.95  # Default value when kernel not available
+    IHSAN_THRESHOLD = DEFAULT_IHSAN_THRESHOLD
     print("⚠ bizra_kernel not available — running without ethical enforcement")
     print("  To enable: ensure bizra_kernel/ is in PYTHONPATH")
 
