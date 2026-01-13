@@ -11,7 +11,7 @@ cast_lossless = "deny"
 clone_on_copy = "deny"
 eq_op = "deny"
 erasing_op = "deny"
-filter_map_next = "deny"
+# filter_map_next is set in the warn section below
 fn_to_numeric_cast = "deny"
 if_let_mutex = "deny"
 index_refutable_slice = "deny"

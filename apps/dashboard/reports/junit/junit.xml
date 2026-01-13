@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="BIZRA Dashboard Tests" tests="27" failures="27" errors="0" time="0.842">
+  <testsuite name="Health &amp; Status API" errors="0" failures="27" skipped="0" timestamp="2026-01-13T20:30:56" time="0.428" tests="27">
+    <testcase classname="Health &amp; Status API GET /health" name="should return healthy status" time="0.001">
+      <failure>ReferenceError: fetch is not defined
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:41:24)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Health &amp; Status API GET /health" name="should respond within 100ms" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:53:7)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Health &amp; Status API GET /api/services/status" name="should return all service statuses" time="0.001">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:62:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="User Profile API POST /api/user/profile" name="should create user profile" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:81:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="User Profile API POST /api/user/profile" name="should validate seed_state enum" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:94:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="User Profile API POST /api/user/profile" name="should validate primary_pat_role enum" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:105:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="User Profile API GET /api/user/profile" name="should retrieve user profile" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:116:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PAT (Personal Agent Team) API GET /api/pat/agents" name="should return all 7 PAT agents" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:127:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PAT (Personal Agent Team) API GET /api/pat/agents" name="should include model and description for each agent" time="0.001">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:143:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PAT (Personal Agent Team) API POST /api/pat/chat" name="should return chat response with metadata" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:156:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PAT (Personal Agent Team) API POST /api/pat/chat" name="should use correct model for agent role" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:173:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PAT (Personal Agent Team) API POST /api/pat/chat" name="should calculate Ihsan score between 0 and 1" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:185:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PAT (Personal Agent Team) API POST /api/pat/configure" name="should update primary PAT role" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:199:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PoI (Proof-of-Impact) API POST /api/poi/log" name="should log PoI event with calculated rewards" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:222:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PoI (Proof-of-Impact) API POST /api/poi/log" name="should validate event_type enum" time="0.001">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:240:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PoI (Proof-of-Impact) API POST /api/poi/log" name="should validate ihsan_score range [0,1]" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:255:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PoI (Proof-of-Impact) API GET /api/poi/stats" name="should return aggregate PoI statistics" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:266:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PoI (Proof-of-Impact) API GET /api/poi/timeline" name="should return paginated PoI events" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:280:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="PoI (Proof-of-Impact) API GET /api/poi/timeline" name="should order events by timestamp descending" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:287:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Resource Pool API GET /api/resources/status" name="should return node resource status" time="0.001">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:303:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Resource Pool API POST /api/resources/configure" name="should update resource allocation" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:316:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Asset Registry API GET /api/assets/stats" name="should return asset statistics" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:332:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="Environment Snapshot API GET /api/env/snapshot" name="should return system environment snapshot" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at api (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:27:20)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:345:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="API Error Handling" name="should return 404 for unknown routes" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:357:22)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="API Error Handling" name="should handle malformed JSON gracefully" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:362:22)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="API Error Handling" name="should include CORS headers" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:372:22)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+    <testcase classname="API Performance" name="should handle concurrent requests" time="0">
+      <failure>ReferenceError: fetch is not defined
+    at from (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:382:7)
+    at Function.from (&lt;anonymous&gt;)
+    at Object.&lt;anonymous&gt; (/home/runner/work/bizra-genesis-node/bizra-genesis-node/apps/dashboard/__tests__/integration/api.test.ts:381:28)
+    at Promise.then.completed (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:298:28)
+    at new Promise (&lt;anonymous&gt;)
+    at callAsyncCircusFn (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/utils.js:231:10)
+    at _callCircusTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:316:40)
+    at async _runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:252:3)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:126:9)
+    at async _runTestsForDescribeBlock (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:121:9)
+    at async run (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/run.js:71:3)
+    at async runAndTransformResultsToJestFormat (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+    at async jestAdapter (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-circus@29.7.0/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+    at async runTestInternal (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:367:16)
+    at async runTest (/home/runner/work/bizra-genesis-node/bizra-genesis-node/node_modules/.pnpm/jest-runner@29.7.0/node_modules/jest-runner/build/runTest.js:444:34)</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

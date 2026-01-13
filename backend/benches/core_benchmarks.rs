@@ -143,17 +143,15 @@ fn bench_cache_operations(c: &mut Criterion) {
     let mut group = c.benchmark_group("lru_cache");
     
     for size in [100, 1000, 10000].iter() {
-        let mut cache: LruCache<u64, String> = LruCache::new(*size);
-        
-        // Pre-fill cache
-        for i in 0..*size as u64 {
-            cache.put(i, format!("value_{}", i));
-        }
-
         group.bench_with_input(
             BenchmarkId::new("get_existing", size),
             size,
             |b, &size| {
+                let mut cache: LruCache<u64, String> = LruCache::new(size);
+                // Pre-fill cache inside the closure
+                for i in 0..size as u64 {
+                    cache.put(i, format!("value_{}", i));
+                }
                 let key = size as u64 / 2;
                 b.iter(|| {
                     black_box(cache.get(&key))
@@ -165,6 +163,11 @@ fn bench_cache_operations(c: &mut Criterion) {
             BenchmarkId::new("get_missing", size),
             size,
             |b, &size| {
+                let mut cache: LruCache<u64, String> = LruCache::new(size);
+                // Pre-fill cache inside the closure
+                for i in 0..size as u64 {
+                    cache.put(i, format!("value_{}", i));
+                }
                 let key = size as u64 * 2;
                 b.iter(|| {
                     black_box(cache.get(&key))
