@@ -71,6 +71,7 @@ coverage/
 test-results/
 *.lcov
 htmlcov/
+reports/
 
 # =========================
 # Build Artifacts

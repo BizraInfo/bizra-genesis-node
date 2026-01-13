@@ -4,17 +4,15 @@ BIZRA Hypergraph RAG - Test Suite
 Quick tests to verify knowledge system functionality.
 """
 
-import json
 import sys
 from pathlib import Path
-from datetime import datetime
 
 # Add scripts to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from build_knowledge_graph import KnowledgeGraphBuilder, extract_concepts, extract_entities
-from generate_embeddings import EmbeddingGenerator, EmbeddingConfig, chunk_text
-from query_engine import QueryEngine, KnowledgeGraph
+from generate_embeddings import chunk_text
+from query_engine import KnowledgeGraph
 
 
 def test_concept_extraction():
@@ -65,8 +63,8 @@ def test_text_chunking():
     long_text = " ".join(["word"] * 1000)
     chunks = chunk_text(long_text, chunk_size=100, overlap=10)
     
-    print(f"Input words: 1000")
-    print(f"Chunk size: 100")
+    print("Input words: 1000")
+    print("Chunk size: 100")
     print(f"Chunks created: {len(chunks)}")
     
     return len(chunks) > 5

@@ -239,7 +239,7 @@ class DataRefinery:
         print(f"  📁 Files Processed:    {self.processed_files}")
         print(f"  🧩 Chunks Generated:   {len(self.chunks)}")
         print(f"  📊 Total Characters:   {self.total_chars:,}")
-        print(f"  💾 Output File:        REFINED_KNOWLEDGE_BASE.json")
+        print("  💾 Output File:        REFINED_KNOWLEDGE_BASE.json")
         print("=" * 60)
         print("\n🚀 NEXT STEP: Connect this to Bizra Chat for RAG queries.")
 

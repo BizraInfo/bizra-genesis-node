@@ -15,7 +15,6 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
-from collections import defaultdict
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -316,7 +315,7 @@ class ContextAssembler:
         final_context = '\n'.join(assembled)
         
         # Add footer
-        footer = f"\n---\n*Context assembled from BIZRA Hypergraph RAG*"
+        footer = "\n---\n*Context assembled from BIZRA Hypergraph RAG*"
         if estimate_tokens(footer) < remaining_tokens:
             final_context += footer
         

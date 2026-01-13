@@ -15,14 +15,14 @@ This is the central orchestrator that:
 5. Escalates to FATE protocol when thresholds fail
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Callable, Any
+from typing import Optional, Callable
 import json
 import hashlib
 
-from .ihsan_vector import IhsanVector, IhsanDimension, IHSAN_THRESHOLD
-from .session_manager import SessionManager, Session, SessionState
+from .ihsan_vector import IhsanVector, IhsanDimension
+from .session_manager import SessionManager, Session
 from .verifier import MultiStageVerifier, VerificationResult
 from .snr_tracker import SNRTracker, SNRMetrics, estimate_useful_tokens
 from .sape_engine import SAPEEngine, ElevatedPattern

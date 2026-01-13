@@ -21,10 +21,8 @@ import json
 import os
 import sys
 import time
-from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 try:
     import requests
@@ -39,13 +37,14 @@ except ImportError:
 try:
     from bizra_kernel import (
         get_kernel,
-        SystemProtocolKernel,
-        IhsanVector,
+        SystemProtocolKernel,  # noqa: F401
+        IhsanVector,  # noqa: F401
         IHSAN_THRESHOLD,
     )
     KERNEL_AVAILABLE = True
 except ImportError:
     KERNEL_AVAILABLE = False
+    IHSAN_THRESHOLD = 0.95  # Default value when kernel not available
     print("⚠ bizra_kernel not available — running without ethical enforcement")
     print("  To enable: ensure bizra_kernel/ is in PYTHONPATH")
 

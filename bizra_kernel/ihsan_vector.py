@@ -17,7 +17,7 @@ Dimensions and Weights:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict
 import json
 import hashlib
 from datetime import datetime

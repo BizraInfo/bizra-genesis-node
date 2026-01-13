@@ -18,7 +18,7 @@ Probes:
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Callable, Any
+from typing import Dict, List, Callable, Any
 from datetime import datetime
 import re
 
@@ -320,7 +320,7 @@ class MultiStageVerifier:
             probe_type=ProbeType.GROUNDEDNESS,
             passed=score >= self.PROBE_THRESHOLD,
             score=score,
-            reason=f"Grounding score based on context overlap",
+            reason="Grounding score based on context overlap",
             details={"context_provided": bool(knowledge_context)},
         )
     

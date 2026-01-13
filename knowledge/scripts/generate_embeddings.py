@@ -13,7 +13,7 @@ import json
 import logging
 import hashlib
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Generator
+from typing import Dict, List, Optional, Generator
 from dataclasses import dataclass
 from datetime import datetime
 import numpy as np
