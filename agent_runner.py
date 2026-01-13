@@ -37,8 +37,6 @@ except ImportError:
 try:
     from bizra_kernel import (
         get_kernel,
-        SystemProtocolKernel,  # noqa: F401
-        IhsanVector,  # noqa: F401
         IHSAN_THRESHOLD,
     )
     KERNEL_AVAILABLE = True
