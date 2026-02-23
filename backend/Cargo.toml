@@ -49,7 +49,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 # Security
 bcrypt = "0.15"
-jsonwebtoken = "9.2"
+jsonwebtoken = { version = "10.3", features = ["aws_lc_rs"] }
 
 # System Info
 sysinfo = "0.30"
