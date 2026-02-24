@@ -591,7 +591,7 @@ const LOCAL_SECRET = getOrCreateSecret();
 // Input validation constants
 const MAX_MESSAGE_LENGTH = 10000;
 const MAX_QUERY_LENGTH = 1000;
-const ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001'];
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001').split(',').map(o => o.trim());
 
 function validateAuth(req) {
     // In local-only mode, we allow requests from localhost without strict auth

@@ -70,7 +70,7 @@ jobs:
 
       # Dependency Security (Node.js)
       - name: Snyk Dependency Scan
-        uses: snyk/actions/node@b16e11e9ce638285155ad0165896d7ef04c182fb4
+        uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -181,6 +181,11 @@ jobs:
         run: cargo clippy -- -D warnings
 
       # Node.js Code Quality
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -256,6 +261,11 @@ jobs:
           name: rust-coverage
 
       # Node.js Testing
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

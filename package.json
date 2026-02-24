@@ -12,11 +12,17 @@
     "packages/*"
   ],
   "overrides": {
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "minimatch": ">=10.0.0",
+    "ws": ">=8.17.1",
+    "axios": ">=1.8.2"
   },
   "pnpm": {
     "overrides": {
-      "glob": "^11.0.0"
+      "glob": "^11.0.0",
+      "minimatch": ">=10.0.0",
+      "ws": ">=8.17.1",
+      "axios": ">=1.8.2"
     }
   },
   "scripts": {
