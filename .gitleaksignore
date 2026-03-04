@@ -1,0 +1,7 @@
+# BIZRA Genesis Node - Gitleaks Ignore List
+# Suppress known false-positive findings in historical commits
+# These are documented example/placeholder credentials, not real secrets
+
+# Example API keys in documentation and test fixtures
+10b8ca2a4ef12b4330e8abd6b4392a6336158aee:src/api/auth/refresh.rs:generic-api-key:201
+8aa4646f6edf19c02d6f7a54258805d906ba31ef:Makefile:curl-auth-user:86
