@@ -34,7 +34,11 @@ const nextConfig = {
 
   // Image optimization domains
   images: {
-    domains: ['bizra.info', 'bizra.ai', 'api.bizra.ai'],
+    remotePatterns: [
+      { hostname: 'bizra.info' },
+      { hostname: 'bizra.ai' },
+      { hostname: 'api.bizra.ai' },
+    ],
     unoptimized: process.env.UNOPTIMIZED_IMAGES === 'true',
   },
 
