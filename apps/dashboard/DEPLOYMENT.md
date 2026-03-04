@@ -204,3 +204,4 @@ Then add your domains in the Vercel dashboard.
 - **Email**: m.beshr@bizra.ai
 - **Alt Email**: m.beshr@bizra.info
 - **GitHub**: https://github.com/BizraInfo/bizra-genesis-node
+- CI redeploy trigger after workflow cache-path fix (2026-03-04).
