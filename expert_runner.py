@@ -324,7 +324,6 @@ def gather_improvement_context(domain: str, expertise: Dict[str, Any]) -> str:
     
     # Check if known files have changed
     file_locations = expertise.get("file_locations", {})
-    validation = expertise.get("validation", {})
     
     for key, path in file_locations.items():
         if isinstance(path, str):

@@ -21,10 +21,8 @@ import json
 import os
 import sys
 import time
-from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 try:
     import requests
@@ -33,19 +31,25 @@ except ImportError:
     sys.exit(1)
 
 # ─────────────────────────────────────────────────────────────────────────────
+# CONSTANTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Default Ihsan threshold when kernel module is not available
+DEFAULT_IHSAN_THRESHOLD = 0.95
+
+# ─────────────────────────────────────────────────────────────────────────────
 # SYSTEMPROTOCOLKERNEL INTEGRATION
 # ─────────────────────────────────────────────────────────────────────────────
 
 try:
     from bizra_kernel import (
         get_kernel,
-        SystemProtocolKernel,
-        IhsanVector,
         IHSAN_THRESHOLD,
     )
     KERNEL_AVAILABLE = True
 except ImportError:
     KERNEL_AVAILABLE = False
+    IHSAN_THRESHOLD = DEFAULT_IHSAN_THRESHOLD
     print("⚠ bizra_kernel not available — running without ethical enforcement")
     print("  To enable: ensure bizra_kernel/ is in PYTHONPATH")
 

@@ -12,7 +12,7 @@ requiring external embedding services.
 import json
 import re
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from collections import Counter
 import math
 

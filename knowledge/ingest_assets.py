@@ -217,14 +217,20 @@ class AssetMiner:
         name = path.name.lower()
         
         # High value keywords
-        if 'architecture' in name: score += 5
-        if 'roadmap' in name: score += 5
-        if 'plan' in name: score += 3
-        if 'api' in name: score += 3
-        if 'secret' in name or 'key' in name: score += 10 # Security risk, but high value
+        if 'architecture' in name:
+            score += 5
+        if 'roadmap' in name:
+            score += 5
+        if 'plan' in name:
+            score += 3
+        if 'api' in name:
+            score += 3
+        if 'secret' in name or 'key' in name:
+            score += 10  # Security risk, but high value
         
         # Code is valuable
-        if path.suffix in ['.ts', '.rs', '.py']: score += 2
+        if path.suffix in ['.ts', '.rs', '.py']:
+            score += 2
         
         return score
 

@@ -11,12 +11,11 @@ This script performs:
 4. Component Integration - Verify cross-component communication
 """
 
-import os
 import json
 import sys
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict
 
 # --- CONFIGURATION ---
 PROJECT_ROOT = Path(__file__).parent.parent

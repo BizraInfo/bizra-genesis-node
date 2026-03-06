@@ -10,9 +10,8 @@ Tracks token efficiency across sessions and enables SAPE elevation.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List
 from collections import defaultdict
-import json
 
 
 @dataclass

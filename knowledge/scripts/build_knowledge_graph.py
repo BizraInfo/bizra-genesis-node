@@ -10,13 +10,12 @@ Transforms 413k+ files into a connected knowledge organism:
 Author: BIZRA Genesis Team
 """
 
-import os
 import json
 import hashlib
 import re
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Set, Optional, Tuple, Any
+from typing import Dict, List, Set, Optional, Any
 from dataclasses import dataclass, asdict
 from collections import defaultdict
 import logging
@@ -281,7 +280,7 @@ class KnowledgeGraphBuilder:
             created_at = None
             try:
                 created_at = datetime.fromtimestamp(stat.st_ctime).isoformat()
-            except:
+            except (OSError, ValueError, OverflowError):
                 pass
             
             node = KnowledgeNode(

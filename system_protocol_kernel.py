@@ -469,7 +469,7 @@ if __name__ == "__main__":
             action=lambda: {"message": "Hello, Ihsān!"},
             action_type="test_action",
         )
-        print(f"\n✅ Action executed:")
+        print("\n✅ Action executed:")
         print(f"   Success: {result['success']}")
         print(f"   Ihsān: {result['ihsan_score']:.3f}")
         print(f"   SNR: {result['snr_score']:.3f}")
@@ -489,19 +489,19 @@ if __name__ == "__main__":
             action=lambda: "Should fail",
             action_type="risky_action",
         )
-        print(f"\n⚠️ Ihsān violation test:")
+        print("\n⚠️ Ihsān violation test:")
         print(f"   Blocked: {not result2['success']}")
         print(f"   Reason: {result2.get('error', 'N/A')}")
         
         # End session
         summary = kernel.end_session(session.session_id)
-        print(f"\n✅ Session ended:")
+        print("\n✅ Session ended:")
         print(f"   Actions: {summary['action_count']}")
         print(f"   Escalations: {summary['escalation_count']}")
         
         # Kernel status
         status = kernel.get_kernel_status()
-        print(f"\n📊 Kernel Status:")
+        print("\n📊 Kernel Status:")
         print(f"   Total sessions: {status['total_sessions']}")
         print(f"   Total actions: {status['total_actions']}")
         print(f"   Ihsān violations: {status['ihsan_violations']}")

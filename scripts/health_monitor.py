@@ -8,12 +8,10 @@ Elite DevOps: Proactive monitoring for sovereign AI infrastructure.
 
 import asyncio
 import aiohttp
-import json
 import time
 import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 
